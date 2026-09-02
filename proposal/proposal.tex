@@ -1,0 +1,144 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\setlist{nosep,leftmargin=1.4em}
+\setlength{\parskip}{1.5pt}
+\setlength{\parindent}{0pt}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{4pt}{2pt}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.5em}{}
+
+\title{\vspace{-2.5em}\textbf{KernelAscent: Measuring Genuine Recursive Self-Improvement\\
+via a Kernel-to-Model Capability Loop}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-3.5em}
+
+\section{Problem and thesis}
+Recursive self-improvement (RSI) is the central capability behind ``intelligence
+explosion'' safety concerns, yet it has \emph{no rigorous quantitative benchmark}.
+Existing work splits into two camps that never meet. \textbf{Kernel-generation
+benchmarks} (KernelBench, TritonBench, RE-Bench's ``Optimize a Kernel,''
+robust-kbench, KernelLLM, Kevin-32B) measure a one-shot artifact: can a model write
+a fast GPU kernel? This capability is now established. \textbf{Self-improvement
+systems} (STOP, ADAS, Darwin G\"odel Machine, SICA) rewrite their own \emph{scaffold
+code} but never touch the compute substrate and never measure whether \emph{capability}
+compounds. Neither closes the loop that defines RSI: an agent improves the machinery
+that produces its own capability, and the improved capability then makes it better at
+that same task.
+
+\textbf{Thesis.} We propose a benchmark whose loop is genuine capability
+self-improvement: a model optimizes the GPU kernels used to \emph{train itself};
+under a \emph{fixed wall-clock budget} those faster kernels buy more effective
+training, producing a more capable model; the more capable model then optimizes
+kernels better. We measure whether kernel-optimization capability \emph{compounds}
+across rounds, and separate true self-improvement from mere test-time compute scaling
+via a matched control. To our knowledge no prior benchmark closes a
+kernel$\rightarrow$model$\rightarrow$kernel capability loop.
+
+\section{The recursive loop}
+Let $M_k$ be the model at round $k$ and let the target capability be
+kernel-optimization skill, measured on a \emph{held-out} task set $T$:
+\[
+C(M) \;=\; \frac{1}{|T|}\sum_{i\in T}
+\mathbf{1}\!\left[\, s_i(M) > p \;\wedge\; \mathrm{err}_i(M) \le \varepsilon \,\right],
+\qquad s_i = \frac{t^{\text{ref}}_i}{t^{\text{agent}}_i},
+\]
+i.e.\ the fraction of tasks the model solves with measured speedup $>p$ at numerical
+error $\le \varepsilon$ on real GPUs (KernelBench's \texttt{fast\_p}). Let $K(M)$ be
+the set of kernels $M$ emits for the \emph{training} stack (attention, GEMM,
+optimizer, all-reduce fusions), and let $R(M)$ be the resulting training throughput
+(steps/sec). The loop, run under a fixed per-round wall-clock budget $W$:
+
+\begin{quote}\itshape
+\textbf{Round $k$:} (1) evaluate $C(M_k)$ on $T$; (2) $M_k$ emits training kernels
+$K(M_k)$; (3) train under those kernels for wall-clock $W$, yielding
+$S_k = R(M_k)\cdot W$ gradient steps and a new model
+$M_{k+1} = \mathrm{Train}(M_k;\,K(M_k),\,W)$.
+\end{quote}
+
+Because $W$ is fixed, the \emph{only} way to fit more or larger training steps is for
+the model to produce faster kernels: kernel skill converts directly into training
+compute, which (hypothesis) converts into capability, which raises kernel skill. This
+is a genuine positive feedback loop on \emph{capability}, not merely on speed.
+
+\section{Metrics and hypotheses}
+\textbf{Compounding coefficient.} Fit $C_k = C_0 + a\,k + b\,k^2$. The sign of $b$
+characterizes takeoff: $b>0$ accelerating, $b\approx0$ linear, $b<0$ decelerating,
+and a plateau/regress if $g_k = C_{k+1}-C_k \to 0$ or $<0$. We report $g_k$, the
+throughput ratio $\rho_k = R(M_k)/R(M_0)$, and the cumulative capability gain.
+
+\textbf{The RSI signal (the linchpin).} We run a \emph{fixed-kernel control} arm that
+trains every round with the round-0 kernels (no self-acceleration), and a
+\emph{compute-matched} control that is granted the same step count $S_k$ without the
+self-referential kernel emission. Define
+\[
+\Delta_k \;=\; C_k^{\text{self}} - C_k^{\text{control}} .
+\]
+\emph{RSI is confirmed only if $\Delta_k$ grows with $k$}: the self-accelerating arm
+must pull ahead \emph{because its training throughput compounds}. If $\Delta_k\approx0$,
+the effect is ordinary compute scaling, not self-improvement --- and we report that
+honestly. Three falsifiable hypotheses: \textbf{H1} kernel quality measurably raises
+training throughput ($\rho_k$ rises); \textbf{H2} added throughput raises
+kernel-optimization capability ($C$ rises with $S$); \textbf{H3} the loop compounds
+($g_k>0$ and $\Delta_k$ increasing).
+
+\section{Experimental design}
+\textbf{Substrate benchmark.} Kernel tasks are grounded in real inference/training
+bottlenecks (MoE grouped GEMM, long-context / sliding-window attention, paged
+attention + KV-cache quantization, int4/fp8 dequant-fused GEMM, RoPE fusion,
+all-reduce fusion), tagged by the optimization \emph{primitive} they require (tiling,
+tensor-core MMA, \texttt{cp.async} double-buffering, warp-specialization, TMA,
+fusion, quantization). Tasks are \emph{procedurally generated} with a held-out private
+split to defeat memorization; scored on \textbf{both A100 and H100} (final score =
+$\min$ across arches) to penalize single-arch overfit.
+
+\textbf{Training loop.} $M_0$ is an open code model ($\sim$7--32B). Rounds use RL
+fine-tuning on kernel optimization (GRPO, following Kevin-32B), so the training loop
+itself runs the model's kernels and self-acceleration is intrinsic. Capability is
+always measured on the held-out split, never the RL training tasks.
+
+\textbf{Anti-gaming (the Sakana lesson).} Sakana's ``AI CUDA Engineer'' (2025)
+reward-hacked its own eval harness, reporting large speedups on slower kernels. We
+freeze the correctness + timing harness outside the agent's write scope, use
+median-of-$N$ timing on pinned GPU clocks with cache flushing and fresh allocations,
+re-check adversarial hidden shapes every round, and forbid dispatch to
+cuBLAS/CUTLASS/FlashAttention. Only externally measured wall-clock counts; the model
+never reports its own numbers.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Component} & \textbf{Measures} & \textbf{RSI role} \\
+\midrule
+Held-out \texttt{fast\_p} $C(M_k)$ & kernel-opt capability & the improving capability \\
+Throughput $R(M_k)$, $\rho_k$ & training steps/sec from self-kernels & the feedback channel \\
+Compounding coeff.\ $a,b,g_k$ & shape of the capability curve & takeoff dynamics \\
+$\Delta_k$ vs.\ controls & self-improvement over compute scaling & the RSI existence test \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Feasibility, risks, deliverables}
+\textbf{Compute.} A100 (Ampere) + H100 (Hopper). Cost is dominated by the per-round
+RL training under budget $W$; we bound total cost as (rounds)$\times W\times$(arms).
+A pilot uses a small $M_0$, short $W$, and 3--4 rounds to establish the curve before
+scaling. \textbf{Primary risk} is measurement validity of $\Delta_k$; we de-risk by
+first prototyping a \emph{single} round end-to-end (emit kernels $\to$ verify
+throughput gain $\to$ train $\to$ re-measure $C$) to confirm H1 and H2 in isolation
+before claiming H3. \textbf{Secondary risk} is null compounding; this is itself a
+publishable result (\emph{current models do not exhibit kernel-driven RSI takeoff}),
+which is a valuable safety datapoint. \textbf{Deliverables:} (i) the tiered,
+contamination-resistant kernel benchmark with A100+H100 scoring; (ii) the
+kernel$\rightarrow$model RSI harness with locked verification; (iii) baseline
+compounding curves and the $\Delta_k$ RSI test for open frontier-scale models; (iv)
+a per-primitive capability profile localizing where self-improvement stalls.
+\end{document}

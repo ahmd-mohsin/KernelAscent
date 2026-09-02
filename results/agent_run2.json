@@ -1,0 +1,205 @@
+{
+  "summary": {
+    "n": 10,
+    "pass_at_k": 0.2,
+    "k": 8,
+    "fast_1": 0.1,
+    "fast_1_5": 0.0,
+    "fast_2": 0.0,
+    "geomean_pass": 0.8267901614448144
+  },
+  "tasks": [
+    {
+      "name": "t0_4096x4097",
+      "tier": "L1",
+      "family": "norm-act",
+      "meta": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "gelu",
+          "scale",
+          "rmsnorm",
+          "softmax",
+          "softmax"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t1_1024x513",
+      "tier": "L2",
+      "family": "matmul",
+      "meta": {
+        "M": 1024,
+        "D": 513,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "bias",
+          "rmsnorm",
+          "softmax",
+          "bias",
+          "relu"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t2_512x513",
+      "tier": "L2",
+      "family": "matmul",
+      "meta": {
+        "M": 512,
+        "D": 513,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "softmax",
+          "gelu",
+          "rmsnorm",
+          "softmax"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t3_1024x1024",
+      "tier": "L1",
+      "family": "norm-act",
+      "meta": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "gelu",
+          "scale",
+          "softmax"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t4_1024x2049",
+      "tier": "L2",
+      "family": "matmul",
+      "meta": {
+        "M": 1024,
+        "D": 2049,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "softmax",
+          "rmsnorm",
+          "layernorm",
+          "scale",
+          "bias"
+        ]
+      },
+      "pass_at_k": 1,
+      "best_speedup": 0.6790930721734334,
+      "best_err": 0.005431449506431818
+    },
+    {
+      "name": "t5_8192x2048",
+      "tier": "L1",
+      "family": "norm-act",
+      "meta": {
+        "M": 8192,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "bias",
+          "rmsnorm",
+          "scale",
+          "gelu"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t6_8192x512",
+      "tier": "L2",
+      "family": "matmul",
+      "meta": {
+        "M": 8192,
+        "D": 512,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "layernorm",
+          "rmsnorm"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t7_2048x1024",
+      "tier": "L1",
+      "family": "norm-act",
+      "meta": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "scale",
+          "softmax"
+        ]
+      },
+      "pass_at_k": 1,
+      "best_speedup": 1.0066101379508146,
+      "best_err": 0.0012919260188937187
+    },
+    {
+      "name": "t8_1024x2048",
+      "tier": "L1",
+      "family": "norm-act",
+      "meta": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "gelu",
+          "softmax",
+          "bias"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    },
+    {
+      "name": "t9_4096x2049",
+      "tier": "L2",
+      "family": "matmul",
+      "meta": {
+        "M": 4096,
+        "D": 2049,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->4096",
+          "bias",
+          "softmax"
+        ]
+      },
+      "pass_at_k": 0,
+      "best_speedup": 0.0,
+      "best_err": null
+    }
+  ]
+}

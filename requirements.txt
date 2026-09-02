@@ -1,0 +1,9 @@
+# Core (a recent PyTorch ships Triton). Pin transformers for older torch builds.
+torch>=2.4
+triton>=3.0
+transformers==4.47.1
+accelerate
+huggingface_hub
+safetensors
+# vLLM is optional and only needed for the GRPO rollout loop (not the eval harness).
+# vllm

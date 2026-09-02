@@ -1,0 +1,188 @@
+{
+  "summary": {
+    "candidate": "compile",
+    "baseline": "compile_max",
+    "n": 6,
+    "correct": 6,
+    "fast_1": 0.6666666666666666,
+    "fast_1_5": 0.16666666666666666,
+    "fast_2": 0.0,
+    "geomean_pass": 1.1442303096169546
+  },
+  "tasks": [
+    {
+      "name": "t0_4096x4097_bf16",
+      "tier": "L1",
+      "family": "norm-act",
+      "tags": [
+        "elementwise-fusion",
+        "online-softmax",
+        "reduction"
+      ],
+      "meta": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "bf16",
+        "chain": [
+          "gelu",
+          "scale",
+          "rmsnorm",
+          "softmax",
+          "softmax"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.0005231044488027692,
+      "t_eager": 0.0009680314997240203,
+      "t_base": 0.0004960294991178671,
+      "t_cand": 0.0004232024994053063,
+      "speedup": 1.1720854669216247
+    },
+    {
+      "name": "t1_1024x513_bf16",
+      "tier": "L2",
+      "family": "matmul",
+      "tags": [
+        "elementwise-fusion",
+        "online-softmax",
+        "reduction",
+        "tensor-core",
+        "tiling"
+      ],
+      "meta": {
+        "M": 1024,
+        "D": 513,
+        "dtype": "bf16",
+        "chain": [
+          "matmul->4096",
+          "bias",
+          "rmsnorm",
+          "softmax",
+          "bias",
+          "relu"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.0016639350214973092,
+      "t_eager": 0.0003370004997123033,
+      "t_base": 0.00021812949944433058,
+      "t_cand": 0.00018547549916547723,
+      "speedup": 1.1760555999351707
+    },
+    {
+      "name": "t2_512x513_fp16",
+      "tier": "L2",
+      "family": "matmul",
+      "tags": [
+        "elementwise-fusion",
+        "online-softmax",
+        "reduction",
+        "tensor-core",
+        "tiling"
+      ],
+      "meta": {
+        "M": 512,
+        "D": 513,
+        "dtype": "fp16",
+        "chain": [
+          "matmul->1024",
+          "softmax",
+          "gelu",
+          "rmsnorm",
+          "softmax"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.0012984458589926362,
+      "t_eager": 0.00019407199943088926,
+      "t_base": 0.0001439199995729723,
+      "t_cand": 0.00015013149914011592,
+      "speedup": 0.958626273615329
+    },
+    {
+      "name": "t3_1024x1024_bf16",
+      "tier": "L1",
+      "family": "norm-act",
+      "tags": [
+        "elementwise-fusion",
+        "online-softmax",
+        "reduction"
+      ],
+      "meta": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "bf16",
+        "chain": [
+          "gelu",
+          "scale",
+          "softmax"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.0016492618015035987,
+      "t_eager": 4.335199992056005e-05,
+      "t_base": 0.00012032749964419054,
+      "t_cand": 6.855750052636722e-05,
+      "speedup": 1.7551325343010802
+    },
+    {
+      "name": "t4_1024x2049_bf16",
+      "tier": "L2",
+      "family": "matmul",
+      "tags": [
+        "elementwise-fusion",
+        "fusion",
+        "online-softmax",
+        "reduction",
+        "tensor-core",
+        "tiling"
+      ],
+      "meta": {
+        "M": 1024,
+        "D": 2049,
+        "dtype": "bf16",
+        "chain": [
+          "matmul->512",
+          "softmax",
+          "rmsnorm",
+          "layernorm",
+          "scale",
+          "bias"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.004307265393435955,
+      "t_eager": 0.00024907100032578455,
+      "t_base": 0.000290997500087542,
+      "t_cand": 0.00030138849979266524,
+      "speedup": 0.9655229057768576
+    },
+    {
+      "name": "t5_8192x2048_fp16",
+      "tier": "L1",
+      "family": "norm-act",
+      "tags": [
+        "elementwise-fusion",
+        "reduction"
+      ],
+      "meta": {
+        "M": 8192,
+        "D": 2048,
+        "dtype": "fp16",
+        "chain": [
+          "bias",
+          "bias",
+          "rmsnorm",
+          "scale",
+          "gelu"
+        ]
+      },
+      "ok": true,
+      "cand_err": 0.0005845231935381889,
+      "t_eager": 0.000809402499726275,
+      "t_base": 0.0008337889994436409,
+      "t_cand": 0.0008319254993693903,
+      "speedup": 1.0022399843203065
+    }
+  ]
+}

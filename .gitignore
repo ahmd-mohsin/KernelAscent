@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Build / latex artifacts
+*.log
+*.aux
+*.out
+*.synctex.gz
+
+# Candidate modules written by the agent harness at runtime
+cand_modules/
+kernelascent/cand_modules/
+
+# Model / data caches, checkpoints
+hf/
+*.safetensors
+*.bin
+*.pt
+ckpt/
+checkpoints/
+
+# OS
+.DS_Store
