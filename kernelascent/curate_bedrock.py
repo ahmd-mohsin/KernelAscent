@@ -68,10 +68,14 @@ def main():
     ap.add_argument("--n-fusion", type=int, default=160)
     ap.add_argument("--workers", type=int, default=4, help="concurrent Bedrock calls")
     ap.add_argument("--limit", type=int, default=0, help="cap total tasks (0 = all); for smoke tests")
+    ap.add_argument("--families", default="", help="comma-separated families to include (default: all)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
     tasks = G.generate_systematic(n_fusion=args.n_fusion)
+    if args.families:
+        fams = set(f.strip() for f in args.families.split(","))
+        tasks = [t for t in tasks if t["family"] in fams]
     if args.limit:
         tasks = tasks[:args.limit]
     cur = Curator(args.model_id, args.region, args.profile)
