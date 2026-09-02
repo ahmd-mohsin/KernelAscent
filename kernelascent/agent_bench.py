@@ -108,6 +108,41 @@ def grade(task_source, llm_code, ref, x, gold, bound, tbase):
     return True, err, tbase / t_cand, "ok"
 
 
+class BedrockAgent:
+    """Generation backend for a strong curator model (e.g. Opus 4.8) via Bedrock.
+
+    Grading is unchanged and still runs on the local GPU; only generation is remote.
+    Credentials come from a named profile (env BEDROCK_PROFILE) so no secrets are inlined.
+    """
+    def __init__(self, model_id, region="us-east-1", profile=None):
+        import boto3
+        sess = boto3.Session(profile_name=profile) if profile else boto3.Session()
+        self.rt = sess.client("bedrock-runtime", region_name=region)
+        self.model_id = model_id
+
+    def _one(self, src, temp, max_tokens):
+        for attempt in range(6):
+            try:
+                r = self.rt.converse(
+                    modelId=self.model_id,
+                    system=[{"text": SYS}],
+                    messages=[{"role": "user", "content": [{"text": PROMPT.format(src=src)}]}],
+                    inferenceConfig={"maxTokens": max_tokens, "temperature": temp, "topP": 0.95})
+                text = "".join(p.get("text", "") for p in r["output"]["message"]["content"])
+                return extract_modelnew(text)
+            except Exception as e:
+                if "Throttl" in repr(e) and attempt < 5:
+                    time.sleep(2 ** attempt)
+                    continue
+                print("bedrock err:", repr(e)[:100])
+                return None
+
+    def optimize(self, src, k, temp, max_new_tokens=4096):
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=min(k, 8)) as ex:
+            return list(ex.map(lambda _: self._one(src, temp, max_new_tokens), range(k)))
+
+
 class Agent:
     def __init__(self, gpu=0):
         from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -137,17 +172,33 @@ def main():
     ap.add_argument("--tol", type=float, default=2e-2)
     ap.add_argument("--margin", type=float, default=2.0)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--nshards", type=int, default=1)
+    ap.add_argument("--shard", type=int, default=0)
+    ap.add_argument("--backend", choices=["qwen", "bedrock"], default="qwen")
+    ap.add_argument("--model-id", default=None, help="Bedrock model id (Opus 4.8 / Fable 5) for curation")
+    ap.add_argument("--region", default="us-east-1")
     args = ap.parse_args()
 
     tasks = gen_source_tasks.generate(args.n, args.seed0)
-    agent = Agent()
+    if args.nshards > 1:
+        tasks = [t for i, t in enumerate(tasks) if i % args.nshards == args.shard]
+    if args.backend == "bedrock":
+        agent = BedrockAgent(args.model_id, args.region, os.environ.get("BEDROCK_PROFILE"))
+        model_name = args.model_id
+    else:
+        agent = Agent()
+        model_name = MODEL_ID
     print("device=%s  model=%s  n=%d  k=%d" %
-          (torch.cuda.get_device_name(0), MODEL_ID, args.n, args.k))
+          (torch.cuda.get_device_name(0), model_name, args.n, args.k))
     print("%-4s %-9s %10s %6s %8s %9s  %s" %
           ("tier", "family", "MxD", "pass@k", "best_sp", "best_err", "chain"))
     records, best_sps, any_correct = [], [], 0
     for task in tasks:
-        ref, x, gold, ref_err = build_ref(task["source"])
+        try:
+            ref, x, gold, ref_err = build_ref(task["source"])
+        except Exception as e:
+            print("SKIP %s (ref build failed: %s)" % (task["name"], repr(e)[:60]))
+            continue
         bound = max(args.tol, args.margin * ref_err)
         tbase = time_fn(lambda z: ref(z), (x,))
         cands = agent.optimize(task["source"], args.k, args.temp)

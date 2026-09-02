@@ -25,3 +25,7 @@ checkpoints/
 
 # OS
 .DS_Store
+
+# AWS creds (never commit)
+bedrock_creds
+*.env

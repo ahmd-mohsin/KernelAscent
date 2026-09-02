@@ -119,5 +119,62 @@ def generate(n, seed0=0):
     return [gen_task(seed0 + i) for i in range(n)]
 
 
+# ---- Additional real-bottleneck families for systematic curation ----
+
+ATTN_HEADER = """import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+"""
+
+def attn_task(seed, S, D, dtype, causal):
+    mask = ("        scores = scores + torch.triu(torch.full_like(scores, float('-inf')), diagonal=1)"
+            if causal else "        pass")
+    src = ATTN_HEADER + (
+        "\nSEED = %d\nS, D, DT = %d, %d, %s\n\n"
+        "class Model(nn.Module):\n"
+        "    def __init__(self, dtype=DT):\n"
+        "        super().__init__()\n"
+        "        g = torch.Generator().manual_seed(SEED)\n"
+        "        self.Wq = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)\n"
+        "        self.Wk = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)\n"
+        "        self.Wv = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)\n\n"
+        "    def forward(self, x):\n"
+        "        q = x @ self.Wq\n        k = x @ self.Wk\n        v = x @ self.Wv\n"
+        "        scores = (q @ k.transpose(-1, -2)) / math.sqrt(q.shape[-1])\n"
+        "%s\n"
+        "        a = torch.softmax(scores, dim=-1)\n"
+        "        return a @ v\n\n"
+        "def get_inputs():\n"
+        "    g = torch.Generator().manual_seed(SEED + 12345)\n"
+        "    return [torch.randn(S, D, generator=g).to(DT)]\n"
+        % (seed, S, D, dtype, mask)
+    )
+    tags = ["tiling", "tensor-core", "online-softmax", "reduction", "fusion"]
+    if causal:
+        tags.append("masking")
+    return dict(name="attn%s_s%d_d%d_%d" % ("c" if causal else "", S, D, seed),
+                tier="L3", family="attention", tags=sorted(tags),
+                meta={"S": S, "D": D, "dtype": ("fp16" if "float16" in dtype else "bf16"),
+                      "causal": causal, "chain": ["qkv", "scores", ("causal" if causal else "full"), "softmax", "av"]},
+                source=src)
+
+
+def generate_systematic(n_fusion=160, seed0=0):
+    """Dense, structured coverage: many fusion op-graphs plus an attention grid."""
+    tasks = [gen_task(seed0 + i) for i in range(n_fusion)]
+    seed = seed0 + 100000
+    for S in [512, 1024, 2048]:
+        for D in [512, 1024, 2048]:
+            for dtype in ["torch.float16", "torch.bfloat16"]:
+                for causal in [False, True]:
+                    tasks.append(attn_task(seed, S, D, dtype, causal)); seed += 1
+    return tasks
+
+
 if __name__ == "__main__":
-    print(gen_task(0)["source"])
+    ts = generate_systematic()
+    fams = {}
+    for t in ts:
+        fams[t["family"]] = fams.get(t["family"], 0) + 1
+    print("total", len(ts), "families", fams)
