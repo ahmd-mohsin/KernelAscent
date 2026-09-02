@@ -127,7 +127,7 @@ class BedrockAgent:
                     modelId=self.model_id,
                     system=[{"text": SYS}],
                     messages=[{"role": "user", "content": [{"text": PROMPT.format(src=src)}]}],
-                    inferenceConfig={"maxTokens": max_tokens, "temperature": temp, "topP": 0.95})
+                    inferenceConfig={"maxTokens": max_tokens, "temperature": temp})
                 text = "".join(p.get("text", "") for p in r["output"]["message"]["content"])
                 return extract_modelnew(text)
             except Exception as e:
@@ -137,7 +137,7 @@ class BedrockAgent:
                 print("bedrock err:", repr(e)[:100])
                 return None
 
-    def optimize(self, src, k, temp, max_new_tokens=4096):
+    def optimize(self, src, k, temp, max_new_tokens=32000):
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=min(k, 8)) as ex:
             return list(ex.map(lambda _: self._one(src, temp, max_new_tokens), range(k)))
