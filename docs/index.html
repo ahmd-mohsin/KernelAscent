@@ -40,7 +40,7 @@
 <main>
 <section id="overview">
   <h2>Why this benchmark</h2>
-  <p>Recursive self-improvement (RSI) is the central capability behind intelligence-explosion concerns, yet it has almost no rigorous quantitative benchmark. Two literatures never meet:</p>
+  <p>Recursive self-improvement (RSI) is a central question in frontier AI development, yet it has almost no rigorous quantitative benchmark. Two research directions have developed separately:</p>
   <ul>
     <li><b>Kernel-generation benchmarks</b> (KernelBench, TritonBench, RE-Bench, robust-kbench, Kevin-32B) measure a one-shot artifact: can a model write a fast GPU kernel? That capability is now established.</li>
     <li><b>Self-improvement systems</b> (STOP, ADAS, Darwin Gödel Machine, SICA) rewrite their own scaffold code, but never touch the compute substrate and never measure whether <i>capability</i> compounds.</li>
@@ -50,23 +50,23 @@
 
 <section id="loop" class="panel">
   <h2>The kernel → model loop</h2>
-  <p>The benchmark is grounded in genuine capability self-improvement, not a rhetorical loop. Each round:</p>
+  <p>The benchmark measures capability self-improvement directly. Each round:</p>
   <ol class="loop">
     <li><b>Optimize.</b> Model <code>M<sub>k</sub></code> writes optimized GPU kernels for its own training stack (attention, GEMM, normalization, fusions).</li>
     <li><b>Train.</b> Under a <b>fixed wall-clock budget</b>, those faster kernels are the only way to buy more gradient steps → a stronger model <code>M<sub>k+1</sub></code>.</li>
     <li><b>Re-measure.</b> <code>M<sub>k+1</sub></code> is re-scored on held-out kernel-optimization tasks.</li>
   </ol>
-  <p>The headline result is the <b>RSI signal</b> <code>Δ<sub>k</sub> = C<sub>k</sub><sup>self</sup> − C<sub>k</sub><sup>control</sup></code> against a matched control that trains with round-0 kernels. RSI is confirmed only if <code>Δ<sub>k</sub></code> grows with <code>k</code>; a null result — capability rising only from more compute, not self-improvement — is reported honestly as a negative finding.</p>
+  <p>The headline result is the <b>RSI signal</b> <code>Δ<sub>k</sub> = C<sub>k</sub><sup>self</sup> − C<sub>k</sub><sup>control</sup></code> against a matched control that trains with round-0 kernels. RSI is confirmed only if <code>Δ<sub>k</sub></code> grows with <code>k</code>. A null result — capability rising only from additional compute rather than self-improvement — is reported as a negative finding.</p>
 </section>
 
 <section id="tracks" class="panel">
-  <h2>Two tracks — scoping the RSI claim honestly</h2>
-  <p>Writing a fast kernel is a <i>capability</i>; recursive self-improvement is a <i>loop</i>. We keep them separate so the RSI claim is not overstated.</p>
+  <h2>Two tracks: capability and recursive self-improvement</h2>
+  <p>Writing a fast kernel is a capability; recursive self-improvement is a loop. The two are evaluated as separate tracks, each with its own leaderboard.</p>
   <div class="cards">
-    <div class="card"><h3>1 · Capability track</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot / best-of-k / multi-turn). This is an <b>AI-R&amp;D capability leaderboard</b> — the ingredient of RSI, <b>not RSI itself</b>. API/closed models live here.</p></div>
-    <div class="card"><h3>2 · RSI track</h3><p><b>Open-weight models only</b>, on GPUs. The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the <b>compounding coefficient</b> and the <b>Δ<sub>k</sub></b> control. This is the genuine RSI, and it needs GRPO training — <b>APIs cannot participate</b>.</p></div>
+    <div class="card"><h3>1 · Capability track</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot, best-of-k, or multi-turn). This is an <b>AI-R&amp;D capability leaderboard</b>, distinct from the recursive loop. API and closed models are evaluated here.</p></div>
+    <div class="card"><h3>2 · RSI track</h3><p><b>Open-weight models only</b>, on GPUs. The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the <b>compounding coefficient</b> and the <b>Δ<sub>k</sub></b> control. This is genuine recursive self-improvement; it requires model training (GRPO), so <b>API and closed models cannot participate</b>.</p></div>
   </div>
-  <p class="muted small">A closed model can be a strong capability baseline but can never be an RSI subject, because you cannot update its weights.</p>
+  <p class="muted small">A closed model can rank on the capability track but cannot enter the RSI track, as its weights cannot be updated.</p>
 </section>
 
 <section id="leaderboard">
@@ -123,7 +123,7 @@
   <h2>Scoring</h2>
   <div class="cards">
     <div class="card"><h3>Correctness vs fp32 gold</h3><p>A candidate passes only if its relative L2 error to an fp32 gold is no worse than the reference's own fp16/bf16 rounding error. We never demand more precision than the dtype allows.</p></div>
-    <div class="card"><h3>Roofline-relative speedup</h3><p><code>speedup = t<sub>baseline</sub> / t<sub>candidate</sub></code>, where the baseline is the strongest automated reference (min of eager and <code>torch.compile</code>). Beating it is the challenge.</p></div>
+    <div class="card"><h3>Roofline-relative speedup</h3><p><code>speedup = t<sub>baseline</sub> / t<sub>candidate</sub></code>, where the baseline is the strongest automated reference (the faster of eager and <code>torch.compile</code>). Candidates are scored relative to it.</p></div>
     <div class="card"><h3>fast_p, pass@k</h3><p><code>fast_p</code> = fraction of tasks beating p× speedup. Geomean over passing tasks only. Timing is warmup + median-of-N + L2 flush on clock-pinned GPUs.</p></div>
   </div>
 </section>
@@ -157,7 +157,7 @@
   <p>KernelAscent ships a two-split design, standard for a leaderboard you can trust.</p>
   <div class="cards">
     <div class="card"><h3>Public dev set</h3><p><b>242 tasks</b> (57 L1 · 109 L2 · 76 L3) across all 6 families in <code>dataset/public/</code> — problem definitions + metadata. Use it to benchmark your own models and in research papers. Regenerate deterministically: <code>python kernelascent/make_dataset.py --split public --outdir dataset/public</code>.</p></div>
-    <div class="card"><h3>Private held-out</h3><p>A separate, undisclosed seed range powers the <b>leaderboard</b>. It is never committed, so public numbers can't be gamed by overfitting the released tasks. Maintainers run it on submissions.</p></div>
+    <div class="card"><h3>Private held-out</h3><p>A separate, undisclosed seed range powers the <b>leaderboard</b>. It is never released, so public results cannot be inflated by overfitting the released tasks. Maintainers run it on submissions.</p></div>
     <div class="card"><h3>Deterministic &amp; fresh</h3><p>Every task is synthesized from a seed — fully reproducible for papers, and composed at generation time rather than drawn from a fixed list. Public and held-out seed ranges never overlap.</p></div>
   </div>
 </section>
