@@ -33,3 +33,5 @@ bedrock_creds
 # private held-out test set (never commit)
 dataset/heldout/
 **/heldout/
+
+hf_token
