@@ -1,0 +1,20 @@
+{
+  "name": "t64_4096x512",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 512,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->2048",
+      "rmsnorm",
+      "rmsnorm"
+    ]
+  }
+}

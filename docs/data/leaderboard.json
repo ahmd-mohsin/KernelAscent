@@ -1,0 +1,36 @@
+{
+  "updated": "2026-09-02",
+  "metric_note": "fast_p = fraction of tasks with measured speedup > p over the strong automated roofline (min of eager and torch.compile), at fixed fp32-gold correctness. pass@k = fraction of tasks with >=1 correct candidate in k samples. Higher is better.",
+  "models": [
+    {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "org": "Alibaba",
+      "type": "open",
+      "params": "7B",
+      "role": "test-taker",
+      "k": 8,
+      "tasks": 80,
+      "pass_at_k": 0.26,
+      "fast_1": 0.07,
+      "fast_1_5": 0.0,
+      "fast_2": 0.0,
+      "geomean_pass": 0.83,
+      "notes": "First baseline. Mostly emits broken Triton; rarely beats eager."
+    },
+    {
+      "model": "Claude Fable 5",
+      "org": "Anthropic",
+      "type": "frontier",
+      "params": "n/a",
+      "role": "curator (reference, not ranked)",
+      "k": 3,
+      "tasks": 24,
+      "pass_at_k": 0.92,
+      "fast_1": 0.83,
+      "fast_1_5": 0.04,
+      "fast_2": 0.0,
+      "geomean_pass": 1.18,
+      "notes": "Strong curator that calibrates difficulty. Beats the compile roofline by ~1.1-1.5x on most tasks; a few it cannot beat (hard)."
+    }
+  ]
+}

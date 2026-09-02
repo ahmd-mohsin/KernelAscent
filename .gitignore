@@ -29,3 +29,7 @@ checkpoints/
 # AWS creds (never commit)
 bedrock_creds
 *.env
+
+# private held-out test set (never commit)
+dataset/heldout/
+**/heldout/

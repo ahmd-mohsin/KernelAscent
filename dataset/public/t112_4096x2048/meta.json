@@ -1,0 +1,24 @@
+{
+  "name": "t112_4096x2048",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->4096",
+      "gelu",
+      "gelu",
+      "scale",
+      "softmax"
+    ]
+  }
+}

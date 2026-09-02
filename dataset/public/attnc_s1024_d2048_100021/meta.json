@@ -1,0 +1,26 @@
+{
+  "name": "attnc_s1024_d2048_100021",
+  "tier": "L3",
+  "family": "attention",
+  "tags": [
+    "fusion",
+    "masking",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "S": 1024,
+    "D": 2048,
+    "dtype": "fp16",
+    "causal": true,
+    "chain": [
+      "qkv",
+      "scores",
+      "causal",
+      "softmax",
+      "av"
+    ]
+  }
+}
