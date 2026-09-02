@@ -41,6 +41,17 @@ Recursive self-improvement is the central object of AI-safety concern that has a
 
 ---
 
+## 3a. Two tracks: capability vs. RSI (scoping the claim)
+
+Writing a fast kernel is a *capability*; recursive self-improvement is a *loop*. We keep them as two separate tracks with two leaderboards, so the RSI claim is not overstated.
+
+- **Capability track (all models, API or open weight).** Measures kernel-optimization skill (single-shot, best-of-k, or multi-turn refinement). This is an AI-R&D capability leaderboard — the *ingredient* of RSI, **not RSI itself**. Closed/API models (e.g. via Bedrock) are evaluated here as strong baselines; they read a task and emit an optimized `ModelNew`, graded by the same locked verifier. No training, inference only.
+- **RSI track (open-weight models only, on GPUs).** The training loop of §4.2: the model writes the kernels that train it, fixed-wall-clock training turns kernel skill into more effective compute, and we re-measure capability each round. Scored by the **compounding coefficient** and the **Δ_k** control arm. This is the genuine RSI result, and it requires GRPO training — **API/closed models cannot participate**, because their weights cannot be updated.
+
+A closed model can top the capability leaderboard yet never be an RSI subject. The genuine self-improvement measurement lives only in the open-weight training track; the capability track is the broad, cheap substrate and baseline around it.
+
+---
+
 ## 4. Benchmark structure
 
 Every task hands the agent: (a) a reference implementation, (b) a **locked** correctness + timing harness the agent cannot edit, (c) a target-hardware spec. The agent returns a kernel; it is scored only by **measured wall-clock on real A100 + H100 GPUs at fixed numerical tolerance**.

@@ -1,0 +1,6 @@
+{
+  "updated": "2026-09-02",
+  "status": "Results pending — the RSI track requires open weights + GPUs (GRPO training). API/closed models cannot participate here.",
+  "metric_note": "compounding b = sign/size of the quadratic term when fitting capability C_k over self-improvement rounds (b>0 accelerating, ~0 linear, b<0 decelerating/plateau). Delta_final = C_self - C_control at the last round; RSI is confirmed only if Delta grows with rounds (a matched control trains with round-0 kernels). Higher b and growing Delta = genuine self-improvement, not just more compute.",
+  "models": []
+}

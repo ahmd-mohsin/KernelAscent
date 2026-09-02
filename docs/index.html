@@ -13,7 +13,8 @@
   <nav>
     <a href="#overview">Overview</a>
     <a href="#loop">RSI Loop</a>
-    <a href="#leaderboard">Leaderboard</a>
+    <a href="#tracks">Tracks</a>
+    <a href="#leaderboard">Leaderboards</a>
     <a href="#tasks">Tasks</a>
     <a href="#scoring">Scoring</a>
     <a href="#architecture">Architecture</a>
@@ -58,11 +59,22 @@
   <p>The headline result is the <b>RSI signal</b> <code>Δ<sub>k</sub> = C<sub>k</sub><sup>self</sup> − C<sub>k</sub><sup>control</sup></code> against a matched control that trains with round-0 kernels. RSI is confirmed only if <code>Δ<sub>k</sub></code> grows with <code>k</code>; a null result — capability rising only from more compute, not self-improvement — is reported honestly as a negative finding.</p>
 </section>
 
+<section id="tracks" class="panel">
+  <h2>Two tracks — scoping the RSI claim honestly</h2>
+  <p>Writing a fast kernel is a <i>capability</i>; recursive self-improvement is a <i>loop</i>. We keep them separate so the RSI claim is not overstated.</p>
+  <div class="cards">
+    <div class="card"><h3>1 · Capability track</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot / best-of-k / multi-turn). This is an <b>AI-R&amp;D capability leaderboard</b> — the ingredient of RSI, <b>not RSI itself</b>. API/closed models live here.</p></div>
+    <div class="card"><h3>2 · RSI track</h3><p><b>Open-weight models only</b>, on GPUs. The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the <b>compounding coefficient</b> and the <b>Δ<sub>k</sub></b> control. This is the genuine RSI, and it needs GRPO training — <b>APIs cannot participate</b>.</p></div>
+  </div>
+  <p class="muted small">A closed model can be a strong capability baseline but can never be an RSI subject, because you cannot update its weights.</p>
+</section>
+
 <section id="leaderboard">
   <div class="lb-head">
-    <h2>Leaderboard</h2>
+    <h2>Leaderboards</h2>
     <div class="lb-meta" id="lb-updated"></div>
   </div>
+  <h3>Capability track — kernel optimization (API or open)</h3>
   <p class="muted" id="lb-note"></p>
   <div class="table-wrap">
     <table id="lb">
@@ -82,6 +94,19 @@
     </table>
   </div>
   <p class="muted small">Sortable — click a column header. Curator rows (frontier calibrators) are shown for reference and not ranked as test-takers.</p>
+
+  <h3 style="margin-top:36px">RSI track — self-improvement loop (open-weight only)</h3>
+  <p class="muted" id="rsi-note"></p>
+  <div class="table-wrap">
+    <table id="rsi-lb">
+      <thead><tr>
+        <th>Model</th><th>Params</th><th class="num">Rounds</th>
+        <th class="num">C₀</th><th class="num">C<sub>N</sub></th>
+        <th class="num">Compounding b</th><th class="num">Δ<sub>final</sub></th><th>Verdict</th>
+      </tr></thead><tbody></tbody>
+    </table>
+  </div>
+  <p class="muted small">RSI is confirmed only if Δ<sub>k</sub> grows across rounds versus the matched control. Requires open weights + GPUs (GRPO training).</p>
 </section>
 
 <section id="tasks" class="panel">
