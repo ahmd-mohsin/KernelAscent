@@ -1,0 +1,19 @@
+{
+  "name": "t446_4096x1025",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 1025,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "gelu",
+      "rmsnorm",
+      "relu"
+    ]
+  }
+}

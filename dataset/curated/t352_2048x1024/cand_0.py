@@ -1,0 +1,60 @@
+import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import triton
+import triton.language as tl
+
+SEED = 352
+M, D, DT = 2048, 1024, torch.bfloat16
+
+
+@triton.jit
+def _fused_scale_ln_scale_kernel(
+    X, G, B, Y,
+    N, eps,
+    pre_scale, post_scale,
+    BLOCK: tl.constexpr,
+):
+    row = tl.program_id(0)
+    cols = tl.arange(0, BLOCK)
+    mask = cols < N
+
+    x = tl.load(X + row * N + cols, mask=mask, other=0.0)
+    # x * 1.106 rounded to bf16 (match reference bf16 elementwise mul)
+    xs = (x.to(tl.float32) * pre_scale).to(tl.bfloat16).to(tl.float32)
+
+    mean = tl.sum(xs, axis=0) / N
+    d = tl.where(mask, xs - mean, 0.0)
+    var = tl.sum(d * d, axis=0) / N
+    rstd = 1.0 / tl.sqrt(var + eps)
+
+    g = tl.load(G + cols, mask=mask, other=0.0).to(tl.float32)
+    b = tl.load(B + cols, mask=mask, other=0.0).to(tl.float32)
+
+    y = d * rstd * g + b
+    # round LN output to bf16, then multiply by 1.0831 (bf16 elementwise mul)
+    y = y.to(tl.bfloat16).to(tl.float32) * post_scale
+    tl.store(Y + row * N + cols, y.to(tl.bfloat16), mask=mask)
+
+
+class ModelNew(nn.Module):
+    def __init__(self, dtype=DT):
+        super().__init__()
+        g = torch.Generator().manual_seed(SEED)
+        self.ln1_g = nn.Parameter(torch.randn(1024, generator=g).to(dtype), requires_grad=False)
+        self.ln1_b = nn.Parameter(torch.randn(1024, generator=g).to(dtype), requires_grad=False)
+
+    def forward(self, x):
+        x = x.contiguous()
+        Mrows, N = x.shape
+        y = torch.empty_like(x)
+        BLOCK = triton.next_power_of_2(N)
+        _fused_scale_ln_scale_kernel[(Mrows,)](
+            x, self.ln1_g, self.ln1_b, y,
+            N, 1e-5,
+            1.106, 1.0831,
+            BLOCK=BLOCK,
+            num_warps=8,
+        )
+        return y

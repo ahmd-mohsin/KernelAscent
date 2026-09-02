@@ -1,0 +1,23 @@
+{
+  "name": "t650_2048x1024",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 2048,
+    "D": 1024,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "scale",
+      "scale",
+      "bias",
+      "bias",
+      "scale",
+      "softmax"
+    ]
+  }
+}

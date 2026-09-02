@@ -1,0 +1,23 @@
+{
+  "name": "t635_2048x2048",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 2048,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->512",
+      "scale",
+      "rmsnorm",
+      "scale",
+      "gelu"
+    ]
+  }
+}

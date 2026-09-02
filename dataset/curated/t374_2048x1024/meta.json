@@ -1,0 +1,20 @@
+{
+  "name": "t374_2048x1024",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 2048,
+    "D": 1024,
+    "dtype": "torch.float16",
+    "chain": [
+      "softmax",
+      "rmsnorm",
+      "layernorm"
+    ]
+  }
+}

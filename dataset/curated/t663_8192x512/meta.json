@@ -1,0 +1,19 @@
+{
+  "name": "t663_8192x512",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 512,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "gelu",
+      "layernorm"
+    ]
+  }
+}

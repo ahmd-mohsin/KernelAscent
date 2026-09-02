@@ -1,0 +1,23 @@
+{
+  "name": "t437_8192x2049",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 2049,
+    "dtype": "torch.float16",
+    "chain": [
+      "matmul->2048",
+      "layernorm",
+      "softmax",
+      "layernorm"
+    ]
+  }
+}

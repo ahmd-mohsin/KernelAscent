@@ -1,0 +1,20 @@
+{
+  "name": "t338_512x4097",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 4097,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "layernorm",
+      "gelu",
+      "gelu"
+    ]
+  }
+}

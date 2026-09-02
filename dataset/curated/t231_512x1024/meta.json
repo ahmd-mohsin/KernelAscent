@@ -1,0 +1,23 @@
+{
+  "name": "t231_512x1024",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 1024,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->2048",
+      "rmsnorm",
+      "softmax",
+      "relu"
+    ]
+  }
+}

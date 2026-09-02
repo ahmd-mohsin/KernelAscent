@@ -1,0 +1,20 @@
+{
+  "name": "t657_8192x2048",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "rmsnorm",
+      "rmsnorm",
+      "gelu",
+      "gelu"
+    ]
+  }
+}

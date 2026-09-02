@@ -1,0 +1,24 @@
+{
+  "name": "t313_8192x1024",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 1024,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "relu",
+      "layernorm",
+      "matmul->4096",
+      "gelu",
+      "scale"
+    ]
+  }
+}

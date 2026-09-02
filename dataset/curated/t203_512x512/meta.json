@@ -1,0 +1,18 @@
+{
+  "name": "t203_512x512",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 512,
+    "dtype": "torch.float16",
+    "chain": [
+      "rmsnorm",
+      "scale"
+    ]
+  }
+}

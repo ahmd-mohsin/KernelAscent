@@ -1,0 +1,21 @@
+{
+  "name": "t336_512x1025",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 1025,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "gelu",
+      "bias",
+      "bias",
+      "softmax"
+    ]
+  }
+}

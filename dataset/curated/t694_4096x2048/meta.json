@@ -1,0 +1,22 @@
+{
+  "name": "t694_4096x2048",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 2048,
+    "dtype": "torch.float16",
+    "chain": [
+      "rmsnorm",
+      "bias",
+      "layernorm",
+      "relu",
+      "bias"
+    ]
+  }
+}

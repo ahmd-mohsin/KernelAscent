@@ -1,0 +1,22 @@
+{
+  "name": "t528_512x2049",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 2049,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "layernorm",
+      "scale",
+      "relu",
+      "bias",
+      "rmsnorm"
+    ]
+  }
+}

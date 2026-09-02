@@ -1,0 +1,18 @@
+{
+  "name": "t552_512x512",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 512,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "rmsnorm",
+      "softmax"
+    ]
+  }
+}

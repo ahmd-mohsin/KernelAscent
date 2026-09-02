@@ -1,0 +1,21 @@
+{
+  "name": "t216_1024x1024",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 1024,
+    "D": 1024,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->512",
+      "layernorm",
+      "rmsnorm"
+    ]
+  }
+}

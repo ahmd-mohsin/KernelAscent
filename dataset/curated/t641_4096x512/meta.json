@@ -1,0 +1,21 @@
+{
+  "name": "t641_4096x512",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 512,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "rmsnorm",
+      "gelu",
+      "gelu",
+      "softmax"
+    ]
+  }
+}
