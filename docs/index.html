@@ -63,10 +63,11 @@
   <h2>Two tracks: capability and recursive self-improvement</h2>
   <p>Writing a fast kernel is a capability; recursive self-improvement is a loop. The two are evaluated as separate tracks, each with its own leaderboard.</p>
   <div class="cards">
-    <div class="card"><h3>1 · Capability track</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot, best-of-k, or multi-turn). This is an <b>AI-R&amp;D capability leaderboard</b>, distinct from the recursive loop. API and closed models are evaluated here.</p></div>
-    <div class="card"><h3>2 · RSI track</h3><p><b>Open-weight models only</b>, on GPUs. The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the <b>compounding coefficient</b> and the <b>Δ<sub>k</sub></b> control. This is genuine recursive self-improvement; it requires model training (GRPO), so <b>API and closed models cannot participate</b>.</p></div>
+    <div class="card"><h3>1 · Capability</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot, best-of-k, or multi-turn). An <b>AI-R&amp;D capability leaderboard</b>, distinct from the recursive loop.</p></div>
+    <div class="card"><h3>2 · Scaffold-RSI <span class="pill med">API-eligible</span></h3><p>No weight training. The agent recursively improves its <b>own optimization scaffold</b> (prompt + strategy memory) around a frozen model, and we test whether capability compounds. Scored by the <b>compounding coefficient</b> against a <b>frozen-scaffold control</b>. System-level self-improvement; open and closed models both qualify.</p></div>
+    <div class="card"><h3>3 · Weight-RSI <span class="pill hard">open-weight</span></h3><p><b>Open weights, on GPUs.</b> The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the compounding coefficient and the <b>Δ<sub>k</sub></b> control. Requires GRPO training, so API/closed models cannot participate.</p></div>
   </div>
-  <p class="muted small">A closed model can rank on the capability track but cannot enter the RSI track, as its weights cannot be updated.</p>
+  <p class="muted small">Scaffold-RSI improves the <i>system</i> around a fixed model (ceiling-limited but API-eligible); Weight-RSI improves the <i>model itself</i>. Both are measured by whether the self-improving arm's advantage grows across rounds.</p>
 </section>
 
 <section id="leaderboard">
@@ -95,7 +96,20 @@
   </div>
   <p class="muted small">Sortable — click a column header. Curator rows (frontier calibrators) are shown for reference and not ranked as test-takers.</p>
 
-  <h3 style="margin-top:36px">RSI track — self-improvement loop (open-weight only)</h3>
+  <h3 style="margin-top:36px">Scaffold-RSI track — self-improving scaffold (API-eligible)</h3>
+  <p class="muted" id="scaffold-note"></p>
+  <div class="table-wrap">
+    <table id="scaffold-lb">
+      <thead><tr>
+        <th>Model</th><th>Params</th><th class="num">Rounds</th>
+        <th class="num">C₀</th><th class="num">C<sub>N</sub></th>
+        <th class="num">Compounding b</th><th class="num">Δ<sub>final</sub></th><th>Verdict</th>
+      </tr></thead><tbody></tbody>
+    </table>
+  </div>
+  <p class="muted small">The agent edits its own scaffold each round; confirmed only if it outgrows a frozen-scaffold control. Open and closed models both eligible.</p>
+
+  <h3 style="margin-top:36px">Weight-RSI track — training loop (open-weight only)</h3>
   <p class="muted" id="rsi-note"></p>
   <div class="table-wrap">
     <table id="rsi-lb">
@@ -106,7 +120,7 @@
       </tr></thead><tbody></tbody>
     </table>
   </div>
-  <p class="muted small">RSI is confirmed only if Δ<sub>k</sub> grows across rounds versus the matched control. Requires open weights + GPUs (GRPO training).</p>
+  <p class="muted small">Confirmed only if Δ<sub>k</sub> grows across rounds versus the matched control. Requires open weights + GPUs (GRPO training).</p>
 </section>
 
 <section id="tasks" class="panel">

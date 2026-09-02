@@ -1,0 +1,6 @@
+{
+  "updated": "2026-09-02",
+  "status": "Results pending — scaffold-RSI track (API-eligible). No weight training: the agent recursively improves its own optimization scaffold (prompt + strategy memory) around a frozen model.",
+  "metric_note": "compounding b = quadratic term fitting capability C_k over rounds as the agent edits its own scaffold. Delta_final = C_self-improving-scaffold - C_frozen-scaffold at the last round; confirmed only if it grows across rounds. Ceiling-limited by the frozen model, but measures genuine system-level self-improvement.",
+  "models": []
+}
