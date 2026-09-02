@@ -1,0 +1,26 @@
+{
+  "name": "t793_8192x2049",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 2049,
+    "dtype": "torch.float16",
+    "chain": [
+      "matmul->4096",
+      "softmax",
+      "gelu",
+      "rmsnorm",
+      "layernorm",
+      "layernorm"
+    ]
+  }
+}

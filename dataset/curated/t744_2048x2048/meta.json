@@ -1,0 +1,24 @@
+{
+  "name": "t744_2048x2048",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 2048,
+    "D": 2048,
+    "dtype": "torch.float16",
+    "chain": [
+      "matmul->2048",
+      "relu",
+      "scale",
+      "layernorm",
+      "layernorm"
+    ]
+  }
+}

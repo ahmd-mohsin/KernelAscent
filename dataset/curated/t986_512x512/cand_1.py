@@ -1,0 +1,72 @@
+import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import triton
+import triton.language as tl
+
+SEED = 986
+M, D, DT = 512, 512, torch.float16
+
+
+@triton.jit
+def _fused_rms_relu_bias_softmax(
+    X, W, B, Y,
+    stride_xm, stride_ym,
+    N, eps, scale,
+    BLOCK_N: tl.constexpr,
+):
+    row = tl.program_id(0)
+    cols = tl.arange(0, BLOCK_N)
+    mask = cols < N
+
+    x = tl.load(X + row * stride_xm + cols, mask=mask, other=0.0).to(tl.float32)
+
+    # RMSNorm (mean over N in fp32)
+    ms = tl.sum(x * x, axis=0) / N
+    rstd = 1.0 / tl.sqrt(ms + eps)
+    xn = x * rstd
+    # match reference: cast to fp16 then multiply by weight (fp16 mul), etc.
+    xn = xn.to(tl.float16)
+    w = tl.load(W + cols, mask=mask, other=0.0)
+    v = xn * w
+    # relu
+    v = tl.maximum(v, 0.0)
+    b = tl.load(B + cols, mask=mask, other=0.0)
+    v = v + b
+    v = v * scale  # fp16 arithmetic like reference
+
+    # softmax in fp32 (matches torch.softmax on fp16 input which upcasts)
+    vf = v.to(tl.float32)
+    vf = tl.where(mask, vf, float('-inf'))
+    m = tl.max(vf, axis=0)
+    e = tl.exp(vf - m)
+    e = tl.where(mask, e, 0.0)
+    s = tl.sum(e, axis=0)
+    out = (e / s).to(tl.float16)
+
+    tl.store(Y + row * stride_ym + cols, out, mask=mask)
+
+
+class ModelNew(nn.Module):
+    def __init__(self, dtype=DT):
+        super().__init__()
+        g = torch.Generator().manual_seed(SEED)
+        self.W0 = nn.Parameter((torch.randn(512, 4096, generator=g) / math.sqrt(512)).to(dtype), requires_grad=False)
+        self.rms1_w = nn.Parameter(torch.randn(4096, generator=g).to(dtype), requires_grad=False)
+        self.b3 = nn.Parameter(torch.randn(4096, generator=g).to(dtype), requires_grad=False)
+
+    def forward(self, x):
+        x = x @ self.W0
+        Mrows, N = x.shape
+        y = torch.empty_like(x)
+        BLOCK_N = triton.next_power_of_2(N)
+        scale_fp16 = torch.tensor(1.0065, dtype=torch.float16).item()
+        _fused_rms_relu_bias_softmax[(Mrows,)](
+            x, self.rms1_w, self.b3, y,
+            x.stride(0), y.stride(0),
+            N, 1e-6, scale_fp16,
+            BLOCK_N=BLOCK_N,
+            num_warps=8,
+        )
+        return y

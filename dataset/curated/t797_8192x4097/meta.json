@@ -1,0 +1,22 @@
+{
+  "name": "t797_8192x4097",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 4097,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "relu",
+      "layernorm",
+      "rmsnorm",
+      "layernorm",
+      "rmsnorm"
+    ]
+  }
+}

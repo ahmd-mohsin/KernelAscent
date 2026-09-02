@@ -1,0 +1,25 @@
+{
+  "name": "attn_s512_d2048_100008",
+  "tier": "L3",
+  "family": "attention",
+  "tags": [
+    "fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "S": 512,
+    "D": 2048,
+    "dtype": "fp16",
+    "causal": false,
+    "chain": [
+      "qkv",
+      "scores",
+      "full",
+      "softmax",
+      "av"
+    ]
+  }
+}

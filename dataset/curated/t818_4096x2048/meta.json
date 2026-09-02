@@ -1,0 +1,17 @@
+{
+  "name": "t818_4096x2048",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "reduction"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "rmsnorm",
+      "rmsnorm"
+    ]
+  }
+}

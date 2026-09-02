@@ -1,0 +1,23 @@
+{
+  "name": "t830_512x1025",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 512,
+    "D": 1025,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "layernorm",
+      "scale",
+      "softmax",
+      "layernorm",
+      "softmax"
+    ]
+  }
+}

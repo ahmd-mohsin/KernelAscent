@@ -1,0 +1,21 @@
+{
+  "name": "t800_4096x512",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 512,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->1024",
+      "bias",
+      "rmsnorm"
+    ]
+  }
+}

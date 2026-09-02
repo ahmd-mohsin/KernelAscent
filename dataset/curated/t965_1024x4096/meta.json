@@ -1,0 +1,21 @@
+{
+  "name": "t965_1024x4096",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction"
+  ],
+  "meta": {
+    "M": 1024,
+    "D": 4096,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "scale",
+      "layernorm",
+      "gelu",
+      "scale"
+    ]
+  }
+}

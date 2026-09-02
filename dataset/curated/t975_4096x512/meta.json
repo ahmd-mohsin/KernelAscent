@@ -1,0 +1,22 @@
+{
+  "name": "t975_4096x512",
+  "tier": "L1",
+  "family": "norm-act",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "online-softmax",
+    "reduction"
+  ],
+  "meta": {
+    "M": 4096,
+    "D": 512,
+    "dtype": "torch.float16",
+    "chain": [
+      "bias",
+      "layernorm",
+      "layernorm",
+      "softmax"
+    ]
+  }
+}

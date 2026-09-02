@@ -1,0 +1,25 @@
+{
+  "name": "t844_8192x1025",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 1025,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->2048",
+      "layernorm",
+      "bias",
+      "bias",
+      "relu",
+      "scale"
+    ]
+  }
+}

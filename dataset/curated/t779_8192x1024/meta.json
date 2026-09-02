@@ -1,0 +1,24 @@
+{
+  "name": "t779_8192x1024",
+  "tier": "L2",
+  "family": "matmul",
+  "tags": [
+    "elementwise-fusion",
+    "fusion",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 8192,
+    "D": 1024,
+    "dtype": "torch.float16",
+    "chain": [
+      "matmul->1024",
+      "gelu",
+      "layernorm",
+      "softmax"
+    ]
+  }
+}
