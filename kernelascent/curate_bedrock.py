@@ -69,10 +69,12 @@ def main():
     ap.add_argument("--workers", type=int, default=4, help="concurrent Bedrock calls")
     ap.add_argument("--limit", type=int, default=0, help="cap total tasks (0 = all); for smoke tests")
     ap.add_argument("--families", default="", help="comma-separated families to include (default: all)")
+    ap.add_argument("--no-raw", action="store_true", help="do not store raw reasoning trajectories")
+    ap.add_argument("--seed0", type=int, default=0, help="split seed base (0=public, 10000000=held-out)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
-    tasks = G.generate_systematic(n_fusion=args.n_fusion)
+    tasks = G.generate_systematic(n_fusion=args.n_fusion, seed0=args.seed0)
     if args.families:
         fams = set(f.strip() for f in args.families.split(","))
         tasks = [t for t in tasks if t["family"] in fams]
@@ -95,6 +97,10 @@ def main():
             texts = list(ex.map(lambda _: cur.one(task["source"], args.temp), range(args.k)))
         n_ok = 0
         for j, t in enumerate(texts):
+            if t and not args.no_raw:
+                # full reasoning trajectory (reasoning + code), for analysis / a richer dataset
+                with open(os.path.join(tdir, "raw_%d.txt" % j), "w") as f:
+                    f.write(t)
             code = extract_modelnew(t or "")
             if code:
                 with open(os.path.join(tdir, "cand_%d.py" % j), "w") as f:
