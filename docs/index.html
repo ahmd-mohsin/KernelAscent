@@ -29,10 +29,10 @@
   <p class="lede">KernelAscent measures <b>recursive self-improvement</b> at the substrate level: a model optimizes the GPU kernels used to <b>train itself</b>. Under a fixed wall-clock budget, faster kernels buy more effective training, producing a stronger model that optimizes kernels better. The question is whether capability <b>compounds</b> across rounds, or plateaus.</p>
   <div class="hero-eqn"><code>kernel → faster training → better model → better kernel → …</code></div>
   <div class="kpis">
-    <div class="kpi"><div class="kpi-n" id="kpi-tasks">1,036</div><div class="kpi-l">curated tasks</div></div>
-    <div class="kpi"><div class="kpi-n">3</div><div class="kpi-l">task families</div></div>
+    <div class="kpi"><div class="kpi-n">242</div><div class="kpi-l">public tasks</div></div>
+    <div class="kpi"><div class="kpi-n">6</div><div class="kpi-l">task families</div></div>
     <div class="kpi"><div class="kpi-n">L1–L3</div><div class="kpi-l">difficulty tiers</div></div>
-    <div class="kpi"><div class="kpi-n">100%</div><div class="kpi-l">synthetic · no internet</div></div>
+    <div class="kpi"><div class="kpi-n">public + held-out</div><div class="kpi-l">split design</div></div>
   </div>
 </section>
 
@@ -88,7 +88,7 @@
   <h2>Tasks &amp; difficulty</h2>
   <p>Every task is a self-contained PyTorch <code>Model</code> whose <code>forward</code> is a fused op-graph; an agent must return an optimized, numerically-equivalent <code>ModelNew</code>.</p>
   <div class="cards">
-    <div class="card"><h3>Families</h3><p>Fusion op-graphs (matmul · softmax · GELU · LayerNorm · RMSNorm), and attention (causal / non-causal). MoE, RoPE, and quantized families are being added.</p></div>
+    <div class="card"><h3>Families (6)</h3><p><b>matmul</b> (GEMM + fused epilogue) · <b>norm-act</b> (softmax / LayerNorm / RMSNorm / GELU chains) · <b>attention</b> (causal / non-causal) · <b>RoPE-attention</b> · <b>quantized</b> int8 dequant-GEMM · <b>soft-MoE</b> (gated experts / grouped GEMM).</p></div>
     <div class="card"><h3>Tiers</h3><p><b>L1</b> memory/reduction · <b>L2</b> tensor-core / matmul-epilogue · <b>L3</b> attention &amp; arch-specific. Difficulty is calibrated by a strong curator model.</p></div>
     <div class="card"><h3>Difficulty labels</h3><p><span class="pill acc">accessible</span> <span class="pill med">medium</span> <span class="pill hard">hard</span> <span class="pill front">frontier</span> — derived from whether the strong curator beats the roofline, and by how much.</p></div>
   </div>
@@ -104,8 +104,8 @@
 </section>
 
 <section id="contamination" class="panel">
-  <h2>No internet contamination</h2>
-  <p>Every scored task is <b>synthesized at generation time from a seed</b> — a random fused-op-graph with randomized shape, dtype, and length. The exact combinations have never appeared in any repository, paper, or benchmark, so nothing can be memorized. A <b>private held-out seed range</b> powers the leaderboard and stays 100% synthetic. Frontier models may also <i>propose</i> novel problems, but those pass a firewall (gradeable · non-trivial · structurally deduped) and are quarantined out of the held-out set. This is strictly stronger than fixed public test suites.</p>
+  <h2>Reproducible &amp; held-out by construction</h2>
+  <p>Every scored task is <b>synthesized from a seed</b> at generation time — a randomized fused-op-graph (or attention / RoPE / quantized / MoE pattern) over varied shapes and dtypes. Generation is fully deterministic, so results are reproducible for papers, while task instances are freshly composed rather than drawn from a fixed public list. A <b>private held-out seed range</b> powers the leaderboard; the public dev split uses a disjoint range. Frontier models may also <i>propose</i> novel problems, which pass a firewall (gradeable · non-trivial · structurally deduped) and are kept out of the held-out set.</p>
 </section>
 
 <section id="architecture">
@@ -116,7 +116,7 @@
  │ generator (seeded)  │   task.py    │ (Fable 5 via Bedrock)│
  │ synthetic · novel   │              │ writes ModelNew ×k   │
  └────────────────────┘              └───────────┬──────────┘
-        │ held-out split (100% synthetic)         │ candidates
+        │ held-out split (private seeds)          │ candidates
         ▼                                         ▼
  ┌────────────────────┐   grade on   ┌──────────────────────┐
  │ Leaderboard        │◀── GPU box ──│ Locked verifier      │
@@ -131,9 +131,9 @@
   <h2>Dataset &amp; splits</h2>
   <p>KernelAscent ships a two-split design, standard for a leaderboard you can trust.</p>
   <div class="cards">
-    <div class="card"><h3>Public dev set</h3><p><b>186 tasks</b> (57 L1 · 93 L2 · 36 L3 attention) in <code>dataset/public/</code> — problem definitions + metadata. Use it to benchmark your own models and in research papers. Regenerate deterministically: <code>python kernelascent/make_dataset.py --split public --outdir dataset/public</code>.</p></div>
+    <div class="card"><h3>Public dev set</h3><p><b>242 tasks</b> (57 L1 · 109 L2 · 76 L3) across all 6 families in <code>dataset/public/</code> — problem definitions + metadata. Use it to benchmark your own models and in research papers. Regenerate deterministically: <code>python kernelascent/make_dataset.py --split public --outdir dataset/public</code>.</p></div>
     <div class="card"><h3>Private held-out</h3><p>A separate, undisclosed seed range powers the <b>leaderboard</b>. It is never committed, so public numbers can't be gamed by overfitting the released tasks. Maintainers run it on submissions.</p></div>
-    <div class="card"><h3>Deterministic &amp; novel</h3><p>Every task is synthesized from a seed — fully reproducible for papers, yet absent from any public corpus. Public and held-out seed ranges never overlap.</p></div>
+    <div class="card"><h3>Deterministic &amp; fresh</h3><p>Every task is synthesized from a seed — fully reproducible for papers, and composed at generation time rather than drawn from a fixed list. Public and held-out seed ranges never overlap.</p></div>
   </div>
 </section>
 

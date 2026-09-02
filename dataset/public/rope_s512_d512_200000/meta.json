@@ -1,0 +1,26 @@
+{
+  "name": "rope_s512_d512_200000",
+  "tier": "L3",
+  "family": "rope-attention",
+  "tags": [
+    "fusion",
+    "online-softmax",
+    "reduction",
+    "rope",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "S": 512,
+    "D": 512,
+    "dtype": "fp16",
+    "causal": false,
+    "chain": [
+      "qkv",
+      "rope",
+      "scores",
+      "softmax",
+      "av"
+    ]
+  }
+}

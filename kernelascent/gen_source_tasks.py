@@ -160,15 +160,141 @@ def attn_task(seed, S, D, dtype, causal):
                 source=src)
 
 
+def rope_attn_task(seed, S, D, dtype, causal):
+    mask = ("        scores = scores + torch.triu(torch.full_like(scores, float('-inf')), diagonal=1)"
+            if causal else "        pass")
+    src = ATTN_HEADER + f"""
+SEED = {seed}
+S, D, DT = {S}, {D}, {dtype}
+
+def _rope(t):
+    S, E = t.shape
+    half = E // 2
+    pos = torch.arange(S, device=t.device, dtype=torch.float32).unsqueeze(1)
+    freq = torch.exp(torch.arange(0, half, device=t.device, dtype=torch.float32) * (-math.log(10000.0) / max(half, 1)))
+    ang = pos * freq
+    cos, sin = torch.cos(ang), torch.sin(ang)
+    t1 = t[..., :half].float(); t2 = t[..., half:half * 2].float()
+    out = t.float().clone()
+    out[..., :half] = t1 * cos - t2 * sin
+    out[..., half:half * 2] = t1 * sin + t2 * cos
+    return out.to(t.dtype)
+
+class Model(nn.Module):
+    def __init__(self, dtype=DT):
+        super().__init__()
+        g = torch.Generator().manual_seed(SEED)
+        self.Wq = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)
+        self.Wk = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)
+        self.Wv = nn.Parameter((torch.randn(D, D, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)
+
+    def forward(self, x):
+        q = _rope(x @ self.Wq); k = _rope(x @ self.Wk); v = x @ self.Wv
+        scores = (q @ k.transpose(-1, -2)) / math.sqrt(q.shape[-1])
+{mask}
+        a = torch.softmax(scores, dim=-1)
+        return a @ v
+
+def get_inputs():
+    g = torch.Generator().manual_seed(SEED + 12345)
+    return [torch.randn(S, D, generator=g).to(DT)]
+"""
+    return dict(name="rope%s_s%d_d%d_%d" % ("c" if causal else "", S, D, seed),
+                tier="L3", family="rope-attention",
+                tags=sorted(["tiling", "tensor-core", "online-softmax", "reduction", "fusion", "rope"] + (["masking"] if causal else [])),
+                meta={"S": S, "D": D, "dtype": ("fp16" if "float16" in dtype else "bf16"),
+                      "causal": causal, "chain": ["qkv", "rope", "scores", "softmax", "av"]},
+                source=src)
+
+
+def quant_gemm_task(seed, M, D, N, dtype):
+    src = ATTN_HEADER + f"""
+SEED = {seed}
+M, D, N, DT = {M}, {D}, {N}, {dtype}
+
+class Model(nn.Module):
+    def __init__(self, dtype=DT):
+        super().__init__()
+        g = torch.Generator().manual_seed(SEED)
+        self.wq = nn.Parameter(torch.randint(-127, 128, (D, N), generator=g).to(torch.int8), requires_grad=False)
+        self.scale = nn.Parameter(torch.rand(N, generator=g) * 0.02 + 0.005, requires_grad=False)
+        self.bias = nn.Parameter(torch.randn(N, generator=g).to(dtype), requires_grad=False)
+
+    def forward(self, x):
+        w = self.wq.to(x.dtype) * self.scale.to(x.dtype)
+        x = x @ w + self.bias
+        return F.gelu(x)
+
+def get_inputs():
+    g = torch.Generator().manual_seed(SEED + 12345)
+    return [torch.randn(M, D, generator=g).to(DT)]
+"""
+    return dict(name="quant_%dx%dx%d_%d" % (M, D, N, seed),
+                tier="L2", family="quant-gemm",
+                tags=sorted(["tiling", "tensor-core", "quantization", "dequant-fusion", "elementwise-fusion"]),
+                meta={"M": M, "D": D, "N": N, "dtype": ("fp16" if "float16" in dtype else "bf16"),
+                      "chain": ["int8-dequant", "matmul->%d" % N, "bias", "gelu"]},
+                source=src)
+
+
+def moe_task(seed, S, D, N, E, dtype):
+    src = ATTN_HEADER + f"""
+SEED = {seed}
+S, D, N, E, DT = {S}, {D}, {N}, {E}, {dtype}
+
+class Model(nn.Module):
+    def __init__(self, dtype=DT):
+        super().__init__()
+        g = torch.Generator().manual_seed(SEED)
+        self.Wr = nn.Parameter((torch.randn(D, E, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)
+        self.We = nn.Parameter((torch.randn(E, D, N, generator=g) / math.sqrt(D)).to(dtype), requires_grad=False)
+
+    def forward(self, x):
+        gate = torch.softmax(x @ self.Wr, dim=-1)
+        outs = torch.stack([x @ self.We[e] for e in range(E)], dim=0)
+        y = (gate.transpose(0, 1).unsqueeze(-1) * outs).sum(0)
+        return F.gelu(y)
+
+def get_inputs():
+    g = torch.Generator().manual_seed(SEED + 12345)
+    return [torch.randn(S, D, generator=g).to(DT)]
+"""
+    return dict(name="moe_s%d_d%d_n%d_e%d_%d" % (S, D, N, E, seed),
+                tier="L3", family="moe",
+                tags=sorted(["tiling", "tensor-core", "reduction", "online-softmax", "grouped-gemm", "fusion"]),
+                meta={"S": S, "D": D, "N": N, "E": E, "dtype": ("fp16" if "float16" in dtype else "bf16"),
+                      "chain": ["router-softmax", "%d-expert-gemm" % E, "weighted-sum", "gelu"]},
+                source=src)
+
+
 def generate_systematic(n_fusion=160, seed0=0):
-    """Dense, structured coverage: many fusion op-graphs plus an attention grid."""
+    """Dense, structured coverage across families: fusion op-graphs, attention, RoPE
+    attention, quantized dequant-GEMM, and soft-MoE grids."""
     tasks = [gen_task(seed0 + i) for i in range(n_fusion)]
-    seed = seed0 + 100000
+    s = seed0 + 100000
     for S in [512, 1024, 2048]:
         for D in [512, 1024, 2048]:
             for dtype in ["torch.float16", "torch.bfloat16"]:
                 for causal in [False, True]:
-                    tasks.append(attn_task(seed, S, D, dtype, causal)); seed += 1
+                    tasks.append(attn_task(s, S, D, dtype, causal)); s += 1
+    s = seed0 + 200000
+    for S in [512, 1024]:
+        for D in [512, 1024, 2048]:
+            for dtype in ["torch.float16", "torch.bfloat16"]:
+                for causal in [False, True]:
+                    tasks.append(rope_attn_task(s, S, D, dtype, causal)); s += 1
+    s = seed0 + 300000
+    for M in [1024, 4096]:
+        for D in [1024, 2048]:
+            for N in [1024, 4096]:
+                for dtype in ["torch.float16", "torch.bfloat16"]:
+                    tasks.append(quant_gemm_task(s, M, D, N, dtype)); s += 1
+    s = seed0 + 400000
+    for S in [512, 1024]:
+        for D in [1024, 2048]:
+            for N in [1024, 2048]:
+                for E in [4, 8]:
+                    tasks.append(moe_task(s, S, D, N, E, "torch.float16")); s += 1
     return tasks
 
 

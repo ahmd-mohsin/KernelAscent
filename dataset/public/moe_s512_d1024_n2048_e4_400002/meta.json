@@ -1,0 +1,26 @@
+{
+  "name": "moe_s512_d1024_n2048_e4_400002",
+  "tier": "L3",
+  "family": "moe",
+  "tags": [
+    "fusion",
+    "grouped-gemm",
+    "online-softmax",
+    "reduction",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "S": 512,
+    "D": 1024,
+    "N": 2048,
+    "E": 4,
+    "dtype": "fp16",
+    "chain": [
+      "router-softmax",
+      "4-expert-gemm",
+      "weighted-sum",
+      "gelu"
+    ]
+  }
+}

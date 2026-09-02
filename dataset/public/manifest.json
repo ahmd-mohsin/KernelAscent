@@ -1,15 +1,18 @@
 {
   "split": "public",
-  "n": 186,
+  "n": 242,
   "families": {
     "norm-act": 57,
     "matmul": 93,
-    "attention": 36
+    "attention": 36,
+    "rope-attention": 24,
+    "quant-gemm": 16,
+    "moe": 16
   },
   "tiers": {
     "L1": 57,
-    "L2": 93,
-    "L3": 36
+    "L2": 109,
+    "L3": 76
   },
   "seed_range": {
     "n_fusion": 150,
@@ -945,6 +948,286 @@
       "name": "attnc_s2048_d2048_100035",
       "tier": "L3",
       "family": "attention"
+    },
+    {
+      "name": "rope_s512_d512_200000",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d512_200001",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s512_d512_200002",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d512_200003",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s512_d1024_200004",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d1024_200005",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s512_d1024_200006",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d1024_200007",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s512_d2048_200008",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d2048_200009",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s512_d2048_200010",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s512_d2048_200011",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d512_200012",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d512_200013",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d512_200014",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d512_200015",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d1024_200016",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d1024_200017",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d1024_200018",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d1024_200019",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d2048_200020",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d2048_200021",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "rope_s1024_d2048_200022",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "ropec_s1024_d2048_200023",
+      "tier": "L3",
+      "family": "rope-attention"
+    },
+    {
+      "name": "quant_1024x1024x1024_300000",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x1024x1024_300001",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x1024x4096_300002",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x1024x4096_300003",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x2048x1024_300004",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x2048x1024_300005",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x2048x4096_300006",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_1024x2048x4096_300007",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x1024x1024_300008",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x1024x1024_300009",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x1024x4096_300010",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x1024x4096_300011",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x2048x1024_300012",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x2048x1024_300013",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x2048x4096_300014",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "quant_4096x2048x4096_300015",
+      "tier": "L2",
+      "family": "quant-gemm"
+    },
+    {
+      "name": "moe_s512_d1024_n1024_e4_400000",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d1024_n1024_e8_400001",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d1024_n2048_e4_400002",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d1024_n2048_e8_400003",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e4_400004",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e8_400005",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d2048_n2048_e4_400006",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s512_d2048_n2048_e8_400007",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e4_400008",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e8_400009",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e4_400010",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e8_400011",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e4_400012",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e8_400013",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d2048_n2048_e4_400014",
+      "tier": "L3",
+      "family": "moe"
+    },
+    {
+      "name": "moe_s1024_d2048_n2048_e8_400015",
+      "tier": "L3",
+      "family": "moe"
     }
   ]
 }

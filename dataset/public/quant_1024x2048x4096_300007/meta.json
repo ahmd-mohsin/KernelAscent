@@ -1,0 +1,24 @@
+{
+  "name": "quant_1024x2048x4096_300007",
+  "tier": "L2",
+  "family": "quant-gemm",
+  "tags": [
+    "dequant-fusion",
+    "elementwise-fusion",
+    "quantization",
+    "tensor-core",
+    "tiling"
+  ],
+  "meta": {
+    "M": 1024,
+    "D": 2048,
+    "N": 4096,
+    "dtype": "fp16",
+    "chain": [
+      "int8-dequant",
+      "matmul->4096",
+      "bias",
+      "gelu"
+    ]
+  }
+}
