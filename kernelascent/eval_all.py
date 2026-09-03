@@ -14,9 +14,10 @@ seed0=10000000 -> the PRIVATE held-out split (leaderboard). seed0=0 -> public de
 Grade afterwards, per model:
   python grade_candidates.py --candir /tmp/.../eval/<slug> --out summary_<slug>.json
 """
-import os, json, argparse, subprocess, re
+import os, sys, json, argparse, subprocess, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+PYEXE = sys.executable or "python3"
 
 
 def slug(model_id):
@@ -43,7 +44,7 @@ def main():
     print("evaluating %d models -> %s (seed0=%d)" % (len(models), args.outroot, args.seed0))
     for i, mid in enumerate(models):
         outdir = os.path.join(args.outroot, slug(mid))
-        cmd = ["python", os.path.join(HERE, "curate_bedrock.py"),
+        cmd = [PYEXE, os.path.join(HERE, "curate_bedrock.py"),
                "--model-id", mid, "--region", args.region, "--outdir", outdir,
                "--k", str(args.k), "--n-fusion", str(args.n_fusion),
                "--seed0", str(args.seed0), "--workers", str(args.workers)]
