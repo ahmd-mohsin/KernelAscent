@@ -44,17 +44,23 @@ class Curator:
         self.model_id = model_id
 
     def one(self, src, temp, max_tokens=32000):
-        for attempt in range(7):
-            try:
-                r = self.rt.converse(
-                    modelId=self.model_id, system=[{"text": SYS}],
-                    messages=[{"role": "user", "content": [{"text": PROMPT.format(src=src)}]}],
-                    inferenceConfig={"maxTokens": max_tokens, "temperature": temp})
-                return "".join(p.get("text", "") for p in r["output"]["message"]["content"])
-            except Exception as e:
-                if "Throttl" in repr(e) and attempt < 6:
-                    time.sleep(min(2 ** attempt, 30)); continue
-                return "BEDROCK_ERROR: " + repr(e)[:120]
+        # Adaptive maxTokens: many models cap converse output below 32k; drop on the cap error.
+        for mt in (max_tokens, 16000, 8192, 4096):
+            for attempt in range(6):
+                try:
+                    r = self.rt.converse(
+                        modelId=self.model_id, system=[{"text": SYS}],
+                        messages=[{"role": "user", "content": [{"text": PROMPT.format(src=src)}]}],
+                        inferenceConfig={"maxTokens": mt, "temperature": temp})
+                    return "".join(p.get("text", "") for p in r["output"]["message"]["content"])
+                except Exception as e:
+                    es = repr(e)
+                    if "Throttl" in es and attempt < 5:
+                        time.sleep(min(2 ** attempt, 30)); continue
+                    if ("maximum tokens" in es.lower()) or ("ValidationException" in es and "token" in es.lower()):
+                        break            # this maxTokens too high for the model -> try lower
+                    return "BEDROCK_ERROR: " + es[:140]
+        return "BEDROCK_ERROR: maxtokens_exhausted"
 
 
 def main():
