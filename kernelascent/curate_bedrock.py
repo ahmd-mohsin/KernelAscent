@@ -126,6 +126,30 @@ class Curator:
         out = ("<reasoning>\n" + "\n".join(reason) + "\n</reasoning>\n\n") if reason else ""
         return out + "".join(ans)
 
+    def generate(self, user_text, temp=1.0):
+        """Generate for an arbitrary prompt (used by scaffold-RSI with a strategy library)."""
+        if self.resolved is None:
+            self.resolve()
+        if self.reasoning == "__unset__":
+            self.resolve_reasoning()
+        mid, mt = self.resolved
+        reason = self.reasoning if self.reasoning not in (None, "__unset__") else None
+        for attempt in range(6):
+            try:
+                cfg = {"maxTokens": mt, "temperature": 1.0 if reason else temp}
+                kw = {"additionalModelRequestFields": reason} if reason else {}
+                r = self.rt.converse(modelId=mid, system=[{"text": SYS}],
+                                     messages=[{"role": "user", "content": [{"text": user_text}]}],
+                                     inferenceConfig=cfg, **kw)
+                return self._collect(r["output"]["message"]["content"])
+            except Exception as e:
+                esl = repr(e).lower()
+                if "throttl" in esl and attempt < 5:
+                    time.sleep(min(2 ** attempt, 30)); continue
+                if reason and any(k in esl for k in ("thinking", "reasoning", "budget", "temperature", "effort", "output_config", "enable_thinking")):
+                    reason = None; continue
+                return "BEDROCK_ERROR: " + repr(e)[:140]
+
     def one(self, src, temp, max_tokens=None):
         if self.resolved is None:
             self.resolve()

@@ -79,8 +79,38 @@ KernelAscent scopes the RSI claim across three tracks, each with its own leaderb
 The curated dataset is published on both GitHub (`dataset/curated/`) and Hugging Face
 (`muahmed7338/kernelascent`): **1,064 tasks, 3,130 candidate solutions** from the Claude
 Fable 5 curator across 6 families (matmul, norm-act, attention, rope-attention,
-quant-gemm, moe) and tiers L1–L3. A public dev split lives in `dataset/public/`; the
-private held-out split (seed range 10,000,000+) powers the leaderboards and is never released.
+quant-gemm, moe) and tiers L1–L3.
+
+### Getting it
+
+```bash
+# Hugging Face (dataset repo)
+huggingface-cli download muahmed7338/kernelascent --repo-type dataset --local-dir kernelascent-data
+# or GitHub
+git clone https://github.com/ahmd-mohsin/KernelAscent && ls KernelAscent/dataset
+```
+
+### Layout
+
+- `dataset/public/` — released dev split, **problems only** (`<task>/task.py` + `meta.json` + `manifest.json`). Use it to benchmark your own models and in papers.
+- `dataset/curated/` (and HF `curated/`) — full bundles: `task.py` (the problem), `cand_*.py` (Fable candidate solutions), `reference_solution.py` (best correct+fastest kernel), `results.json`, and `meta.json` (tier, family, tags, difficulty).
+- **Held-out split** — a private seed range (10,000,000+), never released; it powers the leaderboards so scores can't be gamed.
+
+### Each task
+
+`task.py` is a self-contained, seeded `Model(nn.Module)` with `get_inputs()`. An agent must return an equivalent, faster `ModelNew`. Regenerate any split deterministically:
+
+```bash
+python kernelascent/make_dataset.py --split public --outdir dataset/public
+```
+
+### Using it
+
+```bash
+# score a model on the public split (see QUICKSTART.md)
+kernelascent eval --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --split public --out runs/qwen3-32b
+```
+Or load a `task.py` directly: `exec(open(".../task.py").read())` gives `Model` + `get_inputs`; grade any `ModelNew` against it with `kernelascent/grade_candidates.py`.
 
 ## Status
 
