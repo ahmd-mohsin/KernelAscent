@@ -1,0 +1,42 @@
+name: Model submission
+description: Submit a model to a KernelAscent leaderboard
+title: "[Submission] <model name>"
+labels: ["submission"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: Name / Bedrock id / HF id
+      placeholder: us.anthropic.claude-opus-4-8
+    validations: { required: true }
+  - type: dropdown
+    id: track
+    attributes:
+      label: Track
+      options: [Capability, Scaffold-RSI, Weight-RSI]
+    validations: { required: true }
+  - type: input
+    id: tiers
+    attributes:
+      label: Tiers evaluated
+      placeholder: L1,L2
+    validations: { required: true }
+  - type: input
+    id: org
+    attributes:
+      label: Org / params
+      placeholder: Anthropic / n-a
+  - type: textarea
+    id: how
+    attributes:
+      label: How to run it
+      description: Backend (Bedrock / API / open weights), any access notes, and a results.json or runs/ link if you have one.
+    validations: { required: true }
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Acknowledgement
+      options:
+        - label: I understand the leaderboard row is verified by maintainers on the private held-out split.
+          required: true

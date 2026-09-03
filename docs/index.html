@@ -177,14 +177,18 @@
 </section>
 
 <section id="submit" class="panel">
-  <h2>Submit a model</h2>
-  <p>The leaderboard is data-driven. To add an off-the-shelf model:</p>
-  <ol>
-    <li>Run the agent harness on the public task split: <code>python kernelascent/agent_bench.py --n 80 --k 8 --out results.json</code> (or grade your own candidates with <code>grade_candidates.py</code>).</li>
-    <li>Add one entry to <code>docs/data/leaderboard.json</code> with your model, params, and metrics.</li>
-    <li>Open a pull request. Held-out (private) scoring is run by the maintainers to confirm.</li>
-  </ol>
-  <p>See the <a href="https://github.com/ahmd-mohsin/KernelAscent">GitHub repository</a> for the harness, generator, and proposal.</p>
+  <h2>Call for submissions</h2>
+  <p>Add any model to the leaderboards in one command. The board is scored on a private held-out split, so results can't be gamed by overfitting the released tasks.</p>
+  <pre class="arch">pip install "kernelascent @ git+https://github.com/ahmd-mohsin/KernelAscent"
+
+# API model (no GPU to generate); grade on any GPU:
+kernelascent gen   --model us.anthropic.claude-opus-4-8 --tiers L1,L2 --out runs/opus
+kernelascent grade --candir runs/opus --out runs/opus/summary.json
+
+# or end-to-end on a GPU box:
+kernelascent eval  --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --out runs/qwen3-32b</pre>
+  <p>Then open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">Model submission issue</a> or a PR with your <code>runs/</code> directory. Maintainers verify on the held-out split and add your row. See <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/SUBMISSION.md">SUBMISSION.md</a> and <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/QUICKSTART.md">QUICKSTART.md</a>.</p>
+  <p class="muted small">The harness auto-resolves each model's id form (bare vs <code>us.</code> profile), true max output tokens, and reasoning config; reasoning is enabled for reasoning-capable models.</p>
 </section>
 </main>
 

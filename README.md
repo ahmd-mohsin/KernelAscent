@@ -52,21 +52,19 @@ results/
 
 ## Running
 
-Requires an NVIDIA GPU, PyTorch, and Triton (ships with recent PyTorch).
-
 ```bash
-# Baseline harness: torch.compile candidate vs torch.compile max-autotune roofline
-python kernelascent/run_bench.py --n 20 --candidate compile --baseline compile_max --out results/run.json
+pip install "kernelascent @ git+https://github.com/ahmd-mohsin/KernelAscent"
 
-# Agent benchmark: an LLM writes ModelNew, graded best-of-k
-python kernelascent/agent_bench.py --n 10 --k 8 --out results/agent.json
+export AWS_PROFILE=bedrock                      # Bedrock access (us-east-1)
+kernelascent gen   --model us.anthropic.claude-opus-4-8 --tiers L1,L2 --out runs/opus   # API, no GPU
+kernelascent grade --candir runs/opus --out runs/opus/summary.json                      # GPU
+# or, on a GPU box, end-to-end:
+kernelascent eval  --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --out runs/qwen3-32b
 ```
 
-Lock GPU clocks for reproducible timing (needs privilege):
-
-```bash
-sudo nvidia-smi -lgc 1410
-```
+`gen` calls the model via Bedrock and stores candidate kernels + reasoning trajectories;
+`grade` runs/times them on a GPU against the `min(eager, torch.compile)` roofline. See
+`QUICKSTART.md`. For reproducible timing, lock GPU clocks: `sudo nvidia-smi -lgc 1410`.
 
 ## Three tracks
 
