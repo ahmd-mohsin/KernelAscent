@@ -68,21 +68,34 @@ Lock GPU clocks for reproducible timing (needs privilege):
 sudo nvidia-smi -lgc 1410
 ```
 
+## Three tracks
+
+KernelAscent scopes the RSI claim across three tracks, each with its own leaderboard:
+
+1. **Capability** (all models, API or open) — kernel-optimization skill. An AI-R&D capability leaderboard, distinct from the recursive loop.
+2. **Scaffold-RSI** (API-eligible) — the agent recursively improves its own optimization scaffold around a frozen model; scored by the compounding coefficient vs a frozen-scaffold control.
+3. **Weight-RSI** (open-weight only) — the kernel-to-model training loop; scored by the compounding coefficient and the Δ_k control. Requires GRPO training, so API models cannot participate.
+
+## Dataset
+
+The curated dataset is published on both GitHub (`dataset/curated/`) and Hugging Face
+(`muahmed7338/kernelascent`): **1,064 tasks, 3,130 candidate solutions** from the Claude
+Fable 5 curator across 6 families (matmul, norm-act, attention, rope-attention,
+quant-gemm, moe) and tiers L1–L3. A public dev split lives in `dataset/public/`; the
+private held-out split (seed range 10,000,000+) powers the leaderboards and is never released.
+
 ## Status
 
-Working and validated end to end: procedural generation, fp32-gold correctness,
-roofline-relative `fast_p`, pinned-clock timing, KernelBench-style source tasks, and a
-Qwen2.5-Coder-7B agent graded best-of-k with Triton support (candidates are imported
-from real files so `triton.jit` can introspect source).
+Working end to end: procedural generation, fp32-gold correctness, roofline-relative
+`fast_p`, pinned-clock timing, reward-hack-resistant multi-input grading, and a
+generation backend for open-weight models (local) and 76 Bedrock models (API).
 
-First valid agent result (Qwen2.5-Coder-7B, n=10, k=8, eager baseline):
-`pass@8 = 0.20`, `fast_1 = 0.10`. The benchmark is hard and discriminative — a 7B agent
-is far from the ceiling, which is the headroom an RSI benchmark needs.
+The **Capability leaderboard is being populated**: Tier-1 (L1) and Tier-2 (L2) tasks are
+run across all 76 Bedrock text/chat models, storing full reasoning trajectories; results
+are graded on GPU against the `min(eager, torch.compile)` roofline.
 
 ## Roadmap
 
-1. Multi-GPU parallel evaluation (shard tasks across GPUs).
-2. Best-of roofline baseline (min over eager / compile / max-autotune).
-3. Real-bottleneck task families (attention, MoE, paged KV-cache).
-4. vLLM rollouts plus a custom GRPO loop to land the first RL training step.
-5. The L5 recursion: kernel to model to kernel, measuring the compounding coefficient.
+1. Complete the Tier-1/Tier-2 capability sweep across the 76 Bedrock models and publish the leaderboard.
+2. Scaffold-RSI runs (self-improving scaffold vs frozen-scaffold control).
+3. Weight-RSI: GRPO training loop on open-weight models, measuring the compounding coefficient.
