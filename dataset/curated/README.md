@@ -64,4 +64,4 @@ split is never released, so leaderboard scores cannot be gamed by overfitting th
 }
 ```
 
-> Status: problems + curator (Fable 5) candidate solutions. Graded `reference_solution.py` / `results.json` are added after the grading pass.
+> Status: 1,064 tasks with Claude Fable 5 candidate solutions across 6 families. Graded `reference_solution.py` / `results.json` are added by the hardened grader in a later pass. See `manifest.json` for per-family/tier counts.

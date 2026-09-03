@@ -1,0 +1,6412 @@
+{
+  "name": "KernelAscent curated",
+  "curator": "Claude Fable 5 (Bedrock)",
+  "n_tasks": 1064,
+  "n_candidate_solutions": 3130,
+  "families": {
+    "attention": 36,
+    "moe": 16,
+    "quant-gemm": 16,
+    "rope-attention": 17,
+    "norm-act": 418,
+    "matmul": 561
+  },
+  "tiers": {
+    "L3": 69,
+    "L2": 577,
+    "L1": 418
+  },
+  "seed_range": "public (held-out seeds 10,000,000+ are private, not included)",
+  "contents_per_task": [
+    "task.py",
+    "meta.json",
+    "cand_0..k.py"
+  ],
+  "grading": "reference_solution.py + results.json + difficulty added by the hardened grader (pending)",
+  "tasks": [
+    {
+      "name": "attn_s1024_d1024_100016",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s1024_d1024_100018",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s1024_d2048_100020",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s1024_d2048_100022",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s1024_d512_100012",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s1024_d512_100014",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d1024_100028",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d1024_100030",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d2048_100032",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d2048_100034",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d512_100024",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s2048_d512_100026",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d1024_100004",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d1024_100006",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d2048_100008",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d2048_100010",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d512_100000",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attn_s512_d512_100002",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d1024_100017",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d1024_100019",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d2048_100021",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d2048_100023",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d512_100013",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s1024_d512_100015",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s2048_d1024_100029",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s2048_d1024_100031",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 2
+    },
+    {
+      "name": "attnc_s2048_d2048_100033",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s2048_d2048_100035",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 2
+    },
+    {
+      "name": "attnc_s2048_d512_100025",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s2048_d512_100027",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d1024_100005",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d1024_100007",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d2048_100009",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d2048_100011",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d512_100001",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "attnc_s512_d512_100003",
+      "family": "attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e4_400008",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e8_400009",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e4_400010",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e8_400011",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e4_400012",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e8_400013",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d2048_n2048_e4_400014",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s1024_d2048_n2048_e8_400015",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d1024_n1024_e4_400000",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d1024_n1024_e8_400001",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d1024_n2048_e4_400002",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d1024_n2048_e8_400003",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e4_400004",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e8_400005",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d2048_n2048_e4_400006",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "moe_s512_d2048_n2048_e8_400007",
+      "family": "moe",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x1024x1024_300000",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x1024x1024_300001",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x1024x4096_300002",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x1024x4096_300003",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x2048x1024_300004",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x2048x1024_300005",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 2
+    },
+    {
+      "name": "quant_1024x2048x4096_300006",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_1024x2048x4096_300007",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x1024x1024_300008",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x1024x1024_300009",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x1024x4096_300010",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x1024x4096_300011",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x2048x1024_300012",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x2048x1024_300013",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x2048x4096_300014",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "quant_4096x2048x4096_300015",
+      "family": "quant-gemm",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "rope_s1024_d1024_200016",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s1024_d2048_200020",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s1024_d512_200012",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s1024_d512_200014",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 2
+    },
+    {
+      "name": "rope_s512_d1024_200004",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 2
+    },
+    {
+      "name": "rope_s512_d1024_200006",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s512_d2048_200008",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s512_d2048_200010",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "rope_s512_d512_200000",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s1024_d1024_200017",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s1024_d1024_200019",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s1024_d512_200013",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s1024_d512_200015",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s512_d2048_200009",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s512_d2048_200011",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "ropec_s512_d512_200001",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 3
+    },
+    {
+      "name": "ropec_s512_d512_200003",
+      "family": "rope-attention",
+      "tier": "L3",
+      "n_candidates": 1
+    },
+    {
+      "name": "t0_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t100_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t101_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t102_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t103_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t104_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t105_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t106_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t107_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 2
+    },
+    {
+      "name": "t108_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t109_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t10_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t110_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t111_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t112_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t113_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t114_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t115_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t116_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t117_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t118_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t119_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t120_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t121_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t122_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t123_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t124_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t125_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t126_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t127_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t128_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t129_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t12_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t130_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t131_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t132_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t133_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t134_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t135_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t136_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t137_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t138_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t139_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t13_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t140_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t141_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t142_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 1
+    },
+    {
+      "name": "t143_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t144_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t145_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t146_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t147_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t148_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t149_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t14_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t150_2048x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t151_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t152_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t153_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t154_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t155_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t156_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t157_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t158_1024x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t159_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t15_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t160_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t161_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t162_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t163_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t164_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t165_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t166_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t167_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t168_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t169_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t16_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t170_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t171_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t172_2048x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t173_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t174_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t175_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t177_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t178_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t179_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t17_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t181_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t182_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t183_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t184_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t185_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t186_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t187_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t188_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t189_4096x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t18_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t190_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t191_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t192_2048x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t193_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t194_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t195_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t196_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t197_8192x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t198_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t199_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t19_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t1_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t200_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t201_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t202_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t203_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t204_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t205_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t206_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t207_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t208_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t209_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t20_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t210_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t211_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t212_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t213_1024x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t214_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t215_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t216_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t217_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t218_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t219_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t21_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t220_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t222_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t223_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t224_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t225_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t226_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t227_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t228_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t229_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t22_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t230_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t231_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t232_2048x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t233_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t234_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t235_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t236_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t237_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t238_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t239_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t23_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t240_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t241_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t242_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t243_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t244_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t245_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t246_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t247_4096x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t248_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t249_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t24_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t250_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 1
+    },
+    {
+      "name": "t251_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t252_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t253_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t254_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t255_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t256_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t257_2048x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t258_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t259_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t25_4096x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t260_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t261_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t262_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t263_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t264_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t265_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t266_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t267_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t268_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t269_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t26_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t270_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t271_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t272_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t273_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t274_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t275_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t276_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t277_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t278_2048x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t279_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t27_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t280_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t281_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t282_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t283_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t284_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t285_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t286_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t287_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t288_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t289_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t28_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t290_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t291_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t292_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t293_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t294_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t295_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t296_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t297_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t298_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t299_2048x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t29_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t2_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t300_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t301_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t302_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t303_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t304_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t305_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t306_4096x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t307_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t308_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t309_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t30_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t310_8192x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t311_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t312_1024x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t313_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t314_1024x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t315_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t316_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t317_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t318_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t319_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t31_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t320_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t321_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t322_4096x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t323_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t324_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t325_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t326_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t327_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t328_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t329_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t32_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t330_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t331_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t332_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t333_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t334_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t335_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t336_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t337_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t338_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t339_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t33_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t340_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t341_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t342_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t343_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t344_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t345_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t346_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t347_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t348_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t349_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t34_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t350_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t351_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t352_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t353_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t354_1024x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t355_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t356_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t357_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t358_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t359_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t35_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t360_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t361_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t362_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t363_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t364_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t365_2048x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t366_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t367_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t368_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t369_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t36_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t370_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t371_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t372_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t373_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t374_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t375_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t376_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t377_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t378_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t379_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t37_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t380_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t381_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t382_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t383_8192x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t384_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t385_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t386_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t387_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t388_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t389_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t38_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t390_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t391_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t392_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t393_2048x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t394_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t395_2048x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t396_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t397_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t398_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t399_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t39_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t3_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t400_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t401_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t402_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t403_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t404_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t405_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t406_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t407_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t408_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t409_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t40_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t410_1024x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t411_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t412_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t413_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t414_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t415_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t416_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t417_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t418_2048x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t419_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t41_4096x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t420_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t421_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t422_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t423_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t424_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t425_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t426_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t427_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t428_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t429_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t42_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t430_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t431_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t432_8192x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t433_1024x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t434_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t435_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t436_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t437_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t438_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t439_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t43_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t440_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t441_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t442_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t443_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t444_2048x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t445_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t446_4096x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t447_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t448_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t449_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t44_4096x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t450_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t451_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t452_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t453_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t454_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t455_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t456_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t457_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t458_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t459_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t45_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t460_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t461_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t462_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t463_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t464_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t465_1024x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t466_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t467_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t468_1024x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t469_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t46_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t470_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t471_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t472_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t474_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t475_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t476_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t477_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t478_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t479_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t47_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t480_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t481_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t482_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t483_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t484_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t485_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t486_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t487_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t488_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t489_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t490_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t491_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t492_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t493_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t494_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t495_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t496_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t497_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t498_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t499_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t49_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t4_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t500_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t501_2048x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t502_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t503_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t504_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t505_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t506_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t507_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t508_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t509_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t50_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t510_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t511_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t513_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t514_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t515_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 1
+    },
+    {
+      "name": "t516_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t518_2048x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t519_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t51_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t520_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t521_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t522_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t523_2048x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t524_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t525_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t526_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t527_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t528_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t529_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t52_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t530_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t531_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t532_1024x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t533_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t534_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t535_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t536_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t537_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t538_2048x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t539_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t53_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t540_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t541_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t542_4096x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t543_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t544_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t545_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t546_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t547_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t549_1024x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t54_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t550_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t551_8192x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t552_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t553_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t554_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t555_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t556_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t557_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t558_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t559_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t55_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t560_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t561_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t562_2048x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t563_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t564_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t565_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t566_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t567_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t568_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t569_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t56_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t572_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t573_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t574_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t575_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t576_8192x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t577_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t578_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t579_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t57_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t580_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t581_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t582_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t583_8192x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t584_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t585_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t586_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t587_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t588_4096x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t589_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t58_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t590_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t591_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t592_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t593_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t594_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t595_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t596_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t597_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t598_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t59_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t5_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t600_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t601_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t602_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t603_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t604_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t605_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t606_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t607_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t608_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t609_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t60_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t610_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t611_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t612_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t613_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t614_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t615_1024x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t616_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t617_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t618_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t619_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t61_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t620_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t621_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t622_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t623_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t624_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t625_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t626_2048x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t627_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t628_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t629_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t62_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t630_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t631_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t632_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t633_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t634_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t635_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t636_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t637_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t638_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t639_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t63_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t640_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t641_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t642_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t643_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t644_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t645_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t646_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t647_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t648_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t649_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t64_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t650_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t651_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t652_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t653_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t654_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t655_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t656_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t657_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t658_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t659_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t65_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t660_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t661_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t662_512x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t663_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t664_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t665_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t666_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t668_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t669_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t66_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t670_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t671_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t672_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t673_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t674_4096x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t675_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t676_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t677_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t678_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t679_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t67_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t680_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t681_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t682_8192x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t683_4096x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t684_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t685_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t686_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t687_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t688_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t689_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t68_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t690_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t691_1024x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 1
+    },
+    {
+      "name": "t692_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t693_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t694_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t695_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t696_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t697_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t698_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t699_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t69_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t6_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t700_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t701_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t703_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t704_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t705_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t706_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t708_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t709_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t70_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t710_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t711_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t712_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 2
+    },
+    {
+      "name": "t713_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t714_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t715_8192x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t716_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t717_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t718_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t719_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t71_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t720_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t721_1024x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t722_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t723_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t724_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t725_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t726_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t727_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t728_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t729_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t72_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t730_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t731_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t732_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t733_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t734_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t735_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t736_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t737_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t738_1024x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t739_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t73_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t740_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t741_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t742_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t743_2048x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t744_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t745_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t746_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t747_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t748_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t749_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t74_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 2
+    },
+    {
+      "name": "t750_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t751_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t752_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t753_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t754_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t755_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t756_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t757_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t758_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t759_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t75_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t760_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t762_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t763_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t764_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t765_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t766_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t767_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t768_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t769_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t76_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t770_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t771_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t772_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t773_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t774_2048x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t775_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t776_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t777_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t778_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 1
+    },
+    {
+      "name": "t779_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t77_2048x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t780_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t781_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t782_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t783_8192x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t784_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t785_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t786_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t787_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t788_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t789_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t78_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t790_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t791_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t792_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t793_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t794_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t795_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t796_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t797_8192x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t798_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t799_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t79_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t800_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t801_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t802_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t803_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t804_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t805_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t806_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t807_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t808_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t809_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t80_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t810_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t811_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t812_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t813_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t814_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t815_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t816_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t817_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t818_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t819_2048x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t81_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 1
+    },
+    {
+      "name": "t820_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t821_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t822_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t823_2048x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t824_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t825_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t826_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t827_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t828_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t829_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t82_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t830_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t831_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t832_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t833_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t834_2048x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t835_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t836_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t837_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t838_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t839_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t83_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t840_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t841_8192x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t842_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t843_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t844_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t845_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t846_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t847_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t848_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t849_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t84_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t850_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t851_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t852_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t853_4096x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t854_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t855_1024x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t856_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t857_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t858_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t859_8192x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t85_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t860_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t861_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t862_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t863_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t864_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t865_4096x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t866_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t867_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t868_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t869_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t86_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t870_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t871_2048x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t872_8192x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t873_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t874_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t875_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t876_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t877_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t878_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t879_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t87_1024x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t880_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t881_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t882_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t883_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t884_512x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t885_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t886_1024x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t888_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t889_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t88_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t890_512x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t891_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t892_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t893_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t894_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t895_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t896_1024x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t897_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t898_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t899_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t89_512x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t8_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t900_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t901_4096x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t902_2048x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t903_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t904_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t905_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t906_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t907_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t908_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t909_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t90_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t910_8192x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t911_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 1
+    },
+    {
+      "name": "t913_512x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t914_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t915_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t916_8192x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t917_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t918_4096x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t919_8192x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t91_512x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t920_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t921_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t923_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t924_8192x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t925_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t926_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t927_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t928_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t929_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t92_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t930_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t931_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t932_8192x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t933_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t934_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t935_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t936_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t937_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t938_4096x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t939_512x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t93_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t940_2048x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t941_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t942_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t943_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t945_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t946_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t947_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 2
+    },
+    {
+      "name": "t948_8192x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t949_2048x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t94_8192x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t950_1024x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t951_1024x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t952_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t953_512x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t954_1024x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t955_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t956_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t957_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t958_2048x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t959_4096x1025",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t95_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t960_4096x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t961_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t962_2048x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t963_8192x2049",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t964_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t965_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t966_512x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t967_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t968_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t969_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t96_2048x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t970_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t971_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t972_512x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t973_1024x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t974_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t975_4096x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t976_2048x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t977_512x2048",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t978_8192x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t979_4096x1024",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t97_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t980_4096x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t981_1024x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t982_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t983_8192x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t984_512x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t985_2048x1024",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t986_512x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t987_8192x513",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t988_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t989_512x1025",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t98_2048x512",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t990_8192x512",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t991_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t992_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t993_512x513",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t994_1024x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t995_1024x2048",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t996_4096x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t997_4096x4097",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t998_1024x4096",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t999_512x4096",
+      "family": "norm-act",
+      "tier": "L1",
+      "n_candidates": 3
+    },
+    {
+      "name": "t99_4096x4097",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    },
+    {
+      "name": "t9_4096x2049",
+      "family": "matmul",
+      "tier": "L2",
+      "n_candidates": 3
+    }
+  ]
+}
