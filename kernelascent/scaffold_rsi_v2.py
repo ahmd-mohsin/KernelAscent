@@ -10,10 +10,50 @@ Single host: Bedrock generation + GPU grading. Per round:
 C = fast_1 (fraction beating the min(eager,torch.compile) roofline). one-shot = C_self[0].
 RSI value = C_self compounding (b>0) and Delta_k = C_self - C_control growing across rounds.
 """
-import os, json, glob, argparse, subprocess, math
+import os, re, json, glob, argparse, subprocess, math
 from concurrent.futures import ThreadPoolExecutor
 import gen_source_tasks as G
 import curate_bedrock as C
+
+MAX_LIB = 15                          # cap accumulated library size
+_PROSE_FIRST = {"okay", "first", "looking", "let", "let's", "here", "alright",
+                "step", "so", "hmm", "well", "now", "given", "next", "based"}
+# hallucinated / non-existent APIs weak models "learn" then reuse -> reject
+_BOGUS_API = re.compile(
+    r"triton\.jit\.\w+|#pragma|matmul_strided|heap_memory|cutlass kernel|"
+    r"\btl\.(tanh|mean|matmul|constants|remainder|num_warps|Tensor|inline_assembly)\b|"
+    r"torch\.backends\.cuda\.matmul_strided",
+    re.I,
+)
+
+
+def sanitize_strategies(text, existing):
+    """Extract clean, grounded strategy lines from a reflect() response.
+    Drops reasoning-CoT leaks, prose, hallucinated-API lines, dupes; returns list[str]."""
+    text = re.sub(r"(?is)<reasoning>.*?</reasoning>", " ", text or "")  # closed reasoning blocks
+    text = re.sub(r"(?is)<reasoning>.*$", " ", text)                    # unclosed -> to EOF
+    seen = {s.strip().lower() for s in existing}
+    out = []
+    for raw in text.splitlines():
+        s = raw.strip().strip("-*•").strip()
+        s = re.sub(r"^\**\s*\d+[\.\):]\s*", "", s).strip().strip("*").strip()  # drop "1." / "2)" / "**"
+        low = s.lower()
+        if not s or len(s) < 15 or len(s) > 240:
+            continue
+        if not re.search(r"[a-zA-Z]", s):                     # just numbers/punctuation
+            continue
+        if "<reasoning>" in low or "</reasoning>" in low:
+            continue
+        first = low.split()[0].strip(".,:;!?'\"") if low.split() else ""
+        if first in _PROSE_FIRST or low.startswith("the user") or s.startswith("BEDROCK_ERROR"):
+            continue
+        if _BOGUS_API.search(s):                              # hallucinated API -> reject
+            continue
+        if low in seen:                                       # case-insensitive dedupe
+            continue
+        seen.add(low)
+        out.append(s)
+    return out
 
 OPT = """Optimize this PyTorch module for speed on an A100. Keep __init__ identical; only rewrite forward.
 Use Triton or fused PyTorch. Produce numerically equivalent output. Output ONE class named ModelNew in a single ```python block. No prose.
@@ -46,7 +86,10 @@ def gen_and_grade(cur, tasks, lib, outdir, workers, grader):
     with ThreadPoolExecutor(max_workers=workers) as ex:
         list(ex.map(do, tasks))
     summ = outdir + "/summary.json"
-    subprocess.call(grader.format(candir=outdir, out=summ), shell=True)
+    try:
+        subprocess.run(grader.format(candir=outdir, out=summ), shell=True, timeout=1200)
+    except Exception:
+        pass    # a hung compile shouldn't stall the loop; missing summary -> C treated as 0 this pass
     graded = json.load(open(summ)).get("tasks", []) if os.path.exists(summ) else []
     n = max(len(graded), 1)
     fast1 = sum(1 for t in graded if t.get("best_speedup_roofline", 0) > 1.0) / n
@@ -61,16 +104,24 @@ def reflect(cur, graded, lib):
               "\n\nAdd 1-3 NEW, concrete, generally-useful Triton/kernel strategies that would raise "
               "speedup or fix failures next time (one per line, terse). No prose.")
     out = cur.generate(prompt)
-    new = [l.strip("-* ").strip() for l in (out or "").splitlines() if l.strip()][:3]
-    return lib + [s for s in new if s and not s.startswith("BEDROCK_ERROR")]
+    add = sanitize_strategies(out or "", lib)[:3]     # up to 3 clean, grounded, novel lines
+    lib = lib + add
+    return lib[-MAX_LIB:] if len(lib) > MAX_LIB else lib   # keep most-recent MAX_LIB
 
 
 def pick(seed0, fams, n):
     ts = G.generate_systematic(n_fusion=max(n, 4), seed0=seed0)
-    if fams:
-        F = set(f.strip() for f in fams.split(","))
-        ts = [t for t in ts if t["family"] in F]
-    return ts[:n]
+    if not fams:
+        return ts[:n]
+    F = [f.strip() for f in fams.split(",")]
+    buckets = {f: [t for t in ts if t["family"] == f] for f in F}
+    out, i = [], 0                                     # round-robin so no family is sliced out
+    while len(out) < n and any(buckets[f] for f in F):
+        f = F[i % len(F)]
+        if buckets[f]:
+            out.append(buckets[f].pop(0))
+        i += 1
+    return out[:n]
 
 
 def fit_b(ys):
