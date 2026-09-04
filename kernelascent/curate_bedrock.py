@@ -222,6 +222,7 @@ def main():
     ap.add_argument("--families", default="", help="comma-separated families to include (default: all)")
     ap.add_argument("--no-raw", action="store_true", help="do not store raw reasoning trajectories")
     ap.add_argument("--seed0", type=int, default=0, help="split seed base (0=public, 10000000=held-out)")
+    ap.add_argument("--tier", default="", help="comma-separated tiers to include: Easy,Medium,Hard,Ultra (default: all)")
     args = ap.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -229,6 +230,9 @@ def main():
     if args.families:
         fams = set(f.strip() for f in args.families.split(","))
         tasks = [t for t in tasks if t["family"] in fams]
+    if args.tier:
+        tiers = set(t.strip() for t in args.tier.split(","))
+        tasks = [t for t in tasks if t.get("tier") in tiers]
     if args.limit:
         tasks = tasks[:args.limit]
     cur = Curator(args.model_id, args.region, args.profile)
