@@ -64,6 +64,32 @@ Correctness difficulty rises monotonically Easy to Ultra. The roofline is
 torch.compile, so there is real headroom above the bar at every tier (no global
 optimum). See the repo `analysis/calibration_run.md` for the failure breakdown.
 
+## How we evaluate
+
+Correctness. A candidate `ModelNew` is checked against an fp32 gold on N=4 fresh random
+inputs with a dtype-aware tolerance and an input-sensitivity check that rejects constant or
+input-ignoring outputs. Correctness is verified on the timed run. Each candidate is graded
+in an isolated subprocess so a native compiler abort or hang loses only that candidate.
+
+Two walls, reported separately. Correctness rate (was a valid correct kernel produced) and
+speed rate (does a correct kernel beat the roofline). We never fuse them into one number.
+
+Speed score. Continuous log-interpolated ladder between eager, torch.compile, and an expert
+kernel: `s = clip((ln t_eager - ln t_cand)/(ln t_eager - ln t_expert), 0, 1.2)`, 0 at eager,
+1 at expert, compile parity as a milestone. Expert rungs are reconstructed with a strong
+curator (Fable 5.1) and verified to beat torch.compile.
+
+## How progress (RSI) is measured
+
+Capability is the tier ladder. Recursive self-improvement is measured with campaigns: K
+rounds, each a practice phase (public seeds, a persistent artifact may grow) and a transfer
+phase (private seeds, artifact frozen). Improvement is credited only when it persists,
+transfers to held-out tasks, and beats controls (matched-budget search, round-0 re-run,
+poisoned artifact). The depth ladder L0 to L4 measures how deep self-modification can go and
+still compound; the headline is d*, the deepest level with a compounding transferable gain.
+Full design in the project repo `docs/RSI_DEPTH_PLAN.md`. The private held-out split is not
+released.
+
 ## Families (6) and tiers
 
 `matmul` (L2), `norm-act` (L1), `attention` (L3), `rope-attention` (L3),
