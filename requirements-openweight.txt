@@ -1,0 +1,18 @@
+# Open-weight track requirements (test-takers + weight-RSI rollouts).
+#
+# torch and triton are NOT listed here on purpose. On the GPU hosts they come
+# from the CUDA container (for our runs, torch 2.6.0a0+...nv24.12 and triton
+# 3.0.0 on A100-40GB). Do not reinstall them; a pip install of vllm or a fresh
+# torch will clobber the tuned build and break CUDA. Install only the packages
+# below into that existing environment.
+
+transformers==4.47.1
+accelerate>=1.0
+huggingface_hub>=0.26
+
+# Recommended for fast batched inference and RL rollouts, but version-sensitive
+# to your exact torch/CUDA. Install in a separate environment matched to your
+# torch build rather than on top of a container's pinned torch.
+#   vllm==0.6.3           # representative; match to your torch/CUDA
+#   trl==0.12.0           # GRPOTrainer for the weight-RSI track (representative)
+#   datasets>=3.0
