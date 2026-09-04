@@ -1,5 +1,12 @@
 # Measuring true RSI without long weight training
 
+> SUPERSEDED (2026-09-04) by `docs/RSI_DEPTH_PLAN.md` (RSI-Depth). That plan absorbs and
+> extends this one: the memory-scaffold-with-transfer idea here becomes the depth ladder
+> L1/L2, the cliff-to-slope reward becomes the log-interpolated score, and it adds the
+> depth/reality/attribution framing, Track B (real inference stacks), controls, profiles,
+> and the launch plan. Kept for provenance.
+
+
 This is a strategy proposal, not yet executed. It answers one question. Our benchmark
 is meant to elicit recursive self-improvement, but the runs so far do not show the
 mechanism. Why, and what is the cheapest experiment that would actually reveal true
