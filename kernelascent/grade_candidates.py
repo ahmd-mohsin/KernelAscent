@@ -9,7 +9,9 @@ correct on every input while a hack fails the extra draws.
 Per task writes results.json + reference_solution.py + difficulty in meta.json. Speedup
 is roofline-relative (min of eager, torch.compile). Supports --nshards for multi-GPU.
 """
-import os, glob, json, argparse, shutil, signal, threading, contextlib, torch
+import os, glob, json, argparse, shutil, signal, threading, contextlib, queue, time
+import multiprocessing as mp
+import torch
 import agent_bench as A
 
 N_INPUTS = 4  # correctness must hold on all of these
@@ -122,10 +124,83 @@ def difficulty(best_sp, any_ok, n_cand):
     return "accessible"
 
 
+def grade_task(d, tol, margin, cand_timeout):
+    """Grade one task dir end to end. Returns a summary dict, or None if the task's
+    own reference module fails to build. Runs inside an isolated worker subprocess so a
+    native compiler abort (SIGABRT/segfault) or total hang only loses this one task."""
+    name = os.path.basename(d)
+    meta = json.load(open(os.path.join(d, "meta.json"))) if os.path.exists(os.path.join(d, "meta.json")) else {"name": name}
+    task_src = open(os.path.join(d, "task.py")).read()
+    ref, gold, DT, x0 = build_models(task_src)
+    xs = draw_inputs(x0, N_INPUTS)
+    golds, bounds = golds_and_bounds(ref, gold, xs, tol, margin)
+    t_eager = A.time_fn(lambda z: ref(z), (x0,))
+    try:
+        cf = torch.compile(ref)
+        with torch.no_grad():
+            _ = cf(x0)
+        t_compile = A.time_fn(lambda z: cf(z), (x0,))
+    except Exception:
+        t_compile = None
+    t_base = min([t for t in [t_eager, t_compile] if t is not None])
+
+    cands = []
+    for cf_path in sorted(glob.glob(d + "/cand_*.py")):
+        r = grade_cand(task_src, open(cf_path).read(), xs, golds, bounds, cand_timeout)
+        cands.append(dict(file=os.path.basename(cf_path), ok=r["ok"], err=r["err"],
+                          reason=r["reason"], n_pass=r["n_pass"], n_inputs=N_INPUTS,
+                          t_cand=r["t_cand"],
+                          speedup_vs_eager=(t_eager / r["t_cand"]) if r["t_cand"] else 0.0,
+                          speedup_vs_roofline=(t_base / r["t_cand"]) if r["t_cand"] else 0.0))
+    ok_cands = [c for c in cands if c["ok"]]
+    best = max(ok_cands, key=lambda c: c["speedup_vs_roofline"], default=None)
+    best_sp = best["speedup_vs_roofline"] if best else 0.0
+    suspicious = [c["file"] for c in ok_cands if c["speedup_vs_roofline"] > 5.0]
+    diff = difficulty(best_sp, bool(ok_cands), len(cands))
+    correct = bool(ok_cands)
+    fast = best_sp > 1.0
+    results = dict(name=name, tier=meta.get("tier"), family=meta.get("family"),
+                   tags=meta.get("tags", []), meta=meta.get("meta", {}),
+                   n_inputs=N_INPUTS, t_eager=t_eager, t_compile=t_compile, t_roofline=t_base,
+                   n_cand=len(cands), pass_at_k=len(ok_cands), best=best,
+                   best_speedup_roofline=best_sp, difficulty=diff, correct=correct, fast=fast,
+                   suspicious=suspicious, candidates=cands)
+    json.dump(results, open(os.path.join(d, "results.json"), "w"), indent=2)
+    if best:
+        shutil.copyfile(os.path.join(d, best["file"]), os.path.join(d, "reference_solution.py"))
+    meta.update(achievable_speedup=best_sp, pass_rate=len(ok_cands) / max(len(cands), 1),
+                difficulty=diff, suspicious=bool(suspicious))
+    json.dump(meta, open(os.path.join(d, "meta.json"), "w"), indent=2)
+    print("%-26s %-14s %-3s %-12s pass=%d/%d sp=%.3f%s" %
+          (name, meta.get("family"), meta.get("tier"), diff, len(ok_cands), len(cands), best_sp,
+           "  SUSPICIOUS" if suspicious else ""), flush=True)
+    return dict(name=name, family=meta.get("family"), tier=meta.get("tier"),
+                difficulty=diff, pass_at_k=len(ok_cands), n_cand=len(cands),
+                best_speedup_roofline=best_sp, correct=correct, fast=fast,
+                suspicious=bool(suspicious))
+
+
+def _meta_stub(d, reason):
+    """Minimal summary row for a task whose subprocess crashed/hung, so it still buckets by tier."""
+    name = os.path.basename(d)
+    m = {}
+    try:
+        m = json.load(open(os.path.join(d, "meta.json")))
+    except Exception:
+        pass
+    row = dict(name=name, family=m.get("family"), tier=m.get("tier"), difficulty="crashed",
+               pass_at_k=0, n_cand=0, best_speedup_roofline=0.0, correct=False, fast=False,
+               suspicious=False, crash_reason=reason)
+    json.dump(dict(row, note="graded-subprocess-died"), open(os.path.join(d, "results.json"), "w"))
+    return row
+
+
 def main():
+    import subprocess, sys
     ap = argparse.ArgumentParser()
     ap.add_argument("--candir", required=True)
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--out", default="")
+    ap.add_argument("--one", default="", help="internal: grade exactly one task dir, then exit")
     ap.add_argument("--tol", type=float, default=2e-2)
     ap.add_argument("--margin", type=float, default=2.0)
     ap.add_argument("--nshards", type=int, default=1)
@@ -134,73 +209,54 @@ def main():
                     help="hard per-candidate wall-clock cap (s); 0 disables")
     args = ap.parse_args()
 
+    # --- child mode: grade one task in a fresh process, isolating native crashes ---
+    if args.one:
+        try:
+            grade_task(args.one, args.tol, args.margin, args.cand_timeout)
+        except Exception as e:                          # ref build failed etc. -> stub, exit clean
+            _meta_stub(args.one, "build_or_python_error: %s" % repr(e)[:80])
+        return
+
     tdirs = sorted(d for d in glob.glob(args.candir + "/*") if os.path.exists(os.path.join(d, "task.py")))
     tdirs = [d for i, d in enumerate(tdirs) if i % args.nshards == args.shard]
+
+    # Each task is graded in its OWN short-lived subprocess. A native compiler abort
+    # (SIGABRT/segfault) makes that subprocess exit nonzero and a total hang trips the
+    # OS-level timeout; either way only this one task is lost and the run continues.
+    # This is the isolation SIGALRM cannot provide (it cannot catch native aborts).
+    task_timeout = ((args.cand_timeout or 120) * 4) + 90
     summary = []
     for d in tdirs:
-        name = os.path.basename(d)
-        meta = json.load(open(os.path.join(d, "meta.json"))) if os.path.exists(os.path.join(d, "meta.json")) else {"name": name}
-        task_src = open(os.path.join(d, "task.py")).read()
+        rjson = os.path.join(d, "results.json")
         try:
-            ref, gold, DT, x0 = build_models(task_src)
-            xs = draw_inputs(x0, N_INPUTS)
-            golds, bounds = golds_and_bounds(ref, gold, xs, args.tol, args.margin)
-        except Exception as e:
-            print("SKIP %s build: %s" % (name, repr(e)[:50])); continue
-        t_eager = A.time_fn(lambda z: ref(z), (x0,))
+            r = subprocess.run([sys.executable, "-u", os.path.abspath(__file__), "--candir", args.candir,
+                                "--one", d, "--tol", str(args.tol), "--margin", str(args.margin),
+                                "--cand-timeout", str(args.cand_timeout)],
+                               timeout=task_timeout)
+            died = r.returncode != 0
+        except subprocess.TimeoutExpired:
+            died = True
+        if died and not os.path.exists(rjson):
+            print("CRASH %s (subprocess died) -> skipping" % os.path.basename(d), flush=True)
+            summary.append(_meta_stub(d, "subprocess_died_rc"))
+            continue
         try:
-            cf = torch.compile(ref)
-            with torch.no_grad():
-                _ = cf(x0)
-            t_compile = A.time_fn(lambda z: cf(z), (x0,))
+            rr = json.load(open(rjson))
+            summary.append(dict(name=rr["name"], family=rr.get("family"), tier=rr.get("tier"),
+                                difficulty=rr.get("difficulty"), pass_at_k=rr.get("pass_at_k", 0),
+                                n_cand=rr.get("n_cand", 0), best_speedup_roofline=rr.get("best_speedup_roofline", 0.0),
+                                correct=rr.get("correct", False), fast=rr.get("fast", False),
+                                suspicious=bool(rr.get("suspicious"))))
         except Exception:
-            t_compile = None
-        t_base = min([t for t in [t_eager, t_compile] if t is not None])
-
-        cands = []
-        for cf_path in sorted(glob.glob(d + "/cand_*.py")):
-            r = grade_cand(task_src, open(cf_path).read(), xs, golds, bounds, args.cand_timeout)
-            cands.append(dict(file=os.path.basename(cf_path), ok=r["ok"], err=r["err"],
-                              reason=r["reason"], n_pass=r["n_pass"], n_inputs=N_INPUTS,
-                              t_cand=r["t_cand"],
-                              speedup_vs_eager=(t_eager / r["t_cand"]) if r["t_cand"] else 0.0,
-                              speedup_vs_roofline=(t_base / r["t_cand"]) if r["t_cand"] else 0.0))
-        ok_cands = [c for c in cands if c["ok"]]
-        best = max(ok_cands, key=lambda c: c["speedup_vs_roofline"], default=None)
-        best_sp = best["speedup_vs_roofline"] if best else 0.0
-        # anomaly flag: passed but implausibly fast (candidate for manual hack review)
-        suspicious = [c["file"] for c in ok_cands if c["speedup_vs_roofline"] > 5.0]
-        diff = difficulty(best_sp, bool(ok_cands), len(cands))
-
-        # two walls, tracked separately: correctness (>=1 valid/correct kernel) vs speed (beats roofline)
-        correct = bool(ok_cands)
-        fast = best_sp > 1.0
-        results = dict(name=name, tier=meta.get("tier"), family=meta.get("family"),
-                       tags=meta.get("tags", []), meta=meta.get("meta", {}),
-                       n_inputs=N_INPUTS, t_eager=t_eager, t_compile=t_compile, t_roofline=t_base,
-                       n_cand=len(cands), pass_at_k=len(ok_cands), best=best,
-                       best_speedup_roofline=best_sp, difficulty=diff, correct=correct, fast=fast,
-                       suspicious=suspicious, candidates=cands)
-        json.dump(results, open(os.path.join(d, "results.json"), "w"), indent=2)
-        if best:
-            shutil.copyfile(os.path.join(d, best["file"]), os.path.join(d, "reference_solution.py"))
-        meta.update(achievable_speedup=best_sp, pass_rate=len(ok_cands) / max(len(cands), 1),
-                    difficulty=diff, suspicious=bool(suspicious))
-        json.dump(meta, open(os.path.join(d, "meta.json"), "w"), indent=2)
-        summary.append(dict(name=name, family=meta.get("family"), tier=meta.get("tier"),
-                            difficulty=diff, pass_at_k=len(ok_cands), n_cand=len(cands),
-                            best_speedup_roofline=best_sp, correct=correct, fast=fast,
-                            suspicious=bool(suspicious)))
-        print("%-26s %-14s %-3s %-12s pass=%d/%d sp=%.3f%s" %
-              (name, meta.get("family"), meta.get("tier"), diff, len(ok_cands), len(cands), best_sp,
-               "  SUSPICIOUS" if suspicious else ""), flush=True)
+            summary.append(_meta_stub(d, "no_results_json"))
 
     n = len(summary)
     # the two walls, reported separately
     correctness_rate = round(sum(1 for s in summary if s["correct"]) / n, 4) if n else 0.0
     speed_rate = round(sum(1 for s in summary if s["fast"]) / n, 4) if n else 0.0
-    json.dump({"tasks": summary, "n": n, "correctness_rate": correctness_rate,
-               "speed_rate": speed_rate}, open(args.out, "w"), indent=2)
+    if args.out:
+        json.dump({"tasks": summary, "n": n, "correctness_rate": correctness_rate,
+                   "speed_rate": speed_rate}, open(args.out, "w"), indent=2)
     LABELS = ("no_candidates", "frontier", "hard", "medium", "accessible")
     print("== by difficulty ==")
     for L in LABELS:
