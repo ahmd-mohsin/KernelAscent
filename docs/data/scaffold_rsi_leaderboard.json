@@ -1,6 +1,293 @@
 {
-  "updated": "2026-09-02",
-  "status": "Results pending — scaffold-RSI track (API-eligible). No weight training: the agent recursively improves its own optimization scaffold (prompt + strategy memory) around a frozen model.",
-  "metric_note": "compounding b = quadratic term fitting capability C_k over rounds as the agent edits its own scaffold. Delta_final = C_self-improving-scaffold - C_frozen-scaffold at the last round; confirmed only if it grows across rounds. Ceiling-limited by the frozen model, but measures genuine system-level self-improvement.",
-  "models": []
+  "updated": "2026-09-04",
+  "status": "Scaffold-RSI track (API-eligible): frozen model grows its own strategy library across rounds; scored on a held-out transfer set vs a frozen-library control.",
+  "metric_note": "C = fast_1 on held-out transfer (fraction beating min(eager,torch.compile) roofline). compounding_b = quadratic fit of C over rounds; delta_final = C_self - C_control at last round; capability_r0/rN = first/last round C. Verdict: channel-not-opened (C_N<0.05), compounds (\u0394_final>0.1 & b>0), degrades (\u0394_final<-0.1), else plateau.",
+  "models": [
+    {
+      "model": "us.anthropic.claude-opus-5",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.5,
+      "capability_rN": 0.5833333333333334,
+      "compounding_b": -0.0208,
+      "delta_final": -0.083,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.anthropic.claude-fable-5",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.375,
+      "capability_rN": 0.5416666666666666,
+      "compounding_b": -0.0417,
+      "delta_final": 0.167,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.anthropic.claude-opus-4-8",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.3333333333333333,
+      "capability_rN": 0.3333333333333333,
+      "compounding_b": -0.0,
+      "delta_final": -0.042,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.anthropic.claude-sonnet-5",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.375,
+      "capability_rN": 0.3333333333333333,
+      "compounding_b": -0.0208,
+      "delta_final": -0.083,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "google.gemma-3-12b-it",
+      "params": "12B",
+      "rounds": 4,
+      "capability_r0": 0.16666666666666666,
+      "capability_rN": 0.16666666666666666,
+      "compounding_b": -0.0208,
+      "delta_final": -0.042,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "google.gemma-3-27b-it",
+      "params": "27B",
+      "rounds": 4,
+      "capability_r0": 0.16666666666666666,
+      "capability_rN": 0.125,
+      "compounding_b": -0.0208,
+      "delta_final": -0.167,
+      "verdict": "degrades",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "moonshotai.kimi-k2.5",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.08333333333333333,
+      "capability_rN": 0.125,
+      "compounding_b": 0.0208,
+      "delta_final": -0.042,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.20833333333333334,
+      "capability_rN": 0.08333333333333333,
+      "compounding_b": 0.0521,
+      "delta_final": -0.125,
+      "verdict": "degrades",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.deepseek.r1-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.16666666666666666,
+      "capability_rN": 0.08333333333333333,
+      "compounding_b": -0.0104,
+      "delta_final": -0.042,
+      "verdict": "plateau",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "deepseek.v3.2",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.041666666666666664,
+      "capability_rN": 0.041666666666666664,
+      "compounding_b": 0.0104,
+      "delta_final": 0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "qwen.qwen3-next-80b-a3b",
+      "params": "80B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.041666666666666664,
+      "compounding_b": 0.0104,
+      "delta_final": 0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.041666666666666664,
+      "compounding_b": -0.0208,
+      "delta_final": 0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.writer.palmyra-x5-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.041666666666666664,
+      "compounding_b": 0.0104,
+      "delta_final": 0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "amazon.nova-lite-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": -0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "amazon.nova-pro-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.041666666666666664,
+      "capability_rN": 0.0,
+      "compounding_b": -0.0,
+      "delta_final": -0.125,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "minimax.minimax-m2.5",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": -0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "mistral.devstral-2-123b",
+      "params": "123B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": -0.167,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "mistral.mistral-large-3-675b-instruct",
+      "params": "675B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": 0.0,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "nvidia.nemotron-super-3-120b",
+      "params": "120B",
+      "rounds": 4,
+      "capability_r0": 0.041666666666666664,
+      "capability_rN": 0.0,
+      "compounding_b": -0.0,
+      "delta_final": -0.083,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "openai.gpt-oss-120b-1:0",
+      "params": "120B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": -0.0104,
+      "delta_final": 0.0,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "qwen.qwen3-32b-v1:0",
+      "params": "32B",
+      "rounds": 4,
+      "capability_r0": 0.08333333333333333,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0208,
+      "delta_final": -0.083,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.meta.llama3-1-8b-instruct-v1:0",
+      "params": "8B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": 0.0,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.meta.llama3-3-70b-instruct-v1:0",
+      "params": "70B",
+      "rounds": 4,
+      "capability_r0": 0.25,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0625,
+      "delta_final": -0.375,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.meta.llama4-maverick-17b-instruct-v1:0",
+      "params": "17B",
+      "rounds": 4,
+      "capability_r0": 0.08333333333333333,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": -0.042,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.meta.llama4-scout-17b-instruct-v1:0",
+      "params": "17B",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": 0.0,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    },
+    {
+      "model": "us.mistral.pixtral-large-2502-v1:0",
+      "params": "n/a",
+      "rounds": 4,
+      "capability_r0": 0.0,
+      "capability_rN": 0.0,
+      "compounding_b": 0.0,
+      "delta_final": 0.0,
+      "verdict": "channel-not-opened",
+      "role": "scaffold-rsi"
+    }
+  ]
 }
