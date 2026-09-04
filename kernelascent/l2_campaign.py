@@ -85,15 +85,16 @@ def render_lib(sel):
     return LIB_HEADER.format(skills="\n\n".join(blocks))
 
 
-def solve(model, tok, task, skills, max_new, outdir, cand_timeout, retrieve_k):
-    """One keep-best solve of a task with the given (frozen) skills in context. Returns
-    (score, best_result_dict, code)."""
+def solve(gen_fn, task, skills, outdir, cand_timeout, retrieve_k):
+    """One keep-best solve of a task with the given (frozen) skills in context, using the
+    generate callable gen_fn(prompt)->raw (open-weight HF or Bedrock API). Returns a
+    5-tuple (correct, t_cand, t_eager, t_compile, code) or (0.0, None, None) on no-candidate."""
     d = os.path.join(outdir, task["name"]); os.makedirs(d, exist_ok=True)
     open(d + "/task.py", "w").write(task["source"])
     json.dump({k: task[k] for k in ("name", "tier", "family", "meta") if k in task}, open(d + "/meta.json", "w"))
     sel = retrieve(skills, task["family"], retrieve_k)
     prompt = render_lib(sel) + BASE.format(src=task["source"])
-    raw = gen_one(model, tok, prompt, max_new)
+    raw = gen_fn(prompt) or ""
     code = CB.extract_modelnew(raw)
     for old in glob.glob(d + "/cand_*.py"):
         os.remove(old)
@@ -109,7 +110,9 @@ def solve(model, tok, task, skills, max_new, outdir, cand_timeout, retrieve_k):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", required=True)
+    ap.add_argument("--model", required=True, help="HF id, or a label when --api-model is set")
+    ap.add_argument("--api-model", default="", help="Bedrock model id; if set, generate via API instead of HF weights")
+    ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--expert-times", default="")
     ap.add_argument("--practice-n", type=int, default=8)
     ap.add_argument("--transfer-n", type=int, default=8)
@@ -123,17 +126,26 @@ def main():
     ap.add_argument("--outdir", required=True)
     args = ap.parse_args()
 
-    from transformers import AutoModelForCausalLM, AutoTokenizer
     os.makedirs(args.outdir, exist_ok=True)
     expert = json.load(open(args.expert_times)) if args.expert_times and os.path.exists(args.expert_times) else {}
     practice = G.generate_tiered(args.tier, args.practice_n, seed0=args.practice_seed0)
     transfer = G.generate_tiered(args.tier, args.transfer_n, seed0=args.transfer_seed0)
-    tok = AutoTokenizer.from_pretrained(args.model)
-    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16, device_map="cuda").eval()
-    if tok.pad_token_id is None:
-        tok.pad_token = tok.eos_token
-    print("L2 model=%s tier=%s practice=%d transfer=%d rounds=%d gpu=%s" %
-          (args.model, args.tier, len(practice), len(transfer), args.rounds, os.environ.get("CUDA_VISIBLE_DEVICES", "?")), flush=True)
+
+    if args.api_model:                       # Bedrock API agent (grading still on the local GPU)
+        cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
+        wid, wmt = cur.resolve(); cur.resolve_reasoning()
+        gen_fn = lambda prompt: cur.generate(prompt)
+        who = "api:%s(id=%s,mt=%d)" % (args.api_model, wid, wmt)
+    else:                                    # open-weight HF agent
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        tok = AutoTokenizer.from_pretrained(args.model)
+        model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16, device_map="cuda").eval()
+        if tok.pad_token_id is None:
+            tok.pad_token = tok.eos_token
+        gen_fn = lambda prompt: gen_one(model, tok, prompt, args.max_new)
+        who = "hf:%s" % args.model
+    print("L2 %s tier=%s practice=%d transfer=%d rounds=%d gpu=%s" %
+          (who, args.tier, len(practice), len(transfer), args.rounds, os.environ.get("CUDA_VISIBLE_DEVICES", "?")), flush=True)
 
     def score_of(res, name):
         correct, t_cand, t_eager, t_compile, _ = res if res and len(res) == 5 else (False, None, None, None, None)
@@ -149,7 +161,7 @@ def main():
         tdir = os.path.join(args.outdir, "round%d" % k, "transfer"); os.makedirs(tdir, exist_ok=True)
         tsum = 0.0
         for t in transfer:
-            res = solve(model, tok, t, skills, args.max_new, tdir, args.cand_timeout, args.retrieve_k)
+            res = solve(gen_fn, t, skills, tdir, args.cand_timeout, args.retrieve_k)
             s = score_of(res, t["name"]); tsum += s
             print("  r%d transfer %-26s score=%.2f (skills=%d)" % (k, t["name"][:26], s, len(skills)), flush=True)
         Ck = tsum / len(transfer); C.append(Ck)
@@ -157,7 +169,7 @@ def main():
         # practice phase (grow library)
         pdir = os.path.join(args.outdir, "round%d" % k, "practice"); os.makedirs(pdir, exist_ok=True)
         for t in practice:
-            res = solve(model, tok, t, skills, args.max_new, pdir, args.cand_timeout, args.retrieve_k)
+            res = solve(gen_fn, t, skills, pdir, args.cand_timeout, args.retrieve_k)
             correct, t_cand, t_eager, t_compile, code = res if res and len(res) == 5 else (False, None, None, None, None)
             s = score_of(res, t["name"])
             if correct and code and s > 0:            # bank only verified, non-trivial (beats eager) blocks
