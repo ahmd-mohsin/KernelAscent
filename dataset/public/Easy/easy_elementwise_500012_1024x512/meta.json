@@ -1,0 +1,21 @@
+{
+  "name": "easy_elementwise_500012_1024x512",
+  "tier": "Easy",
+  "family": "norm-act",
+  "shape": {
+    "M": 1024,
+    "D": 512,
+    "dtype": "torch.float32",
+    "chain": [
+      "gelu",
+      "relu",
+      "relu"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.692,
+    "best_speedup_observed": 0.999,
+    "difficulty": "correctness-only"
+  }
+}

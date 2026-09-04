@@ -1,0 +1,24 @@
+{
+  "name": "attnc_s512_d2048_700024",
+  "tier": "Hard",
+  "family": "attention",
+  "shape": {
+    "S": 512,
+    "D": 2048,
+    "dtype": "fp16",
+    "causal": true,
+    "chain": [
+      "qkv",
+      "scores",
+      "causal",
+      "softmax",
+      "av"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.308,
+    "best_speedup_observed": 1.015,
+    "difficulty": "speed-open"
+  }
+}

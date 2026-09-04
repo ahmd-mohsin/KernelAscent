@@ -1,0 +1,24 @@
+{
+  "name": "moe_s512_d2048_n1024_e16_800020",
+  "tier": "Ultra",
+  "family": "moe",
+  "shape": {
+    "S": 512,
+    "D": 2048,
+    "N": 1024,
+    "E": 16,
+    "dtype": "fp16",
+    "chain": [
+      "router-softmax",
+      "16-expert-gemm",
+      "weighted-sum",
+      "gelu"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.538,
+    "best_speedup_observed": 1.653,
+    "difficulty": "speed-open"
+  }
+}

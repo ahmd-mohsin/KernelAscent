@@ -1,0 +1,20 @@
+{
+  "name": "easy_elementwise_500013_512x2048",
+  "tier": "Easy",
+  "family": "norm-act",
+  "shape": {
+    "M": 512,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "scale",
+      "bias"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.538,
+    "best_speedup_observed": 1.128,
+    "difficulty": "speed-open"
+  }
+}

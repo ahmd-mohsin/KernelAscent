@@ -35,6 +35,35 @@ PyTorch). Per-task files:
 - `reference_solution.py` — the best correct + fastest kernel found by the curator (Claude Fable 5). The achievable target.
 - `results.json` — full grading record (per-candidate correctness, timing, speedup vs eager and vs the `min(eager, torch.compile)` roofline).
 
+## Structure: difficulty tiers with empirical labels
+
+The public split is organized by difficulty tier under `public/<Tier>/<task>/`:
+
+- Easy: small power-of-two elementwise fusion or a single reduction (softmax,
+  layernorm, rmsnorm). Accessible floor.
+- Medium: matmul with a fused epilogue, or short fused chains.
+- Hard: matmul-bearing chains, full and causal attention, RoPE attention.
+- Ultra: soft-MoE and large or irregular shapes.
+
+Every task's `meta.json` carries an empirical difficulty measured by running 13
+open-weight models (Qwen2.5-Coder / Qwen2.5-Instruct 0.5B to 14B, DeepSeek-Coder-6.7B,
+StarCoder2-15B, CodeLlama-13B): `solve_rate` (fraction of models that produced a
+correct kernel) and `best_speedup_observed` (best speedup vs the min(eager,
+torch.compile) roofline any model achieved), plus a `difficulty` label
+(`speed-open`, `correctness-only`, `hard`, `unsolved`). `public/manifest.json` indexes
+the whole set. Empirical difficulty distribution:
+
+```
+Easy    25 speed-open, 5 correctness-only
+Medium  18 speed-open, 10 correctness-only, 2 rare
+Hard    11 speed-open, 18 correctness-only, 1 hard
+Ultra    8 speed-open, 16 correctness-only, 4 hard, 2 rare
+```
+
+Correctness difficulty rises monotonically Easy to Ultra. The roofline is
+torch.compile, so there is real headroom above the bar at every tier (no global
+optimum). See the repo `analysis/calibration_run.md` for the failure breakdown.
+
 ## Families (6) and tiers
 
 `matmul` (L2), `norm-act` (L1), `attention` (L3), `rope-attention` (L3),

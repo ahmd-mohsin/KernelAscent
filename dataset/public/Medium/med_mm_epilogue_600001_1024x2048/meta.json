@@ -1,0 +1,20 @@
+{
+  "name": "med_mm_epilogue_600001_1024x2048",
+  "tier": "Medium",
+  "family": "matmul",
+  "shape": {
+    "M": 1024,
+    "D": 2048,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->1024",
+      "bias"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.462,
+    "best_speedup_observed": 1.024,
+    "difficulty": "speed-open"
+  }
+}

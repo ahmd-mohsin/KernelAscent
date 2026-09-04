@@ -1,0 +1,23 @@
+{
+  "name": "hard_mm_700023_4096x1024",
+  "tier": "Hard",
+  "family": "matmul",
+  "shape": {
+    "M": 4096,
+    "D": 1024,
+    "dtype": "torch.float16",
+    "chain": [
+      "matmul->2048",
+      "relu",
+      "bias",
+      "relu",
+      "softmax"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.385,
+    "best_speedup_observed": 0.715,
+    "difficulty": "correctness-only"
+  }
+}

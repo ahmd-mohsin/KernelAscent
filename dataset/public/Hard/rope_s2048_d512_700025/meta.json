@@ -1,0 +1,24 @@
+{
+  "name": "rope_s2048_d512_700025",
+  "tier": "Hard",
+  "family": "rope-attention",
+  "shape": {
+    "S": 2048,
+    "D": 512,
+    "dtype": "fp16",
+    "causal": false,
+    "chain": [
+      "qkv",
+      "rope",
+      "scores",
+      "softmax",
+      "av"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.462,
+    "best_speedup_observed": 0.39,
+    "difficulty": "correctness-only"
+  }
+}

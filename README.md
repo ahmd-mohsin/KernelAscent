@@ -13,6 +13,44 @@ TritonBench, RE-Bench, robust-kbench, Kevin-32B. The novel, unbenchmarked part i
 closed `kernel -> faster training -> better model -> better kernel` loop and its
 measured takeoff shape. See `proposal/` for the full motivation and design.
 
+## Difficulty tiers and empirical calibration
+
+Tasks are organized into four difficulty tiers, and every task carries an empirical
+difficulty label measured by running 13 open-weight models (Qwen2.5-Coder and
+Qwen2.5-Instruct 0.5B to 14B, plus DeepSeek-Coder-6.7B, StarCoder2-15B,
+CodeLlama-13B) as test-takers on a 24 GPU fleet.
+
+- Easy: small power-of-two elementwise fusion or a single reduction (softmax,
+  layernorm, rmsnorm). The accessible floor, solvable by 1.5B and up.
+- Medium: matmul with a fused epilogue, or short fused chains at moderate shapes.
+- Hard: matmul-bearing fusion chains, full and causal attention, RoPE attention.
+- Ultra: soft-MoE and large or irregular shapes for frontier headroom.
+
+Two failure walls are reported separately, because models fail in two different ways.
+Correctness (can the model emit a valid, correct kernel) is the binding constraint
+below roughly 14B; speed (does a correct kernel beat the min(eager, torch.compile)
+roofline) is the binding constraint above it. Mean correctness% / beats-roofline%
+by model-size band:
+
+```
+band            Easy       Medium     Hard       Ultra
+small (<=3B)    46 / 23    38 / 13    36 / 4     31 / 3
+mid   (6-8B)    80 / 28    67 / 12    54 / 6     38 / 6
+large (13-15B)  73 / 30    70 / 22    63 / 7     52 / 11
+```
+
+Correctness falls monotonically Easy to Ultra in every band and rises with model
+size, so the ladder is calibrated. The roofline is torch.compile, which is not
+optimal (expert kernels beat it), so there is genuine headroom above the bar at every
+tier and no global optimum, which is what an RSI loop is meant to climb into. See
+`analysis/calibration_run.md` for the full failure breakdown and the reasons
+self-improvement does not yet compound.
+
+The public split lives in `dataset/public/<Tier>/<task>/` with `task.py` plus a
+`meta.json` carrying the tier, family, shapes, and the empirical difficulty
+(`solve_rate` and `best_speedup_observed` across the 13 models). `dataset/public/manifest.json`
+indexes the set.
+
 ## Repository layout
 
 ```

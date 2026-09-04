@@ -1,1233 +1,2646 @@
 {
+  "benchmark": "KernelAscent",
   "split": "public",
-  "n": 242,
-  "families": {
-    "norm-act": 57,
-    "matmul": 93,
-    "attention": 36,
-    "rope-attention": 24,
-    "quant-gemm": 16,
-    "moe": 16
-  },
+  "n": 120,
   "tiers": {
-    "L1": 57,
-    "L2": 109,
-    "L3": 76
-  },
-  "seed_range": {
-    "n_fusion": 150,
-    "seed0": 0
+    "Easy": 30,
+    "Medium": 30,
+    "Hard": 30,
+    "Ultra": 30
   },
   "tasks": [
     {
-      "name": "t0_4096x4097",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t1_1024x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t2_512x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t3_1024x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t4_1024x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t5_8192x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t6_8192x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t7_2048x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t8_1024x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t9_4096x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t10_8192x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t11_4096x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t12_4096x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t13_2048x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t14_512x1025",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t15_1024x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t16_2048x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t17_8192x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t18_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t19_512x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t20_1024x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t21_1024x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t22_1024x1025",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t23_2048x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t24_4096x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t25_4096x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t26_1024x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t27_4096x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t28_512x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t29_8192x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t30_8192x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t31_512x4097",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t32_512x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t33_8192x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t34_8192x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t35_8192x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t36_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t37_8192x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t38_4096x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t39_1024x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t40_4096x513",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t41_4096x2049",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t42_512x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t43_512x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t44_4096x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t45_2048x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t46_512x4097",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t47_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t48_8192x2049",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t49_512x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t50_4096x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t51_1024x1025",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t52_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t53_8192x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t54_1024x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t55_512x1025",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t56_8192x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t57_512x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t58_8192x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t59_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t60_2048x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t61_4096x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t62_8192x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t63_4096x4097",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t64_4096x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t65_4096x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t66_512x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t67_512x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t68_4096x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t69_512x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t70_512x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t71_2048x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t72_512x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t73_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t74_8192x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t75_4096x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t76_2048x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t77_2048x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t78_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t79_1024x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t80_2048x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t81_8192x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t82_1024x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t83_4096x4097",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t84_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t85_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t86_512x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t87_1024x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t88_4096x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t89_512x2049",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t90_1024x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t91_512x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t92_4096x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t93_4096x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t94_8192x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t95_8192x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t96_2048x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t97_1024x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t98_2048x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t99_4096x4097",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t100_1024x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t101_8192x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t102_1024x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t103_4096x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t104_512x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t105_8192x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t106_4096x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t107_1024x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t108_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t109_2048x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t110_4096x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t111_1024x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t112_4096x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t113_512x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t114_1024x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t115_2048x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t116_8192x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t117_1024x1025",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t118_1024x2049",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t119_2048x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t120_8192x1025",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t121_512x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t122_8192x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t123_512x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t124_2048x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t125_1024x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t126_8192x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t127_512x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t128_1024x4096",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t129_8192x2049",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t130_8192x4097",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t131_2048x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t132_4096x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t133_4096x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t134_4096x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t135_2048x2048",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t136_8192x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t137_512x1024",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t138_1024x4096",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t139_512x2048",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t140_512x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t141_8192x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t142_8192x4097",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t143_1024x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t144_4096x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t145_4096x512",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t146_1024x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t147_8192x1024",
-      "tier": "L1",
-      "family": "norm-act"
-    },
-    {
-      "name": "t148_4096x512",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "t149_512x513",
-      "tier": "L2",
-      "family": "matmul"
-    },
-    {
-      "name": "attn_s512_d512_100000",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d512_100001",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s512_d512_100002",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d512_100003",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s512_d1024_100004",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d1024_100005",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s512_d1024_100006",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d1024_100007",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s512_d2048_100008",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d2048_100009",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s512_d2048_100010",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s512_d2048_100011",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d512_100012",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d512_100013",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d512_100014",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d512_100015",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d1024_100016",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d1024_100017",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d1024_100018",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d1024_100019",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d2048_100020",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d2048_100021",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s1024_d2048_100022",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s1024_d2048_100023",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d512_100024",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d512_100025",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d512_100026",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d512_100027",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d1024_100028",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d1024_100029",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d1024_100030",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d1024_100031",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d2048_100032",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d2048_100033",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attn_s2048_d2048_100034",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "attnc_s2048_d2048_100035",
-      "tier": "L3",
-      "family": "attention"
-    },
-    {
-      "name": "rope_s512_d512_200000",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d512_200001",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s512_d512_200002",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d512_200003",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s512_d1024_200004",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d1024_200005",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s512_d1024_200006",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d1024_200007",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s512_d2048_200008",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d2048_200009",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s512_d2048_200010",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s512_d2048_200011",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d512_200012",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d512_200013",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d512_200014",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d512_200015",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d1024_200016",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d1024_200017",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d1024_200018",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d1024_200019",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d2048_200020",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d2048_200021",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "rope_s1024_d2048_200022",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "ropec_s1024_d2048_200023",
-      "tier": "L3",
-      "family": "rope-attention"
-    },
-    {
-      "name": "quant_1024x1024x1024_300000",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x1024x1024_300001",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x1024x4096_300002",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x1024x4096_300003",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x2048x1024_300004",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x2048x1024_300005",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x2048x4096_300006",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_1024x2048x4096_300007",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x1024x1024_300008",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x1024x1024_300009",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x1024x4096_300010",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x1024x4096_300011",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x2048x1024_300012",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x2048x1024_300013",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x2048x4096_300014",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "quant_4096x2048x4096_300015",
-      "tier": "L2",
-      "family": "quant-gemm"
-    },
-    {
-      "name": "moe_s512_d1024_n1024_e4_400000",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d1024_n1024_e8_400001",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d1024_n2048_e4_400002",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d1024_n2048_e8_400003",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d2048_n1024_e4_400004",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d2048_n1024_e8_400005",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d2048_n2048_e4_400006",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s512_d2048_n2048_e8_400007",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d1024_n1024_e4_400008",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d1024_n1024_e8_400009",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d1024_n2048_e4_400010",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d1024_n2048_e8_400011",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d2048_n1024_e4_400012",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d2048_n1024_e8_400013",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d2048_n2048_e4_400014",
-      "tier": "L3",
-      "family": "moe"
-    },
-    {
-      "name": "moe_s1024_d2048_n2048_e8_400015",
-      "tier": "L3",
-      "family": "moe"
+      "name": "easy_reduction_500000_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.248,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500001_512x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.041,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500002_1024x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.025,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500003_1024x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "scale",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.282,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500004_1024x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "gelu",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.057,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500005_1024x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "bias",
+          "gelu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.011,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500006_1024x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "relu",
+          "relu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.778,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500007_512x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 1024,
+        "dtype": "torch.float32",
+        "chain": [
+          "scale",
+          "relu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.196,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500008_1024x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "gelu",
+          "bias",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.083,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500009_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.851,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "easy_reduction_500010_2048x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.009,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500011_2048x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "scale",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.238,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500012_1024x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "gelu",
+          "relu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 0.999,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "easy_elementwise_500013_512x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "scale",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.128,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500014_512x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 2048,
+        "dtype": "torch.float32",
+        "chain": [
+          "relu",
+          "scale"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.271,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500015_1024x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 512,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "scale",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.048,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500016_2048x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.691,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "easy_elementwise_500017_1024x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "relu",
+          "scale",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.184,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500018_1024x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 512,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "relu",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.342,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500019_2048x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 2048,
+        "dtype": "torch.float32",
+        "chain": [
+          "gelu",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.015,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500020_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.float16",
+        "chain": [
+          "relu",
+          "bias",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.846,
+        "best_speedup_observed": 1.128,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500021_2048x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "scale",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.06,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500022_512x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "bias",
+          "scale",
+          "scale"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.356,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500023_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "bias",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.074,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500024_1024x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.783,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "easy_elementwise_500025_1024x1024",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.846,
+        "best_speedup_observed": 1.192,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500026_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "bias",
+          "gelu",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.69,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_elementwise_500027_512x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 512,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "bias",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.046,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "easy_reduction_500028_2048x512",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 512,
+        "dtype": "torch.float32",
+        "chain": [
+          "bias",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.753,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "easy_elementwise_500029_1024x2048",
+      "tier": "Easy",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "relu",
+          "scale",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.479,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600000_2048x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 1.033,
+        "difficulty": "speed-open-rare"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600001_1024x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->1024",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.024,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600002_1024x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "relu",
+          "scale",
+          "relu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.846,
+        "best_speedup_observed": 1.216,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600003_4096x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "gelu",
+          "gelu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.011,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600004_1024x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "relu",
+          "scale",
+          "scale",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.171,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600005_1024x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "relu",
+          "gelu",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.686,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600006_2048x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "relu",
+          "gelu",
+          "relu",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.031,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600007_1024x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->1024",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 1.136,
+        "difficulty": "speed-open-rare"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600008_1024x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "gelu",
+          "bias",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.252,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600009_1024x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "gelu",
+          "relu",
+          "scale",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.497,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600010_2048x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.99,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600011_4096x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.232,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600012_2048x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "relu",
+          "bias",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.122,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600013_4096x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "gelu",
+          "relu",
+          "bias",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 0.617,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600014_4096x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "bias",
+          "scale",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.554,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600015_2048x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "relu",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.004,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600016_4096x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "gelu",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 1.011,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600017_2048x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->1024",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 1.003,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600018_2048x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.029,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600019_2048x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "relu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.019,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600020_2048x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "relu",
+          "scale",
+          "gelu",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.048,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600021_4096x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->1024",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.999,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600022_4096x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "scale",
+          "relu",
+          "bias",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.486,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600023_1024x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "relu",
+          "scale",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.769,
+        "best_speedup_observed": 1.034,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600024_4096x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "gelu",
+          "bias",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.315,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600025_2048x1024",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "bias",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.076,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600026_2048x2048",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 2048,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "scale",
+          "bias",
+          "gelu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 0.94,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600027_1024x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 1024,
+        "D": 2048,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "bias"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.129,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "med_chain_reduce_600028_4096x1024",
+      "tier": "Medium",
+      "family": "norm-act",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "gelu",
+          "scale",
+          "scale",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.979,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "med_mm_epilogue_600029_4096x2048",
+      "tier": "Medium",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 2048,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->2048",
+          "gelu",
+          "relu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.019,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "attn_s2048_d1024_700000",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 2048,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.007,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "rope_s1024_d1024_700001",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 1024,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.335,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700002_2048x1024",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "relu",
+          "scale",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.928,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "attn_s512_d1024_700003",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.288,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ropec_s512_d512_700004",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 512,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.305,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700005_1024x4097",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 1024,
+        "D": 4097,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "bias",
+          "bias",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 1.009,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "attn_s512_d1024_700006",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.986,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ropec_s2048_d1024_700007",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 2048,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.42,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700008_2048x1024",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "relu",
+          "bias",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 0.972,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "name": "attn_s512_d2048_700009",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.007,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "rope_s512_d512_700010",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 512,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.339,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700011_1024x1024",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 1024,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->2048",
+          "relu",
+          "matmul->2048",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.009,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "attnc_s512_d512_700012",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "scores",
+          "causal",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.995,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "rope_s512_d2048_700013",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.416,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700014_4096x1024",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->512",
+          "bias",
+          "gelu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.043,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "attnc_s1024_d512_700015",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 1024,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "scores",
+          "causal",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.994,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ropec_s1024_d2048_700016",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 1024,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.461,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700017_4096x1025",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 1025,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->2048",
+          "relu",
+          "gelu",
+          "matmul->512",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.711,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "attnc_s512_d1024_700018",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "scores",
+          "causal",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.016,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ropec_s512_d512_700019",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 512,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.288,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700020_4096x4096",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4096,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "bias",
+          "bias",
+          "relu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.068,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "attn_s2048_d2048_700021",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 2048,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 1.004,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "rope_s2048_d512_700022",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 2048,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.385,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700023_4096x1024",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 1024,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "relu",
+          "bias",
+          "relu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.715,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "attnc_s512_d2048_700024",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "scores",
+          "causal",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 1.015,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "rope_s2048_d512_700025",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 2048,
+        "D": 512,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.39,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700026_2048x2049",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 2048,
+        "D": 2049,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "relu",
+          "scale",
+          "relu",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.525,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "attn_s512_d2048_700027",
+      "tier": "Hard",
+      "family": "attention",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "dtype": "fp16",
+        "causal": false,
+        "chain": [
+          "qkv",
+          "scores",
+          "full",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.033,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ropec_s2048_d1024_700028",
+      "tier": "Hard",
+      "family": "rope-attention",
+      "shape": {
+        "S": 2048,
+        "D": 1024,
+        "dtype": "fp16",
+        "causal": true,
+        "chain": [
+          "qkv",
+          "rope",
+          "scores",
+          "softmax",
+          "av"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.483,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "hard_mm_700029_4096x2049",
+      "tier": "Hard",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 2049,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->4096",
+          "gelu",
+          "scale",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.522,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s1024_d2048_n2048_e4_800000",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 2048,
+        "N": 2048,
+        "E": 4,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "4-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.908,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ultra_mm_800001_4096x4096",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4096,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->4096",
+          "bias",
+          "matmul->1024",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.863,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s2048_d2048_n2048_e8_800002",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 2048,
+        "D": 2048,
+        "N": 2048,
+        "E": 8,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "8-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.824,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ultra_mm_800003_4096x4096",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4096,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->4096",
+          "gelu",
+          "matmul->512",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.009,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "moe_s512_d1024_n2048_e4_800004",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 1024,
+        "N": 2048,
+        "E": 4,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "4-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 1.047,
+        "difficulty": "speed-open-rare"
+      }
+    },
+    {
+      "name": "ultra_mm_800005_4096x8192",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 8192,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "gelu",
+          "matmul->4096",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.007,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e16_800006",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "N": 1024,
+        "E": 16,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "16-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 1.012,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ultra_mm_800007_4096x4097",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "gelu",
+          "matmul->4096",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.746,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e8_800008",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "N": 1024,
+        "E": 8,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "8-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.961,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ultra_mm_800009_4096x8195",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 8195,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "gelu",
+          "matmul->512",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.666,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s2048_d1024_n1024_e8_800010",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 2048,
+        "D": 1024,
+        "N": 1024,
+        "E": 8,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "8-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.845,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ultra_mm_800011_4096x4097",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->2048",
+          "bias",
+          "matmul->1024",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.562,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e16_800012",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 1024,
+        "N": 2048,
+        "E": 16,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "16-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 0.848,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "name": "ultra_mm_800013_4096x8192",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 8192,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "gelu",
+          "matmul->512",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.003,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "moe_s1024_d1024_n2048_e16_800014",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 1024,
+        "N": 2048,
+        "E": 16,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "16-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 0.855,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "name": "ultra_mm_800015_4096x8192",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 8192,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "bias",
+          "matmul->1024",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.692,
+        "best_speedup_observed": 1.037,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e8_800016",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 1024,
+        "N": 1024,
+        "E": 8,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "8-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.231,
+        "best_speedup_observed": 0.915,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "name": "ultra_mm_800017_4096x4097",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "gelu",
+          "matmul->512",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.526,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e4_800018",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 2048,
+        "N": 1024,
+        "E": 4,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "4-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.154,
+        "best_speedup_observed": 0.99,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "name": "ultra_mm_800019_8192x4099",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 8192,
+        "D": 4099,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "gelu",
+          "matmul->1024",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.563,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e16_800020",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "N": 1024,
+        "E": 16,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "16-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 1.653,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ultra_mm_800021_8192x8193",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 8192,
+        "D": 8193,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->4096",
+          "bias",
+          "matmul->1024",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.615,
+        "best_speedup_observed": 0.408,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s512_d1024_n1024_e8_800022",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 1024,
+        "N": 1024,
+        "E": 8,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "8-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.385,
+        "best_speedup_observed": 0.953,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "ultra_mm_800023_4096x4097",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4097,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->2048",
+          "gelu",
+          "matmul->1024",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.462,
+        "best_speedup_observed": 0.497,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s1024_d1024_n1024_e4_800024",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 1024,
+        "N": 1024,
+        "E": 4,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "4-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 1.025,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ultra_mm_800025_4096x8192",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 8192,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->1024",
+          "gelu",
+          "matmul->1024",
+          "rmsnorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 0.973,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s512_d2048_n1024_e4_800026",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 512,
+        "D": 2048,
+        "N": 1024,
+        "E": 4,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "4-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.154,
+        "best_speedup_observed": 1.091,
+        "difficulty": "speed-open-rare"
+      }
+    },
+    {
+      "name": "ultra_mm_800027_8192x4097",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 8192,
+        "D": 4097,
+        "dtype": "torch.bfloat16",
+        "chain": [
+          "matmul->2048",
+          "gelu",
+          "matmul->2048",
+          "layernorm"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.55,
+        "difficulty": "correctness-only"
+      }
+    },
+    {
+      "name": "moe_s1024_d2048_n1024_e16_800028",
+      "tier": "Ultra",
+      "family": "moe",
+      "shape": {
+        "S": 1024,
+        "D": 2048,
+        "N": 1024,
+        "E": 16,
+        "dtype": "fp16",
+        "chain": [
+          "router-softmax",
+          "16-expert-gemm",
+          "weighted-sum",
+          "gelu"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.308,
+        "best_speedup_observed": 1.488,
+        "difficulty": "speed-open"
+      }
+    },
+    {
+      "name": "ultra_mm_800029_4096x4099",
+      "tier": "Ultra",
+      "family": "matmul",
+      "shape": {
+        "M": 4096,
+        "D": 4099,
+        "dtype": "torch.float16",
+        "chain": [
+          "matmul->512",
+          "gelu",
+          "matmul->2048",
+          "softmax"
+        ]
+      },
+      "empirical": {
+        "models_tested": 13,
+        "solve_rate": 0.538,
+        "best_speedup_observed": 0.721,
+        "difficulty": "correctness-only"
+      }
     }
   ]
 }

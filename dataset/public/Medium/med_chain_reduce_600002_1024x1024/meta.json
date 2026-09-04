@@ -1,0 +1,22 @@
+{
+  "name": "med_chain_reduce_600002_1024x1024",
+  "tier": "Medium",
+  "family": "norm-act",
+  "shape": {
+    "M": 1024,
+    "D": 1024,
+    "dtype": "torch.float16",
+    "chain": [
+      "relu",
+      "scale",
+      "relu",
+      "softmax"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.846,
+    "best_speedup_observed": 1.216,
+    "difficulty": "speed-open"
+  }
+}

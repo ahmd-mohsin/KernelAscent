@@ -1,0 +1,22 @@
+{
+  "name": "ultra_mm_800027_8192x4097",
+  "tier": "Ultra",
+  "family": "matmul",
+  "shape": {
+    "M": 8192,
+    "D": 4097,
+    "dtype": "torch.bfloat16",
+    "chain": [
+      "matmul->2048",
+      "gelu",
+      "matmul->2048",
+      "layernorm"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.538,
+    "best_speedup_observed": 0.55,
+    "difficulty": "correctness-only"
+  }
+}

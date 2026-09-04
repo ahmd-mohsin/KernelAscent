@@ -1,0 +1,24 @@
+{
+  "name": "ropec_s512_d512_700019",
+  "tier": "Hard",
+  "family": "rope-attention",
+  "shape": {
+    "S": 512,
+    "D": 512,
+    "dtype": "fp16",
+    "causal": true,
+    "chain": [
+      "qkv",
+      "rope",
+      "scores",
+      "softmax",
+      "av"
+    ]
+  },
+  "empirical": {
+    "models_tested": 13,
+    "solve_rate": 0.538,
+    "best_speedup_observed": 0.288,
+    "difficulty": "correctness-only"
+  }
+}
