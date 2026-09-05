@@ -122,6 +122,22 @@ def main():
 
     narrow, rich = [], []
     st_narrow, st_rich = [], []
+
+    def dec(st):
+        n = len(st) or 1
+        return {"n_dev": len(st), "correct_rate": round(sum(c for c, f in st) / n, 3), "fast_rate": round(sum(f for c, f in st) / n, 3)}
+
+    def write_partial(done_blocks):
+        m = min(len(narrow), len(rich))
+        dF1 = _mean_ci([rich[i].F1 - narrow[i].F1 for i in range(m)])
+        dF2 = _mean_ci([rich[i].F2 - narrow[i].F2 for i in range(m)])
+        out = {"who": who, "blocks_target": args.blocks, "blocks_done": done_blocks,
+               "narrow": {**aggregate_lineages(narrow), "decompose": dec(st_narrow)},
+               "rich": {**aggregate_lineages(rich), "decompose": dec(st_rich)},
+               "dF1_rich_minus_narrow": dF1, "dF2_rich_minus_narrow": dF2}
+        json.dump(out, open(os.path.join(args.outdir, "controlled.json"), "w"), indent=2)
+        return out
+
     for b in range(args.blocks):
         practice = G.generate_tiered("Medium", args.practice_n, seed0=b * 400)
         anchors = G.generate_tiered("Medium", args.anchor_n, seed0=10_000_000 + b * 400)
@@ -133,17 +149,9 @@ def main():
             r = run_lineage(copy.deepcopy(U0), dev, rev, anchors, random.Random(7000 + b), reps=1)
             bucket.append(r)
             print("b%d %-6s F1=%+.3f N1=%+.3f F2=%+.3f N2=%+.3f" % (b, cond, r.F1, r.N1, r.F2, r.N2), flush=True)
+        write_partial(b + 1)   # checkpoint after each completed block (survives creds/box drops)
 
-    def dec(st):
-        n = len(st) or 1
-        return {"n_dev": len(st), "correct_rate": round(sum(c for c, f in st) / n, 3), "fast_rate": round(sum(f for c, f in st) / n, 3)}
-    dF1 = _mean_ci([rich[i].F1 - narrow[i].F1 for i in range(len(narrow))])
-    dF2 = _mean_ci([rich[i].F2 - narrow[i].F2 for i in range(len(narrow))])
-    out = {"who": who, "blocks": args.blocks,
-           "narrow": {**aggregate_lineages(narrow), "decompose": dec(st_narrow)},
-           "rich": {**aggregate_lineages(rich), "decompose": dec(st_rich)},
-           "dF1_rich_minus_narrow": dF1, "dF2_rich_minus_narrow": dF2}
-    json.dump(out, open(os.path.join(args.outdir, "controlled.json"), "w"), indent=2)
+    out = write_partial(args.blocks)
     print("\n=== CONTROLLED %s ===" % who)
     for cond in ("narrow", "rich"):
         a = out[cond]
