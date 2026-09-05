@@ -81,15 +81,17 @@ curator (Fable 5.1) and verified to beat torch.compile.
 
 ## How progress (RSI) is measured
 
-Capability is the tier ladder. Recursive self-improvement is measured with campaigns: K
-rounds, each a practice phase (public seeds, a persistent artifact may grow) and a transfer
-phase (private seeds, artifact frozen). The central question is causal: does the agent get
-better at generating future improvements. We separate a solver S_k from an improver U_k and
-test, by transplant, whether U_k produces a better descendant from a common S_0 than U_0
-does. Improvement is credited only when it persists, transfers to held-out tasks, and beats
-controls (frozen-nonempty library, offline-built library, matched-compute search) by more
-than the measured unchanged-state noise floor. Full design in the project repo
-`docs/RSI_CAUSAL_PLAN.md`. The private held-out split is not released.
+Capability is the tier ladder. Recursive self-improvement is measured causally. A 15-model x
+4-arm sweep (growing / frozen-nonempty / offline-built / matched-search) found matched-compute
+search beats recursive library-growing on average (growing below its strongest control for
+13 of 15 models): a clean negative for memory-RSI on this benchmark. The v3 redesign makes the
+central object the causal returns to recursive improvement: separate the actor (the procedure
+producing a patch) from the target (what is patched) so competing producers edit the SAME
+target, and measure Q (research productivity), V (producing a better improver), and the causal
+producer contrast F across a two-link lineage with rescue. A deterministic calibration suite
+proves the instrument distinguishes a repeating recursive positive control from a one-time
+upgrade, best-of-N, and nulls before any model is judged. Full design in the project repo
+`docs/RSI_V3_PLAN.md`. The private held-out split is not released.
 
 ## Families (6) and tiers
 

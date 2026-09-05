@@ -98,13 +98,30 @@ edit-permission taxonomy, not intrinsic depths of recursion; depth is measured b
 on artifact ancestry. Full design in `docs/RSI_CAUSAL_PLAN.md`; findings and honest
 corrections in `analysis/` (`EVALUATION_REPORT.md`, `l2_result.md`, `phase0_exit.md`).
 
-## Current status
+## Current status (v3: causal recursive-improvement core)
 
-Established: capability calibration across 13 models (the two walls), and a preliminary
-memory-transfer signal at L2 that is not yet separated from noise or from the controls. Not
-yet established: that any of it is recursive improvement. The causal protocol above is what
-resolves that, and its first experiment (growing vs frozen vs offline vs search, with
-independent campaigns) is what the project is running now.
+Established. Capability calibration across 13 models (the two walls). A 15-model x 4-arm
+causal sweep (growing / frozen-nonempty / offline-built / matched-search) then found that
+matched-compute search beats recursive library-growing on average, and growing is below its
+strongest control for 13 of 15 models: no evidence that recursively growing a skill library
+beats spending the same budget on more attempts (see `analysis/causal_sweep_15model.md`). This
+is a clean negative for that form of memory-RSI, not proof recursion is impossible, because the
+sweep never measured whether an evolved procedure produces a better next procedure.
+
+The redesign. The benchmark's central object is now the causal returns to recursive
+improvement: separate the actor (the procedure generating a patch) from the target (the thing
+patched) so competing producers edit the SAME target, and measure Q (research productivity),
+V (producing a better improver), F (causal producer contrast), N (live-child value), across a
+two-link lineage with rescue. Full design in `docs/RSI_V3_PLAN.md`.
+
+Instrument validated. A deterministic calibration suite (`kernelascent/v3/calibration.py`)
+proves the pipeline distinguishes a repeating recursive positive control (F1>0, F2>0) from a
+one-time upgrade (F2~0), best-of-N (score rises, F~0), nulls, and broken interventions -- ALL
+PASS. A model-level null is therefore credible: the instrument would detect a positive control
+of the tested size.
+
+Running now. A Stage-5 pilot runs the validated instrument on real models (Fable 5.1, Opus 5,
+open-weight) over independent lineages, reporting Q/F/N with lineage-level uncertainty.
 
 ## Repository layout
 
