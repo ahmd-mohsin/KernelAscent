@@ -1,5 +1,15 @@
 # KernelAscent / RSI-Depth: Complete Evaluation Report
 
+> INTERPRETATION CORRECTIONS (2026-09-04). This report establishes capability calibration
+> and a preliminary memory-transfer signal, NOT recursive improvement. Read it with the
+> corrections in `docs/RSI_CAUSAL_PLAN.md` section 2. In particular: the Fable L2 result is
+> a preliminary transfer gain (increments +0.165, +0.028, -0.003, i.e. a jump then a
+> plateau), not a compounding slope; "roofline" should read "compile baseline" (a software
+> baseline, not a hardware bound); "code validity not reasoning" names where execution
+> failed, not the cognitive cause; and the correctness rates need explicit denominators
+> (candidate-level 29.8% vs task-level differ). The central missing experiment is the
+> solver-improver transplant (causal improvement of improvement ability).
+
 A benchmark for recursive self-improvement (RSI) on GPU kernel optimization. This report
 covers what the benchmark is for, how the dataset is built, the tier structure, the
 evaluation methodology, every experiment run to date, the results, and a grounded analysis
