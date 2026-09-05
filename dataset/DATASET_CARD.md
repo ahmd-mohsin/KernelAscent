@@ -83,12 +83,13 @@ curator (Fable 5.1) and verified to beat torch.compile.
 
 Capability is the tier ladder. Recursive self-improvement is measured with campaigns: K
 rounds, each a practice phase (public seeds, a persistent artifact may grow) and a transfer
-phase (private seeds, artifact frozen). Improvement is credited only when it persists,
-transfers to held-out tasks, and beats controls (matched-budget search, round-0 re-run,
-poisoned artifact). The depth ladder L0 to L4 measures how deep self-modification can go and
-still compound; the headline is d*, the deepest level with a compounding transferable gain.
-Full design in the project repo `docs/RSI_DEPTH_PLAN.md`. The private held-out split is not
-released.
+phase (private seeds, artifact frozen). The central question is causal: does the agent get
+better at generating future improvements. We separate a solver S_k from an improver U_k and
+test, by transplant, whether U_k produces a better descendant from a common S_0 than U_0
+does. Improvement is credited only when it persists, transfers to held-out tasks, and beats
+controls (frozen-nonempty library, offline-built library, matched-compute search) by more
+than the measured unchanged-state noise floor. Full design in the project repo
+`docs/RSI_CAUSAL_PLAN.md`. The private held-out split is not released.
 
 ## Families (6) and tiers
 

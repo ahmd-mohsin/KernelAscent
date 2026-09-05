@@ -79,17 +79,32 @@ bar (`kernelascent/scoring.py`).
 Raw capability is the tier ladder above. Recursive self-improvement is measured with
 campaigns, not one-shot scores. A model runs K rounds; each round has a practice phase
 (public seeds, it may grow a persistent artifact) and a transfer phase (private seeds,
-artifact frozen). The transfer score across rounds is the RSI signal. Improvement is only
-credited when it persists in an artifact, transfers to held-out tasks, and beats the
-controls (search at matched budget, a re-run of the round-0 artifact, a poisoned artifact).
+artifact frozen). The transfer score across rounds is the signal. Improvement is credited
+only when it persists in an artifact, transfers to held-out tasks, and beats controls.
 
-Depth ladder. We measure how deep self-modification can go and still compound: L0 (no
-persistence, a matched-compute search baseline), L1 (a text playbook), L2 (a library of
-verified reusable kernel blocks), L3 (its own tools), L4 (its own solve loop). Each level
-is the control for the next. The headline is `d*`, the deepest level that still yields a
-compounding, transferable gain, and the slope at that depth. Full design in
-`docs/RSI_DEPTH_PLAN.md`; findings so far in `analysis/` (the reward fix, and why L0 self
-refinement does not compound).
+The central question is causal: does the agent become better at generating future
+improvements, and which inherited changes cause that. We separate a checkpoint into a solver
+`S_k` (prompts, reusable kernels, retrieval, tools) and an improver `U_k` (how practice is
+chosen, failures analyzed, edits proposed, artifacts admitted). The decisive experiment is a
+transplant: does the later improver `U_k` produce a better descendant from a common starting
+solver `S_0` than `U_0` does. A rising task score alone is not enough, because it conflates
+task capability, transferable memory, extra compute, and improved improvement ability.
+
+Controls make the claim honest: a frozen-nonempty library (isolates growing from having), an
+offline-built library (recursion vs ordinary construction), matched-compute search (rules out
+more sampling), and a measured unchanged-state noise floor (at small n, sampling alone moves
+the score, so effects must clear that floor). The permission levels L0 to L5 are an
+edit-permission taxonomy, not intrinsic depths of recursion; depth is measured by intervening
+on artifact ancestry. Full design in `docs/RSI_CAUSAL_PLAN.md`; findings and honest
+corrections in `analysis/` (`EVALUATION_REPORT.md`, `l2_result.md`, `phase0_exit.md`).
+
+## Current status
+
+Established: capability calibration across 13 models (the two walls), and a preliminary
+memory-transfer signal at L2 that is not yet separated from noise or from the controls. Not
+yet established: that any of it is recursive improvement. The causal protocol above is what
+resolves that, and its first experiment (growing vs frozen vs offline vs search, with
+independent campaigns) is what the project is running now.
 
 ## Repository layout
 
