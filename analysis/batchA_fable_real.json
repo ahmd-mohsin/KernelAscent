@@ -1,0 +1,72 @@
+{
+  "verdict": {
+    "who": "api:us.anthropic.claude-fable-5-1",
+    "rounds": 3,
+    "u_ever_changed": true,
+    "u_change_rounds": [
+      0,
+      1,
+      2
+    ],
+    "distinct_U_hashes": 4,
+    "final_U_params": {
+      "target": "wrong",
+      "admit_min_score": 0.7,
+      "self_edit": "params"
+    },
+    "final_skills": 0,
+    "ledger": {
+      "model_calls": 15,
+      "input_tokens": 0,
+      "generated_tokens": 0,
+      "tool_seconds": 0.0
+    }
+  },
+  "trace": [
+    {
+      "round": 0,
+      "u_hash_executed": "b934b2e76be16fd7",
+      "u_edit_kind": "params",
+      "u_changed": true,
+      "s_changed": false,
+      "skills_added": 0,
+      "notes": "practice: 0/4 correct, 0 correct-but-not-faster, 0 compile-failures; current U params: {'target': 'any', 'admit_min_score': 0.0, 'self_edit': 'params'}",
+      "U_params": {
+        "target": "wrong",
+        "admit_min_score": 0.0,
+        "self_edit": "params"
+      },
+      "n_skills": 0
+    },
+    {
+      "round": 1,
+      "u_hash_executed": "3a569155d3541ff5",
+      "u_edit_kind": "params",
+      "u_changed": true,
+      "s_changed": false,
+      "skills_added": 0,
+      "notes": "practice: 0/4 correct, 0 correct-but-not-faster, 0 compile-failures; current U params: {'target': 'wrong', 'admit_min_score': 0.0, 'self_edit': 'params'}",
+      "U_params": {
+        "target": "wrong",
+        "admit_min_score": 0.5,
+        "self_edit": "params"
+      },
+      "n_skills": 0
+    },
+    {
+      "round": 2,
+      "u_hash_executed": "e8e1f87f16f7e7ae",
+      "u_edit_kind": "params",
+      "u_changed": true,
+      "s_changed": false,
+      "skills_added": 0,
+      "notes": "practice: 0/4 correct, 0 correct-but-not-faster, 0 compile-failures; current U params: {'target': 'wrong', 'admit_min_score': 0.5, 'self_edit': 'params'}",
+      "U_params": {
+        "target": "wrong",
+        "admit_min_score": 0.7,
+        "self_edit": "params"
+      },
+      "n_skills": 0
+    }
+  ]
+}
