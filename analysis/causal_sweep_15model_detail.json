@@ -1,0 +1,937 @@
+{
+ "traj": {
+  "codellama13b": {
+   "frozen0": [
+    0.026,
+    0.004,
+    0.036,
+    0.0
+   ],
+   "frozen1": [
+    0.001,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.057,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.001,
+    0.091,
+    0.002,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.002,
+    0.002,
+    0.025,
+    0.026,
+    0.026
+   ],
+   "search1": [
+    0.0,
+    0.0,
+    0.0,
+    0.001,
+    0.001
+   ]
+  },
+  "coder14b": {
+   "frozen0": [
+    0.004,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.002,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.006,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.003,
+    0.001,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.013,
+    0.0,
+    0.0,
+    0.014
+   ],
+   "offline1": [
+    0.09,
+    0.0,
+    0.0,
+    0.002
+   ],
+   "search0": [
+    0.0,
+    0.0,
+    0.0,
+    0.014,
+    0.018
+   ],
+   "search1": [
+    0.016,
+    0.026,
+    0.144,
+    0.145,
+    0.145
+   ]
+  },
+  "coder1p5b": {
+   "frozen0": [
+    0.006,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.001,
+    0.002,
+    0.002,
+    0.012,
+    0.012
+   ],
+   "search1": [
+    0.0,
+    0.001,
+    0.002,
+    0.002,
+    0.014
+   ]
+  },
+  "coder3b": {
+   "frozen0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.001,
+    0.001,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.102,
+    0.001,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.001,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.002,
+    0.103,
+    0.103,
+    0.103,
+    0.11
+   ],
+   "search1": [
+    0.109,
+    0.11,
+    0.11,
+    0.11,
+    0.116
+   ]
+  },
+  "coder7b": {
+   "frozen0": [
+    0.084,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.0,
+    0.0,
+    0.0,
+    0.004
+   ],
+   "growing1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.0,
+    0.0,
+    0.0,
+    0.057,
+    0.057
+   ],
+   "search1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "deepseek67b": {
+   "frozen0": [
+    0.1,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.017,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.029,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.03,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.001,
+    0.015,
+    0.026,
+    0.042,
+    0.044
+   ],
+   "search1": [
+    0.016,
+    0.138,
+    0.215,
+    0.215,
+    0.22
+   ]
+  },
+  "deepseekv32": {
+   "frozen0": [
+    0.118,
+    0.109,
+    0.205,
+    0.206
+   ],
+   "frozen1": [
+    0.004,
+    0.038,
+    0.033,
+    0.103
+   ],
+   "growing0": [
+    0.215,
+    0.174,
+    0.034,
+    0.212
+   ],
+   "growing1": [
+    0.014,
+    0.187,
+    0.14,
+    0.233
+   ],
+   "offline0": [
+    0.126,
+    0.122,
+    0.3,
+    0.026
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.009,
+    0.01
+   ],
+   "search0": [
+    0.108,
+    0.221,
+    0.222,
+    0.235,
+    0.235
+   ],
+   "search1": [
+    0.024,
+    0.024,
+    0.049,
+    0.092,
+    0.096
+   ]
+  },
+  "fable51": {
+   "frozen0": [
+    0.0,
+    0.1,
+    0.106,
+    0.0
+   ],
+   "frozen1": [
+    0.203,
+    0.316,
+    0.408,
+    0.257
+   ],
+   "growing0": [
+    0.018,
+    0.225,
+    0.146,
+    0.237
+   ],
+   "growing1": [
+    0.211,
+    0.329,
+    0.314,
+    0.312
+   ],
+   "offline0": [
+    0.194,
+    0.153,
+    0.211,
+    0.234
+   ],
+   "offline1": [
+    0.306,
+    0.249,
+    0.333,
+    0.243
+   ],
+   "search0": [
+    0.0,
+    0.028,
+    0.028,
+    0.128,
+    0.128
+   ],
+   "search1": [
+    0.131,
+    0.151,
+    0.152,
+    0.159,
+    0.159
+   ]
+  },
+  "haiku45": {
+   "frozen0": [
+    0.129,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.142,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.128,
+    0.0,
+    0.128,
+    0.113
+   ],
+   "growing1": [
+    0.073,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.037,
+    0.129,
+    0.158,
+    0.233,
+    0.235
+   ],
+   "search1": [
+    0.093,
+    0.094,
+    0.095,
+    0.195,
+    0.291
+   ]
+  },
+  "opus5": {
+   "frozen0": [
+    0.227,
+    0.251,
+    0.26,
+    0.265
+   ],
+   "frozen1": [
+    0.287,
+    0.181,
+    0.352,
+    0.392
+   ],
+   "growing0": [
+    0.347,
+    0.269,
+    0.263,
+    0.251
+   ],
+   "growing1": [
+    0.242,
+    0.208,
+    0.291,
+    0.291
+   ],
+   "offline0": [
+    0.256,
+    0.266,
+    0.264,
+    0.257
+   ],
+   "offline1": [
+    0.313,
+    0.36,
+    0.352,
+    0.241
+   ],
+   "search0": [
+    0.138,
+    0.294,
+    0.294,
+    0.294,
+    0.298
+   ],
+   "search1": [
+    0.167,
+    0.236,
+    0.295,
+    0.336,
+    0.345
+   ]
+  },
+  "qwen14b": {
+   "frozen0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.0,
+    0.0,
+    0.101,
+    0.033
+   ],
+   "growing0": [
+    0.009,
+    0.0,
+    0.0,
+    0.124
+   ],
+   "growing1": [
+    0.0,
+    0.102,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.009,
+    0.006,
+    0.001,
+    0.1
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.023,
+    0.024,
+    0.025,
+    0.125,
+    0.125
+   ],
+   "search1": [
+    0.001,
+    0.001,
+    0.001,
+    0.101,
+    0.101
+   ]
+  },
+  "qwen3next": {
+   "frozen0": [
+    0.132,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.02,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.108,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing1": [
+    0.029,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.11,
+    0.111,
+    0.112,
+    0.13,
+    0.134
+   ],
+   "search1": [
+    0.043,
+    0.043,
+    0.043,
+    0.143,
+    0.143
+   ]
+  },
+  "qwen7b": {
+   "frozen0": [
+    0.009,
+    0.155,
+    0.174,
+    0.132
+   ],
+   "frozen1": [
+    0.026,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.124,
+    0.0,
+    0.036,
+    0.0
+   ],
+   "growing1": [
+    0.0,
+    0.0,
+    0.112,
+    0.016
+   ],
+   "offline0": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "search0": [
+    0.064,
+    0.073,
+    0.073,
+    0.209,
+    0.209
+   ],
+   "search1": [
+    0.004,
+    0.004,
+    0.004,
+    0.004,
+    0.006
+   ]
+  },
+  "sonnet5": {
+   "frozen0": [
+    0.268,
+    0.274,
+    0.361,
+    0.295
+   ],
+   "frozen1": [
+    0.377,
+    0.472,
+    0.446,
+    0.357
+   ],
+   "growing0": [
+    0.246,
+    0.221,
+    0.229,
+    0.218
+   ],
+   "growing1": [
+    0.28,
+    0.325,
+    0.381,
+    0.299
+   ],
+   "offline0": [
+    0.274,
+    0.26,
+    0.26,
+    0.192
+   ],
+   "offline1": [
+    0.338,
+    0.383,
+    0.322,
+    0.35
+   ],
+   "search0": [
+    0.252,
+    0.264,
+    0.283,
+    0.341,
+    0.341
+   ],
+   "search1": [
+    0.391,
+    0.439,
+    0.439,
+    0.439,
+    0.492
+   ]
+  },
+  "starcoder15b": {
+   "frozen0": [
+    0.1,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "frozen1": [
+    0.003,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "growing0": [
+    0.0,
+    0.0,
+    0.0,
+    0.001
+   ],
+   "growing1": [
+    0.0,
+    0.0,
+    0.002,
+    0.0
+   ],
+   "offline0": [
+    0.011,
+    0.001,
+    0.0,
+    0.009
+   ],
+   "offline1": [
+    0.0,
+    0.0,
+    0.0,
+    0.01
+   ],
+   "search0": [
+    0.007,
+    0.007,
+    0.009,
+    0.009,
+    0.017
+   ],
+   "search1": [
+    0.114,
+    0.136,
+    0.138,
+    0.139,
+    0.14
+   ]
+  }
+ },
+ "reasons": {
+  "codellama13b": {
+   "no_candidate": 401,
+   "ok": 72
+  },
+  "coder14b": {
+   "no_candidate": 316,
+   "ok": 172
+  },
+  "coder1p5b": {
+   "no_candidate": 363,
+   "ok": 91
+  },
+  "coder3b": {
+   "no_candidate": 392,
+   "ok": 82
+  },
+  "coder7b": {
+   "no_candidate": 246,
+   "ok": 236
+  },
+  "deepseek67b": {
+   "ok": 92,
+   "no_candidate": 389
+  },
+  "deepseekv32": {
+   "no_candidate": 278,
+   "ok": 210
+  },
+  "fable51": {
+   "ok": 309
+  },
+  "haiku45": {
+   "ok": 216,
+   "no_candidate": 272
+  },
+  "opus5": {
+   "no_candidate": 19,
+   "ok": 469
+  },
+  "qwen14b": {
+   "no_candidate": 415,
+   "ok": 73
+  },
+  "qwen3next": {
+   "no_candidate": 429,
+   "ok": 58
+  },
+  "qwen7b": {
+   "ok": 126,
+   "no_candidate": 362
+  },
+  "sonnet5": {
+   "ok": 484,
+   "no_candidate": 4
+  },
+  "starcoder15b": {
+   "ok": 110,
+   "no_candidate": 377
+  }
+ },
+ "samples": {
+  "codellama13b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=torch.bfloat16):\n        super().__init__()\n        self.gelu = F.gelu.triton(dtype)\n        self.softmax = F.softmax.triton(dtype)\n\n    def forward(self, x):\n        x = self.gelu(x)\n        x = self.gelu(x)\n        x = self.softmax(x)\n        return x\n"
+  },
+  "coder14b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nfrom triton import cdiv, JITFunction\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(SEED)\n        pass\n\n    @JITFunction\n    def fused_gelu_softmax(x):\n        x = F.gelu(x)\n        x = F.gelu(x)\n        x = torch.softmax(x, dim=-1)\n        return x\n\n    def forward(self, x):\n        return self.fused_gelu_softmax(x)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(SEED + 12345)\n    return [torch.randn(M, D, generator=g).to(DT)]\n"
+  },
+  "coder1p5b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nfrom triton import softmax\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n\n    def forward(self, x):\n        x = F.gelu(x)\n        x = F.gelu(x)\n        x = softmax(x, dim=-1)\n        return x\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(SEED + 12345)\n    return [torch.randn(M, D, generator=g).to(DT)]\n"
+  },
+  "coder3b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport triton\nimport triton.language as tl\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\n@triton.jit\ndef gelu_kernel(x, out, stride):\n    x = x * 0.79788416649250405\n    mask = x > 0.0\n    exp_neg_x_2 = (-x ** 2) / 2.0\n    x = exp_neg_x_2 * (mask.float() + 0.5)\n    out += x\n    out = out.to(DT)\n\n@triton.jit\ndef softmax_kernel(x, out, stride):\n    max_val = tl.max(x, axis=1, keepdims=True)\n    x -= max_val\n    exp_x = tl.exp(x)\n    sum_exp_x = tl.sum(exp_x, axis=1, keepdims=True)\n    out = exp_x / sum_exp_x\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n        self.stride = M\n        pass\n\n    def forward(self, x):\n        x = gelu_kernel(x, x, self.stride)\n        x = gel"
+  },
+  "coder7b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import torch\nimport torch.nn as nn\nfrom torch.cuda.amp import autocast\nfrom torch.nn.functional import gelu, softmax\nfrom torch.utils.cpp_extension import load\n\n# Assuming you have a fused op compiled and available\nfused_gelu_softmax = load(name=\"fused_gelu_softmax\", sources=[\"fused_gelu_softmax.cpp\"])\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=torch.bfloat16):\n        super().__init__()\n        self.dtype = dtype\n\n    @autocast(dtype=self.dtype)\n    def forward(self, x):\n        x = fused_gelu_softmax.apply(x)\n        return x\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(10600000 + 12345)\n    return [torch.randn(1024, 2048, generator=g).to(torch.bfloat16)]\n"
+  },
+  "deepseek67b": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.9970823157697188,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(SEED)\n\n    def forward(self, x):\n        x = F.gelu(x)\n        x = F.gelu(x)\n        x = torch.softmax(x, dim=-1)\n        return x\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(SEED + 12345)\n    return [torch.randn(M, D, generator=g).to(DT)]\n"
+  },
+  "deepseekv32": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport triton\nimport triton.language as tl\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\n@triton.jit\ndef _double_gelu_fwd_kernel(\n    x_ptr,\n    y_ptr,\n    n_elements,\n    BLOCK_SIZE: tl.constexpr,\n):\n    \"\"\"Fused kernel for two consecutive GELU operations\"\"\"\n    pid = tl.program_id(0)\n    block_start = pid * BLOCK_SIZE\n    offsets = block_start + tl.arange(0, BLOCK_SIZE)\n    mask = offsets < n_elements\n    \n    # Load input\n    x = tl.load(x_ptr + offsets, mask=mask)\n    \n    # First GELU: 0.5 * x * (1 + erf(x / sqrt(2)))\n    sqrt_2_over_pi = 0.7978845608028654  # sqrt(2/pi)\n    gelu_coeff = 0.044715\n    # GELU approximation with tanh (matches PyTorch's default)\n    x_sq = x * x\n    x_cube = x_sq * x\n"
+  },
+  "fable51": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.58784859272733,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport triton\nimport triton.language as tl\n\nSEED = 600006\nM, D, DT = 2048, 1024, torch.float16\n\n\n@triton.jit\ndef _fused_act_ln_kernel(\n    X, G, B, Y,\n    N, eps,\n    stride_x, stride_y,\n    BLOCK: tl.constexpr,\n):\n    row = tl.program_id(0)\n    cols = tl.arange(0, BLOCK)\n    mask = cols < N\n\n    x = tl.load(X + row * stride_x + cols, mask=mask, other=0.0).to(tl.float32)\n    # relu\n    x = tl.maximum(x, 0.0)\n    # gelu (erf), computed in fp32 then rounded to fp16 like PyTorch\n    g = 0.5 * x * (1.0 + tl.math.erf(x * 0.7071067811865476))\n    g = g.to(tl.float16).to(tl.float32)\n    # relu (no-op for nonneg values, kept for exactness)\n    g = tl.maximum(g, 0.0)\n    g = tl.where(mask, g, 0.0)\n\n    # layer norm stati"
+  },
+  "haiku45": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.9348260833113148,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(SEED)\n        pass\n\n    def forward(self, x):\n        # Fused GELU + GELU + Softmax\n        # Use torch.nn.functional.gelu with 'approximate' mode for speed on A100\n        x = F.gelu(x, approximate='tanh')\n        x = F.gelu(x, approximate='tanh')\n        x = F.softmax(x, dim=-1, dtype=x.dtype)\n        return x\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(SEED + 12345)\n    return [torch.randn(M, D, generator=g).to(DT)]\n"
+  },
+  "opus5": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nimport triton\nimport triton.language as tl\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\n_INV_SQRT2 = 0.70710678118654752440\n\n\n@triton.jit\ndef _gelu2_softmax_kernel(X, Y, n_cols, BLOCK: tl.constexpr):\n    row = tl.program_id(0)\n    offs = tl.arange(0, BLOCK)\n    mask = offs < n_cols\n    ptr = X + row.to(tl.int64) * n_cols + offs\n    x = tl.load(ptr, mask=mask, other=0.0)\n    dt = X.dtype.element_ty\n    xf = x.to(tl.float32)\n\n    # gelu (exact, erf-based), rounded back to input dtype like PyTorch\n    xf = 0.5 * xf * (1.0 + tl.erf(xf * _INV_SQRT2))\n    xf = xf.to(dt).to(tl.float32)\n    xf = 0.5 * xf * (1.0 + tl.erf(xf * _INV_SQRT2))\n    xf = xf.to(dt).to(tl.float32)\n\n    xm = tl.where(mask, xf, -float(\""
+  },
+  "qwen14b": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import math\nimport torch\nfrom torch import Tensor\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=torch.bfloat16):\n        super().__init__()\n        self.dtype = dtype\n\n    def forward(self, x: Tensor) -> Tensor:\n        # Define the Triton kernel for GELU approximation\n        @triton.kernel\n        def gelu_approximate(X_ptr, Y_ptr, n_elements, BLOCK_SIZE: tl.constexpr):\n            pid = tl.program_id(axis=0)\n            block_start = pid * BLOCK_SIZE\n            offsets = block_start + tl.arange(0, BLOCK_SIZE)\n            mask = offsets < n_elements\n            x = tl.load(X_ptr + offsets, mask=mask, other=0.0)\n            y = (x * (\n                0.5 +\n                tl.math.tanh(\n                    0.79788"
+  },
+  "qwen3next": {
+   "reason": "no_candidate",
+   "correct": false,
+   "sp": 0.0,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\n@triton.jit\ndef fused_gelu_softmax_kernel(input_ptr, output_ptr, stride_xm, stride_xd, stride_om, stride_od, D: tl.constexpr):\n    m = tl.program_id(0)\n    shared_temp = tl.zeros((D,), dtype=tl.float32)\n    \n    for j in range(D):\n        offset = m * stride_xm + j * stride_xd\n        x = tl.load(input_ptr + offset)\n        x = x.to(tl.float32)\n        poly = 0.044715 * x * x * x\n        x1 = x + poly\n        x1 = x1 * tl.math.sqrt(2.0 / tl.math.pi)\n        x1 = tl.math.tanh(x1)\n        g1 = 0.5 * x * (1.0 + x1)\n        poly2 = 0.044715 * g1 * g1 * g1\n        x2 = g1 + poly2\n        x2 = x2 * tl.math.sqrt(2.0 / tl.math.pi)\n        x2 = tl.math.ta"
+  },
+  "qwen7b": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.5594105207308727,
+   "code": "import math\nimport torch\nimport torch.nn.functional as F\nfrom torch import Tensor\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n\n    def forward(self, x: Tensor) -> Tensor:\n        x = F.gelu(x)\n        x = F.gelu(x)\n        x = torch.exp(x - torch.max(x, dim=-1, keepdim=True).values)\n        x = x / torch.sum(x, dim=-1, keepdim=True)\n        return x\n"
+  },
+  "sonnet5": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.5960746771142038,
+   "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\n\n@triton.jit\ndef fused_gelu_gelu_softmax_kernel(\n    x_ptr, out_ptr,\n    n_cols,\n    stride_row,\n    BLOCK_SIZE: tl.constexpr,\n):\n    row = tl.program_id(0)\n    col_offsets = tl.arange(0, BLOCK_SIZE)\n    mask = col_offsets < n_cols\n    row_ptr = x_ptr + row * stride_row\n    x = tl.load(row_ptr + col_offsets, mask=mask, other=0.0).to(tl.float32)\n\n    inv_sqrt2 = 0.7071067811865476\n\n    # first gelu (exact, erf-based)\n    x = 0.5 * x * (1.0 + tl.math.erf(x * inv_sqrt2))\n    # second gelu\n    x = 0.5 * x * (1.0 + tl.math.erf(x * inv_sqrt2))\n\n    # softmax across the row\n    x = tl.where(mask, x, float('-inf'))\n    row_max = tl.max(x, axis=0)\n    x = x - row_max"
+  },
+  "starcoder15b": {
+   "reason": "ok",
+   "correct": true,
+   "sp": 0.9942912661593143,
+   "code": "import math\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nSEED = 10600000\nM, D, DT = 1024, 2048, torch.bfloat16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dtype=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(SEED)\n        pass\n\n    def forward(self, x):\n        x = F.gelu(x)\n        x = F.gelu(x)\n        x = torch.softmax(x, dim=-1)\n        return x\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(SEED + 12345)\n    return [torch.randn(M, D, generator=g).to(DT)]\n\n"
+  }
+ }
+}
