@@ -37,6 +37,13 @@ SOLVE = ("Optimize this PyTorch module for speed on an A100. Keep __init__ ident
          "Strategy to apply: {focus}\n{skills}Output exactly ONE class named ModelNew in a single ```python block. No prose.\n\n"
          "```python\n{src}\n```")
 
+# editable procedure the agent uses to solve; the model may rewrite this whole template in
+# revise() (richer self-edit space than tuning scalar params). Must keep the {SRC} slot.
+SOLVE_BASE = ("Optimize this PyTorch module for speed on an A100. Keep __init__ identical; rewrite "
+              "forward using Triton or fused ops, numerically equivalent. Aim to beat torch.compile.\n"
+              "{SKILLS}Output exactly ONE class named ModelNew in a single ```python block. No prose.\n\n"
+              "```python\n{SRC}\n```")
+
 
 def grade_one(taskdir, cand_timeout=90):
     rj = os.path.join(taskdir, "results.json")
@@ -67,8 +74,8 @@ def make_behaviors(gen_fn, workdir, practice_tasks, cand_timeout=90):
         d = os.path.join(workdir, "d%d" % ctr["n"]); os.makedirs(d, exist_ok=True)
         open(d + "/task.py", "w").write(project["source"])
         json.dump({k: project[k] for k in ("name", "tier", "family", "meta") if k in project}, open(d + "/meta.json", "w"))
-        focus = agent["params"].get("focus", FOCI[0])
-        prompt = SOLVE.format(focus=focus, skills=_skillblock(agent), src=project["source"])
+        tmpl = agent["params"].get("solve_prompt") or SOLVE_BASE
+        prompt = tmpl.replace("{SRC}", project["source"]).replace("{SKILLS}", _skillblock(agent))
         code = CB.extract_modelnew(gen_fn(prompt) or "")
         for old in glob.glob(d + "/cand_*.py"):
             os.remove(old)
@@ -89,23 +96,20 @@ def make_behaviors(gen_fn, workdir, practice_tasks, cand_timeout=90):
         for t in practice_tasks[:2]:
             fb.append("%s -> C=%.1f" % (t["name"], develop(target, t, rng)))
         # the actor's own meta-strategy biases how it asks for the target's next params
-        meta = actor["params"].get("meta_strategy", "improve the target's focus and retrieval to raise attainment")
-        ask = ("You are improving another optimization agent's research parameters. Your guiding "
-               "meta-strategy: %s.\nThe target agent currently uses focus=%r, retrieval_k=%d. On practice "
-               "projects it scored: %s.\nPropose improved parameters as JSON with keys "
-               '"focus" (a concrete optimization strategy string) and "retrieval_k" (int 0-3). '
-               "Return only the JSON." % (meta, target["params"].get("focus"), int(target["params"].get("retrieval_k", 0)), "; ".join(fb)))
-        raw = gen_fn(ask) or ""
-        m = re.search(r"\{.*\}", raw, re.S)
-        if m:
-            try:
-                d = json.loads(m.group(0))
-                if isinstance(d.get("focus"), str) and len(d["focus"]) > 5:
-                    child["params"]["focus"] = d["focus"][:200]
-                if isinstance(d.get("retrieval_k"), int) and 0 <= d["retrieval_k"] <= 3:
-                    child["params"]["retrieval_k"] = d["retrieval_k"]
-            except Exception:
-                pass
+        meta = actor["params"].get("meta_strategy", "diagnose why kernels miss the speed target and rewrite the prompt to fix it")
+        cur = target["params"].get("solve_prompt") or SOLVE_BASE
+        ask = ("You are improving another kernel-optimization agent's PROCEDURE: the prompt template it "
+               "uses to solve each project. Your guiding meta-strategy: %s.\n\nThe target's current template "
+               "is:\n---\n%s\n---\nOn practice projects it scored (0=wrong, 0.5=correct, 1.0=correct AND "
+               ">=1.10x vs torch.compile): %s.\n\nRewrite the template to raise attainment. It MUST contain "
+               "the literal token {SRC} where the reference module is inserted, and may contain {SKILLS}. "
+               "Return ONLY the new template text, no prose." % (meta, cur[:1500], "; ".join(fb)))
+        new = gen_fn(ask) or ""
+        new = new.strip()
+        if new.startswith("```"):
+            new = re.sub(r"^```[a-zA-Z]*\n?|\n?```$", "", new).strip()
+        if "{SRC}" in new and 40 < len(new) < 4000:
+            child["params"]["solve_prompt"] = new
         return child
 
     return develop, revise
@@ -158,8 +162,8 @@ def main():
         anchors = G.generate_tiered("Medium", args.anchor_n, seed0=10_000_000 + L * 500)
         wd = os.path.join(args.outdir, "L%d" % L); os.makedirs(wd, exist_ok=True)
         develop, revise = make_behaviors(gen_fn, wd, practice, cand_timeout=90)
-        U0 = {"params": {"focus": FOCI[0], "retrieval_k": 0, "meta_strategy":
-                         "diagnose why the target's kernels miss the speed target, then set a sharper focus"},
+        U0 = {"params": {"solve_prompt": SOLVE_BASE, "retrieval_k": 0, "meta_strategy":
+                         "diagnose why the target's kernels miss the speed target, then rewrite the solve prompt to fix it"},
               "skills": []}
         r = run_lineage(U0, develop, revise, anchors, rng, reps=args.reps)
         results.append(r)
