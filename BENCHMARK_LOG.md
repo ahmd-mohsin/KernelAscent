@@ -123,3 +123,64 @@ Interpretation: across a diverse 8-model set, no evidence of causal recursive se
 on kernel research, and richer self-editing does not help. This is the controlled, calibrated
 negative the instrument was built to produce. Caveat: 8 paired blocks per condition; N1 and F2
 near 0 with wide-ish CIs; rescue contrasts small. DeepSeek-V3.2 to finish on a creds refresh.
+
+## v3 paper-readiness assessment + next steps (2026-09-06)
+
+### Interpretation corrections (apply going forward)
+- "edit space is not the limiter" -> the tested rich-edit policy showed no CONSISTENT advantage
+  over narrow at this budget (dF sign-scattered, mean ~-0.01; not a resolved zero).
+- "F~0 for every model" -> report point estimates AND intervals; +0.22 (DeepSeek-Coder) is not
+  intrinsically negligible.
+- "no causal recursive improvement, calibration proves detectability" -> no STATISTICALLY
+  RESOLVED positive effect; deterministic calibration passed, realistic sensitivity NOT yet
+  quantified.
+- "honest negative for memory-RSI" -> a finite-budget comparison of the tested library/search
+  policies.
+- closed-pathway pilot stays INVALID for empirical recursion; keep it as instrument validation.
+- lineage is the unit; report per-lineage paired effects + CIs; a mean over model NAMES is not
+  a population estimate. Do not merge DeepSeek-V3.2's 3 blocks with 8-block runs.
+- To claim a useful negative: prespecify a smallest meaningful effect (e.g. delta=0.05), show a
+  one-sided upper CI < delta (bounded negative) or an equivalence interval; an interval spanning
+  0 and substantial positive is INCONCLUSIVE, not "absent".
+
+### Identification assumptions for the actor contrast (state in paper)
+common target + starting evidence; randomized/paired continuation; equal resource+info-access;
+no private-assay feedback to the lineage; complete outcome accounting. Bounded-outcome
+diagnostic: if variants differ only on an event of prob p and outcome range R, |mean actor
+effect| <= pR -> unconditional F can be small when effective producer changes are RARE even if
+useful when they occur (do not condition failures away; p is not a changed-file count).
+
+### VALIDITY GATE (priority, user-required): capability monotonicity
+Base capability Q(U0) / attainment MUST rank models sensibly: larger/stronger > smaller/weaker.
+If it does not, the metric or harness is broken and no RSI claim is meaningful. Run a clean
+capability-ranking assay across a model ladder on a FIXED task set; flag anomalies (e.g.
+DeepSeek-V3.2 scored low correct-rate 0.09-0.21 in the controlled run despite being strong ->
+investigate: prompt/format mismatch, non-code specialization, or harness issue).
+
+### Experiment program (freeze current run as pilot; diagnose, do not re-sweep)
+E0 (validity, now): capability monotonicity across small->large.
+E1: sensitivity on REAL campaign states -- inject independently-verified reference changes
+    (repair tool / selection policy / workflow-efficiency); does each raise Q, and separately
+    does USING it in revise raise production of further useful changes; report null FPR,
+    sensitivity, required lineages. (deterministic fixtures test logic, not real sensitivity.)
+E2 (primary causal): hold immediate usefulness fixed, toggle self-use -- both actors get the
+    improved tool in develop; in revise one uses the earlier impl, one the improved; same target;
+    measure child-production difference (F) + N; rollback/rescue; fixed-trials vs fixed-walltime.
+E3: does selection discard future productivity -- preserve rejected candidate revisions; measure
+    immediate utility I_j vs future-producer value G_j(T) on a COMMON target; if promising,
+    causally test selection rules (immediate-utility vs successor-productivity-probe vs random).
+E4: budget response (B/2,B,2B), separate revision budget B_s from develop-assay budget B_d; not a
+    universal ceiling; no scaling-law from 3 points.
+E5: model vs scaffold -- 2 models x 2 executable scaffolds; project transfer (hold out
+    compositions/layouts/regimes, not seeds) + agent-state transfer (native vs reset anchors).
+
+### Process audit to publish (per lineage/generation)
+proposal / executability / adoption / activation / behavioral-effect / additional-value /
+causal-contribution / persistence counts. Execution of a changed file != behavioral effect.
+
+### Stopping rules
+reference effects unmeasurable -> improve measurement, withhold model null. detectable but
+self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
+confirmed future value -> selection is a mechanism. only injected changes close the loop ->
+opportunity + discovery gap, no autonomous-RSI claim. one link but no repeat -> report finite
+link. repeated links survive rescue+transfer+replication -> bounded causal agent RSI.
