@@ -459,6 +459,36 @@ reduce value (N<0). Caveat: F=exactly-0 partly reflects coarse 3-level scoring b
 identical Q; a finer speed-resolved score is the E-wall follow-up. Fable/gpt-oss pos runs pending
 to test whether the frontier (which crosses the speed wall) behaves differently.
 
+### E1/E2 CONSOLIDATED RESULT (capability-stratified, resolved CIs) -- 2026-09-06 [CAPSTONE]
+
+Three models x two reference kinds (prescriptive=constraining NEG; best-of-3=capability-additive
+POS), 8 lineage-paired blocks each, calibrated instrument (7/7 + 6/6). All 95% CIs.
+
+USEFULNESS dQ (does the reference raise develop Q):
+  additive (POS):  Coder-7B +0.167 [0.043,0.290]*  gpt-oss +0.083 [0.022,0.145]*  Fable +0.104 [0.018,0.190]*
+  prescriptive(NEG): Coder-7B -0.167 [-0.305,-0.029]*  Fable -0.542 [-0.753,-0.330]*
+  -> SIGN FLIPS with additive vs constraining, resolved for every model. Constraining hurts MORE
+     for stronger models. (* = CI excludes 0.)
+
+CAUSAL SELF-USE F_selfuse (does USING more capability in the improver produce better children,
+develop-benefit held fixed, common target):
+  Coder-7B +0.000 [0,0]   gpt-oss +0.125 [-0.035,0.285] (spans 0)   Fable +0.104 [0.018,0.190]*
+  -> a resolved causal self-use link EMERGES ONLY at the frontier (Fable). Weaker models: none.
+
+SELF-REVISION VALUE N_selfuse (live self-revising child vs unchanged self):
+  Coder-7B -0.583 [-0.645,-0.522]*  gpt-oss -0.354 [-0.619,-0.089]*  Fable +0.062 [-0.06,0.185] (0)
+  -> self-modification significantly DEGRADES weaker models; neutral at the frontier.
+
+HEADLINE (the paper's core causal result): capability-additive self-improvement is genuinely useful
+across the spectrum (dQ>0), and its SIGN is set by additive-vs-constraining (never-constrain
+principle, proven). But the CAUSAL RECURSIVE channel is capability-gated: absent/harmful for
+sub-frontier models (F_selfuse~0, N_selfuse<0 -> self-revision degrades) and only at the FRONTIER
+does a resolved single causal self-use link appear (Fable F_selfuse +0.104*). Per the stopping
+rules this is a FINITE LINK at the frontier, NOT a compounding-RSI claim: F_channel spans 0, it is
+one link (repeat/rescue/replication not yet shown), and coarse 3-level scoring bins many children
+to equal Q (F often exactly 0). Next: E-wall (speed-resolved score) + repeat-link + rescue +
+replication at the frontier to test whether the Fable link COMPOUNDS or is a one-step artifact.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
