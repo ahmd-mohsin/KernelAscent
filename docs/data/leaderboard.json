@@ -1,13 +1,390 @@
 {
-  "updated": "2026-09-03",
-  "metric_note": "Capability track (Tier-1/2, L1+L2). fast_p = fraction of tasks beating p x the min(eager, torch.compile) roofline at fixed fp32-gold correctness; pass@k with k=1 (single-shot). Held-out seeds. Higher is better.",
-  "models": [],
-  "pending": [
-    "mistral.mistral-large-3-675b-instruct",
-    "minimax.minimax-m2.5",
-    "openai.gpt-oss-120b",
-    "qwen.qwen3-next-80b-a3b"
+  "updated": "2026-09-06",
+  "metric_note": "E0 capability gate. Fixed 15 Medium tasks (procedural, held-in seed0=0), k=5 samples/task (75 trials/model). correct_rate = fraction correct vs fp32 gold; fast_rate = fraction that also beat the min(eager,torch.compile) roofline by >=1.10x (the frontier discriminator); meanC = mean bounded attainment in {0,0.5,1.0}. 95% Wilson CIs. Higher is better.",
+  "columns": [
+    "model",
+    "kind",
+    "correct_rate",
+    "correct_ci",
+    "fast_rate",
+    "fast_ci",
+    "meanC"
   ],
-  "pending_note": "Grading hung on pathological Triton compiles; will re-grade with a per-candidate compile timeout.",
-  "status": "RECOMPUTING \u2014 a maxTokens bug caused 21/30 models to generate nothing; re-running with adaptive maxTokens."
+  "models": [
+    {
+      "model": "GPT-5.6 terra",
+      "kind": "api",
+      "correct_rate": 0.92,
+      "correct_ci": [
+        0.836,
+        0.963
+      ],
+      "fast_rate": 0.667,
+      "fast_ci": [
+        0.554,
+        0.763
+      ],
+      "meanC": 0.793,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "GPT-5.6 sol",
+      "kind": "api",
+      "correct_rate": 0.907,
+      "correct_ci": [
+        0.82,
+        0.954
+      ],
+      "fast_rate": 0.6,
+      "fast_ci": [
+        0.487,
+        0.703
+      ],
+      "meanC": 0.753,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Kimi-K2.5",
+      "kind": "api",
+      "correct_rate": 0.387,
+      "correct_ci": [
+        0.285,
+        0.5
+      ],
+      "fast_rate": 0.24,
+      "fast_ci": [
+        0.158,
+        0.348
+      ],
+      "meanC": 0.313,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Fable 5.1",
+      "kind": "open",
+      "correct_rate": 0.36,
+      "correct_ci": [
+        0.261,
+        0.473
+      ],
+      "fast_rate": 0.227,
+      "fast_ci": [
+        0.147,
+        0.333
+      ],
+      "meanC": 0.293,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Palmyra-X5",
+      "kind": "api",
+      "correct_rate": 0.533,
+      "correct_ci": [
+        0.422,
+        0.642
+      ],
+      "fast_rate": 0.04,
+      "fast_ci": [
+        0.014,
+        0.111
+      ],
+      "meanC": 0.287,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "gpt-oss-120b",
+      "kind": "api",
+      "correct_rate": 0.467,
+      "correct_ci": [
+        0.358,
+        0.578
+      ],
+      "fast_rate": 0.08,
+      "fast_ci": [
+        0.037,
+        0.164
+      ],
+      "meanC": 0.273,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen3-32B",
+      "kind": "api",
+      "correct_rate": 0.36,
+      "correct_ci": [
+        0.261,
+        0.473
+      ],
+      "fast_rate": 0.12,
+      "fast_ci": [
+        0.064,
+        0.213
+      ],
+      "meanC": 0.24,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Nemotron-Super-3-120B",
+      "kind": "api",
+      "correct_rate": 0.253,
+      "correct_ci": [
+        0.169,
+        0.362
+      ],
+      "fast_rate": 0.16,
+      "fast_ci": [
+        0.094,
+        0.259
+      ],
+      "meanC": 0.207,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Llama-4-Maverick",
+      "kind": "api",
+      "correct_rate": 0.32,
+      "correct_ci": [
+        0.225,
+        0.432
+      ],
+      "fast_rate": 0.067,
+      "fast_ci": [
+        0.029,
+        0.147
+      ],
+      "meanC": 0.193,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "DeepSeek-V3.2",
+      "kind": "api",
+      "correct_rate": 0.24,
+      "correct_ci": [
+        0.158,
+        0.348
+      ],
+      "fast_rate": 0.053,
+      "fast_ci": [
+        0.021,
+        0.129
+      ],
+      "meanC": 0.147,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "kind": "open",
+      "correct_rate": 0.28,
+      "correct_ci": [
+        0.191,
+        0.39
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.14,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Mistral-Large-3-675B",
+      "kind": "api",
+      "correct_rate": 0.227,
+      "correct_ci": [
+        0.147,
+        0.333
+      ],
+      "fast_rate": 0.04,
+      "fast_ci": [
+        0.014,
+        0.111
+      ],
+      "meanC": 0.133,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "MiniMax-M2.5",
+      "kind": "api",
+      "correct_rate": 0.16,
+      "correct_ci": [
+        0.094,
+        0.259
+      ],
+      "fast_rate": 0.093,
+      "fast_ci": [
+        0.046,
+        0.18
+      ],
+      "meanC": 0.127,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "kind": "open",
+      "correct_rate": 0.2,
+      "correct_ci": [
+        0.125,
+        0.304
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.1,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Llama-3.3-70B",
+      "kind": "api",
+      "correct_rate": 0.147,
+      "correct_ci": [
+        0.084,
+        0.244
+      ],
+      "fast_rate": 0.013,
+      "fast_ci": [
+        0.002,
+        0.072
+      ],
+      "meanC": 0.08,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen3-next-80B-a3b",
+      "kind": "api",
+      "correct_rate": 0.067,
+      "correct_ci": [
+        0.029,
+        0.147
+      ],
+      "fast_rate": 0.04,
+      "fast_ci": [
+        0.014,
+        0.111
+      ],
+      "meanC": 0.053,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "kind": "open",
+      "correct_rate": 0.107,
+      "correct_ci": [
+        0.055,
+        0.197
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.053,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Nova-Pro",
+      "kind": "api",
+      "correct_rate": 0.053,
+      "correct_ci": [
+        0.021,
+        0.129
+      ],
+      "fast_rate": 0.013,
+      "fast_ci": [
+        0.002,
+        0.072
+      ],
+      "meanC": 0.033,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Llama-3.1-8B",
+      "kind": "open",
+      "correct_rate": 0.04,
+      "correct_ci": [
+        0.014,
+        0.111
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.02,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "kind": "open",
+      "correct_rate": 0.04,
+      "correct_ci": [
+        0.014,
+        0.111
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.02,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Qwen2.5-Coder-0.5B",
+      "kind": "open",
+      "correct_rate": 0.013,
+      "correct_ci": [
+        0.002,
+        0.072
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.007,
+      "k": 5,
+      "trials": 75
+    },
+    {
+      "model": "Gemma-3-27B",
+      "kind": "api",
+      "correct_rate": 0.013,
+      "correct_ci": [
+        0.002,
+        0.072
+      ],
+      "fast_rate": 0.0,
+      "fast_ci": [
+        0.0,
+        0.049
+      ],
+      "meanC": 0.007,
+      "k": 5,
+      "trials": 75
+    }
+  ],
+  "notes": "Two walls: correctness ranks the low/mid band; speed (fast_rate) is the frontier discriminator. GPT-5.6 terra/sol top both. All open models <=14B have fast_rate 0. Documented exceptions: Coder-14B & Gemma-3-27B hallucinate torch internals; qwen3-next is a 3B-active MoE."
 }

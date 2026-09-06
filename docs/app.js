@@ -1,18 +1,23 @@
 // Leaderboard: load JSON, render, sortable. Add models by editing data/leaderboard.json.
-const NUM = ["pass_at_k", "fast_1", "fast_1_5", "fast_2", "geomean_pass"];
-let DATA = [], sortKey = "pass_at_k", sortDir = -1;
+const NUM = ["correct_rate", "fast_rate", "meanC"];
+let DATA = [], sortKey = "meanC", sortDir = -1;
 
 function fmt(v) {
   if (v === null || v === undefined || v === "") return "—";
-  if (typeof v === "number") return (Math.round(v * 1000) / 1000).toFixed(v < 1 ? 2 : 3);
+  if (typeof v === "number") return (Math.round(v * 1000) / 1000).toFixed(v < 1 ? 3 : 3);
   return v;
+}
+// "0.360 [0.26, 0.47]" when a CI is present
+function fmtci(v, ci) {
+  if (v === null || v === undefined) return "—";
+  const base = fmt(v);
+  return (Array.isArray(ci) && ci.length === 2) ? `${base} <span class="muted small">[${fmt(ci[0])}, ${fmt(ci[1])}]</span>` : base;
 }
 
 function render() {
   const tb = document.querySelector("#lb tbody");
-  const rankable = DATA.filter(m => !/curator/i.test(m.role || ""));
   const best = {};
-  NUM.forEach(k => { best[k] = Math.max(...rankable.map(m => m[k] ?? -Infinity)); });
+  NUM.forEach(k => { best[k] = Math.max(...DATA.map(m => m[k] ?? -Infinity)); });
 
   const rows = [...DATA].sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey];
@@ -21,17 +26,15 @@ function render() {
     return String(av ?? "").localeCompare(String(bv ?? "")) * sortDir;
   });
 
+  const ciKey = { correct_rate: "correct_ci", fast_rate: "fast_ci" };
   tb.innerHTML = rows.map(m => {
-    const cur = /curator/i.test(m.role || "");
     const cell = (k) => {
-      const isBest = !cur && NUM.includes(k) && m[k] === best[k] && best[k] > -Infinity;
-      const cls = (NUM.includes(k) ? "num " : "") + (isBest ? "best" : "");
-      return `<td class="${cls.trim()}">${fmt(m[k])}</td>`;
+      const isBest = m[k] === best[k] && best[k] > -Infinity;
+      return `<td class="num ${isBest ? "best" : ""}">${ciKey[k] ? fmtci(m[k], m[ciKey[k]]) : fmt(m[k])}</td>`;
     };
-    return `<tr class="${cur ? "curator" : ""}">
-      <td><b>${m.model}</b></td><td>${m.org || "—"}</td><td>${m.params || "—"}</td><td>${m.role || "—"}</td>
-      ${cell("pass_at_k")}${cell("fast_1")}${cell("fast_1_5")}${cell("fast_2")}${cell("geomean_pass")}
-      <td class="muted small">${m.notes || ""}</td></tr>`;
+    return `<tr>
+      <td><b>${m.model}</b></td><td>${m.kind || "—"}</td>
+      ${cell("correct_rate")}${cell("fast_rate")}${cell("meanC")}</tr>`;
   }).join("");
 }
 
