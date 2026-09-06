@@ -438,6 +438,27 @@ BOTH neg-controls (Coder-7B, Fable) agree: capability-CONSTRAINING self-improvem
 REDUCES productivity (worse for stronger models) and yields NO causal recursion (F_selfuse spans 0).
 This is the resolved negative baseline the capability-additive pos-control is being compared against.
 
+### E1/E2 POS-control Coder-7B complete (capability-additive best-of-3, 8 blk) -- 2026-09-06 [PIVOTAL]
+
+- E1.dQ_useful = +0.167 CI [0.043, 0.290]  -> SIGNIFICANTLY POSITIVE. Capability-additive (best-of-3)
+  RAISES Q. The SIGN FLIPS vs the prescriptive neg-control (Coder-7B dQ=-0.167): additive helps,
+  constraining hurts, BOTH resolved with CIs. Direct proof of the never-constrain-capability principle.
+- E1.dQ_null (waste: best-of-3 keep-random) = +0.146 CI [-0.023, 0.314] -> spans 0 (behaves as a
+  null). Point estimate close to useful; only the useful ref clears 0. Marginal but honest separation.
+- E1.F_channel = +0.000 [0,0] and E2.F_selfuse = +0.000 [0,0]  -> EXACTLY zero across all 8 blocks:
+  giving the IMPROVER more of the (verified-useful) capability produces NO better children. No causal
+  recursion, even with a positive-control improvement and an instrument calibrated to detect it.
+- E2.N_selfuse = -0.583 CI [-0.645, -0.522]  -> SIGNIFICANTLY NEGATIVE: a live self-revising child is
+  worse than its unchanged target. Self-modification DEGRADES here (revising away from a working base).
+- decompose: correct_rate 0.222, fast_rate 0.025 (still at the speed wall).
+
+HEADLINE (Coder-7B, both controls, resolved CIs): (1) self-improvement usefulness is REAL and its
+SIGN is set by whether the reference ADDS capability (+0.167) or CONSTRAINS it (-0.167). (2) The
+CAUSAL RECURSIVE channel is ABSENT regardless (F_channel=F_selfuse=0), and self-revision can even
+reduce value (N<0). Caveat: F=exactly-0 partly reflects coarse 3-level scoring binning children to
+identical Q; a finer speed-resolved score is the E-wall follow-up. Fable/gpt-oss pos runs pending
+to test whether the frontier (which crosses the speed wall) behaves differently.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
