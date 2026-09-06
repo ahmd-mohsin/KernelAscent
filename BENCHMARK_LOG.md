@@ -178,6 +178,62 @@ E5: model vs scaffold -- 2 models x 2 executable scaffolds; project transfer (ho
 proposal / executability / adoption / activation / behavioral-effect / additional-value /
 causal-contribution / persistence counts. Execution of a changed file != behavioral effect.
 
+### E0 capability-monotonicity result (2026-09-05) -- k=1 pilot, then k=5 for power
+
+Assay: base `develop` only (no lineage/revise), FIXED 15 Medium tasks (seed0=0), bounded C in
+{0,0.5,1.0}. `kernelascent/v3/capcheck.py`. Ladder: Qwen2.5-Coder 0.5/1.5/3/7/14B, Llama-3.1-8B,
+Fable 5.1 (API).
+
+k=1, n=15 (1 sample/task):
+| model | meanC | correct | fast |
+|---|---|---|---|
+| Coder-0.5B | 0.067 | 0.133 | 0 |
+| Coder-1.5B | 0.133 | 0.267 | 0 |
+| Coder-3B | 0.000 | 0.000 | 0 |
+| Coder-7B | 0.167 | 0.333 | 0 |
+| Coder-14B | 0.067 | 0.133 | 0 |
+| Llama-3.1-8B | 0.033 | 0.067 | 0 |
+| Fable 5.1 | 0.333 | 0.400 | 0.267 |
+
+Two robust separations: (a) Fable (frontier) >> every open model and is the ONLY model with any
+fast-rate; (b) open models cluster at the correctness wall with fast-rate 0. NOT monotonic within
+the open cluster (3B=0, 14B<7B). Diagnosed: 14B emitted valid code for all 15 but 13 are
+numerically incorrect (real capability, not a harness/format bug -- 15/15 nonempty, only 2
+correct); 3B emitted code on 9/15. The within-open disorder is SAMPLING NOISE, not a metric flaw:
+at k=1,n=15 correct counts are 1-5/15 and Wilson 95% CIs (e.g. 2/15 -> ~[0.04,0.38]) all overlap.
+The gate is underpowered by construction at k=1.
+
+k=5, n=15 (75 trials/model, Wilson 95% CI on correct-rate):
+| model | meanC | correct [95% CI] | fast [95% CI] |
+|---|---|---|---|
+| Coder-0.5B | 0.007 | 0.013 [0.002, 0.072] | 0 |
+| Coder-3B | 0.053 | 0.107 [0.055, 0.197] | 0 |
+| Llama-3.1-8B | 0.020 | 0.040 [0.014, 0.111] | 0 |
+| Coder-14B | 0.020 | 0.040 [0.014, 0.111] | 0 |
+| Coder-1.5B | 0.100 | 0.200 [0.125, 0.304] | 0 |
+| Coder-7B | 0.140 | 0.280 [0.191, 0.390] | 0 |
+| Fable 5.1 | 0.293 | 0.360 [0.261, 0.473] | 0.227 [0.147, 0.333] |
+
+VALIDITY VERDICT (E0 PASS with one documented exception):
+1. The metric tracks capability. Clean monotone rise 0.5B(0.013) < 3B(0.107) ~ 1.5B(0.200) <
+   7B(0.280) < Fable(0.360); Fable (frontier) is the ONLY model that ever beats the compile
+   baseline (fast 0.227). 0.5B's near-zero and Fable's top are separated with non-overlapping CIs.
+   1.5B vs 3B are statistically tied (CIs overlap) -- fine, they are close in capability.
+2. ONE genuine exception: Coder-14B (0.040) scores BELOW 7B (0.280), CIs non-overlapping, and it
+   was low at k=1 too (0.133). Root-caused by READING candidates (not truncation -- files are
+   complete): the 14B-Instruct checkpoint hallucinates torch internals, e.g. calling the private
+   JIT pass `torch._C._jit_pass_fuse_addmm(x,W,b)` as if it were a matmul and using `math.sqrt`
+   without importing math. This is real model behavior of that specific instruct checkpoint, NOT a
+   harness/measurement artifact. Documented as a known ladder exception, not a metric flaw.
+3. Llama-3.1-8B (0.040) sits far below the same-size code models -- expected, it is not
+   code-specialized; validates that the metric reflects task-relevant capability, not size alone.
+
+Method lesson folded into the instrument: k=1 is underpowered for ranking (the k=1 3B=0 and the
+14B<7B were partly noise, partly real -- k=5 disentangled them). Capability assays MUST use k>=5
++ Wilson CIs; report ties as ties. `capcheck.py` now takes --k and emits CIs. DeepSeek-V3.2's
+earlier 0.09-0.21 correct-rate is consistent with genuine numerically-wrong kernels at the wall
+(same mechanism as 14B), not a measurement anomaly.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
