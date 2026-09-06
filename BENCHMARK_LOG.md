@@ -6,6 +6,11 @@ key numbers + decisions + audits + next steps.
 
 ## STATE OF THE BENCHMARK — overall evaluation (2026-09-06)
 
+> SUPERSEDED IN PART: read `## CLAIM CORRECTIONS (user feedback 2026-09-06)` below FIRST. Several
+> verdicts here overclaim — "validated instrument", the frontier-only self-use link, additive-beats-
+> null, and never-constrain-proven are downgraded pending direct paired + between-model contrasts.
+
+
 A full evaluation of everything built and run so far. Verdict: the INSTRUMENT is solid and
 validated; the CAPABILITY track is publishable now; the CAUSAL-RSI track has a real, calibrated,
 capability-stratified result (a finite frontier link) that needs 2-3 more runs to reach a
@@ -67,6 +72,160 @@ defensible "bounded/finite-link" result, NOT an autonomous-RSI claim.
   rigorous bounded/finite-link result.
 - "Agents recursively self-improve on kernels": NOT yet — needs the frontier compounding run (gap 1)
   and the speed-resolved score (gap 2). Those two are the critical path to the headline claim.
+
+## CLAIM CORRECTIONS — user feedback 2026-09-06 (APPLY IMMEDIATELY; supersedes overclaims above)
+
+External design review caught real methodology errors in the E1/E2 headline. Fix the CLAIM LABELS;
+preserve the experiments as development evidence + checkpoint-bank material. The corrections:
+
+| Claim as written (above) | Required correction |
+|---|---|
+| "instrument is solid and validated" | Only estimator arithmetic + state-routing (deterministic fixtures) pass. Stochastic sensitivity/false-positive-rate through the full API/container/grader path, verifier robustness, and EXTERNAL validity are NOT yet shown. Three separate calibration layers; do not infer 2nd/3rd from the 1st. |
+| "never-constrain-capability PROVEN" | One prescriptive prompt harmed Q; a best-of-3 intervention helped. Content vs selection vs added-compute are CONFOUNDED — not disentangled. Downgrade to "consistent with", not proven. |
+| "causal self-use link emerges ONLY at the frontier" | NOT supported: I compared each model's F to 0, never ran a BETWEEN-MODEL contrast. gpt-oss F=+0.125 point estimate actually EXCEEDS Fable's +0.104 (wider CI). And Fable's N_selfuse=+0.062 CI [-0.060,0.185] INCLUDES no-improvement. No frontier-specific claim without a model-contrast + resolved N. |
+| "sub-frontier models lack the effect" | Same error — needs the between-model difference with its own CI, not two vs-zero tests. |
+| "additive beats the waste-null (signal separates)" | For Coder-7B the means +0.167 vs +0.146 differ by only +0.021; must estimate the PAIRED difference and its CI DIRECTLY (never done). Marginal at best. |
+| "cosmetic reword is a null (FPR control)" | It produced LARGE negative effects -> it is an ACTIVE intervention, not a zero-effect control. A true identity control uses IDENTICAL executable state + inputs; textual perturbations are interventions. |
+| "correctness .47-.53 has saturated" | Those rates leave substantial measured headroom; attainable headroom still unmeasured. |
+| "min(eager, torch.compile) = hardware roofline" | It is a strong AUTOMATED reference, not a roofline. Report expert reference as a secondary comparison, not an assumed maximum. |
+| "2-3 more runs establish confirmation" | Required n depends on the chosen smallest-meaningful-effect, paired variance, selection, and the family of claims; set prospectively. |
+
+Immediate methodological rules going forward: (1) report the DIRECT paired difference + CI for every
+comparison (additive-vs-waste, rich-vs-narrow, model-A-vs-model-B), never two vs-zero tests. (2) Identity
+control = identical executable state+inputs; treat prompt rewords as active interventions. (3) Keep
+continuous AND categorical diagnostics; a degenerate all-one-bin interval does not prove the effect is 0.
+(4) Declare the statistical UNIT per claim (lineage block / env family / candidate-in-task / timing rep);
+the E0 "75 trials" = 75 candidate outcomes on 15 fixed tasks, NOT 75 independent tasks.
+
+## STRATEGIC REDESIGN — public benchmark: "agents that improve with experience" (2026-09-06)
+
+Pivot (user-directed via full design spec). Central question: after experience, is an agent better at
+producing its NEXT improvement, and can we identify the inherited changes responsible? Ship a product
+useful at THREE levels so it is valuable even when the hard RSI claim is unresolved/negative:
+- T1 DIAGNOSE an update: given a starting agent + a proposed self-edit + evidence + a future-work
+  distribution, predict/decide whether to adopt; graded by downstream DECISION REGRET vs independently-run
+  continuations of parent & edited agent. Cheap entry point (precomputed continuations).
+- T2 PRODUCE A BETTER IMPROVER: submit an executable successor agent; scored by the improvements it
+  later produces on unseen projects vs the original, no final-test feedback. (Meta-optimization, not yet
+  inherited recursion.)
+- T3 USE IMPROVEMENTS TO PRODUCE FURTHER IMPROVEMENTS: the full causal track — agent makes its successor,
+  that successor produces the next update; at checkpoints fork the earlier producer editing the SAME
+  target; audit unchanged-target value + selected-ancestor interventions. Separate scores + claim labels.
+
+FLAGSHIP ASSET = a COUNTERFACTUAL CHECKPOINT BANK: for many checkpoints, store parent_agent/ proposed_edit/
+development_evidence/ continuation_protocol/ measured_outcomes/ provenance. Include useful edits, harmful
+edits, procedure changes with little task gain, family-specific edits, timing-noise mistakes, sub-threshold
+edits, failed/declined/unselected revisions, and TRUE identity controls. Discovery vs validation splits kept
+separate; public dev subset + private eval outcomes. This reusable "what does experience change about future
+improvement ability" resource is the differentiator (vs SWE-bench/DeepSWE executable-patch grading,
+Terminal-Bench/Harbor container interfaces, ARC-AGI-3 skill-acquisition; and vs HyperAgents/RSI-Bench/
+AI4AI-Bench which already do "AI improves AI" — so do NOT claim first-of-kind without a claim-specific audit).
+
+Measurement contract: U = full executable agent state governing BOTH develop(project) and revise(target);
+M = declared model endpoint (API weights fixed -> agent-level recursion only, never model-weight RSI).
+Q(U;B,b) = expected downstream project-quality gain on a COMMON anchor distribution + equal evidence rules.
+Two children of the same target T_g: A_g=Revise_{U_g}(T_g), B_g=Revise_{U_{g-1}}(T_g); F_g=E[Q(A_g)-Q(B_g)]
+(newer vs older producer), N_g=E[Q(A_g)-Q(T_g)] (child vs keeping target). Autonomous-recursion requires
+ALL of: Origin (agent authored the update in-campaign), Execution (it governed the next revise), Future
+utility (fresh assays), Attribution (matched producer contrast + interventions), Repetition (>1 prespecified
+link on fresh work), Scope (distribution/init/budget/uncertainty stated). Two links = finite operational
+test, not indefinite growth. Memory is NOT disqualified; executable code is NOT automatically recursive —
+the causal role of inherited state decides.
+
+Environments: keep KERNELS as ONE task pack (not the entry gate). Target 12 families across 3 packs —
+SOFTWARE (failure-repro / patch-verification / repo-navigation / experiment-orchestration), KERNELS
+(numerical-validation / search-tuning / performance-measurement / inference-integration), RESEARCH
+(data-quality / experiment-selection / result-reliability / reusable-experimentation). Each needs several
+distinct projects (seed changes insufficient) + a transparent starter + a competent starter + an independently
+designed starter (transfer). Calibrate difficulty on SEPARATE axes (baseline competence, discoverability,
+benefit delay, transfer distance); do NOT force expected model-size ranking as a pass condition.
+
+Harness: build on an existing container runner (Harbor) after validating GPU scheduling/isolation/provider
+integration; the distinctive layer is checkpoint capture+restore, declared mutable-state vs immutable-grader
+boundary, actor/target separation + execution-path EVIDENCE (hashes prove identity, not behavioral effect —
+log executed entrypoints/tool calls/accepted patches/source->execution), fresh-process execution of campaign-
+generated updates, matched branching + hidden assays, explicit budgets over the WHOLE nested call tree
+(generated tools / child agents / local search must not unlock unmetered API or a stronger model), versioned
+machine-readable run records that regenerate public tables.
+
+Resource profiles: Diagnose 30-60min (precomputed-checkpoint update assessment) / Develop <=4h (local
+integration) / Full <=24h (live campaigns w/ common-target + ancestry audit). First Full = 8 parallel workers,
+1 lineage block each; schedule preflight1h/producer6h/frozen-assays10h/intervention4h/grading2h/reserve1h;
+publish transactions/states/projects/calls/tokens/GPU-sec AFTER throughput pilots. 8xA100x24h ~= 192 eval
+GPU-hours before model-serving — provide a hosted subsidized route + a small dev mode; keep workload GPUs
+separate from serving GPUs in accounting; API resources = billed token categories + reasoning + concurrency
++ latency + endpoint version. Public 24h run = bounded result with uncertainty; organizers run larger
+confirmatory campaigns (more curation compute cannot make 8 live lineages equal a large confirmatory sample).
+
+Scoring: publish per-domain first (software: verified success + regressions + resources; kernels: correctness
++ verified speedup, end-to-end where a serving workload exists; research: private-test quality at fixed
+budget). Replace coarse {0,0.5,1.0} as the SOLE diagnostic (keep versioned for comparison): report candidate-
+correctness and task-success separately, latency ratios + uncertainty for correct candidates, a verified
+fallback-policy geomean, expert reference as a SECONDARY comparison, and expose rejected candidates + live
+proposal quality so keep-best does not hide deteriorating generation. Investment value: break-even m*=ceil(K/s)
+only if the saving persists — verify on held-out projects; also compare equal-total-resource DIRECT SEARCH.
+
+## QUEUED EXPERIMENTS (reprioritized per feedback) + PENDING compute-blocked runs
+
+Order = build a useful measurement product, validate what it measures, THEN chase the causal chain.
+Core control set (use consistently, all as DIRECT paired contrasts): unchanged working agent;
+frozen producer w/ same new evidence; fixed builder at equal total construction resources; direct
+search at equal resources; executed self-use on/off; prospective compatible-replacement + restoration.
+Extra-resource controls at MATCHED envelope: best-of-3 vs 1 (adds compute) AND best-of-3 vs
+random-of-3 (isolates selection, only if evidence/budget/selector-access matched). A selector that
+reads the hidden grader = oracle -> separate upper-bound label.
+
+- PENDING (compute-blocked; instrument built + calibrated, ready to launch): FRONTIER COMPOUNDING
+  `v3/e1e2_compound.py` (F1->F2 repeat + rescue, CONTINUOUS speed-resolved score, improver-improves-
+  improver pathway; calib 2/2 compound vs one-upgrade). Runs Fable + gpt-oss + Coder-7B. NOTE: reframe
+  under Experiment A/F below — report DIRECT paired F1,F2 and BETWEEN-MODEL contrasts, not vs-zero.
+  Launch cmd queued; needs a live instance + fresh Bedrock creds (both prior boxes evicted, both dead).
+
+- EXP A — AUDIT THE APPARENT POSITIVE (do first). Reconstruct additive-ref comparisons from RAW paired
+  outcomes. Disentangle compute vs selection vs procedure vs autonomy: best-of-3 vs 1, best-of-3 vs
+  random-of-3, and a competent fixed selector, all matched. Estimate additive-minus-waste as a DIRECT
+  paired diff + CI (the +0.021 gap was never tested). Recompute Fable-vs-gptoss F as a BETWEEN-MODEL
+  contrast. Keep injected refs as calibration/self-use tests, NOT autonomous-discovery evidence.
+- EXP B — ENVIRONMENTS CONTAIN USEFUL OPPORTUNITIES. Take the first 12 families through a full-path
+  pilot: unchanged agents + known-useful interventions + independently validated continuations. Record
+  compatibility (a useful change need not help every model). Do NOT pick envs by whether a model shows RSI.
+- EXP C — STARTERS × INHERITANCE MECHANISMS. Few capable configs, 2 independent starters, well-powered
+  paired blocks; compare fixed-construction vs evolving-producer vs direct-search; matched future-project
+  assays; retain unchanged target; analyze failed updates as part of the distribution.
+- EXP D — VALIDATE THE DIAGNOSIS TASK (T1). Agents predict update value + pick diagnostics under a small
+  budget; score downstream ADOPTION REGRET vs held-out continuations; baselines always-keep / always-adopt
+  / immediate-score / fixed selectors.
+- EXP E — EXTERNAL PREDICTIVE VALIDITY. Freeze scores+predictions, then evaluate on INDEPENDENT real
+  repos/research workflows; does a higher improvement score predict more subsequent improvement at fixed
+  budget, ABOVE initial-capability+resources alone? Hold out model families/starters. If it adds little,
+  narrow the advertised scope.
+- EXP F — RECURSIVE CONTINUATION (only where prior gates support it). Fresh autonomous lineages, common-
+  target producer comparisons, unchanged-target contrasts, prospective interventions; prespecify the
+  repeated links + resource regime; include ALL lineages, not just ones with an appealing first update.
+
+Statistical policy (binding): declare the unit per claim; choose a smallest-meaningful-effect per primary
+endpoint; estimate paired variance in pilots and set confirmation n PROSPECTIVELY; account for the family
+of claims + adaptive selection (no repeated peeking at the private panel); "no effect" needs an explicit
+equivalence/upper bound, not failure-to-reject.
+
+RELEASE PLAN: (d1-7) freeze the claim contract to what the logged contrasts support, define checkpoint
+schema + resource ledger + evaluator boundary + evidence labels, pick first software+kernel envs, resolve
+the additive-control audit (Exp A) BEFORE scaling it; deliverable = 1 end-to-end demonstrator another dev
+can inspect. (d8-30) curate first families incl HARMFUL changes, build checkpoint dev set w/ independent
+continuations, implement T1 + full-path nulls, qualify live campaigns + measure the real 24h workload.
+(d31-60) >=5 external teams run it unedited, >=2 change a policy from its output, 1 reproduces a public
+checkpoint experiment. (d61-90) freeze versioned public dev set + private eval, publish raw-aggregate
+methods + baselines + limitations, run Exp E, publish negative/harmful results, open contribution+retirement.
+
+FIRST BUILD TO AUTHORIZE (minimal complete demo): a working software-repair agent + a kernel-research
+agent; a few genuine self-edits each incl one HARMFUL; independently measured parent/child continuations;
+a cheap T1 update-assessment task; one live common-target producer experiment; one replay exposing
+artifacts/execution/resources/uncertainty; then have an independent dev make a real update decision with it.
+
+Evidence-status axis (leaderboard label, separate from env tier + execution profile): Capability /
+Transfer / Better-improver / Causal-link / Repeated-causal-links. Edit permissions (LoRA/source/tools) are
+METADATA, not a higher evidence status. Every entry: model, scaffold, starter, version, hardware profile,
+resources, date, uncertainty. Do NOT collapse into one "RSI IQ".
 
 ## Current direction (v3): causal recursive-improvement evaluation
 
