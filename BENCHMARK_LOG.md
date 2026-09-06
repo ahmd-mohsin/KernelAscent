@@ -4,6 +4,70 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## STATE OF THE BENCHMARK — overall evaluation (2026-09-06)
+
+A full evaluation of everything built and run so far. Verdict: the INSTRUMENT is solid and
+validated; the CAPABILITY track is publishable now; the CAUSAL-RSI track has a real, calibrated,
+capability-stratified result (a finite frontier link) that needs 2-3 more runs to reach a
+confirmatory claim. Maturity ~ workshop-paper-ready today; NeurIPS-main-track-ready after the
+frontier compounding + two-wall runs.
+
+### What is SOLID (validated, reproducible, pushed)
+1. Harness. Crash-isolated subprocess grader; fp32-gold correctness on N fresh inputs + input-
+   sensitivity (anti-reward-hack); log-interp eager->compile->expert speed score; bounded C in
+   {0,0.5,1.0}. Procedural task generator (6 families, tiers, private held-out seed>=10M).
+2. Multi-provider access. `Curator` auto-resolves id form / maxTokens / reasoning config and now
+   also drops the temperature field when a model rejects it (GPT-5.6). 22 models run end-to-end
+   (open on GPU, API on Bedrock). Raw generations (incl. reasoning) saved for inspection.
+3. Measurement core (`v3/core.py`): Q/V/F/N estimators, actor!=target separation, lineage as the
+   unit, paired CIs. Validated by TWO deterministic calibrations (7/7 prescriptive, 6/6 additive)
+   that prove the instrument detects injected effects and returns ~0 for genuine nulls.
+
+### Headline SCIENTIFIC results (all with resolved 95% CIs)
+A. CAPABILITY (E0, 22 models, fixed 15 Medium, k=5). Validity gate PASSED: capability ranks
+   sensibly across the whole spectrum. TWO WALLS: correctness ranks the low/mid band; SPEED
+   (beating torch.compile) is the frontier discriminator. GPT-5.6 terra/sol dominate both
+   (fast 0.667/0.600); Fable 0.227; ALL open models <=14B have fast-rate exactly 0. Correctness
+   SATURATES among strong models (Palmyra 0.53, gpt-oss 0.47) well before the speed wall is crossed
+   -> that gap is the RSI headroom.
+B. SELF-IMPROVEMENT SIGN (E1). A reference's usefulness sign is set by whether it ADDS capability
+   or CONSTRAINS it: capability-additive best-of-B raises Q (Coder-7B +0.167*, gpt-oss +0.083*,
+   Fable +0.104*); prescriptive "expert" text LOWERS Q (Coder-7B -0.167*, Fable -0.542*, worse for
+   stronger models). This proves the never-constrain-capability principle and explains why earlier
+   prescriptive-scaffold RSI looked flat/negative.
+C. CAUSAL RECURSION (E2) is CAPABILITY-GATED. Holding immediate usefulness fixed and toggling
+   self-use: sub-frontier models show NO causal self-use (Coder-7B F_selfuse 0, gpt-oss spans 0)
+   and their self-revision DEGRADES (N_selfuse -0.58*, -0.35*). Only at the FRONTIER does a
+   resolved single causal self-use link appear (Fable F_selfuse +0.104*, N neutral). Across a
+   diverse 9-model controlled narrow-vs-rich, F1 spans 0 everywhere and dF~0 (richer edit space
+   doesn't help). So: a finite causal link exists at the frontier; there is NO evidence yet that
+   it COMPOUNDS.
+
+### What this MEANS
+Genuine, honest, publishable story: (i) a validated two-wall capability benchmark on GPU kernels
+with a clean frontier ranking; (ii) a calibrated causal instrument for agent self-improvement;
+(iii) the finding that self-improvement usefulness flips sign with additive-vs-constraining refs;
+(iv) causal recursive self-improvement is absent below the frontier (and self-revision there is
+harmful) and appears only as a single, not-yet-compounding link at the frontier. This is a
+defensible "bounded/finite-link" result, NOT an autonomous-RSI claim.
+
+### GAPS before a strong RSI claim (ranked)
+1. Frontier compounding: does Fable's F_selfuse link REPEAT (F1 then F2 on a fresh target) and
+   survive rescue + replication? (one link != RSI; stopping rule.)
+2. Two-wall / speed-resolved score: coarse 3-level C bins children to equal Q -> F often exactly 0.
+   A continuous speed-resolved attainment is needed to see correct->fast recursion, the only place
+   it can compound.
+3. Power: prespecify delta=0.05; use per-block lineage variance now in hand to size #blocks.
+4. E3-E5 (selection discards future productivity; budget response; model-vs-scaffold + transfer).
+5. Longer-horizon realism: the dockerized real-workflow env (parked) for end-to-end tasks.
+
+### Paper-readiness verdict
+- Capability leaderboard + two-wall analysis: READY (published to site + `analysis/`).
+- Instrument + calibration + neg/pos controls + capability-stratified causal result: READY as a
+  rigorous bounded/finite-link result.
+- "Agents recursively self-improve on kernels": NOT yet — needs the frontier compounding run (gap 1)
+  and the speed-resolved score (gap 2). Those two are the critical path to the headline claim.
+
 ## Current direction (v3): causal recursive-improvement evaluation
 
 Central question: when an agent creates an improvement to its own improvement PROCEDURE, does
