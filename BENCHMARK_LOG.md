@@ -101,3 +101,25 @@ the causal value of inherited improvements, under matched starting conditions an
   (opportunity + sensitivity), separating: no available improvement / undiscovered / undetectable.
 - Investigate Coder-14B's exact-zero F2 (did revise change behavior, did admission keep the
   parent, or did distinct behaviors bin to the same coarse score).
+
+## Controlled narrow-vs-rich result (9 models, pathway open) -- 2026-09-05
+
+8/9 models complete (DeepSeek-V3.2 3/8, API-slow). Diverse: 3 API (Fable, Sonnet, DeepSeek-V3.2)
++ 6 open (Coder-14B, Llama-3.1-8B, Qwen2.5-7B, StarCoder2-15B, DeepSeek-Coder-6.7B, Coder-7B).
+
+dF1 (rich - narrow), 8/8 models: Fable -0.19, Sonnet +0.06, Coder-14B +0.04, Llama-8B -0.02,
+Qwen-7B -0.10, StarCoder2-15B +0.10, DeepSeek-Coder-6.7B +0.19, Coder-7B -0.17 (DeepSeek-V3.2
++0.17 partial). Sign-scattered, mean ~0.
+
+Findings:
+1. dF ~ 0, sign-scattered across models -> opening a richer self-edit space does NOT raise the
+   causal producer effect over narrow. The edit space is not the limiter.
+2. F1 ~ 0 in BOTH conditions for every model (range -0.19..+0.22) -> no causal recursive
+   improvement, even with the pathway open and the calibration proving detectability.
+3. Q is correctness-dominated: fast-rate <=0.36 (frontier) and ~0 (open); the observed movement
+   is invalid->correct (0->0.5), not correct->fast (0.5->1.0). Speed wall persists.
+
+Interpretation: across a diverse 8-model set, no evidence of causal recursive self-improvement
+on kernel research, and richer self-editing does not help. This is the controlled, calibrated
+negative the instrument was built to produce. Caveat: 8 paired blocks per condition; N1 and F2
+near 0 with wide-ish CIs; rescue contrasts small. DeepSeek-V3.2 to finish on a creds refresh.
