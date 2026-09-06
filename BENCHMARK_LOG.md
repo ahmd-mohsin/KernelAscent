@@ -234,6 +234,56 @@ Method lesson folded into the instrument: k=1 is underpowered for ranking (the k
 earlier 0.09-0.21 correct-rate is consistent with genuine numerically-wrong kernels at the wall
 (same mechanism as 14B), not a measurement anomaly.
 
+### E0 extended: large Bedrock API ladder (2026-09-06, k=5, same fixed 15 Medium tasks)
+
+Added 15 larger API models on the SAME fixed task set + metric as the open ladder. Two harness
+bugs found and fixed (committed f5ce31e) BEFORE trusting scores -- exactly the point of a gate:
+- GPT-5.6 sol/terra return `ValidationException: doesn't support the temperature` on every
+  converse call -> 0/75 (pure artifact). Fixed: `Curator.generate` now retries without temperature
+  independently of reasoning. capcheck now saves raw generations (incl. reasoning) per sample and
+  prints the resolved id/maxTokens/reasoning config for inspection.
+- qwen3-next-80b: the `...-a3b-v1:0` id => "model identifier is invalid" / 4096-token no-reasoning
+  form; the bare `qwen.qwen3-next-80b-a3b` resolves to 64000 tokens + reasoning=high. Use bare id.
+
+Landed so far (correct-rate; reasoning models still running, slow ~min/call x 75):
+| model | correct | meanC | fast |
+|---|---|---|---|
+| Writer Palmyra-X5 | 0.533 | 0.287 | 0.040 |
+| gpt-oss-120b | 0.467 | 0.273 | 0.080 |
+| Llama-4-Maverick | 0.320 | 0.193 | 0.067 |
+| Fable 5.1 (ref) | 0.360 | 0.293 | 0.227 |
+| Mistral-Large-3 (675B) | 0.227 | 0.133 | 0.040 |
+| Llama-3.3-70B | 0.147 | 0.080 | 0.013 |
+| Nova-Pro | 0.053 | 0.033 | 0.013 |
+| Gemma-3-27B | 0.013 | 0.007 | 0.000 |
+Pending: gpt56-sol/terra, qwen3-32b, qwen3-next-80b, deepseek-v3.2, kimi-k2.5, minimax-m2.5,
+nemotron-super-3.
+
+KEY VALIDITY INSIGHT: among STRONG models correctness saturates (Palmyra .533, gpt-oss .467 even
+beat Fable's .36 correct), but the top of meanC is a near-tie (Fable .293 ~ Palmyra .287 ~ gpt-oss
+.273) and the SEPARATING axis is fast-rate = actually beating torch.compile, where Fable leads
+decisively (0.227 vs <=0.08 for all others). So the benchmark's frontier discriminator is the
+SPEED WALL, not correctness -- correctness ranks the low/mid band, speed ranks the top. This is the
+intended two-wall design and confirms the metric stays discriminative at the frontier.
+Gemma-3-27B's 0.013 is genuine (hallucinates a nonexistent `triton_python.runtime` module), same
+failure class as Coder-14B -- documented, not a harness fault.
+
+### E1/E2 causal diagnostics (built + calibrated 2026-09-06)
+
+`kernelascent/v3/e1e2.py` on the validated core. Deterministic calibration 7/7 PASS (commit
+f0f1212): detects injected usefulness dQ=+0.30, revise-channel F_inj=+0.40, self-use F_self=+0.40,
+live-child N=+0.50; returns EXACTLY 0 for a cosmetic reword (null FPR) AND for a develop-only ref
+(self-use correctly finds no channel benefit). This is the realistic-sensitivity check the earlier
+deterministic fixtures lacked.
+- E1: inject a verified reference improvement (expert fused-Triton solve strategy / revise
+  strategy); measure usefulness dQ (solve-side), channel F_inj (revise-side, common target), and
+  a cosmetic-null for FPR. Reference is "independently verified" via the dQ>0 usefulness check.
+- E2 (primary causal): two actors identical except whether their REVISE step uses the improvement;
+  both revise the SAME common target (immediate develop-usefulness fixed); F_selfuse = V(uses) -
+  V(base) + N_selfuse + rescue. Isolates the causal value of USING an improvement inside the improver.
+REAL run launched: Fable 5.1 (API) + Coder-7B (best open per E0), 8 blocks each, per-block
+checkpointed. Results pending.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
