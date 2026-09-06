@@ -284,6 +284,30 @@ deterministic fixtures lacked.
 REAL run launched: Fable 5.1 (API) + Coder-7B (best open per E0), 8 blocks each, per-block
 checkpointed. Results pending.
 
+### Updated experiment program (2026-09-06, shaped by E0/E1 insights)
+
+Insights driving this: (i) among strong models correctness SATURATES; the frontier discriminator
+is the SPEED WALL (fast-rate), where Fable leads. (ii) Early E1 (Coder-7B) shows the injected
+strategy improvement NOT separating from its cosmetic null (b0 dQ=dQnull=-0.333; b1 dQ=-0.167 vs
+dQnull=-0.500; Fself ~0) -> the reference may carry no develop-side signal above prompt-perturbation
+noise. Priorities:
+
+1. E1 POSITIVE CONTROL (interpretation-critical). Escalate reference strength until one reliably
+   raises Q above the cosmetic null: (a) expert strategy text [current] -> (b) few-shot fast-kernel
+   exemplar for the family -> (c) the actual reference_solution as in-context example. Report the
+   weakest ref with dQ>0 (CI clear of null). If NONE beats null -> bounded-negative headline: "no
+   discoverable develop-side headroom under this init," recursive gain upper-bounded accordingly.
+2. TWO-WALL DECOMPOSITION. Run E1/E2 CONDITIONED on correctness state; measure correct->fast lift
+   (speed wall) separately from wrong->correct, on strong-correct models (Fable, gpt-oss-120b,
+   palmyra) where speed is the binding constraint. The only place recursion can compound is the wall.
+3. CAPABILITY-STRATIFIED E2 across a tier spanning both walls: Coder-7B (correctness-limited) ->
+   gpt-oss/palmyra (correct-but-slow) -> Fable (crosses speed wall). "RSI across the spectrum."
+4. E3 selection-discards-future-productivity; E4 budget response (separate revise vs develop-assay
+   budgets); E5 model-vs-scaffold with project + agent-state transfer (as previously specified).
+5. RIGOR: prespecify delta=0.05; use per-block lineage variance from the current E1/E2 runs to
+   compute required #blocks for a resolved positive or a bounded negative; finish E0 API reasoning
+   models -> publish the two-wall frontier leaderboard with CIs.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
