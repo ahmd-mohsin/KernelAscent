@@ -384,6 +384,44 @@ capability-CONSTRAINING baseline. The capability-ADDITIVE pos-control (best-of-B
 opposite way on the same model (Coder-7B pos dQ=+0.333, +0.333 in its first 2 blocks) -- the key
 contrast: reference SIGN flips with additive vs constraining, now with a resolved CI on the neg side.
 
+### E0 FULL LEADERBOARD -- 22 models complete (k=5, fixed 15 Medium tasks) 2026-09-06
+
+Ranked by meanC (fast-rate primary = the frontier discriminator, then correct-rate):
+| model | correct | fast | meanC |
+|---|---|---|---|
+| GPT-5.6 terra | 0.920 | 0.667 | 0.793 |
+| GPT-5.6 sol | 0.907 | 0.600 | 0.753 |
+| Kimi-K2.5 | 0.387 | 0.240 | 0.313 |
+| Fable 5.1 | 0.360 | 0.227 | 0.293 |
+| Nemotron-Super-3-120B | 0.253 | 0.160 | 0.207 |
+| Qwen3-32B | 0.360 | 0.120 | 0.240 |
+| MiniMax-M2.5 | 0.160 | 0.093 | 0.127 |
+| gpt-oss-120b | 0.467 | 0.080 | 0.273 |
+| Llama-4-Maverick | 0.320 | 0.067 | 0.193 |
+| DeepSeek-V3.2 | 0.240 | 0.053 | 0.147 |
+| Palmyra-X5 | 0.533 | 0.040 | 0.287 |
+| Mistral-Large-3-675B | 0.227 | 0.040 | 0.133 |
+| Qwen3-next-80B-a3b | 0.067 | 0.040 | 0.053 |
+| Llama-3.3-70B | 0.147 | 0.013 | 0.080 |
+| Nova-Pro | 0.053 | 0.013 | 0.033 |
+| Qwen2.5-Coder-7B | 0.280 | 0.000 | 0.140 |
+| Qwen2.5-Coder-1.5B | 0.200 | 0.000 | 0.100 |
+| Qwen2.5-Coder-3B | 0.107 | 0.000 | 0.053 |
+| Llama-3.1-8B | 0.040 | 0.000 | 0.020 |
+| Qwen2.5-Coder-14B | 0.040 | 0.000 | 0.020 |
+| Qwen2.5-Coder-0.5B | 0.013 | 0.000 | 0.007 |
+| Gemma-3-27B | 0.013 | 0.000 | 0.007 |
+
+Two walls, both discriminative: CORRECTNESS spans 0.013->0.92 (ranks the low/mid band); SPEED
+(fast = beats torch.compile) is the FRONTIER discriminator -- only GPT-5.6 terra/sol cross it
+substantially (0.60-0.67), everyone else <=0.24, and ALL open models <=14B are exactly 0.000. The
+GPT-5.6 pair dominates BOTH walls (would have read a false 0.0 without the temperature fix -> always
+root-cause a strong-model zero). High-correct/low-fast models (Palmyra 0.533/0.040, gpt-oss
+0.467/0.080) show correctness saturates well before the speed wall is crossed -- exactly the
+headroom that makes this a good RSI substrate. VALIDITY GATE PASSED: capability ranks sensibly
+across a 22-model spectrum, documented exceptions understood (Coder-14B/Gemma hallucinate torch
+internals; qwen3-next is a 3B-active MoE).
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
