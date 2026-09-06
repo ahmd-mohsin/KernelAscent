@@ -124,6 +124,13 @@ on kernel research, and richer self-editing does not help. This is the controlle
 negative the instrument was built to produce. Caveat: 8 paired blocks per condition; N1 and F2
 near 0 with wide-ish CIs; rescue contrasts small. DeepSeek-V3.2 to finish on a creds refresh.
 
+UPDATE 2026-09-06: DeepSeek-V3.2 completed all 8 blocks -> the set is now 9 models. narrow F1
+=-0.021 [-0.095,0.053], rich F1=+0.042 [-0.012,0.095] (both span 0), dF1=+0.0625 [-0.023,0.148]
+(spans 0), correct-rate 0.11/0.13 (genuine wall-band, not an anomaly). Confirms the 8-model finding
+at n=9: F1 spans 0 in both conditions, rich not resolved above narrow. (Fixed a harmless post-
+completion print bug in controlled.py -- final dF1/dF2 print referenced out-of-scope locals; data
+was written correctly before the crash.)
+
 ## v3 paper-readiness assessment + next steps (2026-09-06)
 
 ### Interpretation corrections (apply going forward)

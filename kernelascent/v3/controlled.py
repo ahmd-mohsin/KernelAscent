@@ -156,7 +156,7 @@ def main():
     for cond in ("narrow", "rich"):
         a = out[cond]
         print("  %-6s F1=%s N1=%s F2=%s | %s" % (cond, a["F1"], a["N1"], a["F2"], a["decompose"]))
-    print("  dF1(rich-narrow)=%s  dF2=%s" % (dF1, dF2))
+    print("  dF1(rich-narrow)=%s  dF2=%s" % (out["dF1_rich_minus_narrow"], out["dF2_rich_minus_narrow"]))
 
 
 if __name__ == "__main__":
