@@ -134,9 +134,12 @@ class Curator:
             self.resolve_reasoning()
         mid, mt = self.resolved
         reason = self.reasoning if self.reasoning not in (None, "__unset__") else None
-        for attempt in range(6):
+        drop_temp = False
+        for attempt in range(7):
             try:
-                cfg = {"maxTokens": mt, "temperature": 1.0 if reason else temp}
+                cfg = {"maxTokens": mt}
+                if not drop_temp:
+                    cfg["temperature"] = 1.0 if reason else temp
                 kw = {"additionalModelRequestFields": reason} if reason else {}
                 r = self.rt.converse(modelId=mid, system=[{"text": SYS}],
                                      messages=[{"role": "user", "content": [{"text": user_text}]}],
@@ -144,8 +147,10 @@ class Curator:
                 return self._collect(r["output"]["message"]["content"])
             except Exception as e:
                 esl = repr(e).lower()
-                if "throttl" in esl and attempt < 5:
+                if "throttl" in esl and attempt < 6:
                     time.sleep(min(2 ** attempt, 30)); continue
+                if (not drop_temp) and ("temperature" in esl or ("topp" in esl) or ("top_p" in esl)):
+                    drop_temp = True; continue        # model rejects temperature/topP -> retry without
                 if reason and any(k in esl for k in ("thinking", "reasoning", "budget", "temperature", "effort", "output_config", "enable_thinking")):
                     reason = None; continue
                 return "BEDROCK_ERROR: " + repr(e)[:140]

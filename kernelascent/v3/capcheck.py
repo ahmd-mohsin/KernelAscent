@@ -34,11 +34,13 @@ def main():
     ap.add_argument("--model", default="hf"); ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--n", type=int, default=15); ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--k", type=int, default=1, help="samples per task; C averaged over samples to shrink variance")
-    ap.add_argument("--max-new", type=int, default=3072); ap.add_argument("--outdir", required=True)
+    ap.add_argument("--max-new", type=int, default=8192); ap.add_argument("--outdir", required=True)
     args = ap.parse_args(); os.makedirs(args.outdir, exist_ok=True)
     tasks = G.generate_tiered("Medium", args.n, seed0=args.seed0)
     if args.api_model:
-        cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock")); cur.resolve(); cur.resolve_reasoning()
+        cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
+        rid, mt = cur.resolve(); rc = cur.resolve_reasoning()
+        print("RESOLVED id=%s maxTokens=%s reasoning=%s" % (rid, mt, rc), flush=True)
         gen = lambda p: cur.generate(p); who = "api:" + args.api_model
     else:
         import torch
@@ -68,7 +70,9 @@ def main():
         json.dump({kk: t[kk] for kk in ("name", "tier", "family", "meta") if kk in t}, open(d + "/meta.json", "w"))
         tc = []
         for j in range(args.k):
-            code = CB.extract_modelnew(gen(SOLVE.replace("{SRC}", t["source"])) or "")
+            raw = gen(SOLVE.replace("{SRC}", t["source"])) or ""
+            open(d + "/raw_%d.txt" % j, "w").write(raw)   # full generation incl. reasoning, for inspection
+            code = CB.extract_modelnew(raw)
             for old in glob.glob(d + "/cand_*.py"):
                 os.remove(old)
             c = 0.0; trials += 1
