@@ -284,6 +284,43 @@ deterministic fixtures lacked.
 REAL run launched: Fable 5.1 (API) + Coder-7B (best open per E0), 8 blocks each, per-block
 checkpointed. Results pending.
 
+### FRONTIER RESULT: GPT-5.6 sol/terra top the ladder (2026-09-06)
+
+After the temperature-rejection fix, GPT-5.6 sol/terra resolve and score at the true frontier:
+sol correct=0.907 fast=0.600; terra correct=0.920 fast=0.667 (k=5, same fixed 15 tasks). They beat
+EVERY other model on BOTH walls, and their fast-rate (0.60-0.67 = beats torch.compile on 2/3 of
+tasks) is ~3x Fable's 0.227. qwen3-32b mid (correct 0.36 fast 0.12). This is a decisive validity
+win: the strongest models score highest and cross the speed wall most -- the benchmark ranks
+capability cleanly once harness artifacts are removed. It also underscores the lesson: GPT-5.6 was
+FALSELY 0.0 until the temperature bug was fixed -- always root-cause a strong-model zero before
+trusting it. Full frontier two-wall leaderboard to be published once the remaining reasoning
+models finish.
+
+### CORRECTION (user, 2026-09-06): never constrain model capability in the self-improvement loop
+
+The E1 finding that our prescriptive "expert" reference is NET-NEGATIVE (Fable dQ=-0.833, worse
+than the cosmetic null; Coder-7B ~-0.2/-0.3) is a design smell, not just a bad ref. Prescriptive
+instructions ("write ONE fused Triton kernel doing X, Y, Z") BOX IN a capable model that already
+has a better internal strategy -> lowers Q. PRINCIPLE: the self-improvement mechanism must be
+CAPABILITY-ADDITIVE, never capability-constraining. Improvements should ADD options/knowledge/
+resources, not forbid alternatives:
+  - worked EXEMPLARS of verified-fast kernels (in-context), not prescriptive rules;
+  - TOOLS the agent may call (profiler, autotuner, retrieval), not mandated steps;
+  - more BUDGET / attempts / best-of-n;
+  - retrieval over a growing verified-snippet library.
+Redesign E1 references accordingly (exemplar/tool/budget), and audit the BASE develop/revise
+prompts to remove any language that narrows the solution space. Keep the current prescriptive run
+as a NEGATIVE CONTROL demonstrating that constraint hurts. Re-verify usefulness (dQ>0 vs null)
+before running E2 self-use on any ref.
+
+### FUTURE IDEA (explore after fundamentals are correct): dockerized real-workflow envs
+
+Run the benchmark as dockerized environments executing ACTUAL kernel/serving workflows, with a
+harness layer mediating the agent<->env loop (tools, filesystem, build, profile, run). This would
+make tasks real end-to-end workflows rather than single-file grades and is a natural home for the
+capability-additive tools above. Parked until the causal-RSI fundamentals (E1 positive control,
+two-wall decomposition, E2) are solid.
+
 ### Updated experiment program (2026-09-06, shaped by E0/E1 insights)
 
 Insights driving this: (i) among strong models correctness SATURATES; the frontier discriminator
