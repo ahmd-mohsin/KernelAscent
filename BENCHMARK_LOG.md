@@ -366,6 +366,24 @@ design principle and the reason earlier prescriptive-scaffold RSI looked flat/ne
 additive improvement then produces a CAUSAL recursive gain (Fself>0 beyond the waste-null) is what
 the remaining blocks + E2 toggle will decide.
 
+### E1/E2 NEG-control complete: Coder-7B prescriptive, 8 blocks (2026-09-06)
+
+Statistically resolved (lineage-paired 95% CIs):
+- E1.dQ_useful = -0.167 CI [-0.305, -0.029]  -> the prescriptive "expert" reference SIGNIFICANTLY
+  LOWERS develop productivity (CI excludes 0). Constraining guidance is net-harmful, with stats.
+- E1.dQ_null   = -0.271 CI [-0.377, -0.165]  -> a cosmetic reword hurts too (any deviation from the
+  model's own phrasing costs); the "useful" ref is only LESS harmful than the null, never helpful.
+- E1.F_channel = +0.083 CI [0.022, 0.145] (weak +) but F_null = +0.042 CI [-0.119, 0.202] spans 0
+  -> the revise-channel effect is not clearly above its null.
+- E2.F_selfuse = -0.104 CI [-0.241, 0.033]  -> NO causal self-use benefit (spans 0, slightly neg).
+  N_selfuse +0.062 and rescue +0.083 both span 0.
+- decompose: correct_rate 0.526, fast_rate 0.007 -> Coder-7B essentially NEVER beats torch.compile
+  (speed wall); Q movement is entirely wrong<->correct, none correct->fast.
+Conclusion: prescriptive self-improvement is a resolved NEGATIVE (harms Q, no recursion). This is the
+capability-CONSTRAINING baseline. The capability-ADDITIVE pos-control (best-of-B) is trending the
+opposite way on the same model (Coder-7B pos dQ=+0.333, +0.333 in its first 2 blocks) -- the key
+contrast: reference SIGN flips with additive vs constraining, now with a resolved CI on the neg side.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
