@@ -345,6 +345,27 @@ noise. Priorities:
    compute required #blocks for a resolved positive or a bounded negative; finish E0 API reasoning
    models -> publish the two-wall frontier leaderboard with CIs.
 
+### E1/E2 interim: prescriptive (neg) vs capability-additive (pos) -- 2026-09-06
+
+Running BOTH a negative control (prescriptive strategy text = capability-CONSTRAINING) and the
+capability-ADDITIVE positive control (best-of-B budget) side by side, same core/estimators.
+
+NEG (prescriptive), per-block dQ_useful (usefulness of the injected "expert" ref vs base):
+  Fable b0 = -0.833; Coder-7B b0..b3 = -0.333, -0.167, -0.167, -0.167. Consistently NEGATIVE, often
+  worse than the cosmetic null. Fself ~ 0 throughout. -> prescriptive guidance over-constrains and
+  REDUCES productivity; no self-use benefit. (Clean demonstration of the never-constrain principle.)
+
+POS (capability-additive best-of-3), first blocks:
+  Coder-7B b0 dQ=+0.333 (best-of-3 RAISES Q -- opposite sign to prescriptive). gpt-oss b0 dQ=0
+  (already strong on those anchors). Waste-null noisy-positive at n=1 (random-of-3 ~ best-of-1 in
+  expectation; needs blocks for CI). Fself=0 so far. Runs continuing to 8 blocks for CIs.
+
+Headline forming: the SIGN of a self-improvement reference flips with whether it ADDS capability
+(best-of-B: dQ>0) or CONSTRAINS it (prescriptive text: dQ<0). This is direct evidence for the
+design principle and the reason earlier prescriptive-scaffold RSI looked flat/negative. Whether the
+additive improvement then produces a CAUSAL recursive gain (Fself>0 beyond the waste-null) is what
+the remaining blocks + E2 toggle will decide.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
