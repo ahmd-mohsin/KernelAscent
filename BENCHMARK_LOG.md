@@ -422,6 +422,22 @@ headroom that makes this a good RSI substrate. VALIDITY GATE PASSED: capability 
 across a 22-model spectrum, documented exceptions understood (Coder-14B/Gemma hallucinate torch
 internals; qwen3-next is a 3B-active MoE).
 
+### E1/E2 NEG-control Fable complete (prescriptive, 8 blk) -- 2026-09-06
+
+- E1.dQ_useful = -0.542 CI [-0.753, -0.330]  -> prescriptive ref STRONGLY, significantly lowers Q.
+  Bigger harm than Coder-7B (-0.167): constraining a STRONGER model costs MORE. Resolved negative.
+- E1.dQ_null   = -0.625 CI [-0.707, -0.543]  -> cosmetic reword also strongly negative; deviating
+  from Fable's own phrasing at all is costly. dQ_useful only marginally less bad than the null.
+- E1.F_channel = +0.062 CI [0.003, 0.122] (barely > 0); F_null = -0.083 spans 0.
+- E2.F_selfuse = -0.083 CI [-0.171, 0.004]  -> NO causal self-use benefit (spans 0, slightly neg).
+  N_selfuse -0.021, rescue -0.042 both span 0.
+- decompose: correct_rate 0.897, fast_rate 0.254 -> Fable 90% correct, 25% beat compile (frontier;
+  vs Coder-7B 53%/0.7%). Consistent with the E0 leaderboard.
+
+BOTH neg-controls (Coder-7B, Fable) agree: capability-CONSTRAINING self-improvement significantly
+REDUCES productivity (worse for stronger models) and yields NO causal recursion (F_selfuse spans 0).
+This is the resolved negative baseline the capability-additive pos-control is being compared against.
+
 ### Stopping rules
 reference effects unmeasurable -> improve measurement, withhold model null. detectable but
 self-authored tightly bounded -> calibrated bounded-negative paper. rejected changes have
