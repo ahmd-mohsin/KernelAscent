@@ -232,6 +232,27 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### SATURATION FIX (2026-09-07): hard tasks + no injection -> real model DISCRIMINATION
+
+User caught a real flaw: on the 3 toy tasks with injected mutants, every capable model scored
+IDENTICALLY (Cs=1.0, dQ=+0.208) -- the dQ was a fixed injected-mutant-recovery constant, not a model
+property; a saturation artifact, not discrimination. Fix: HARD edge-rich tasks (simplify_path, atoi,
+next_perm) with --inject 0 so dQ reflects each model's OWN edge errors. Result (K=8, reps=8):
+| model | C0 (capability) | verifier dQ |
+|---|---|---|
+| qwen-coder-1.5B | 0.25 | +0.167 |
+| qwen-coder-3B | 0.75 | +0.104 |
+| qwen-coder-7B | 0.85 | +0.062 |
+| deepseek-6.7B | 0.90 | +0.021 |
+| qwen-coder-14B | 0.92 | +0.083 |
+| Fable / gpt-oss / mistral-large-3 / llama4-maverick / GPT-5.6-terra | 1.00 | +0.000 |
+NOW DISCRIMINATES: C0 spreads 0.25->1.00 (real capability gradient, not identical), and dQ is
+MODEL-DEPENDENT (weaker models gain most from a better verifier because they make more edge errors;
+frontier ~0 because they rarely err). HONEST CEILING: the frontier cluster still saturates at C0=1.0
+-- these 3 tasks are genuinely easy for frontier models (that identical score is now TRUE, not an
+artifact). Discriminating the FRONTIER requires competition-hard / subtle-spec problems (real content
+authoring); the instrument + mechanism are correct, the remaining work is task difficulty at the top.
+
 ### REASONING CHAINS PERSISTED (2026-09-07, user request)
 
 panel now writes every candidate's FULL generation to `<outdir>/traces/<task>_r<rep>_c<j>.txt` (incl.
