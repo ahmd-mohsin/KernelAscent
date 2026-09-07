@@ -208,7 +208,18 @@ becomes measurable for API models. Provider note: keep the fixed-profile require
 content_filter fallback that drops the system prompt is a comparison confound -> log filtered calls
 under a declared policy, do not silently strip instructions.
 
-### STEP 3 — model-backed panel: capability gradient real, but verifier opportunity NOT realized (2026-09-07)
+### STEP 3 CORRECTED (2026-09-07): nested + paired + oracle-guarded verifier
+
+Fixed the design bugs the first panel exposed (qwen-1.5B dQ=-0.111 was an artifact): (1) NESTED --
+strong verifier = weak's inputs PLUS extra edge inputs, so more testing can only help -> dQ>=0 by
+construction (no spurious harm); (2) PAIRED -- weak and strong select from the SAME candidate set
+(isolates the verifier from generation noise); (3) ORACLE-GUARD -- every test input validated (ref
+must not raise), degenerate out-of-domain inputs dropped. Gate 2 (richer pool: correct + 2 edge-wrong
+per task): weak Q=0.773 -> strong Q=1.000, dQ=+0.227 PASS; calib PASS. Re-running the model panel
+(paired/nested, K=8, reps=8) on qwen-coder 1.5/3/7B, deepseek-6.7B, gpt-oss, Fable -> results below.
+The pre-correction panel (unpaired, non-nested) is void; kept only as the bug that motivated the fix.
+
+### STEP 3 (pre-correction, VOID) — model-backed panel: capability gradient real, verifier dQ=0/noisy
 
 Model-backed develop_model (model writes K=4 candidate patches -> agent's local verifier selects ->
 hidden grade), diverse panel (mostly non-Claude). meanC + verifier dQ (weak n=2/e=0 vs strong n=16/e=8):
