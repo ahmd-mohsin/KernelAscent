@@ -146,6 +146,80 @@ def hidden_grade(project, fn, rng, n_hidden=60):
 
 
 # ------------------------------------------------------------------- model-backed candidates
+# ------------------------------------------------------------------- HARD task set (edge-rich; frontier not saturated)
+def h_simplify(path):
+    st = []
+    for p in path.split("/"):
+        if p in ("", "."): continue
+        if p == "..":
+            if st: st.pop()
+        else: st.append(p)
+    return "/" + "/".join(st)
+
+
+def _simplify_samp(rng):
+    toks = [rng.choice(["a", "b", "c", ".", "..", ""]) for _ in range(rng.randint(1, 5))]
+    return ("/" + "/".join(toks),)
+
+
+def _simplify_edge(rng):
+    return (rng.choice(["/../", "/a/../../b", "/a//b/", "/./", "/...", "/a/b/../..", "/"]),)
+
+
+def h_atoi(s):
+    i, n = 0, len(s)
+    while i < n and s[i] == " ": i += 1
+    sign = 1
+    if i < n and s[i] in "+-":
+        sign = -1 if s[i] == "-" else 1; i += 1
+    num = 0
+    while i < n and s[i].isdigit():
+        num = num * 10 + int(s[i]); i += 1
+    return max(-2**31, min(2**31 - 1, sign * num))
+
+
+def _atoi_samp(rng):
+    return ((rng.choice(["", "  ", ""]) + rng.choice(["", "+", "-"]) + str(rng.randint(0, 99999)) + rng.choice(["", "abc", " x"])),)
+
+
+def _atoi_edge(rng):
+    return (rng.choice(["   -91283472332", "2147483648", "-2147483649", "+-12", "  +0 123", "words", "   ", "+", "-000123"]),)
+
+
+def h_next_perm(a):
+    a = list(a); n = len(a); i = n - 2
+    while i >= 0 and a[i] >= a[i + 1]: i -= 1
+    if i >= 0:
+        j = n - 1
+        while a[j] <= a[i]: j -= 1
+        a[i], a[j] = a[j], a[i]
+    a[i + 1:] = reversed(a[i + 1:])
+    return a
+
+
+def _np_samp(rng):
+    n = rng.randint(3, 5); return ([rng.randint(1, 4) for _ in range(n)],)
+
+
+def _np_edge(rng):
+    return (rng.choice([[3, 2, 1], [1, 1, 1], [2, 2, 3, 1], [1], [5, 4, 3, 2, 1]]),)
+
+
+HARD_PROJECTS = [
+    {"name": "simplify_path", "ref": h_simplify, "fn": "simplify_path", "sampler": _simplify_samp, "edge": _simplify_edge,
+     "spec": "Canonicalize a Unix absolute path: collapse '.', resolve '..' (never above root), drop empty/duplicate slashes; return the canonical path starting with '/' and with no trailing slash (root is '/').",
+     "buggy": "def simplify_path(path):\n    st=[]\n    for p in path.split('/'):\n        if p=='..':\n            st.pop()\n        elif p and p!='.':\n            st.append(p)\n    return '/'+'/'.join(st)\n",
+     "examples": [(("/a/./b/../c",), "/a/c"), (("/x//y/",), "/x/y")]},
+    {"name": "atoi", "ref": h_atoi, "fn": "atoi", "sampler": _atoi_samp, "edge": _atoi_edge,
+     "spec": "Parse a leading 32-bit signed integer: skip leading spaces, optional single +/- sign, then digits until a non-digit; clamp to [-2**31, 2**31-1]; no digits -> 0.",
+     "buggy": "def atoi(s):\n    s=s.strip()\n    sign=1;i=0\n    if s and s[i] in '+-':\n        sign=-1 if s[i]=='-' else 1;i+=1\n    num=0\n    while i<len(s) and s[i].isdigit():\n        num=num*10+int(s[i]);i+=1\n    return sign*num\n",
+     "examples": [(("  -42abc",), -42), (("4193 with words",), 4193)]},
+    {"name": "next_perm", "ref": h_next_perm, "fn": "next_perm", "sampler": _np_samp, "edge": _np_edge,
+     "spec": "Return the next lexicographically greater permutation of the list; if it is the highest (fully non-increasing), wrap to the lowest (sorted ascending). Handle duplicates.",
+     "buggy": "def next_perm(a):\n    a=list(a);n=len(a);i=n-2\n    while i>=0 and a[i]>a[i+1]: i-=1\n    if i<0: return a\n    j=n-1\n    while a[j]<a[i]: j-=1\n    a[i],a[j]=a[j],a[i]\n    a[i+1:]=reversed(a[i+1:])\n    return a\n",
+     "examples": [(([1, 2, 3],), [1, 3, 2]), (([3, 2, 1],), [1, 2, 3])]},
+]
+
 SOLVE_TMPL = ("Fix the bug in this Python function so it fully matches the spec.\nSpec: {spec}\n"
               "Buggy code:\n```python\n{buggy}\n```\nExamples (input->output): {ex}\n"
               "Return ONLY the corrected function named {fn} as a single ```python code block. No prose.")
@@ -293,7 +367,8 @@ def panel(args):
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
     rng = random.Random(0); cw, cs_, base = [], [], []
-    for proj in PROJECTS:
+    projs = HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS
+    for proj in projs:
         muts = edge_mutants(proj) if args.inject else []
         for rep in range(args.reps):
             cands = gen_candidates(proj, gen_fn, args.K,
@@ -321,6 +396,7 @@ def main():
     ap.add_argument("--model", default=""); ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--K", type=int, default=8); ap.add_argument("--reps", type=int, default=8)
     ap.add_argument("--inject", type=int, default=1, help="inject edge-subtle mutant distractors (1=on)")
+    ap.add_argument("--hard", action="store_true", help="use the HARD edge-rich task set (frontier not saturated)")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsiv")
     args = ap.parse_args()
     if args.gate2: sys.exit(gate2())
