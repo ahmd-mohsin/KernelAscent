@@ -163,12 +163,16 @@ def parse_candidate(text, fn_name):
         return None
 
 
-def gen_candidates(project, gen_fn, K):
+def gen_candidates(project, gen_fn, K, trace_dir=None, tag=""):
     ex = "; ".join("%r->%r" % (a, o) for a, o in project.get("examples", [])[:3])
     prompt = SOLVE_TMPL.format(spec=project["spec"], buggy=project["buggy"], ex=ex, fn=project["fn"])
     cands = []
     for j in range(K):
-        fn = parse_candidate(gen_fn(prompt) or "", project["fn"])
+        raw = gen_fn(prompt) or ""
+        if trace_dir:                      # persist the FULL generation (incl <reasoning> block) for evaluation
+            os.makedirs(trace_dir, exist_ok=True)
+            open(os.path.join(trace_dir, "%s_c%d.txt" % (tag, j)), "w").write(raw)
+        fn = parse_candidate(raw, project["fn"])
         if fn is not None:
             cands.append(("c%d" % j, fn))
     return cands
@@ -292,7 +296,8 @@ def panel(args):
     for proj in PROJECTS:
         muts = edge_mutants(proj) if args.inject else []
         for rep in range(args.reps):
-            cands = gen_candidates(proj, gen_fn, args.K)
+            cands = gen_candidates(proj, gen_fn, args.K,
+                                   trace_dir=os.path.join(args.outdir, "traces"), tag="%s_r%d" % (proj["name"], rep))
             if not cands:
                 cw.append(0.0); cs_.append(0.0); base.append(0.0); continue
             pool = cands + muts                       # inject edge-subtle distractors
