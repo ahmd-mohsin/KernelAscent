@@ -55,6 +55,24 @@ gpt-oss-120b, GPT-5.6-terra (E0 #1 frontier), Kimi-K2.5 -- each 10 blocks, execu
 provenance audit. GPT-5.6-terra runs via the temperature-reject + content_filter fallbacks. Gives a
 capability-stratified compounding result (frontier -> strong -> open) rather than one model.
 
+## OPEN PROBLEM (user, 2026-09-07): the RSI axis reads ~0 for everyone — is it truly measuring RSI?
+
+The compounding/causal axis (F1,F2) is ~0 across ALL models incl. frontier. Two distinct axes:
+- AXIS 1 CAPABILITY (can it produce a fast kernel): CLEAN frontier gradient already exists
+  (fast-rate: Fable 0.423 > GPT-5.6-terra 0.177 > gpt-oss 0.115 > Kimi 0.038 > Coder-7B 0.012;
+  frontier ~35x the open model). This is the published E0 leaderboard = "frontier wins, others lag".
+- AXIS 2 RECURSIVE COMPOUNDING (does a self-improvement CAUSE a better next improvement): F1/F2 ~0
+  for everyone. Honest finding, not a broken benchmark — but the user's concern is that the RSI
+  INSTRUMENT itself may be too weak/short/atomic to ever surface RSI even if present.
+Why flat even at frontier (current hypotheses): (a) only 2 links + tiny budget + few anchors ->
+underpowered; (b) R1 audit shows API models rarely edit their OWN improver (edit the solver only);
+(c) single-file kernel gen may be too atomic for a process-level improvement to pay off in 1-2 links;
+(d) one revision rarely makes a reliably-better improver.
+Infra facts checked 2026-09-07: GPT-6 Astra NOT on Bedrock (8 id variants all invalid). Fable 5.1
+accepts effort levels high < xhigh < max (reasoning tokens 31 < 93 < 128 on a fixed probe); very_high/
+highest/extreme rejected. Next step (user-directed): send this whole log to Fable 5.1 at MAX effort
+and ask how to make the RSI axis truly measure RSI; record its feedback below.
+
 ## FLAGSHIP RESULT (first complete): Coder-7B, 10 blocks (2026-09-07)
 
 The executable-successor recursive loop, run to completion on the open model:
