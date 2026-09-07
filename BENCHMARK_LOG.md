@@ -37,13 +37,17 @@ torch.compile). Two walls; frontier wins:
 | open Coder 0.5-14B | 0.01-0.28 | 0.000 (all) |
 (full 22-model table in the E0 FULL LEADERBOARD section; site: docs/data/leaderboard.json)
 
-CAUSAL RECURSION (kernel flagship + controlled) -- resolved NEGATIVE, honestly bounded:
-- Flagship Coder-7B (executed-successor, 10 blk): R1 audit 59/60 revises executed+changed the
-  improver (pathway PROVABLY fired), yet F1=+0.041 [-0.047,0.128], F2=+0.064 [-0.071,0.200] span 0.
-- Compounding (continuous score): gpt-oss F1=+0.001 [-0.038,0.040]; frontier link doesn't reproduce.
-- Controlled narrow-vs-rich (9 models): dF~0, F1 spans 0 everywhere.
-- READ: no causal recursive compounding at this scale/budget, WITH the pathway proven active and the
-  instrument calibrated to detect it -- a rigorous bounded negative, not a broken benchmark.
+CAUSAL RECURSION (kernel flagship + controlled) -- NO RESOLVED POSITIVE; mix of tightly-bounded-null
+and UNRESOLVED (do NOT call the whole suite "resolved negative" -- audit 2026-09-07):
+- Flagship Coder-7B (executed-successor, 10 blk): R1 audit 59/60 revise CALLS executed + CHANGED the
+  recorded improver state (a change, not proven useful/behavioral); F1=+0.041 [-0.047,0.128],
+  F2=+0.064 [-0.071,0.200] -> UNRESOLVED (interval admits harm AND >0.05 benefit), not zero.
+- Compounding (continuous score): gpt-oss F1=+0.001 [-0.038,0.040] -> tightly bounded near 0 (this
+  contrast approaches a resolved null); a narrow interval for ONE model does not settle the suite.
+- Controlled narrow-vs-rich (9 models): dF~0, F1 spans 0.
+- READ: no statistically RESOLVED positive recursion at this scale; some contrasts near-null, others
+  unresolved. Report per-contrast estimate+interval+evidence-status vs a prespecified meaningful
+  effect (delta=0.05); this is "not yet established", not "proven absent".
 
 RSI-VERIFY-01 -- verified + realized procedural-improvement opportunity:
 - Gate 2 (opportunity exists): weak verifier Q=0.773 -> strong Q=1.000, dQ=+0.227. Calib PASS.
@@ -72,6 +76,112 @@ PENDING: competition-hard RSI-VERIFY tier (frontier discrimination); RSI-VERIFY 
 the improved verifier improve a SUBSEQUENT revision; live reference loop); dockerized-workflow envs.
 
 ---
+
+## RSI-VERIFY AUDIT + REDESIGN v2 (user, 2026-09-07) [ADOPTED]
+
+Rigorous external audit of the RSI-VERIFY panels + kernel-recursion claims. Core message: a benchmark
+is validated by measuring its construct reliably, offering real opportunities, and predicting
+independent behavior -- NOT by making small models score 0 and frontier score modestly. Desired
+rankings are hypotheses to TEST, not task-selection requirements.
+
+### What the current results DO / DO NOT establish
+- Frontier C0=1.00 on the 3 tasks => the baseline SATURATES this 3-task panel; NOT "frontier solved RSI".
+- Frontier verifier dQ=0.000 (uninjected) => the supplied stronger verifier adds no measured selection
+  benefit HERE; NOT "these models can't improve a verifier".
+- weak->strong +0.227 on a curated pool => the supplied intervention helps on that pool; NOT autonomous
+  discovery.
+- identical injected dQ=+0.208 across capable models => a shared CONSTRUCTED recovery constant; NOT a
+  model-specific RSI score.
+- Coder-7B kernel F1=+0.041 [-0.047,0.128] => UNRESOLVED at this precision; NOT "established zero".
+  (Fixed the log's internal contradiction: do not say "resolved NEGATIVE" while intervals are unresolved.)
+- Gates 3/4 pending => recursive USE + live loop not yet demonstrated on this substrate.
+- Reword provenance: "changed the recorded improver state in 59/60 revise CALLS" (a change != useful !=
+  behavioral); 60 calls over 10 blocks != 60 successive generations; "fresh namespace" != "fresh process".
+
+### Metric separation (each its OWN field; never reuse Q for two things)
+candidate_correctness (frac candidates passing official eval) | oracle_pool_success (frac pools with >=1
+passing candidate) | selected_success | selection_headroom = oracle_pool_success - initial selected |
+verifier_gain (paired selected-success diff on COMMON pools) | C_checkpoint | Q_checkpoint | F_window |
+N_window | resources. Also: label C0 precisely (first-candidate vs mean vs randomized-selection; ours =
+first-in-shuffled-pool = randomized-selection success). H is an UPPER BOUND on selection gain:
+Delta_select <= H = E[oracle - base]. Four pool conditions to report on an UNFILTERED panel: no-correct
+(selection can't help) / all-correct (no headroom) / correct+wrong-but-initial-selects-correctly (no
+realized gain) / correct-available-but-initial-selects-wrong (the ONLY condition with selection headroom).
+Report headroom-captured Delta/H only as SECONDARY (unstable denominator); H=0 means "no measurable
+selection opportunity", NOT "zero RSI ability". K is not a difficulty knob: oracle availability
+~1-(1-p)^K saturates (p=.5,K=8 -> .996); measure availability directly.
+
+### Evaluation changes REQUIRED before interpreting scores
+1. SEPARATE THREE EXPERIMENTS: (a) patch-generation (model writes patches, uses a specified verifier);
+   (b) VERIFIER-DEVELOPMENT (model builds a reusable test-gen/selection procedure, frozen, evaluated on
+   COMMON held-out candidate BANKS from multiple sources incl valid alternative impls, labels withheld);
+   (c) RECURSIVE (inherited procedure produces a further useful procedure). The panels so far conflate
+   these -- the tables do NOT show each model authored its own stronger verifier. Make (b) explicit next.
+2. MATCH VERIFICATION RESOURCES not just candidate counts: n=2/edge=0 vs n=16/edge=8 changes BOTH testing
+   effort AND coverage. Run a factorial: {small,large testing budget} x {uniform,structured input policy}
+   to separate "more testing" from "better testing"; equal test-exec cap + time for baseline vs learned;
+   publish equal-deployment AND equal-total (construction+deployment over N future projects) views.
+3. SPECIFY ORACLE ACCESS explicitly: reference-assisted (agent queries a trusted ref for allowed inputs)
+   vs specification-based (agent builds assertions/metamorphic/differential from the public contract).
+   `ref(input) not raising` is NOT a domain spec; use explicit domain predicates + expected-exception
+   contracts; log proposed/rejected tests + reasons; do not silently repair an authored verifier with
+   private oracle knowledge.
+4. PRESERVE REGRESSIONS: dQ>=0 holds only under a SOUND oracle + correct-always-pass + fixed selection +
+   no added resource failures. A LEARNED verifier can be worse (wrong assertions, nondeterminism,
+   rejecting valid alternatives, timeouts). Keep the monotone fixed-oracle fixture as CALIBRATION; score
+   model-authored procedures with SIGNED success change + false-accept + false-reject + abstention +
+   resources; do NOT clip negatives.
+5. MUTANT LABELING: keep natural-model-errors / historical-bugs / synthetic-mutants as SEPARATE labels;
+   the +0.208 injected recovery stays a CONSTRUCTION diagnostic, not "discovered self-improvement".
+6. RESCORE KERNELS: the tanh score C=0.5+0.5*tanh((sp-1)/0.1) saturates (sp=1.2->0.982, sp=1.5->~1.0)
+   and is most sensitive at parity -> ceiling. Report verified latency RATIOS + log-ratios + timing
+   uncertainty + fallback policy + geomean deployed speedup + raw per-project; bounded display score
+   secondary + versioned. Recompute historical kernel summaries from RAW timings; changing the score
+   does NOT turn an existing null into a positive.
+
+### Task tiers -- TWO independent labels
+Downstream difficulty: Calibration (current 3 algos + mutants) / Core (parsers, interval-boundary,
+round-trip serializers) / Hard (multi-file stateful caches, transactional/retry/idempotency workflows,
+schema migrations) / Ultra (the agent's own search/measurement/verification infra; later kernel/inference).
+Improvement depth: L0 solve / L1 improve-procedure (authored change helps future dev at fixed resources) /
+L2 causal-reuse (inherited changed procedure helps produce a successor vs older producer, same target) /
+L3 repeated causal-reuse (repeats in another prespecified window + transfers). Permissions (source-edit,
+diff size) do NOT assign a level. Calibrate difficulty EMPIRICALLY; do not require frontier < X%.
+
+### Curation protocol (use compute for DIVERSE tasks, not resampling 3 algos)
+Specify behavior first (contracts, permitted inputs, expected exceptions, equivalence rules, resource
+caps, working starter; review the oracle w/ independent impls). Collect candidate diversity (real errors +
+independent correct alternatives + labeled synthetic; validate labels beyond public tests). Measure
+opportunity (the 4 pool conditions + false-accept/reject + runtime per task/budget; reject impossible/
+underspecified; keep floor tasks LABELED in a naturalistic panel). Qualify procedural improvements
+(independent reference change helps at equal resources on unseen validation). Qualify recursive
+participation (inherited component actually changes the next producer's execution+outcomes -- not just a
+deterministic calib). Exercise a LIVE reference loop (generic executable improver discovers+reuses on a
+dev subset; public success rates). Freeze independent eval split by spec/architecture/bug-mechanism/
+composition (not just seeds). Start = 36 distinct specs across 6 workflow families (engineering start,
+not a power calc); separate private cohort after rules fixed. (EvalPlus: stronger hidden tests change
+rankings -> audit correctness coverage. SWE-bench-Verified audit: audit the MEANING of success/failure at
+both ends, watch flawed tests + contamination + underspecified requirements.)
+
+### Corrected public claim (adopt)
+"KernelAscent evaluates task capability, the DEVELOPMENT of reusable improvement procedures, and the
+CAUSAL value of using them to produce further improvements. Current verifier results are a 3-task
+mechanism PILOT; frontier coding accuracy saturates it; recursive verifier-use (Gates 3/4) pending;
+kernel producer-effect estimates carry uncertainty and do not yet establish repeatable recursive gains."
+Lowering a frontier model's displayed % is NOT a milestone. The milestone = a standardized env where
+models create procedures with independently-verified downstream value, then a controlled test of whether
+INHERITING them makes future procedure-development better.
+
+### Next experiments (ORDER)
+1 reconcile dashboard+manifests (separate the 4 quantities; keep unresolved intervals). 2 audit grading +
+rescore stored kernel timings (coverage + tanh). 3 testing-budget x input-policy factorial (settle
+oracle-access). 4 qualify a 36-project cohort (find real headroom, no forced ranking). 5 VERIFIER-
+DEVELOPMENT on COMMON banks (agent-authored procedures at equal resources, structurally held out). 6 Gates
+3/4 (subsequent-revision participation + live loop). 7 recursive lineages + matched continuations (Q,F,N,
+replace/restore, resource return). 8 external-workflow predictive validity. Steps 5-7: 2 API + 1 open,
+frozen provider config; pick participants by demonstrated entry capability, not param count. 8 lineages =
+variance pilot; set confirmation n from paired variance + a smallest meaningful effect in raw units.
+Provider timeout = censored run under a published rule, NOT zero ability.
 
 ## FLAGSHIP DECISION (user, 2026-09-07): the LIVE RECURSIVE LOOP is the core
 

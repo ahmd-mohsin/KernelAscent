@@ -366,7 +366,7 @@ def panel(args):
                 o = mdl.generate(**enc, max_new_tokens=args.max_new, do_sample=True, temperature=0.7, top_p=0.9, pad_token_id=tok.pad_token_id)
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
-    rng = random.Random(0); cw, cs_, base = [], [], []
+    rng = random.Random(0); cw, cs_, base, oracle = [], [], [], []
     projs = HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS
     for proj in projs:
         muts = edge_mutants(proj) if args.inject else []
@@ -374,20 +374,25 @@ def panel(args):
             cands = gen_candidates(proj, gen_fn, args.K,
                                    trace_dir=os.path.join(args.outdir, "traces"), tag="%s_r%d" % (proj["name"], rep))
             if not cands:
-                cw.append(0.0); cs_.append(0.0); base.append(0.0); continue
+                cw.append(0.0); cs_.append(0.0); base.append(0.0); oracle.append(0.0); continue
             pool = cands + muts                       # inject edge-subtle distractors
             random.Random(rep * 131 + 7).shuffle(pool)
             weak_in = gen_inputs(proj, 2, rng, edge=False)
             strong_in = weak_in + gen_inputs(proj, 12, rng, edge=True)     # NESTED (strong superset of weak)
             cw.append(hidden_grade(proj, select(proj, pool, weak_in), rng))      # same pool,
             cs_.append(hidden_grade(proj, select(proj, pool, strong_in), rng))   # both verifiers (paired)
-            base.append(hidden_grade(proj, pool[0][1], rng))                     # no-verifier baseline (first in pool)
-    n = len(cw); mw = sum(cw) / n; ms = sum(cs_) / n; mb = sum(base) / n
+            base.append(hidden_grade(proj, pool[0][1], rng))                     # randomized-selection baseline (first in shuffled pool)
+            oracle.append(1.0 if any(hidden_grade(proj, fn, rng) >= 0.999 for _, fn in pool) else 0.0)  # >=1 fully-correct candidate exists
+    n = len(cw); mw = sum(cw) / n; ms = sum(cs_) / n; mb = sum(base) / n; morc = sum(oracle) / n
     dq = [cs_[i] - cw[i] for i in range(n)]
-    res = {"who": who, "n": n, "K": args.K, "meanC_noverifier": round(mb, 3), "meanC_weak": round(mw, 3),
-           "meanC_strong": round(ms, 3), "verifier_dQ": _mean_ci(dq)}
+    res = {"who": who, "n_cells": n, "K": args.K, "inject": args.inject, "hard": bool(getattr(args, "hard", False)),
+           "oracle_pool_success": round(morc, 3),                       # frac pools with >=1 fully-correct candidate (capability ceiling)
+           "randomized_select_C0": round(mb, 3),                        # first-in-shuffled-pool (no verifier)
+           "selected_C_weak": round(mw, 3), "selected_C_strong": round(ms, 3),
+           "selection_headroom": round(morc - ms, 3),                   # oracle - strong: room selection still leaves on the table
+           "verifier_dQ": _mean_ci(dq)}                                 # paired weak->strong selection gain
     os.makedirs(args.outdir, exist_ok=True); json.dump(res, open(os.path.join(args.outdir, "panel.json"), "w"), indent=2)
-    print("PANEL %s  C0=%.3f C_weak=%.3f C_strong=%.3f dQ=%+.3f %s" % (who, mb, mw, ms, ms - mw, dq and _mean_ci(dq).get("ci95")), flush=True)
+    print("PANEL %s oracle=%.3f C0=%.3f Cw=%.3f Cs=%.3f headroom=%.3f dQ=%+.3f" % (who, morc, mb, mw, ms, morc - ms, ms - mw), flush=True)
 
 
 def main():
