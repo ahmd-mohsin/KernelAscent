@@ -165,6 +165,36 @@ fallback-policy geomean, expert reference as a SECONDARY comparison, and expose 
 proposal quality so keep-best does not hide deteriorating generation. Investment value: break-even m*=ceil(K/s)
 only if the saving persists — verify on held-out projects; also compare equal-total-resource DIRECT SEARCH.
 
+## FRONTIER COMPOUNDING — INTERIM RESULTS (2026-09-06, RUNNING; for next-feedback review)
+
+`v3/e1e2_compound.py` on the new box: two-link lineage (F1 then F2 = repeat) + rescue, CONTINUOUS
+speed-resolved score C=0.5+0.5*tanh((sp-1)/0.1), improver-improves-improver pathway (revise edits
+both solve AND revise strategy), capability-additive best-of-B. Calib 2/2 (compound F1,F2>0 vs
+one-upgrade F2~0). NOT COMPLETE yet — block counts noted; all values are lineage-paired 95% CIs.
+
+| model (blocks) | F1 (link) | F2 (repeat) | N1 | decompose |
+|---|---|---|---|---|
+| gpt-oss-120b (8/10) | +0.001 [-0.038, 0.040] | -0.084 [-0.296, 0.127] | -0.020 [-0.104, 0.065] | correct 0.757 fast 0.165 |
+| Fable 5.1 (3/10) | -0.096 [-0.282, 0.091] | -0.023 [-0.060, 0.014] | -0.022 [-0.066, 0.023] | correct 1.000 fast 0.360 |
+| Coder-7B (4/10) | 0.000 [0,0] | 0.000 [0,0] | -0.062 [-0.183, 0.059] | correct 0.093 fast 0.012 |
+
+Emerging read (interim, wait for 10/10 + between-model contrast):
+1. GAP 2 FIXED: the continuous score UNBINS the estimates — F/N are now fractional (e.g. Fable b0
+   F1=-0.286, gpt-oss b3 F1=+0.101), no longer forced to exactly 0 by the coarse {0,0.5,1.0} score.
+2. NO COMPOUNDING so far. gpt-oss F1 is now TIGHTLY bounded at zero [-0.038,0.040] over 8 blocks;
+   F2 spans 0. Fable (early, wide) also spans 0 on every contrast. The earlier Fable +0.104
+   "frontier link" (coarse score, vs-zero test) does NOT survive the better instrument (continuous
+   score + repeat structure + DIRECT paired CIs). Trending to a CALIBRATED BOUNDED NEGATIVE.
+3. SHARPER THAN "the wall blocks it": under the non-prescriptive prompt + best-of-2, Fable reaches
+   correct-rate 1.0 and fast-rate 0.36 (PAST both walls) -- yet its producer contrast is still ~0.
+   So the absence of compounding is NOT merely the speed wall; a revised producer does not become a
+   genuinely BETTER improver even when the base agent is highly capable. The limiter is the
+   improver-improvement channel itself, not raw task headroom.
+4. Coder-7B structurally flat (correct 0.093 -> no speed spread to resolve); expected at the wall.
+
+Caveats: gpt-oss 8 blocks (usable), Fable 3 / Coder-7B 4 (too few — wide CIs, not conclusive).
+Between-model contrast, equivalence bound (delta=0.05), and rescue analysis pending completion.
+
 ## QUEUED EXPERIMENTS (reprioritized per feedback) + PENDING compute-blocked runs
 
 Order = build a useful measurement product, validate what it measures, THEN chase the causal chain.
