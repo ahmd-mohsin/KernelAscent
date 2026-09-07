@@ -4,6 +4,52 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## FLAGSHIP DECISION (user, 2026-09-07): the LIVE RECURSIVE LOOP is the core
+
+KernelAscent is now a benchmark of AUTONOMOUS RECURSIVE RESEARCH. Central question:
+  "Can an agent improve the research PROCESS it uses, and does USING that improvement help it
+   produce another useful improvement?"
+The submitted artifact is a FUNCTIONING SUCCESSOR AGENT; the decisive evaluation is the work that
+successor subsequently performs, INCLUDING its own attempts to produce further successors.
+
+Core contribution to make excellent: a standardized, resource-bounded test of the CAUSAL RETURN
+from reinvesting agent-generated improvements into the process that produces further improvements.
+Three INSEPARABLE requirements (all mandatory; none alone suffices — editable code is not enough,
+a rising task score is not enough):
+  R1 an AUTONOMOUS LINEAGE with EXPLICIT INHERITANCE (agent makes its successor in-campaign; the
+     inherited procedure actually EXECUTES to govern the next round);
+  R2 COUNTERFACTUAL CONTINUATIONS from the SAME targets (the earlier producer edits the identical
+     target -> F contrast);
+  R3 FUTURE OUTCOMES with recognizable engineering/research VALUE (graded kernels, verified).
+Everything else (checkpoint bank, update-diagnosis track, leaderboards, task packs, papers) SUPPORTS
+this and grows from it. Keep the kernel grader, adapters, task generator, and causal estimators
+where they meet contract; replace the central EPISODE with a complete research workflow in which
+changes to the agent's own procedures have opportunities to influence subsequent research.
+
+How the CURRENT running loop maps (v3/e1e2_compound.py, live now):
+  R1 partial: U0 self-revises -> U1; U1 is then USED as the producer of the next update
+     (U2=revise(U1,U1)); the inherited state (solve+revise strategy) governs both develop and
+     revise. GAP: the successor is a STRING-procedure agent invoked in-process, not yet an
+     EXECUTABLE successor bundle run in a FRESH process with a provenance/execution log. Hardening
+     needed to fully satisfy R1: fresh-process successor execution + explicit inheritance record
+     (who authored the update, which impl executed, child != parent behaviorally).
+  R2 met: run_lineage forks V2=revise(U0,U1) / V3=revise(U1,U2) on the identical target -> F1,F2.
+  R3 met: continuous speed-resolved graded kernels vs the min(eager,compile) reference.
+So the interim compounding runs ARE the first instantiation of the flagship; the near-term build is
+to upgrade the successor from a string-procedure to an EXECUTABLE agent bundle (restore v2 Batch A
+executed-mutable-U, route through develop+revise, log activation) so R1 is fully met, then re-run.
+
+BUILT + STARTED (2026-09-07): `v3/flagship.py` -- the executable-successor flagship. R1 now FULLY
+met: the improver is v2 ImproverState executable source; each revise LOADS+EXECUTES the ACTOR's
+actual bytes in a fresh namespace (v2 load_improver_callable), the executed improve_step reads the
+actor's evolving U-params (meta_policy) + may rewrite its own source, and every revise is
+provenance-logged (author, executed-source hash, u_changed, s_changed, child!=parent) with an
+R1_inheritance_audit in the output (revises / u_changed / child_ne_parent / exec_errors). R2 via
+run_lineage common-target forks (F1,F2); R3 via continuous-score graded kernels. Calib 2/2 (executed
+source: compound F1,F2>0 vs one-upgrade F1>0,F2~0). RUNNING: Fable + Coder-7B, 10 blocks, on the new
+box. This is the definitive flagship run; the string-procedure compounding runs stand as the v1
+instantiation / cross-check.
+
 ## STATE OF THE BENCHMARK — overall evaluation (2026-09-06)
 
 > SUPERSEDED IN PART: read `## CLAIM CORRECTIONS (user feedback 2026-09-06)` below FIRST. Several
