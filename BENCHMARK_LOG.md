@@ -185,6 +185,29 @@ S1 repair interpretation + identity audit (+ keep fixed-provider-profile; conten
    resource profiles, raw-result schemas). API-model claims are SYSTEM-level (fixed weights), not the
    foundation model training its successor.
 
+### STEP 1 IDENTITY AUDIT — result (2026-09-07)
+
+Audited core.run_lineage + flagship.revise for the actor/target binding bugs the redesign flags:
+- Estimand correct: run_lineage does U2=revise(U1,copy(U1)), V2=revise(U0,copy(U1)) -> actor differs
+  (U1 vs U0), target identical. F1=Q(U2)-Q(V2) is the intended producer contrast.
+- Binding correct: flagship.revise loads the ACTOR's source (load_improver_callable(actor.U.source))
+  and reads the ACTOR's params (dict(actor.U.params)); all edits land on deepcopy(target). No
+  actor/target aliasing; the older producer does NOT invoke the newer during V2 (target U is data,
+  not executed in that call). develop(child) reads the CHILD's solver policy. No candidate-eval
+  mutation of the bound producer (flagship revise is single-shot, no best-of).
+- Isolation: load_improver_callable = exec in a FRESH NAMESPACE dict, SAME process (not a fresh
+  process); improve_step is pure (returns StateUpdate). Shared: the model gateway (Curator) + a fresh
+  Ledger per revise. -> "fresh namespace", not "fresh process"; record this honestly.
+KEY AUDIT FINDING (explains the API F~0): F is only informative when the improver DIFFERS between U1
+and U0. Coder-7B u_changed=59/60 -> real producer difference -> F1/F2 are genuine UNRESOLVED
+measurements (not construction-zeros). API models u_changed~0 -> U1's improver == U0's improver ->
+F=0 BY CONSTRUCTION, uninformative about recursion. This is NOT an aliasing bug; it is that the API
+models never differentiate their improver under the current (solve-rewarding) task. Consequence:
+the assigned-improvement task (RSI-VERIFY-01) is REQUIRED to make the improver actually change so F
+becomes measurable for API models. Provider note: keep the fixed-profile requirement; the
+content_filter fallback that drops the system prompt is a comparison confound -> log filtered calls
+under a declared policy, do not silently strip instructions.
+
 ## FLAGSHIP RESULT (first complete): Coder-7B, 10 blocks (2026-09-07)
 
 The executable-successor recursive loop, run to completion on the open model:
