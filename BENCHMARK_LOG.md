@@ -219,6 +219,26 @@ per task): weak Q=0.773 -> strong Q=1.000, dQ=+0.227 PASS; calib PASS. Re-runnin
 (paired/nested, K=8, reps=8) on qwen-coder 1.5/3/7B, deepseek-6.7B, gpt-oss, Fable -> results below.
 The pre-correction panel (unpaired, non-nested) is void; kept only as the bug that motivated the fix.
 
+CORRECTED PANEL RESULT (paired/nested, K=8 reps=8):
+| model | C0 (no verifier) | C_weak | C_strong | dQ (verifier improvement) |
+|---|---|---|---|---|
+| qwen-coder-1.5B | 0.458 | 0.708 | 0.708 | 0.000 |
+| qwen-coder-3B | 0.667 | 0.917 | 0.917 | 0.000 |
+| qwen-coder-7B | 0.896 | 1.000 | 1.000 | 0.000 |
+| deepseek-6.7B / gpt-oss / Fable | 1.000 | 1.000 | 1.000 | 0.000 |
+TWO clean findings: (1) VERIFICATION ITSELF helps and is capability-graded -- C0->C_weak = +0.25
+(1.5B), +0.25 (3B), +0.10 (7B), ~0 (saturated). Best-of-K with a local verifier is a real,
+model-separating lever. (2) VERIFIER IMPROVEMENT (weak->strong, the RECURSIVE lever) dQ=0.000 for
+ALL models: real models' wrong patches fail even the 2-input weak suite (their bugs are NOT
+edge-subtle), so a stronger suite catches nothing extra. The recursive opportunity is real
+SYNTHETICALLY (Gate2 dQ=+0.227) but NOT REALIZED by real model errors on these tasks.
+PRECISE NEXT REQUIREMENT: tasks whose COMMON model error is EDGE-SUBTLE -- a patch that passes
+typical/random inputs but fails only on edges (empty/boundary/duplicate/overflow). Only then does a
+weak verifier misselect and a stronger verifier recover -> realized dQ>0 -> the recursive lever is
+measurable on real models. Candidate sources: mutation of real fixes to inject edge-only bugs; harder
+numeric/parsing/date tasks; or larger K to surface edge-only-wrong candidates. This is the concrete
+gate to clear before Gate 3/4 (procedure participates / live loop) are meaningful.
+
 ### STEP 3 (pre-correction, VOID) — model-backed panel: capability gradient real, verifier dQ=0/noisy
 
 Model-backed develop_model (model writes K=4 candidate patches -> agent's local verifier selects ->
