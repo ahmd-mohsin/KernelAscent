@@ -174,6 +174,14 @@ def gen_candidates(project, gen_fn, K):
     return cands
 
 
+def edge_mutants(project):
+    """Edge-subtle WRONG patches: pass typical/random inputs, fail only on edges. Injected as
+    distractors so a weak verifier can misselect one and a strong (edge) verifier rejects it ->
+    the verifier-improvement opportunity is REALIZED for real model candidates."""
+    pool = _synth_pool(project)
+    return [(("mut_" + n), f) for n, f in pool if n != "correct"]
+
+
 # ------------------------------------------------------------------- Gate 2 (nested, paired, deterministic)
 def _synth_pool(project):
     """A correct impl + edge-wrong impls that PASS typical inputs but fail on edges (so a weak
@@ -282,15 +290,18 @@ def panel(args):
         who = "hf:" + args.model
     rng = random.Random(0); cw, cs_, base = [], [], []
     for proj in PROJECTS:
+        muts = edge_mutants(proj) if args.inject else []
         for rep in range(args.reps):
             cands = gen_candidates(proj, gen_fn, args.K)
             if not cands:
                 cw.append(0.0); cs_.append(0.0); base.append(0.0); continue
+            pool = cands + muts                       # inject edge-subtle distractors
+            random.Random(rep * 131 + 7).shuffle(pool)
             weak_in = gen_inputs(proj, 2, rng, edge=False)
-            strong_in = weak_in + gen_inputs(proj, 12, rng, edge=True)     # NESTED
-            cw.append(hidden_grade(proj, select(proj, cands, weak_in), rng))      # same candidates,
-            cs_.append(hidden_grade(proj, select(proj, cands, strong_in), rng))   # both verifiers (paired)
-            base.append(hidden_grade(proj, cands[0][1], rng))                     # no-verifier baseline (first cand)
+            strong_in = weak_in + gen_inputs(proj, 12, rng, edge=True)     # NESTED (strong superset of weak)
+            cw.append(hidden_grade(proj, select(proj, pool, weak_in), rng))      # same pool,
+            cs_.append(hidden_grade(proj, select(proj, pool, strong_in), rng))   # both verifiers (paired)
+            base.append(hidden_grade(proj, pool[0][1], rng))                     # no-verifier baseline (first in pool)
     n = len(cw); mw = sum(cw) / n; ms = sum(cs_) / n; mb = sum(base) / n
     dq = [cs_[i] - cw[i] for i in range(n)]
     res = {"who": who, "n": n, "K": args.K, "meanC_noverifier": round(mb, 3), "meanC_weak": round(mw, 3),
@@ -304,6 +315,7 @@ def main():
     ap.add_argument("--gate2", action="store_true"); ap.add_argument("--calib", action="store_true"); ap.add_argument("--panel", action="store_true")
     ap.add_argument("--model", default=""); ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--K", type=int, default=8); ap.add_argument("--reps", type=int, default=8)
+    ap.add_argument("--inject", type=int, default=1, help="inject edge-subtle mutant distractors (1=on)")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsiv")
     args = ap.parse_args()
     if args.gate2: sys.exit(gate2())
