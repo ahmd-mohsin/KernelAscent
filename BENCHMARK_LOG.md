@@ -208,6 +208,24 @@ becomes measurable for API models. Provider note: keep the fixed-profile require
 content_filter fallback that drops the system prompt is a comparison confound -> log filtered calls
 under a declared policy, do not silently strip instructions.
 
+### STEP 2 — RSI-VERIFY-01 BUILT + GATE 2 PASSED (2026-09-07)
+
+`kernelascent/v3/rsi_verify.py`: bug-fix dev agent; its LOCAL test suite (a spec-derived correctness
+checker run on N self-generated inputs, with n_edge edge cases) filters K candidate patches; graded on
+a large HIDDEN oracle input set. Improving `test_generation` (more inputs + edge coverage) is the
+procedural improvement; using it to evaluate `candidate_selection` changes is the recursive link.
+Tasks: kth_largest, rle, merge_intervals (each: oracle + edge-sensitive buggy variants).
+- GATE 2 (opportunity exists, deterministic): weak verifier (n=2,edge=0) Q=0.838 -> strong (n=16,edge=8)
+  Q=1.000, dQ=+0.162 at MATCHED candidate budget. A useful procedural improvement provably EXISTS
+  (this is the gate the whole RSI claim needs; the kernel task never had a demonstrated one).
+- CAUSAL CALIB (instrument detects compounding on this state shape): compound F1=F2=+0.16>0; one-upgrade
+  F1=+0.16>0, F2=0. run_lineage distinguishes repeat from single-link here.
+- DESIGN LESSON (root cause of prior all-zero RSI): the REAL verifier Q SATURATES at 1.0 by ~n=10
+  inputs, so a second-order producer contrast washes out even though first-order improvement is real.
+  The live task MUST be kept BELOW saturation (harder/more-subtle bugs, larger candidate pools, tighter
+  budgets) for F to be measurable. Next: harden the task to non-saturating difficulty, then model-backed
+  develop + Gate 3/4 (procedure participates in subsequent improvement; live reference loop).
+
 ## FLAGSHIP RESULT (first complete): Coder-7B, 10 blocks (2026-09-07)
 
 The executable-successor recursive loop, run to completion on the open model:
