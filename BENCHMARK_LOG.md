@@ -55,6 +55,24 @@ gpt-oss-120b, GPT-5.6-terra (E0 #1 frontier), Kimi-K2.5 -- each 10 blocks, execu
 provenance audit. GPT-5.6-terra runs via the temperature-reject + content_filter fallbacks. Gives a
 capability-stratified compounding result (frontier -> strong -> open) rather than one model.
 
+## FLAGSHIP RESULT (first complete): Coder-7B, 10 blocks (2026-09-07)
+
+The executable-successor recursive loop, run to completion on the open model:
+- R1 INHERITANCE AUDIT: 60 revises, u_changed=59, child_ne_parent=59, exec_errors=0 -> the improver
+  improved its OWN improver in 59/60 revises, each loaded+executed in a fresh namespace. The recursive
+  pathway PROVABLY FIRED (this is the definitive answer to the old closed-pathway audit).
+- F1 = +0.041 [-0.047, 0.128]; F2 (repeat) = +0.064 [-0.071, 0.200]; N1 = -0.016; N2 = +0.076;
+  rescue = -0.013 -> EVERY causal contrast spans 0. No resolved link, no resolved repeat.
+- decompose: correct 0.669, fast 0.012 (continuous score).
+STRONGEST NEGATIVE YET: not a closed-pathway artifact (pathway fired 59/60), not coarse-score binning
+(continuous score), not a JSON-parse artifact (reasoning-strip fix) -- the recursion GENUINELY EXECUTED
+and produced NO compounding return for Coder-7B. Caveat: upper CIs (~0.13/0.20) exceed delta=0.05, so
+this is "no resolved effect", not yet a tight equivalence-to-zero; more blocks would tighten it.
+Also surfaced: the code model self-edits its improver ~always (59/60); API/reasoning models rarely do
+(Fable/GPT-5.6 ~0, gpt-oss ~1/12) -- they edit the solver, not their improvement procedure. That
+model-behavior split (who even attempts to improve their improver) is itself a flagship finding.
+API-model flagship runs (Fable, gpt-oss, GPT-5.6-terra, Kimi) still in progress.
+
 ## STATE OF THE BENCHMARK — overall evaluation (2026-09-06)
 
 > SUPERSEDED IN PART: read `## CLAIM CORRECTIONS (user feedback 2026-09-06)` below FIRST. Several
