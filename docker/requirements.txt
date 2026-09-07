@@ -1,0 +1,5 @@
+torch>=2.2
+transformers==4.47.1
+accelerate
+boto3
+numpy
