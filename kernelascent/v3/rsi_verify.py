@@ -303,9 +303,16 @@ def _dow_edge(rng):
 
 
 VERY_HARD_PROJECTS = [
-    {"name": "expr_eval", "ref": h_expr, "fn": "expr_eval", "sampler": _expr_samp, "edge": _expr_edge,
-     "spec": "Evaluate an integer arithmetic expression string with + - * / , unary minus, parentheses and spaces. Standard precedence; division TRUNCATES TOWARD ZERO (like C, not Python floor): 7/-2 = -3, -7/2 = -3.",
-     "buggy": "def expr_eval(s):\n    return eval(s)\n",   # Python eval: '/' is float, no truncation
+    {"name": "calc", "ref": h_expr, "fn": "calc", "sampler": _expr_samp, "edge": _expr_edge,
+     "spec": "Compute the value of an integer arithmetic expression string with + - * / , unary minus, parentheses and spaces. Standard precedence; division TRUNCATES TOWARD ZERO (like C, not Python floor): 7/-2 = -3, -7/2 = -3.",
+     "buggy": ("def calc(s):\n    s=s.replace(' ','');p=[0]\n    def pk(): return s[p[0]] if p[0]<len(s) else ''\n"
+               "    def factor():\n        c=pk()\n        if c=='+': p[0]+=1; return factor()\n"
+               "        if c=='-': p[0]+=1; return -factor()\n        if c=='(': p[0]+=1; v=expr(); p[0]+=1; return v\n"
+               "        n=''\n        while pk().isdigit(): n+=s[p[0]]; p[0]+=1\n        return int(n)\n"
+               "    def term():\n        v=factor()\n        while pk() in ('*','/'):\n            o=s[p[0]]; p[0]+=1; f=factor()\n"
+               "            v = v*f if o=='*' else v//f\n        return v\n"
+               "    def expr():\n        v=term()\n        while pk() in ('+','-'):\n            o=s[p[0]]; p[0]+=1; t=term(); v = v+t if o=='+' else v-t\n        return v\n"
+               "    return expr()\n"),   # bug: v//f is FLOOR, not truncate-toward-zero (differs on negative division)
      "examples": [(("7/-2",), -3), (("2*-3+1",), -5), (("(1-2)*-3",), 3)]},
     {"name": "wildcard", "ref": h_wild, "fn": "wildcard", "sampler": _wild_samp, "edge": _wild_edge,
      "spec": "Wildcard match: '?' matches any single char, '*' matches any sequence including empty. Return True iff pattern p matches the ENTIRE string s.",
