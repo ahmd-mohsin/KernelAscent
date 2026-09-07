@@ -42,6 +42,7 @@ def improve_step(ctx):
            "\\"meta\\": <improved guidance for how to improve solvers next time>}. Add capability; do not over-constrain.")
     import json, re
     txt = ctx.model_rpc(ask) or ""
+    txt = re.sub(r"<reasoning>.*?</reasoning>", "", txt, flags=re.S)   # reasoning block has braces -> strip first
     m = re.search(r"\\{.*\\}", txt, re.S)
     sp, um = {}, {}
     if m:
