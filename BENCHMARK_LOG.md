@@ -426,6 +426,23 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### COHERENCE REQUIREMENT + KERNEL-CONTENT REQUIREMENT (user, 2026-09-07)
+
+1. COHERENCE: the ranking MUST make sense -- best models best, weaker lag. The first very-hard panel
+   VIOLATED this (Fable 0.67 < qwen-14B 0.96). Root-caused: NOT capability -- the expr_eval buggy
+   starter contained `eval(s)`, and Bedrock's content filter blocks any prompt containing `eval` ->
+   Fable got EMPTY output on that one task (parsed 0/64) while solving wildcard + day_of_week 64/64
+   perfectly. Fixed: renamed the task to `calc` (no "eval" substring), floor-division buggy starter.
+   LESSON (recurring): a strong model scoring low is a MEASUREMENT-artifact suspect (temperature
+   field, system-prompt filter, `eval` token) -> always root-cause via traces before trusting it; a
+   coherent ranking is a validity gate.
+2. KERNEL CONTENT: the tiers must include SUBSTANTIAL GPU-KERNEL problems (the KernelAscent core),
+   not only small Python bug-fixes. Integrate the validated kernel task generator + crash-isolated
+   GPU grader as the Hard/Ultra KERNEL tier alongside the Python tiers, and curate hard kernel
+   problems with Fable-5.1-max. Kernel candidate-correctness + speedup feed the same
+   oracle_pool_success / selection / verifier-dQ metric fields (correctness via fp32-gold; a "better
+   verifier" = better numerical/timing checks + winner selection). [next build]
+
 ### VERY-HARD / ULTRA TIER (2026-09-07): frontier now FAILS, real top-end discrimination
 
 New Ultra tasks (expr_eval truncate-toward-zero + unary/precedence; wildcard '*'/'?' backtracking;
