@@ -4,6 +4,75 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## BENCHMARK — CURRENT STATE (2026-09-07) [read this first]
+
+KernelAscent is now a benchmark of **agents that improve with experience**, with the LIVE RECURSIVE
+LOOP as the flagship. It has TWO task substrates and THREE measurement axes, all on validated
+instruments. Detailed dated sections below; this is the consolidated scoreboard + status.
+
+### Components
+1. KERNEL track (original): procedural GPU-kernel bug/opt tasks, crash-isolated grader, fp32-gold
+   correctness + speedup vs min(eager,torch.compile). Used for the capability leaderboard (E0) and the
+   causal-RSI flagship. Runs on GPU (open models) + Bedrock (API).
+2. RSI-VERIFY-01 (new, dockerized): a bug-fix dev agent whose LOCAL VERIFIER gates its patch
+   selection; improving the verifier (more inputs + edge coverage) is a measurable PROCEDURAL
+   improvement. Pure-Python grading (no GPU); API models need no GPU. `docker/` packages it.
+
+### Three axes (reported separately; never collapsed into one number)
+- CAPABILITY: can the agent produce a correct/fast solution. Clean frontier gradient (below).
+- VERIFICATION: does having a local verifier (best-of-K selection) help. Yes, capability-graded.
+- RECURSION/PROCEDURE: does an agent's improvement causally enable a further improvement (F1/F2), and
+  does improving the procedure (verifier) raise productivity (dQ).
+
+### SCOREBOARD (headline numbers)
+
+E0 CAPABILITY LEADERBOARD -- kernel track, fixed 15 Medium tasks, k=5, correct/fast rates (fast=beats
+torch.compile). Two walls; frontier wins:
+| model | correct | fast |
+|---|---|---|
+| GPT-5.6 terra / sol | 0.92 / 0.91 | 0.667 / 0.600 |
+| Kimi-K2.5 | 0.39 | 0.24 | 
+| Fable 5.1 | 0.36 | 0.227 |
+| gpt-oss-120b | 0.47 | 0.08 | 
+| open Coder 0.5-14B | 0.01-0.28 | 0.000 (all) |
+(full 22-model table in the E0 FULL LEADERBOARD section; site: docs/data/leaderboard.json)
+
+CAUSAL RECURSION (kernel flagship + controlled) -- resolved NEGATIVE, honestly bounded:
+- Flagship Coder-7B (executed-successor, 10 blk): R1 audit 59/60 revises executed+changed the
+  improver (pathway PROVABLY fired), yet F1=+0.041 [-0.047,0.128], F2=+0.064 [-0.071,0.200] span 0.
+- Compounding (continuous score): gpt-oss F1=+0.001 [-0.038,0.040]; frontier link doesn't reproduce.
+- Controlled narrow-vs-rich (9 models): dF~0, F1 spans 0 everywhere.
+- READ: no causal recursive compounding at this scale/budget, WITH the pathway proven active and the
+  instrument calibrated to detect it -- a rigorous bounded negative, not a broken benchmark.
+
+RSI-VERIFY-01 -- verified + realized procedural-improvement opportunity:
+- Gate 2 (opportunity exists): weak verifier Q=0.773 -> strong Q=1.000, dQ=+0.227. Calib PASS.
+- HARD-task panel (--hard --inject 0), DISCRIMINATING:
+  | model | capability C0 | verifier dQ |
+  |---|---|---|
+  | qwen-coder-1.5B | 0.25 | +0.167 |
+  | qwen-coder-3B | 0.75 | +0.104 |
+  | qwen-coder-7B | 0.85 | +0.062 |
+  | deepseek-6.7B | 0.90 | +0.021 |
+  | qwen-coder-14B | 0.92 | +0.083 |
+  | Fable/gpt-oss/mistral-large-3/llama4-maverick/GPT-5.6-terra | 1.00 | +0.000 |
+  C0 spreads 0.25->1.0 (real gradient); dQ model-dependent (weak models gain most from a better
+  verifier). Frontier saturates at C0=1.0 on these 3 tasks (genuinely easy for them -> needs
+  competition-hard content to separate the top).
+
+### Status
+VALIDATED + PUSHED: kernel grader/generator; E0 22-model leaderboard (site published); causal core
+(Q/V/F/N + run_lineage) with deterministic calibrations; flagship executed-successor loop (R1
+provenance audit); RSI-VERIFY-01 (Gate 2 + calib + hard-task discrimination); dockerization
+(docker/Dockerfile + CI self-check); reasoning-chain capture (traces/, plaintext for non-Claude
+reasoning models; Claude thinking encrypted by Bedrock).
+HONEST NEGATIVES/CEILINGS: causal recursive compounding absent at current scale (bounded negative);
+RSI-VERIFY frontier saturates on current tasks (need competition-hard problems for top-end spread).
+PENDING: competition-hard RSI-VERIFY tier (frontier discrimination); RSI-VERIFY Gate 3/4 (does USING
+the improved verifier improve a SUBSEQUENT revision; live reference loop); dockerized-workflow envs.
+
+---
+
 ## FLAGSHIP DECISION (user, 2026-09-07): the LIVE RECURSIVE LOOP is the core
 
 KernelAscent is now a benchmark of AUTONOMOUS RECURSIVE RESEARCH. Central question:
