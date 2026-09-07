@@ -426,6 +426,27 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### VERY-HARD / ULTRA TIER (2026-09-07): frontier now FAILS, real top-end discrimination
+
+New Ultra tasks (expr_eval truncate-toward-zero + unary/precedence; wildcard '*'/'?' backtracking;
+Gregorian day_of_week leap-century), hand-authored w/ tested oracles + genuinely-buggy starters.
+Panel --veryhard --inject 0, K=8 reps=8, oracle=frac pools with >=1 fully-correct candidate:
+| model | oracle | C0(rand) | C_strong | dQ |
+|---|---|---|---|---|
+| deepseek-coder-6.7B | 0.17 | 0.29 | 0.35 | +0.042 |
+| Fable 5.1 | 0.67 | 0.67 | 0.67 | +0.000 |
+| llama4-maverick | 0.75 | 0.62 | 0.77 | +0.021 |
+| qwen-coder-14B | 0.96 | 0.67 | 0.96 | +0.125 |
+| gpt-oss-120b | 1.00 | 1.00 | 1.00 | +0.000 |
+| GPT-5.6-terra | 1.00 | 1.00 | 1.00 | +0.000 |
+(qwen-7B, mistral-large-3 pending/slow.)
+DISCRIMINATES the frontier at last: oracle spreads 0.17 -> 1.00; Fable FAILS 1/3, llama4 1/4,
+deepseek 5/6 -- frontier models genuinely cannot solve these every time. Selection headroom appears
+at the mid-tier (qwen-14B dQ=+0.125: produces a correct candidate 96% but a random pick only 0.67 ->
+the verifier recovers it). Fable's 0.67 is pure capability (oracle=Cs, no misselection). REMAINING
+CEILING: the two strongest (GPT-5.6-terra, gpt-oss-120b) still saturate at 1.00 -> to break THEM
+needs research-hard / WORLD-FIRST multi-file tasks (curated with Fable-5.1-max per policy).
+
 ### RECONCILED PANEL (2026-09-07): new metric fields separate capability-ceiling from selection
 
 Panel now emits oracle_pool_success (frac pools with >=1 fully-correct candidate) + randomized_select_C0
