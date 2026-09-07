@@ -220,6 +220,103 @@ HARD_PROJECTS = [
      "examples": [(([1, 2, 3],), [1, 3, 2]), (([3, 2, 1],), [1, 2, 3])]},
 ]
 
+# ------------------------------------------------------------------- VERY-HARD tier (frontier traps)
+def h_expr(s):
+    s = s.replace(" ", ""); pos = [0]
+    def peek(): return s[pos[0]] if pos[0] < len(s) else ""
+    def factor():
+        c = peek()
+        if c == "+": pos[0] += 1; return factor()
+        if c == "-": pos[0] += 1; return -factor()
+        if c == "(":
+            pos[0] += 1; v = expr(); pos[0] += 1; return v      # consume ')'
+        num = ""
+        while peek().isdigit(): num += s[pos[0]]; pos[0] += 1
+        return int(num)
+    def term():
+        v = factor()
+        while peek() in ("*", "/"):
+            op = s[pos[0]]; pos[0] += 1; f = factor()
+            if op == "*": v = v * f
+            else:
+                q = abs(v) // abs(f); v = q if (v < 0) == (f < 0) else -q   # truncate toward ZERO
+        return v
+    def expr():
+        v = term()
+        while peek() in ("+", "-"):
+            op = s[pos[0]]; pos[0] += 1; t = term(); v = v + t if op == "+" else v - t
+        return v
+    return expr()
+
+
+def _expr_samp(rng):
+    def atom():
+        return "(" + e(1) + ")" if rng.random() < 0.25 else str(rng.randint(-9, 9))
+    def e(d):
+        parts = [atom()]
+        for _ in range(rng.randint(1, 2 if d else 1)):
+            op = rng.choice("+-*/"); rhs = str(rng.randint(1, 9)) if op == "/" else atom()
+            parts += [op, rhs]
+        return "".join(parts)
+    return (e(1),)
+
+
+def _expr_edge(rng):
+    return (rng.choice(["7/-2", "-7/2", "2*-3+1", "(1-2)*-3", "-(3-5)", "8/-3", "-10/3", "1-2-3", "2*3-8/3"]),)
+
+
+def h_wild(s, p):
+    n, m = len(s), len(p)
+    dp = [[False] * (m + 1) for _ in range(n + 1)]
+    dp[0][0] = True
+    for j in range(1, m + 1):
+        if p[j - 1] == "*": dp[0][j] = dp[0][j - 1]
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if p[j - 1] == "*": dp[i][j] = dp[i - 1][j] or dp[i][j - 1]
+            elif p[j - 1] == "?" or p[j - 1] == s[i - 1]: dp[i][j] = dp[i - 1][j - 1]
+    return dp[n][m]
+
+
+def _wild_samp(rng):
+    s = "".join(rng.choice("ab") for _ in range(rng.randint(0, 5)))
+    p = "".join(rng.choice("ab?*") for _ in range(rng.randint(0, 5)))
+    return (s, p)
+
+
+def _wild_edge(rng):
+    return rng.choice([("", "*"), ("", ""), ("a", ""), ("aa", "a*"), ("ab", "*a*b"), ("abc", "a*c"), ("", "a"), ("aaa", "a*a")])
+
+
+def h_dow(y, m, d):
+    t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4]
+    if m < 3: y -= 1
+    return (y + y // 4 - y // 100 + y // 400 + t[m - 1] + d) % 7    # 0=Sunday..6=Saturday
+
+
+def _dow_samp(rng):
+    return (rng.randint(1901, 2099), rng.randint(1, 12), rng.randint(1, 28))
+
+
+def _dow_edge(rng):
+    return rng.choice([(2000, 2, 29), (1900, 2, 28), (2024, 2, 29), (2100, 2, 28), (2000, 1, 1), (1999, 12, 31), (2004, 2, 29), (2023, 3, 1)])
+
+
+VERY_HARD_PROJECTS = [
+    {"name": "expr_eval", "ref": h_expr, "fn": "expr_eval", "sampler": _expr_samp, "edge": _expr_edge,
+     "spec": "Evaluate an integer arithmetic expression string with + - * / , unary minus, parentheses and spaces. Standard precedence; division TRUNCATES TOWARD ZERO (like C, not Python floor): 7/-2 = -3, -7/2 = -3.",
+     "buggy": "def expr_eval(s):\n    return eval(s)\n",   # Python eval: '/' is float, no truncation
+     "examples": [(("7/-2",), -3), (("2*-3+1",), -5), (("(1-2)*-3",), 3)]},
+    {"name": "wildcard", "ref": h_wild, "fn": "wildcard", "sampler": _wild_samp, "edge": _wild_edge,
+     "spec": "Wildcard match: '?' matches any single char, '*' matches any sequence including empty. Return True iff pattern p matches the ENTIRE string s.",
+     "buggy": "def wildcard(s, p):\n    i=j=0\n    while i<len(s):\n        if j<len(p) and (p[j]=='?' or p[j]==s[i]):\n            i+=1;j+=1\n        elif j<len(p) and p[j]=='*':\n            j+=1\n        else:\n            return False\n    while j<len(p) and p[j]=='*':\n        j+=1\n    return j==len(p)\n",
+     "examples": [(("ab", "*a*b"), True), (("aa", "a"), False), (("", "*"), True)]},
+    {"name": "day_of_week", "ref": h_dow, "fn": "day_of_week", "sampler": _dow_samp, "edge": _dow_edge,
+     "spec": "Return the day of week for a Gregorian date (y,m,d) as 0=Sunday..6=Saturday. Handle leap years incl the century rule (1900 not leap, 2000 leap) and the Jan/Feb adjustment.",
+     "buggy": "def day_of_week(y, m, d):\n    t=[0,3,2,5,0,3,5,1,4,6,2,4]\n    return (y + y//4 - y//100 + y//400 + t[m-1] + d) % 7\n",  # forgets Jan/Feb y-=1
+     "examples": [((2000, 1, 1), 6), ((2024, 2, 29), 4)]},
+]
+
 SOLVE_TMPL = ("Fix the bug in this Python function so it fully matches the spec.\nSpec: {spec}\n"
               "Buggy code:\n```python\n{buggy}\n```\nExamples (input->output): {ex}\n"
               "Return ONLY the corrected function named {fn} as a single ```python code block. No prose.")
@@ -367,7 +464,7 @@ def panel(args):
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
     rng = random.Random(0); cw, cs_, base, oracle = [], [], [], []
-    projs = HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS
+    projs = VERY_HARD_PROJECTS if getattr(args, "veryhard", False) else (HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS)
     for proj in projs:
         muts = edge_mutants(proj) if args.inject else []
         for rep in range(args.reps):
@@ -402,6 +499,7 @@ def main():
     ap.add_argument("--K", type=int, default=8); ap.add_argument("--reps", type=int, default=8)
     ap.add_argument("--inject", type=int, default=1, help="inject edge-subtle mutant distractors (1=on)")
     ap.add_argument("--hard", action="store_true", help="use the HARD edge-rich task set (frontier not saturated)")
+    ap.add_argument("--veryhard", action="store_true", help="use the VERY-HARD/Ultra tier (frontier traps)")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsiv")
     args = ap.parse_args()
     if args.gate2: sys.exit(gate2())

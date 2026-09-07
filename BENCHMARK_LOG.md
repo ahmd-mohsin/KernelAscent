@@ -411,6 +411,24 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### RECONCILED PANEL (2026-09-07): new metric fields separate capability-ceiling from selection
+
+Panel now emits oracle_pool_success (frac pools with >=1 fully-correct candidate) + randomized_select_C0
++ selected_C_weak/strong + selection_headroom + verifier_dQ. Hard tasks, --inject 0, K=8 reps=8:
+| model | oracle | C0(rand) | C_weak | C_strong | dQ |
+|---|---|---|---|---|---|
+| qwen-coder-1.5B | 0.67 | 0.23 | 0.48 | 0.73 | +0.250 |
+| qwen-coder-3B | 1.00 | 0.85 | 0.92 | 1.00 | +0.083 |
+| qwen-coder-7B | 0.96 | 0.77 | 0.85 | 0.96 | +0.104 |
+| qwen-coder-14B | 1.00 | 0.96 | 0.96 | 1.00 | +0.042 |
+| deepseek-6.7B | 1.00 | 0.94 | 0.98 | 1.00 | +0.021 |
+| Fable / gpt-oss / mistral-large-3 / llama4-maverick / GPT-5.6-terra | 1.00 | 1.00 | 1.00 | 1.00 | +0.000 |
+The audit's key disambiguation now works: frontier dQ=0 is because oracle=1.00 & C0=1.00 -> NO selection
+opportunity (task saturated), NOT "can't improve a verifier". Weak models: oracle<1 & C0<<oracle ->
+real selection headroom the verifier recovers (qwen-1.5B +0.25). Capability (oracle/C0) + selection
+(dQ) are now separate, honest axes. REMAINING: frontier saturates -> need VERY-HARD (Ultra) tasks so
+frontier oracle<1.0 (below).
+
 ### SATURATION FIX (2026-09-07): hard tasks + no injection -> real model DISCRIMINATION
 
 User caught a real flaw: on the 3 toy tasks with injected mutants, every capable model scored
