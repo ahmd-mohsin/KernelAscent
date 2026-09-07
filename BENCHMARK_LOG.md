@@ -208,6 +208,33 @@ becomes measurable for API models. Provider note: keep the fixed-profile require
 content_filter fallback that drops the system prompt is a comparison confound -> log filtered calls
 under a declared policy, do not silently strip instructions.
 
+### STEP 3 — model-backed panel: capability gradient real, but verifier opportunity NOT realized (2026-09-07)
+
+Model-backed develop_model (model writes K=4 candidate patches -> agent's local verifier selects ->
+hidden grade), diverse panel (mostly non-Claude). meanC + verifier dQ (weak n=2/e=0 vs strong n=16/e=8):
+| model | C_weak | C_strong | verifier dQ |
+|---|---|---|---|
+| qwen-coder-1.5B | 0.333 | 0.333 | 0.000 |
+| qwen-coder-3B | 0.833 | 0.833 | 0.000 |
+| qwen-coder-7B | 1.000 | 1.000 | 0.000 |
+| deepseek-coder-6.7B | 1.000 | 1.000 | 0.000 |
+| gpt-oss-120b / mistral-large-3 / llama4-maverick / Fable | 1.000 | 1.000 | 0.000 |
+(qwen3-32b, kimi pending)
+
+TWO findings: (1) CAPABILITY C separates weak models (1.5B 0.33 < 3B 0.83 < 7B 1.0) -> a real
+low-end gradient; strong models saturate at 1.0 (toy tasks). (2) VERIFIER dQ = 0.000 for EVERY model.
+Gate 2 proved the verifier MECHANISM matters with SYNTHETIC candidate pools, but with REAL model
+candidates the opportunity is NOT REALIZED: when the model emits a correct patch the WEAK verifier
+already selects it; when it doesn't, no verifier helps. The verifier is not the bottleneck on easy
+tasks. THIS IS THE ROOT CAUSE of "RSI reads zero": the current tasks give models no realized
+procedural-improvement opportunity. Rigorous qualification outcome: Gate 2 (synthetic) PASS but
+realized-opportunity FAIL -> the task MUST be hardened before any model RSI claim.
+HARDENING PLAN (next): edge-dependent tasks where wrong patches PASS random/weak tests and fail only
+on edge cases (so weak verifier misselects, strong-edge verifier disambiguates -> dQ>0 realized), +
+higher K (more candidates -> more correct/wrong ambiguity), + harder problems so strong models stay
+below C=1.0 (non-saturating top-end gradient). Then re-run panel; only if realized dQ>0 do Gate 3/4
+(procedure participates / live loop) become meaningful.
+
 ### STEP 2 — RSI-VERIFY-01 BUILT + GATE 2 PASSED (2026-09-07)
 
 `kernelascent/v3/rsi_verify.py`: bug-fix dev agent; its LOCAL test suite (a spec-derived correctness
