@@ -50,6 +50,11 @@ source: compound F1,F2>0 vs one-upgrade F1>0,F2~0). RUNNING: Fable + Coder-7B, 1
 box. This is the definitive flagship run; the string-procedure compounding runs stand as the v1
 instantiation / cross-check.
 
+EXPANDED (2026-09-07): flagship now running on 5 DIVERSE models -- Fable 5.1, Coder-7B (open),
+gpt-oss-120b, GPT-5.6-terra (E0 #1 frontier), Kimi-K2.5 -- each 10 blocks, executed-improver +
+provenance audit. GPT-5.6-terra runs via the temperature-reject + content_filter fallbacks. Gives a
+capability-stratified compounding result (frontier -> strong -> open) rather than one model.
+
 ## STATE OF THE BENCHMARK — overall evaluation (2026-09-06)
 
 > SUPERSEDED IN PART: read `## CLAIM CORRECTIONS (user feedback 2026-09-06)` below FIRST. Several
