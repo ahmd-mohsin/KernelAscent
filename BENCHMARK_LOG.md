@@ -208,6 +208,30 @@ becomes measurable for API models. Provider note: keep the fixed-profile require
 content_filter fallback that drops the system prompt is a comparison confound -> log filtered calls
 under a declared policy, do not silently strip instructions.
 
+### STEP 3 PROPER EVAL (2026-09-07): edge-subtle variant -> verifier-improvement REALIZED across the panel
+
+Injecting edge-subtle mutant distractors (pass typical inputs, fail only on edges) into each candidate
+pool makes the verifier-improvement opportunity REALIZED with real models. Proper GPU+API panel
+(inject=1, nested/paired, K=8 reps=8):
+| model | C0 (no verifier) | C_weak | C_strong | verifier dQ |
+|---|---|---|---|---|
+| qwen-coder-0.5B | 0.21 | 0.54 | 0.67 | +0.125 |
+| qwen-coder-1.5B | 0.21 | 0.50 | 0.67 | +0.167 |
+| qwen-coder-3B | 0.29 | 0.67 | 0.79 | +0.125 |
+| qwen-coder-7B | 0.46 | 0.79 | 1.00 | +0.208 |
+| qwen-coder-14B | 0.50 | 0.79 | 1.00 | +0.208 |
+| Fable / gpt-oss-120b / mistral-large-3 / llama4-maverick / GPT-5.6-terra | 0.50-0.54 | 0.79 | 1.00 | +0.208 |
+(deepseek-6.7b, qwen3-32b, kimi pending; starcoder2-7b dropped -- base model, no chat template.)
+THREE things the benchmark now delivers simultaneously: (1) CAPABILITY gradient (C0 rises 0.21 ->
+0.5+ with model strength); (2) VERIFICATION helps (C0->C_weak large gains); (3) VERIFIER-IMPROVEMENT
+dQ>0 REALIZED for ALL models, and LARGER for stronger models (+0.208 vs +0.125) -- because a stronger
+model reliably emits a correct candidate that the improved (edge) verifier can then select, fully
+recovering C=1.0, while weak models cap lower. This is the realized procedural-improvement (RSI-lever)
+signal the earlier tasks lacked, WITH a clean frontier gradient. Dockerized (docker/Dockerfile + CI
+self-check). NEXT: persist model reasoning chains per candidate (user request) for qualitative
+value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
+reference loop) on this realized-opportunity task.
+
 ### STEP 3 CORRECTED (2026-09-07): nested + paired + oracle-guarded verifier
 
 Fixed the design bugs the first panel exposed (qwen-1.5B dQ=-0.111 was an artifact): (1) NESTED --
