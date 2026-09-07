@@ -232,6 +232,17 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### REASONING CHAINS PERSISTED (2026-09-07, user request)
+
+panel now writes every candidate's FULL generation to `<outdir>/traces/<task>_r<rep>_c<j>.txt` (incl.
+the `<reasoning>` block). Verified: gpt-oss 72/72 traces carry plaintext reasoning (e.g. "current
+returns k-th smallest. Should return k-th largest -> sorted(lst, reverse=True)[k-1]"). CAVEAT: Claude
+models (Fable) on Bedrock return thinking as an ENCRYPTED signature -> plaintext reasoning NOT
+retrievable (platform limit); their code output is still saved. So reasoning-chain evaluation is
+available for open + non-Claude-reasoning models; Claude contributes decisions/outputs only. This
+lets us qualitatively evaluate WHAT the benchmark elicits (diagnosis quality, edge-case awareness),
+not just the scalar score.
+
 ### STEP 3 CORRECTED (2026-09-07): nested + paired + oracle-guarded verifier
 
 Fixed the design bugs the first panel exposed (qwen-1.5B dQ=-0.111 was an artifact): (1) NESTED --
