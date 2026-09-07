@@ -77,6 +77,21 @@ the improved verifier improve a SUBSEQUENT revision; live reference loop); docke
 
 ---
 
+## ARCHITECTURE DIRECTION (user, 2026-09-07): WORLD-FIRST + dockerized eval harness
+
+- WORLD-FIRST (inverse of Terminal-Bench/Harbor task-first): build ONE realistic WORLD first (a
+  coherent codebase/system/environment), THEN let domain experts author + review tasks AGAINST that
+  world. The world defines the tasks (shared state, real dependencies, real workflows), not a fresh
+  micro-env per task. Enterprise work needs this inversion. Our current RSI-VERIFY tasks are
+  independent micro-problems (task-first); migrate them to live inside a single realistic world.
+- DOCKERIZED EVAL HARNESS: ship a proper containerized environment so anyone can drop in a fine-tuned
+  model and evaluate easily. (docker/ scaffold exists; expand to the world-first env.) DEFERRED until
+  the fundamentals (realized opportunity, discrimination, Gates 3/4) are correct -- do NOT productize
+  a broken instrument.
+- CURATION POLICY: author/curate HARD tasks using ONLY Fable 5.1 at MAX thinking (single strong
+  curator; keeps difficulty + style consistent; avoids a portfolio reflecting many models' habits).
+  Curator outputs (specs, buggy starters, oracles) are executable-verified + reviewed before use.
+
 ## RSI-VERIFY AUDIT + REDESIGN v2 (user, 2026-09-07) [ADOPTED]
 
 Rigorous external audit of the RSI-VERIFY panels + kernel-recursion claims. Core message: a benchmark
