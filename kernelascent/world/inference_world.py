@@ -13,12 +13,26 @@ A candidate operator is python source defining a function with the operator's na
 grader execs it in a fresh namespace, swaps it in, and grades the WHOLE service — so a change is only
 credited if it is correct AND moves the downstream service metric.
 """
-import os, sys, json, argparse, time, math, hashlib
+import os, sys, json, argparse, time, math, hashlib, signal
 import torch
 import torch.nn.functional as F
 
 DTYPE = torch.bfloat16
 DEV = "cuda"
+
+
+class _Timeout(Exception):
+    pass
+
+
+def _with_timeout(fn, sec=25):
+    def _h(s, f):
+        raise _Timeout()
+    old = signal.signal(signal.SIGALRM, _h); signal.setitimer(signal.ITIMER_REAL, sec)
+    try:
+        return fn()
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0); signal.signal(signal.SIGALRM, old)
 
 
 # ---------------------------------------------------------------- fixed world config + weights
@@ -133,7 +147,8 @@ def grade(candidate_ops, cfg=None, slo_ms=None, tol=2e-2):
     # correctness vs fp32 gold
     ref = fp32_reference(W, cfg, x)
     try:
-        out = forward(x, W, cfg, ops).float()
+        out = _with_timeout(lambda: forward(x, W, cfg, ops).float())   # guard: a hanging candidate op can't stall the run
+        torch.cuda.synchronize()
     except Exception as e:
         return {"correct": False, "error": repr(e)[:120]}
     rel = (out - ref).norm() / (ref.norm() + 1e-9)
