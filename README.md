@@ -47,12 +47,26 @@ truncation-toward-zero + precedence, wildcard matching, Gregorian day-of-week wi
   Very-hard RSI-VERIFY: oracle spreads deepseek-6.7B 0.17 … qwen-14B 0.96 … frontier 1.00.
 - **Verification helps, capability-graded.** Adding a local verifier lifts weak models most
   (+0.25 for 1.5–3B), ~0 for saturated frontier.
-- **Causal recursion (true RSI): a rigorous bounded negative.** With the pathway *proven active*
-  (executed-successor R1 audit: 59/60 revises executed and changed the improver) and a calibrated
-  instrument, `F1`/`F2` span zero across models and substrates (kernels and verifier-improves-verifier).
-  First-order self-improvement exists (e.g. Coder-7B q1−q0=+0.17) but the **second-order link** (a
-  better improver makes a better *next* improver) does **not** reproduce. Current models do not exhibit
-  compounding recursive self-improvement on these substrates at this budget.
+- **Causal recursion (true RSI): a well-controlled bounded negative — with genuine positives.** Latest
+  program (Sept 8; curated code-task bank + an efficiency-of-experimentation lab *engineered to favor
+  recursion* + live-model runs + matched-budget controls + replication + transfer):
+  - **Resolved positives:** first-order improvement is real, causal (beats a frozen-procedure+growing-memory
+    control), and capability-graded (opus-5 q₁−q₀ = +0.30 > gpt-oss +0.10 > deepseek +0.02); the child
+    beats the unchanged target (N₁ resolved > 0 for two models); and **learned procedures transfer** to a
+    structurally different task family (+0.091 [0.037, 0.146]).
+  - **Bounded negatives:** the **causal producer advantage** F₁ = +0.019 [−0.013, 0.051] at n=40 (bounded
+    below δ=0.05; a promising +0.042 at n=16 was small-sample noise), and **compounding** F₂ ≈ 0 on all
+    four substrates. Iterating to find a good procedure beats neither direct construction (−0.18) nor direct
+    search at matched budget (break-even → ∞).
+  - Honest one-liner: **agents improve their research procedure with experience — first-order, causal,
+    capability-graded, transferable — but this does not (yet) produce a resolved causal producer advantage
+    or recursive compounding.** Not a dead instrument (it cleanly detects N₁>0 + the capability gradient).
+
+**Curated code-task dataset** (difficulty-graded, executable-validated, family-diversity-forced): 75 public
+tasks (easy 21 / medium 17 / hard 18 / ultra 19) on
+[HuggingFace](https://huggingface.co/datasets/muahmed7338/kernelascent-tasks) + `dataset/tasks/public/`; a
+34-task held-out split powers the leaderboard and is never published. Site (black-and-white, with mechanism
++ findings curves): https://ahmd-mohsin.github.io/KernelAscent/
 
 This negative is the point, not a bug: the benchmark is built to measure recursion honestly and report
 where it is absent, with the two "walls" (correctness, speed) and the saturation/headroom structure made

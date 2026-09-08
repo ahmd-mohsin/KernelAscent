@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KernelAscent — Measuring Recursive Self-Improvement</title>
-<meta name="description" content="A benchmark for recursive self-improvement (RSI): can a model optimize the GPU kernels that train it, compounding its own capability?" />
+<title>KernelAscent — Do agents improve with experience?</title>
+<meta name="description" content="A benchmark of agents that improve with experience: measuring first-order improvement, causal producer advantage, and recursive compounding — with controls, replication, and transfer." />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,12 +12,9 @@
   <div class="brand"><span class="logo">▲</span> KernelAscent</div>
   <nav>
     <a href="#overview">Overview</a>
-    <a href="#loop">RSI Loop</a>
-    <a href="#tracks">Tracks</a>
-    <a href="#leaderboard">Leaderboards</a>
-    <a href="#tasks">Tasks</a>
-    <a href="#scoring">Scoring</a>
-    <a href="#architecture">Architecture</a>
+    <a href="#mechanism">Mechanism</a>
+    <a href="#findings">Findings</a>
+    <a href="#leaderboard">Leaderboard</a>
     <a href="#dataset">Dataset</a>
     <a href="#submit">Submit</a>
     <a class="ghlink" href="https://github.com/ahmd-mohsin/KernelAscent">GitHub</a>
@@ -25,171 +22,113 @@
 </header>
 
 <section class="hero">
-  <div class="tag">Recursive Self-Improvement Benchmark</div>
-  <h1>Can a model improve the machinery that makes it&nbsp;better?</h1>
-  <p class="lede">KernelAscent measures <b>recursive self-improvement</b> at the substrate level: a model optimizes the GPU kernels used to <b>train itself</b>. Under a fixed wall-clock budget, faster kernels buy more effective training, producing a stronger model that optimizes kernels better. The question is whether capability <b>compounds</b> across rounds, or plateaus.</p>
-  <div class="hero-eqn"><code>kernel → faster training → better model → better kernel → …</code></div>
+  <div class="tag">Agents that improve with experience</div>
+  <h1>Does self-improvement&nbsp;<i>compound</i>?</h1>
+  <p class="lede">KernelAscent asks a sharper question than "can an agent improve?": when an agent improves the <b>research procedure</b> it uses, does <b>using</b> that improvement help it produce a <b>further</b> improvement — and does it <b>repeat</b>? We separate the actor that produces an improvement from the target it edits, so a later producer is credited only if it beats an earlier one on the <b>same</b> target.</p>
+  <div class="hero-eqn"><code>improve procedure → use it → produce a better next improvement → … ?</code></div>
   <div class="kpis">
-    <div class="kpi"><div class="kpi-n">242</div><div class="kpi-l">public tasks</div></div>
-    <div class="kpi"><div class="kpi-n">6</div><div class="kpi-l">task families</div></div>
-    <div class="kpi"><div class="kpi-n">L1–L3</div><div class="kpi-l">difficulty tiers</div></div>
-    <div class="kpi"><div class="kpi-n">public + held-out</div><div class="kpi-l">split design</div></div>
+    <div class="kpi"><div class="kpi-n">2</div><div class="kpi-l">task substrates</div></div>
+    <div class="kpi"><div class="kpi-n">109</div><div class="kpi-l">curated code tasks</div></div>
+    <div class="kpi"><div class="kpi-n">4</div><div class="kpi-l">RSI substrates tested</div></div>
+    <div class="kpi"><div class="kpi-n">public + held-out</div><div class="kpi-l">leaderboard split</div></div>
   </div>
 </section>
 
 <main>
 <section id="overview">
-  <h2>Why this benchmark</h2>
-  <p>Recursive self-improvement (RSI) is a central question in frontier AI development, yet it has almost no rigorous quantitative benchmark. Two research directions have developed separately:</p>
-  <ul>
-    <li><b>Kernel-generation benchmarks</b> (KernelBench, TritonBench, RE-Bench, robust-kbench, Kevin-32B) measure a one-shot artifact: can a model write a fast GPU kernel? That capability is now established.</li>
-    <li><b>Self-improvement systems</b> (STOP, ADAS, Darwin Gödel Machine, SICA) rewrite their own scaffold code, but never touch the compute substrate and never measure whether <i>capability</i> compounds.</li>
-  </ul>
-  <p>KernelAscent closes the loop neither camp closes: the agent improves the machinery that produces its own capability, and we measure the <b>compounding coefficient</b> — the slope of capability over self-improvement rounds. GPU-kernel optimization and training throughput are exactly the levers a self-improving AI-R&D system would pull to accelerate its own development.</p>
-</section>
-
-<section id="loop" class="panel">
-  <h2>The kernel → model loop</h2>
-  <p>The benchmark measures capability self-improvement directly. Each round:</p>
-  <ol class="loop">
-    <li><b>Optimize.</b> Model <code>M<sub>k</sub></code> writes optimized GPU kernels for its own training stack (attention, GEMM, normalization, fusions).</li>
-    <li><b>Train.</b> Under a <b>fixed wall-clock budget</b>, those faster kernels are the only way to buy more gradient steps → a stronger model <code>M<sub>k+1</sub></code>.</li>
-    <li><b>Re-measure.</b> <code>M<sub>k+1</sub></code> is re-scored on held-out kernel-optimization tasks.</li>
-  </ol>
-  <p>The headline result is the <b>RSI signal</b> <code>Δ<sub>k</sub> = C<sub>k</sub><sup>self</sup> − C<sub>k</sub><sup>control</sup></code> against a matched control that trains with round-0 kernels. RSI is confirmed only if <code>Δ<sub>k</sub></code> grows with <code>k</code>. A null result — capability rising only from additional compute rather than self-improvement — is reported as a negative finding.</p>
-</section>
-
-<section id="tracks" class="panel">
-  <h2>Two tracks: capability and recursive self-improvement</h2>
-  <p>Writing a fast kernel is a capability; recursive self-improvement is a loop. The two are evaluated as separate tracks, each with its own leaderboard.</p>
+  <h2>What it measures</h2>
+  <p>Recursive self-improvement (RSI) is central to frontier AI, yet has almost no rigorous, controlled benchmark. KernelAscent decomposes it into <b>separately reported axes</b> instead of one headline number:</p>
   <div class="cards">
-    <div class="card"><h3>1 · Capability</h3><p>All models, API or open weight. Measures kernel-optimization skill (single-shot, best-of-k, or multi-turn). An <b>AI-R&amp;D capability leaderboard</b>, distinct from the recursive loop.</p></div>
-    <div class="card"><h3>2 · Scaffold-RSI <span class="pill med">API-eligible</span></h3><p>No weight training. The agent recursively improves its <b>own optimization scaffold</b> (prompt + strategy memory) around a frozen model, and we test whether capability compounds. Scored by the <b>compounding coefficient</b> against a <b>frozen-scaffold control</b>. System-level self-improvement; open and closed models both qualify.</p></div>
-    <div class="card"><h3>3 · Weight-RSI <span class="pill hard">open-weight</span></h3><p><b>Open weights, on GPUs.</b> The training loop: the model writes the kernels that train it → fixed-wall-clock training → a stronger model → re-measure. Scored by the compounding coefficient and the <b>Δ<sub>k</sub></b> control. Requires GRPO training, so API/closed models cannot participate.</p></div>
+    <div class="card"><h3>Capability</h3><p>Can the agent produce a correct, fast solution? Two substrates: <b>GPU-kernel</b> optimization (fp32-gold correctness + speedup vs <code>min(eager, torch.compile)</code>) and a <b>code bug-fix</b> bank curated by a single strong model and executable-validated.</p></div>
+    <div class="card"><h3>First-order improvement</h3><p>Does one self-revision of the research procedure raise the quality of what it then produces? Measured as <code>q₁−q₀</code> and <code>N</code> (does the child beat the unchanged target).</p></div>
+    <div class="card"><h3>Causal recursion</h3><p>The hard part. <code>F = Q(U₂) − Q(V₂)</code>: a newer producer and an older producer edit the <b>same</b> target; does the newer build a better child, and does it <b>repeat</b> (<code>F₂</code>)?</p></div>
   </div>
-  <p class="muted small">Scaffold-RSI improves the <i>system</i> around a fixed model (ceiling-limited but API-eligible); Weight-RSI improves the <i>model itself</i>. Both are measured by whether the self-improving arm's advantage grows across rounds.</p>
+  <p class="muted small">Full running record and every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>. Instruments are validated by deterministic calibration; every effect is reported as an estimate with a 95% CI against a prespecified meaningful effect δ = 0.05.</p>
 </section>
 
-<section id="leaderboard">
+<section id="mechanism" class="panel">
+  <h2>The mechanism</h2>
+  <p>An agent's state <code>U</code> is its executed <b>research procedure</b> (how it proposes, evaluates, and selects). <code>develop</code> runs the procedure on a fresh task under a fixed budget; <code>revise</code> lets an <b>actor</b> edit a copy of a <b>target</b> procedure to produce a child. In a causal fork, two different actors edit the <i>identical</i> target — so a later actor earns credit only if it produces a genuinely better child.</p>
+  <div class="figwrap"><img src="figures/mechanism.svg" alt="The improvement loop and the causal contrast" /></div>
+  <p>This actor/target separation is what turns "the score went up" into a testable causal claim. A rising task score, or editable source code, is <b>not</b> enough — the inherited procedure must causally cause a better next producer.</p>
+</section>
+
+<section id="findings">
+  <h2>Findings</h2>
+  <p>Across four substrates — the kernel flagship, a verifier-improvement loop, a GPU inference world, and an efficiency-of-experimentation lab <i>engineered to favor recursion</i> — plus live-model runs, the picture is consistent and well-controlled.</p>
+
+  <div class="figwrap"><img src="figures/forest.svg" alt="Causal decomposition forest plot" />
+    <div class="figcap">Live-model (opus-5, 40 lineages). First-order improvement and child value are resolved above zero; the causal producer link and compounding are not — and stay below the meaningful-effect line δ = 0.05.</div></div>
+
+  <div class="figgrid">
+    <div class="figwrap"><img src="figures/bars.svg" alt="Capability gradient and coadaptation" />
+      <div class="figcap">Capable models discover and climb the improvement opportunity (clean gradient); the compounding channel is the proposal × judgment <i>interaction</i>, invisible to either alone.</div></div>
+    <div class="figwrap"><img src="figures/budget.svg" alt="Procedure value vs deployment budget" />
+      <div class="figcap">A good procedure beats brute-force search, and the edge <i>widens</i> as budget tightens — but iterating to find it beats neither direct construction nor direct search at matched budget.</div></div>
+  </div>
+
+  <h3 style="margin-top:26px">What is resolved</h3>
+  <div class="finding"><div class="mark">✓</div><div><b>First-order improvement is real, causal, and capability-graded.</b><span class="badge">resolved</span><br/><span class="muted small">Agents improve their procedure with experience (opus q₁−q₀ = +0.30 &gt; gpt-oss +0.10 &gt; deepseek +0.02); the child beats the unchanged target (N₁ resolved &gt; 0 for two models); the gain beats a frozen-procedure-with-growing-memory control — so it is the procedure change, not accumulated data.</span></div></div>
+  <div class="finding"><div class="mark">✓</div><div><b>Learned procedures transfer.</b><span class="badge">resolved</span><br/><span class="muted small">A procedure evolved on one task family, deployed on a structurally different family, beats the baseline there by +0.091 [0.037, 0.146] — nearly matching a procedure evolved on that family directly.</span></div></div>
+  <div class="finding"><div class="mark">✓</div><div><b>Procedure quality is a real, measurable lever.</b><span class="badge">resolved</span><br/><span class="muted small">The good procedure beats brute-force search by +0.15 → +0.18 as the deployment budget tightens.</span></div></div>
+
+  <h3 style="margin-top:20px">What is a bounded negative</h3>
+  <div class="finding"><div class="mark">—</div><div><b>No resolved causal producer advantage.</b><span class="badge neg">bounded −</span><br/><span class="muted small">F₁ = +0.019 [−0.013, 0.051] at n = 40 — bounded below δ = 0.05. A promising small-sample value (+0.042 at n = 16) regressed to ≈ 0 once properly powered.</span></div></div>
+  <div class="finding"><div class="mark">—</div><div><b>No compounding.</b><span class="badge neg">bounded −</span><br/><span class="muted small">F₂ ≈ 0 on every substrate — including one built to give recursion its best chance. The improvement's value is front-loaded into the first step.</span></div></div>
+  <div class="finding"><div class="mark">—</div><div><b>Iterating ≠ constructing; the investment doesn't amortize.</b><span class="badge neg">bounded −</span><br/><span class="muted small">Iterative self-improvement underperforms building the good procedure directly (−0.18), and matches direct search at equal total budget (break-even → ∞).</span></div></div>
+
+  <p class="muted small" style="margin-top:16px">Honest one-line claim: <b>agents improve their research procedure with experience — first-order, causal, capability-graded, and transferable — but this does not (yet) produce a resolved causal producer advantage or recursive compounding.</b> A clean bounded-negative on recursion, with genuine positive findings, on a qualified opportunity — not a dead instrument.</p>
+</section>
+
+<section id="leaderboard" class="panel">
   <div class="lb-head">
-    <h2>Leaderboards</h2>
+    <h2>Capability leaderboard</h2>
     <div class="lb-meta" id="lb-updated"></div>
   </div>
-  <h3>Capability track — kernel optimization (API or open)</h3>
-  <p class="muted" id="lb-note"></p>
+  <p class="muted" id="lb-note">Kernel track — fixed Medium tasks, correct-rate and fast-rate (fast = beats <code>torch.compile</code>). Two walls; the frontier is separated by speed.</p>
   <div class="table-wrap">
     <table id="lb">
       <thead><tr>
         <th data-k="model">Model</th>
         <th data-k="kind">Kind</th>
         <th data-k="correct_rate" class="num">correct</th>
-        <th data-k="fast_rate" class="num">fast (beats compile)</th>
+        <th data-k="fast_rate" class="num">fast</th>
         <th data-k="meanC" class="num">meanC</th>
       </tr></thead>
       <tbody></tbody>
     </table>
   </div>
-  <p class="muted small">Sortable — click a column header. Curator rows (frontier calibrators) are shown for reference and not ranked as test-takers.</p>
-
-  <h3 style="margin-top:36px">Scaffold-RSI track — self-improving scaffold (API-eligible)</h3>
-  <p class="muted" id="scaffold-note"></p>
-  <div class="table-wrap">
-    <table id="scaffold-lb">
-      <thead><tr>
-        <th>Model</th><th>Params</th><th class="num">Rounds</th>
-        <th class="num">C₀</th><th class="num">C<sub>N</sub></th>
-        <th class="num">Compounding b</th><th class="num">Δ<sub>final</sub></th><th>Verdict</th>
-      </tr></thead><tbody></tbody>
-    </table>
-  </div>
-  <p class="muted small">The agent edits its own scaffold each round; confirmed only if it outgrows a frozen-scaffold control. Open and closed models both eligible.</p>
-
-  <h3 style="margin-top:36px">Weight-RSI track — training loop (open-weight only)</h3>
-  <p class="muted" id="rsi-note"></p>
-  <div class="table-wrap">
-    <table id="rsi-lb">
-      <thead><tr>
-        <th>Model</th><th>Params</th><th class="num">Rounds</th>
-        <th class="num">C₀</th><th class="num">C<sub>N</sub></th>
-        <th class="num">Compounding b</th><th class="num">Δ<sub>final</sub></th><th>Verdict</th>
-      </tr></thead><tbody></tbody>
-    </table>
-  </div>
-  <p class="muted small">Confirmed only if Δ<sub>k</sub> grows across rounds versus the matched control. Requires open weights + GPUs (GRPO training).</p>
-</section>
-
-<section id="tasks" class="panel">
-  <h2>Tasks &amp; difficulty</h2>
-  <p>Every task is a self-contained PyTorch <code>Model</code> whose <code>forward</code> is a fused op-graph; an agent must return an optimized, numerically-equivalent <code>ModelNew</code>.</p>
-  <div class="cards">
-    <div class="card"><h3>Families (6)</h3><p><b>matmul</b> (GEMM + fused epilogue) · <b>norm-act</b> (softmax / LayerNorm / RMSNorm / GELU chains) · <b>attention</b> (causal / non-causal) · <b>RoPE-attention</b> · <b>quantized</b> int8 dequant-GEMM · <b>soft-MoE</b> (gated experts / grouped GEMM).</p></div>
-    <div class="card"><h3>Tiers</h3><p><b>L1</b> memory/reduction · <b>L2</b> tensor-core / matmul-epilogue · <b>L3</b> attention &amp; arch-specific. Difficulty is calibrated by a strong curator model.</p></div>
-    <div class="card"><h3>Difficulty labels</h3><p><span class="pill acc">accessible</span> <span class="pill med">medium</span> <span class="pill hard">hard</span> <span class="pill front">frontier</span> — derived from whether the strong curator beats the roofline, and by how much.</p></div>
-  </div>
-</section>
-
-<section id="scoring">
-  <h2>Scoring</h2>
-  <div class="cards">
-    <div class="card"><h3>Correctness vs fp32 gold</h3><p>A candidate passes only if its relative L2 error to an fp32 gold is no worse than the reference's own fp16/bf16 rounding error. We never demand more precision than the dtype allows.</p></div>
-    <div class="card"><h3>Roofline-relative speedup</h3><p><code>speedup = t<sub>baseline</sub> / t<sub>candidate</sub></code>, where the baseline is the strongest automated reference (the faster of eager and <code>torch.compile</code>). Candidates are scored relative to it.</p></div>
-    <div class="card"><h3>fast_p, pass@k</h3><p><code>fast_p</code> = fraction of tasks beating p× speedup. Geomean over passing tasks only. Timing is warmup + median-of-N + L2 flush on clock-pinned GPUs.</p></div>
-  </div>
-</section>
-
-<section id="contamination" class="panel">
-  <h2>Reproducible &amp; held-out by construction</h2>
-  <p>Every scored task is <b>synthesized from a seed</b> at generation time — a randomized fused-op-graph (or attention / RoPE / quantized / MoE pattern) over varied shapes and dtypes. Generation is fully deterministic, so results are reproducible for papers, while task instances are freshly composed rather than drawn from a fixed public list. A <b>private held-out seed range</b> powers the leaderboard; the public dev split uses a disjoint range. Frontier models may also <i>propose</i> novel problems, which pass a firewall (gradeable · non-trivial · structurally deduped) and are kept out of the held-out set.</p>
-</section>
-
-<section id="architecture">
-  <h2>Architecture &amp; system design</h2>
-  <pre class="arch">
- ┌────────────────────┐   problems   ┌──────────────────────┐
- │ Procedural          │────────────▶ │ Strong curator       │
- │ generator (seeded)  │   task.py    │ (Fable 5 via Bedrock)│
- │ synthetic · novel   │              │ writes ModelNew ×k   │
- └────────────────────┘              └───────────┬──────────┘
-        │ held-out split (private seeds)          │ candidates
-        ▼                                         ▼
- ┌────────────────────┐   grade on   ┌──────────────────────┐
- │ Leaderboard        │◀── GPU box ──│ Locked verifier      │
- │ (test-taker models)│  bundles     │ fp32 gold · roofline │
- └────────────────────┘              │ pinned-clock timing  │
-                                     └──────────────────────┘
-  </pre>
-  <p>Generation (frontier model, network-bound) is <b>decoupled</b> from grading (GPU-bound), so credentials stay off the compute box and grading shards across GPUs. Each graded task becomes a complete bundle: <code>task.py</code>, candidate solutions, a <code>reference_solution.py</code> (best correct + fastest kernel), <code>results.json</code>, and difficulty metadata. The RSI loop layer adds a task→training-op registry, a fixed-wall-clock training harness, and per-round records that yield the compounding coefficient.</p>
+  <p class="muted small">Sortable — click a column header. Full 22-model table and the RSI decomposition per model live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</p>
 </section>
 
 <section id="dataset">
   <h2>Dataset &amp; splits</h2>
-  <p>KernelAscent ships a two-split design, standard for a leaderboard you can trust.</p>
+  <p>The curated code-task bank is difficulty-graded and executable-validated (a single strong curator, family-diversity-forced, then re-validated + deduped). It ships with a public / held-out split so the leaderboard can't be overfit.</p>
   <div class="cards">
-    <div class="card"><h3>Public dev set</h3><p><b>242 tasks</b> (57 L1 · 109 L2 · 76 L3) across all 6 families in <code>dataset/public/</code> — problem definitions + metadata. Use it to benchmark your own models and in research papers. Regenerate deterministically: <code>python kernelascent/make_dataset.py --split public --outdir dataset/public</code>.</p></div>
-    <div class="card"><h3>Private held-out</h3><p>A separate, undisclosed seed range powers the <b>leaderboard</b>. It is never released, so public results cannot be inflated by overfitting the released tasks. Maintainers run it on submissions.</p></div>
-    <div class="card"><h3>Deterministic &amp; fresh</h3><p>Every task is synthesized from a seed — fully reproducible for papers, and composed at generation time rather than drawn from a fixed list. Public and held-out seed ranges never overlap.</p></div>
+    <div class="card"><h3>Public split</h3><p><b>75 tasks</b> — easy 21 · medium 17 · hard 18 · ultra 19, each with 14–16 distinct problem families. On <a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HuggingFace</a> and in <code>dataset/tasks/public/</code>.</p></div>
+    <div class="card"><h3>Held-out test</h3><p><b>34 tasks</b> (~35%), split deterministically by name hash, <b>never published</b> — the private leaderboard set. Kept gitignored; maintainers score submissions on it.</p></div>
+    <div class="card"><h3>Kernel track</h3><p>A separate procedural GPU-kernel task bank (1000+ tasks, 6 families) powers the capability leaderboard and the kernel causal-RSI runs.</p></div>
   </div>
+  <pre class="arch">from datasets import load_dataset
+ds = load_dataset("muahmed7338/kernelascent-tasks")   # splits: easy / medium / hard / ultra
+task = ds["medium"][0]     # fix task["buggy_code"] to match task["reference_code"] on sampled + edge inputs</pre>
 </section>
 
 <section id="submit" class="panel">
-  <h2>Call for submissions</h2>
-  <p>Add any model to the leaderboards in one command. The board is scored on a private held-out split, so results can't be gamed by overfitting the released tasks.</p>
+  <h2>Submit a model</h2>
+  <p>Everything is reproducible and the leaderboard is scored on a private held-out split. Code, harness, and the full record are on GitHub.</p>
   <pre class="arch">pip install "kernelascent @ git+https://github.com/ahmd-mohsin/KernelAscent"
 
-# API model (no GPU to generate); grade on any GPU:
-kernelascent gen   --model us.anthropic.claude-opus-4-8 --tiers L1,L2 --out runs/opus
-kernelascent grade --candir runs/opus --out runs/opus/summary.json
-
-# or end-to-end on a GPU box:
-kernelascent eval  --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --out runs/qwen3-32b</pre>
-  <p>Then open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">Model submission issue</a> or a PR with your <code>runs/</code> directory. Maintainers verify on the held-out split and add your row. See <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/SUBMISSION.md">SUBMISSION.md</a> and <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/QUICKSTART.md">QUICKSTART.md</a>.</p>
-  <p class="muted small">The harness auto-resolves each model's id form (bare vs <code>us.</code> profile), true max output tokens, and reasoning config; reasoning is enabled for reasoning-capable models.</p>
+# capability (API model, no GPU to generate; grade on any GPU):
+kernelascent gen   --model us.anthropic.claude-opus-5 --tiers L1,L2 --out runs/opus
+kernelascent grade --candir runs/opus --out runs/opus/summary.json</pre>
+  <p>Then open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model-submission issue</a> or a PR. See <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/SUBMISSION.md">SUBMISSION.md</a>.</p>
 </section>
 </main>
 
 <footer>
-  <div>KernelAscent · Measuring Recursive Self-Improvement via a Kernel-to-Model Capability Loop</div>
-  <div class="muted small">Contamination-free · roofline-calibrated · frontier-curated</div>
+  <div>KernelAscent · A benchmark of agents that improve with experience</div>
+  <div class="muted small">Actor/target-separated causal estimators · deterministic calibration · controls, replication, and transfer · reported against δ = 0.05</div>
 </footer>
 
 <script src="app.js"></script>

@@ -48,8 +48,7 @@ function wireSort() {
 
 fetch("data/leaderboard.json").then(r => r.json()).then(d => {
   DATA = d.models || [];
-  document.getElementById("lb-updated").textContent = "updated " + (d.updated || "");
-  document.getElementById("lb-note").textContent = d.metric_note || "";
+  const up = document.getElementById("lb-updated"); if (up) up.textContent = "updated " + (d.updated || "");
   wireSort(); render();
 }).catch(e => {
   document.querySelector("#lb tbody").innerHTML =
@@ -75,5 +74,4 @@ function renderLoop(file, tableId, noteId){
     if (tb) tb.innerHTML = `<tr><td colspan="8" class="muted">Could not load ${file} (${e}).</td></tr>`;
   });
 }
-renderLoop("data/rsi_leaderboard.json", "rsi-lb", "rsi-note");
-renderLoop("data/scaffold_rsi_leaderboard.json", "scaffold-lb", "scaffold-note");
+// (scaffold/weight-RSI leaderboard tables removed from the page; renderLoop kept for future use)
