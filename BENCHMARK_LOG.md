@@ -77,6 +77,97 @@ the improved verifier improve a SUBSEQUENT revision; live reference loop); docke
 
 ---
 
+## REDESIGN v3 (user, 2026-09-08): GPU-inference WORLD + human-learning experiments [ADOPTED]
+
+Build a persistent GPU-engineering WORLD where an agent learns to do better engineering research;
+measure (1) useful experience-based improvement, (2) improved ability to generate improvements,
+(3) causal recursive reuse -- three SEPARATE public conclusions (valuable even if #3 unresolved).
+GPU kernels + inference serving = the flagship application; keep the small Python tasks + fixed
+verifier banks as CALIBRATION instruments only.
+
+### M0 FIXES (do first, before more runs)
+- METRIC-BOUND BUG (real, caught): selected_C EXCEEDS oracle_pool_success in the log (Hard qwen-1.5B
+  0.73>0.67; very-hard deepseek 0.35>0.17; llama4 0.77>0.75). Cause = semantic mismatch: selected_C
+  is a mean of BOUNDED C in {0,0.5,1.0} (0.5 = partial), while oracle_pool_success counts only
+  FULLY-correct (C>=0.999) candidates. FIX: report `attainable_C` = mean_pool(max_candidate C) as the
+  proper ceiling (selected_C <= attainable_C by construction); keep oracle_pool_success as the binary
+  "a fully-correct candidate exists" diagnostic; headroom = attainable_C - selected_C. Record pool IDs,
+  candidate hashes, eval version, denominators so the bound is checkable per pool. [FIXED in code.]
+- AGENCY/ATTRIBUTION AUDIT (rsi_true): inspect one real lineage -- which revision calls hit the
+  EVALUATED model vs a fixed Python optimizer? If the model only supplied the initial bank and a fixed
+  optimizer proposes/judges/selects, the model labels are DATA SOURCES, not the improver. rsi_true as
+  built = "inherited evaluator config influences configuration search" (a component assay), NOT the
+  model improving itself. Flagship must make model-AUTHORED research decisions explicit.
+- More reps != richer feedback: separate sampling density / feedback informativeness / reward
+  resolution. A [0,0] bootstrap over saturated identical outcomes describes THOSE observations, not a
+  population-wide absence of RSI. Anomalous rankings -> AUDIT (request outcomes, parser, contracts,
+  grading), not "change the task until the ordering looks right"; report provider failures separately.
+
+### W / K / U checkpoint decomposition (attribute value correctly)
+Represent a checkpoint as THREE components: W_g = engineered system (accepted kernels/runtime), K_g =
+retained experience/knowledge artifacts, U_g = executed research procedure (prompts/source/tools/
+policies). Full agent may use all; for measurement, evaluate U from COMMON fresh world states. A
+"procedure transplant" must NOT secretly carry optimized world code or privileged test labels. Report
+TOTAL system value first, then intervene to separate inherited knowledge vs better procedure vs better
+world. Memory is legitimate -- the question is which ROLE it played, not whether it invalidates gains.
+
+### Flagship = one coherent GPU inference world (world-first)
+Layers: operators (PyTorch/Triton baselines) / runtime (pinned engine, batching, cache) / workload
+(fixed public traces; agent picks PRACTICE experiments, official workloads fixed) / dev tools
+(numerical tests, timing runner, profiler, regression) / research procedure (patch proposal, eval,
+selection, scheduling -- the improvable U) / OFFICIAL eval (external correctness + load + timing +
+resources, IMMUTABLE). Fixed open-weight workload model = what the service runs; evaluated model =
+does the engineering (different roles). Pin weights/contracts/versions/hw/workloads. 8-block campaign:
+baseline -> kernel+numerical-edge -> selection-under-noise -> mixed/interacting -> prespecified
+workload shift + retained objectives. Evaluate FROZEN checkpoints on an unchanged anchor panel AND the
+shift (else a changing distribution masquerades as learning).
+
+### Human-learning-motivated experiments (motivation, not brain claims)
+E2 feedback content (Carpenter: metacognitive-calibration feedback transfers) -> forecast pass-prob
+before adoptions; compare outcome-only vs outcome+calibration-feedback; score Brier + false-accept/
+reject, NOT eloquence. E3 experiment selection (Markant/Gureckis) -> adaptive vs fixed planner at equal
+budget + "another learner's observations" diagnostic; reward useful UPDATES not diverse logs. E4
+retention (Roediger/Karpicke retrieval practice; Schuck/Niv replay) -> budgeted test-and-revise vs
+equal-cost new work; measure retention+transfer after restart. E5 compute allocation (Callaway;
+metacontrol) -> options {another candidate / diagnostic / retime / tool-repair / stop}; score verified
+output at fixed budget. E6 two timescales (Wang meta-RL) -> separate immediate repair / persistent
+strategy change / later learning-efficiency. Instrumentation + its cost identical across arms; hidden
+reasoning not required (forecasts + actions are observable).
+
+### Metrics that matter outside the benchmark
+PRIMARY engineering outcomes: valid service GOODPUT (req/s meeting quality+latency), latency dist
+(TTFT/TPOT/e2e/tails at fixed offered load), kernel latency ratios (declared regimes), regression rate,
+research productivity Q (verified gain from common worlds at fixed research budget), transfer (indep
+world), investment recovery n* = inf{n: sum s_i >= I}. Use vLLM serving-benchmark tooling for latency/
+goodput + ADD independent correctness/availability checks (a throughput tool does NOT prove output
+correctness). Per-workload-class availability (no credit for serving only easy requests). Amdahl
+diagnostic: a kernel at 5% of serial runtime caps total speedup ~1.05 -- profile the SERVICE directly.
+RESEARCH vs DEPLOYMENT costs = separate ledgers (tokens/calls/CPU/target-GPU-sec/agent-GPU-sec/wall);
+never subtract tokens from GPU-sec.
+
+### Controls / statistics / causal core (unchanged shape, matched budgets)
+Q(A_g;B)=E_W[Y(D(A_g,W;B))-Y(W)] on common anchor worlds; F_{a,b}(T)=E[Q(R(A_a,T))-Q(R(A_b,T))];
+N_a(T)=E[Q(R(A_a,T))-Q(T)]; matched revision/evidence/target/downstream budgets; actor's ACTUAL
+procedure generates+assesses the revision; if isolating U hold K constant or do compatible-component
+intervention w/ dependencies accounted. Publish 4 panels: engineering-outcome-vs-resources / Q-vs-
+checkpoints / signed F,N at prespecified windows w/ intervals+lineage counts / transfer+investment.
+Controls: frozen-procedure new work; fixed-proc + accumulated knowledge (memory != recursion); builder
+w/ equal construction budget but cannot use intermediate procedural changes; direct search/eng at equal
+budget; competent fixed reference (labeled). API track = system-level recursion w/ FIXED weights (NOT
+foundation-model weight self-improvement). 8 lineages = variance pilot -> compute confirmation n; never
+render unresolved as 0.
+
+### Milestones (do M0-M2 before another model sweep)
+M0 reconcile metrics + revision-provenance trace. M1 build first inference world (pinned service +
+tools + independent grader; failures/speed measured reliably). M2 qualify realistic opportunity (36-ep
+cohort across 6 families + expert-authored procedural artifacts; some improve held-out work at matched
+resources). M3 learning-mechanism pilot (E2/E3). M4 recursive campaign (model-authored updates, common-
+target branches, prospective interventions). M5 external usefulness (frozen predictions -> indep-world
+continuations). M6 adoptable release (profiles, task cards, adapters, schemas). Curation: single-drafter
+(Fable-5.1-max) OK for drafting but ADD independent executable checks + expert review + real failure
+sources (a fresh chat with the same model is NOT independent validation). 24h Standard profile is an
+engineering allocation to QUALIFY empirically, not demonstrated runtime.
+
 ## ARCHITECTURE DIRECTION (user, 2026-09-07): WORLD-FIRST + dockerized eval harness
 
 - WORLD-FIRST (inverse of Terminal-Bench/Harbor task-first): build ONE realistic WORLD first (a
