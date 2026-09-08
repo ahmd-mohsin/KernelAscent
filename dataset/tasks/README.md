@@ -49,7 +49,7 @@ and by reference-code hash) are removed.
 - `buggy_code` — a plausible but wrong `def fn(...)` (same signature) — the starting point to fix
 - `sampler_code` — `def sample(rng)` returning valid in-domain args
 - `edge_code` — `def edge(rng)` returning edge-case valid args
-- `examples` — list of `[args_list, expected_output]`
+- `examples` — JSON-encoded string of `[[args_list, expected_output], ...]` (use `json.loads`)
 - `tier`, `split`, `id`
 
 ## Held-out test set

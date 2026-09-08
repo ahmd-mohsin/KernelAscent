@@ -70,6 +70,9 @@ def main():
         seen.add(key)
         split = _split_of(t["name"])
         rec = {k: t[k] for k in need}
+        # examples is a nested, per-task-heterogeneous list ([args, output] with varying types) which
+        # breaks HF/Arrow schema inference -> store it as a JSON string so every column is plain text.
+        rec["examples"] = json.dumps(t["examples"])
         rec.update(tier=tier, split=split, id=_task_id({**t, "tier": tier}))
         kept.setdefault(split, {}).setdefault(tier, []).append(rec)
         counts["kept"] += 1
