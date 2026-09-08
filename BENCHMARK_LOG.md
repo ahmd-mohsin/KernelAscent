@@ -442,6 +442,25 @@ Fable + gpt-oss (API) + qwen-7B/14B + deepseek-6.7B (GPU). This is the Gate-3/4 
 a realized-opportunity substrate; expectation: F dense where capability headroom exists, thin at
 saturated frontier (motivating the extra-hard curation).
 
+### TRUE-RSI DENSE RESULT (2026-09-08): F1/F2 ~ 0 across the spectrum (honest null)
+
+rsi_true.py, 9 tasks x 12 blocks, lineage-paired CIs:
+| model | q1-q0 (1st-order) | F1 (causal link) | F2 (repeat) |
+|---|---|---|---|
+| Fable / gpt-oss | 0.000 | 0.000 [0,0] | 0.000 |
+| qwen-coder-14B | 0.000 | 0.000 [0,0] | 0.000 |
+| qwen-coder-7B | +0.167 | -0.028 [-0.082,0.027] | -0.028 |
+| deepseek-6.7B | -0.021 | -0.014 [-0.048,0.020] | 0.000 |
+READ: no positive causal recursion anywhere. Frontier + qwen-14B saturate the bank (F structurally 0
+-- no verifier headroom). qwen-7B/deepseek have headroom but F1 spans 0. First-order self-improvement
+exists (qwen-7B q1-q0=+0.167) but the SECOND-ORDER link (a better improver makes a better next
+improver) does not. This is the dense, honest measurement the benchmark is built to deliver -- and it
+says: NO compounding true-RSI on this substrate at this scale. IMPORTANT: I can make the INSTRUMENT
+dense (more tasks/blocks/CIs, done) but cannot manufacture a dense POSITIVE without engineering the
+answer; the benchmark REPORTS whether RSI exists, and currently it does not (thin/absent). Densifying
+a POSITIVE requires either (a) a substrate/task band where a better improver genuinely compounds
+(open research question) or (b) accepting this as the headline bounded-negative RSI result.
+
 ### COHERENCE REQUIREMENT + KERNEL-CONTENT REQUIREMENT (user, 2026-09-07)
 
 1. COHERENCE: the ranking MUST make sense -- best models best, weaker lag. The first very-hard panel

@@ -1,6 +1,6 @@
 # KernelAscent
 
-**Measuring Recursive Self-Improvement via a Kernel-to-Model Capability Loop**
+**A benchmark of agents that improve with experience — capability, verification, and causal recursive self-improvement (RSI), on GPU-kernel and verifier-improvement substrates.**
 
 KernelAscent is a benchmark for recursive self-improvement (RSI). An agent optimizes
 the GPU kernels used to train itself; under a fixed wall-clock budget those faster
@@ -12,6 +12,65 @@ The raw capability (writing fast GPU kernels) is well studied — KernelBench,
 TritonBench, RE-Bench, robust-kbench, Kevin-32B. The novel, unbenchmarked part is the
 closed `kernel -> faster training -> better model -> better kernel` loop and its
 measured takeoff shape. See `proposal/` for the full motivation and design.
+
+## Current state (September 2026) — what the benchmark measures now
+
+KernelAscent has grown into a benchmark of **agents that improve with experience**, with the **live
+recursive loop** as the flagship. It has **two task substrates** and **three measurement axes**, all on
+instruments validated by deterministic calibration. Full running record + every score: `BENCHMARK_LOG.md`.
+
+**Two substrates**
+- **Kernel track** — procedural GPU-kernel optimization tasks; crash-isolated grader; correctness vs
+  fp32-gold and speedup vs `min(eager, torch.compile)`. Powers the capability leaderboard and the
+  kernel causal-RSI runs. Runs on GPU (open models) + Bedrock (API models).
+- **RSI-VERIFY** — a bug-fix agent whose **local verifier** (a spec-derived checker run on N
+  self-generated inputs) gates its patch selection. Improving the verifier (more inputs + edge
+  coverage) is a *measurable procedural improvement*. Pure-Python grading (API models need no GPU),
+  three difficulty tiers, dockerized.
+
+**Three axes (reported separately — never one "RSI IQ.")**
+1. **Capability** — can the agent produce a correct/fast solution.
+2. **Verification** — does having a local verifier (best-of-K selection) help.
+3. **Recursion** — does using an improvement *causally enable a further* improvement (F1→F2).
+
+**Metric fields** (RSI-VERIFY): `oracle_pool_success` (≥1 fully-correct candidate exists = capability
+ceiling), `randomized_select_C0`, `selected_C_weak/strong`, `selection_headroom`, `verifier_dQ`. These
+separate "no correct candidate" from "verifier misselected" — the core measurement fix.
+
+**Difficulty tiers** (RSI-VERIFY): `calibration` (trivial, wiring tests) / `hard` (edge-rich:
+kth_largest, rle, merge_intervals) / `very-hard` (frontier traps: integer expression eval with
+truncation-toward-zero + precedence, wildcard matching, Gregorian day-of-week with leap-century).
+
+### Headline results (all with resolved CIs; see `BENCHMARK_LOG.md`)
+- **Capability is a clean frontier gradient.** E0 leaderboard (22 models): GPT-5.6 sol/terra top both
+  walls (beat torch.compile on ~60–67% of kernels); open Coder models cluster at the correctness wall.
+  Very-hard RSI-VERIFY: oracle spreads deepseek-6.7B 0.17 … qwen-14B 0.96 … frontier 1.00.
+- **Verification helps, capability-graded.** Adding a local verifier lifts weak models most
+  (+0.25 for 1.5–3B), ~0 for saturated frontier.
+- **Causal recursion (true RSI): a rigorous bounded negative.** With the pathway *proven active*
+  (executed-successor R1 audit: 59/60 revises executed and changed the improver) and a calibrated
+  instrument, `F1`/`F2` span zero across models and substrates (kernels and verifier-improves-verifier).
+  First-order self-improvement exists (e.g. Coder-7B q1−q0=+0.17) but the **second-order link** (a
+  better improver makes a better *next* improver) does **not** reproduce. Current models do not exhibit
+  compounding recursive self-improvement on these substrates at this budget.
+
+This negative is the point, not a bug: the benchmark is built to measure recursion honestly and report
+where it is absent, with the two "walls" (correctness, speed) and the saturation/headroom structure made
+explicit. Validity gates: capability ranks sensibly across the spectrum (best models best), and every
+anomalous low score (GPT-5.6 temperature-field rejection, an `eval`-token content-filter) was
+root-caused to a harness artifact rather than trusted.
+
+### Docker
+`docker/` packages RSI-VERIFY (CUDA base, GPU-capable, API-only works CPU-only) with a CI self-check
+entrypoint (deterministic gate + calibration, no model/GPU/creds). Creds mount at runtime, never baked
+in. A drop-in path for evaluating fine-tuned models is planned once the fundamentals are frozen.
+
+### Status / roadmap
+Validated + pushed: kernel grader/generator, E0 leaderboard, causal core + calibrations, executed-
+successor flagship, RSI-VERIFY (tiers + metrics + reasoning-chain capture), dockerization.
+Next: substantial **kernel problems in the hard/ultra tiers**; **world-first** environment (one realistic
+world, experts author tasks against it); research-hard curation (Fable-5.1 max-thinking) to separate the
+top frontier; and continued Gate-3/4 causal work.
 
 ## Difficulty tiers and empirical calibration
 
