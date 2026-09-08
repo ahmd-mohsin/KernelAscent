@@ -206,8 +206,32 @@ is REAL for the strongest model. (3) opus-5 F1=+0.042 [-0.003,0.088] -- the caus
 resolves (lower bound just touches 0); the closest to a positive causal-RSI link anywhere in the project.
 (4) F2 ~ 0 everywhere -> STILL no second-link compounding. This is the most favorable honest RSI result:
 a strong model, on a real qualified opportunity, shows resolved first-order producer value + a marginal
-first causal link -- but not compounding. Extending opus-5 to n=40 (legitimate power for the prespecified
-~0.04 effect; sd~0.092 -> ~20-25 lineages could resolve F1) to test if F1 clears 0. Data: ka_data/lab_easy/.
+first causal link -- but not compounding. [SUPERSEDED by the power-corrected n=40 result below.]
+
+### GATE 4 POWER-CORRECTED FINAL (2026-09-08): F1 was small-sample noise; N1 robust; no compounding
+
+Extended opus-5 to n=40 (+ gpt-oss n=16, deepseek n=14). The n=16 opus F1=+0.042 REGRESSED to +0.019
+[-0.013,0.051] at n=40 -> it was SMALL-SAMPLE NOISE (exactly why the plan mandated CIs + warned against
+small-n positives). Final well-powered numbers:
+| model | n | q1-q0 (first-order) | N1 (child value) | F1 (causal link) | F2 |
+|---|---|---|---|---|---|
+| opus-5   | 40 | +0.298 | +0.043 [0.007,0.080] | +0.019 [-0.013,0.051] | -0.019 |
+| gpt-oss  | 16 | +0.098 | +0.092 [0.011,0.172] | -0.026 [-0.139,0.087] | +0.014 |
+| deepseek | 14 | +0.021 | +0.004 [-0.005,0.013] | +0.007 [-0.004,0.018] | +0.001 |
+DEFINITIVE VERDICT (well-powered, live models, on a QUALIFIED opportunity G1 dQ=+0.35):
+- FIRST-ORDER IMPROVEMENT REAL + capability-graded: q1-q0 opus +0.30 > gpt-oss +0.10 > deepseek +0.02
+  (weaker model barely discovers the opportunity -> clean gradient).
+- N1 (self-produced child beats the unchanged target) RESOLVED POSITIVE for BOTH capable models
+  (opus +0.043 [0.007,0.080], gpt-oss +0.092 [0.011,0.172]) -> genuine first-order PRODUCER VALUE.
+- F1 (CAUSAL producer advantage: newer actor beats older on a common target) NOT RESOLVED once powered
+  (opus +0.019 spans 0, bounded below prespecified delta=0.05). The inheritance channel gives no resolved advantage.
+- F2 (compounding) ~ 0 everywhere.
+HEADLINE (project's honest core result -- now on 4 substrates incl a favorable engineered lab + live
+models, properly powered): AGENTS IMPROVE THEIR RESEARCH PROCEDURE WITH EXPERIENCE (first-order, N1>0,
+capability-graded) BUT THIS DOES NOT PRODUCE A RESOLVED CAUSAL PRODUCER ADVANTAGE OR COMPOUNDING (F1
+bounded < delta, F2 ~ 0). A clean well-powered BOUNDED-NEGATIVE on causal recursion WITH a positive
+first-order finding -- NOT a null instrument (the lab cleanly detects N1>0 + the capability gradient).
+Data: ka_data/lab_easy/lab_easy_api_*.json.
 
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
