@@ -143,6 +143,26 @@ more than a config coverage bump. More statistical power alone would only resolv
 practically negligible by design. Data: ka_data/depth_probe/depth_probe.json. NEXT: step 2 (proposal x judge
 on the live GPU agent) + step 3 (build the two laboratories).
 
+### EXPERIMENT 2 RESULT — proposal x judge factorial (2026-09-08): COADAPTATION is the compounding channel
+
+`kernelascent/v3/proposal_judge.py` (model-free, verifier substrate; debugs the mechanism before the
+model-backed GPU version). 2x2 on a common target (P0=current mutate / Pg=grid-spanning proposer; J0=weak
+coverage {2,0} / Jg=best-legal coverage):
+| tier | P0J0 | PgJ0 | P0Jg | PgJg | d_proposal | d_judgment | INTERACTION |
+|---|---|---|---|---|---|---|---|
+| easy   | 0.952 | 0.950 | 0.955 | 0.974 | -0.001 | +0.003 | +0.020 |
+| medium | 0.913 | 0.913 | 0.923 | 0.969 | +0.000 | +0.011 | +0.045 |
+FINDING: neither a better proposer alone (d_proposal~0) nor a better judge alone (d_judgment small) moves
+the needle -- only the JOINT does (+0.022 easy, +0.056 medium), driven almost entirely by a large positive
+INTERACTION (+0.020, +0.045). COADAPTATION: a stronger judge is useless if the proposer never surfaces good
+configs; a richer proposer is useless if the judge can't pick them. IMPLICATION FOR RSI: the interaction IS
+the compounding channel. The single scalar lever (n_inputs,n_edge) hid it by FUSING proposal and judgment;
+separating them exposes an interaction (+0.045 medium ~ the delta=0.05 scale) that was invisible. A loop
+where improving J UNLOCKS the marginal value of improving P (and vice versa) is a genuine multi-step
+compounding structure -> step 3's laboratories must make PROPOSAL and JUDGMENT SEPARATELY improvable so the
+loop can climb the interaction. Data: ka_data/proposal_judge/proposal_judge.json. (Caveat: point estimates
+over 40 draws, no CIs yet; model-backed GPU proposal x judge + CIs is the next confirmation, then the lab build.)
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
