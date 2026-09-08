@@ -21,16 +21,104 @@ Why the distinction matters (benchmark honesty): "no compounding because tasks a
 (artifact, bad) vs "no compounding because the improvable procedure has no multi-step depth" (a real,
 reportable property). We are now in the second case.
 
-DECISION PENDING (user feedback requested): two paths —
-- (A) REPORT AS HONEST FINDING: headroom added, first-order improvement (N1) confirmed real, causal
-  compounding absent because the loop's improvable procedure is single-step. A clean bounded-negative.
-- (B) CHASE A POSITIVE via a redesigned loop with genuine RECURSIVE DEPTH: the improvable procedure must
-  be one where improvement N makes improvement N+1 REACHABLE. Candidate design: the verifier accumulates a
-  TRANSFERABLE library of edge-patterns (not just a coverage scalar); a better pattern library both selects
-  better AND discovers still-better patterns next round (compounding channel). This is a change to the LOOP,
-  not the tasks. Risk: may still be null (would then be a stronger, genuinely-earned negative).
+DECISION RESOLVED (2026-09-08, external review adopted): the A-vs-B framing was a FALSE CHOICE. Preserve
+the current measurements with accurate scope AND build+independently-qualify a stronger instrument. See
+`## ADOPTED PLAN — opportunity-qualified RSI track` immediately below.
+
+CORRECTION to the framing above (the review caught this, and core.py confirms): N1 = Q(U2) - Q(U1)
+(core.py:81), so **N1>0 means "a further useful child STILL EXISTS after U1"** -- NOT "nothing left to
+improve / single-step". The precise reading is: PROCEDURE HEADROOM exists (N1>0) but PRODUCER ADVANTAGE
+is ~0 (F1: the newer actor U1 does NOT build a better child than the older actor U0 on the common target
+U1). "Both producers can make the next gain equally well", not "the ladder is exhausted". Also: F1 easy
++0.012 [-0.007,0.032] is NOT "established zero"; medium F1 -0.025 [-0.051,0.001] gives little support for
+a positive effect of that size; scope = this procedure/bank/score/budget only.
 
 Everything below is the detailed dated record.
+
+## ADOPTED PLAN — opportunity-qualified RSI track (2026-09-08) [external review, adopted]
+
+CORE DECISION: build an OPPORTUNITY-QUALIFIED RSI track. Easy and Medium must contain procedural
+improvements that a LIVE REFERENCE AGENT can (i) discover, (ii) use to improve its subsequent research,
+and (iii) reuse across >=2 prespecified causal links under the published budget. This proves the
+ENVIRONMENT supports learnable recursion; it does NOT require every evaluated model to exhibit it, and
+must NOT select private test episodes after seeing a model's outcomes. Keep a SEPARATE unfiltered
+"naturalistic applications" panel (how often recursion arises in ordinary work). Two panels, two questions.
+
+THREE HEADROOMS (must be distinguished; conflating them caused the confusion):
+- CANDIDATE headroom = best-candidate C - selected C for a fixed bank (the graded ladder addresses this).
+- PROCEDURE headroom = best attainable research productivity among admissible procedures at budget B -
+  current procedure's productivity (can be ~0 even when candidate headroom is large).
+- PRODUCER ADVANTAGE = does the LATER actor create a more useful next procedure than the EARLIER actor,
+  same target + caps (F). Can be 0 even when procedure headroom is large -> that is our current case.
+"More score levels / more editable files / a chain of dependent artifacts" do NOT create recursive depth.
+Causal recursive reuse only needs the next improvement's discovery prob / reliability / cost to depend on
+its predecessor -- NOT logical impossibility without it. Reserve "acceleration" for a measured rate increase.
+
+REPORTING FIXES (apply): (1) REMOVE the clipped composite mean(cap, max(dQ,0), max(F1,0)) -- clipping
+signed noise biases upward. (2) report the isolated qwen medium F2 +0.04[.01,.07] as an isolated positive
+needing multiplicity handling + replication (don't dismiss as noise while treating small negatives as real).
+(3) [.81,1.06] verifier_dQ CI is a normal-approx on a bounded diff, not the old metric-bound bug -- document
+interval construction, use paired bounded analysis. (4) separate LINEAGE vs GENERATION ids ("6 blocks" =
+6 short repetitions, not 6 successive revisions). (5) oracle=1 is fine in a SELECTION assay (guarantees a
+correct candidate exists); lowering it can add a capability floor, not recursive depth. (6) don't call a
+.99 pass-fraction a correct program -- deployment metric needs the strict independent contract.
+
+ORDERED EXPERIMENT PROGRAM (do in order; STOP expanding the leaderboard until step 4 succeeds for >=1 Easy
+mechanism):
+1. RESOLVE THE STRUCTURAL CLAIM (model-free, now): enumerate legal (n_inputs,n_edge) configs + coupling +
+   cost; estimate Q(config) on a qualification bank at fixed budget; at U0/U1/U2 checkpoints record
+   best-reachable-child, current-target Q, proposed slate, internal scores/ties/chosen child, downstream
+   quality; REPLAY identical slates through OLD vs NEW actor judges -> agreement + benefit. Deliver a
+   HEADROOM/SELECTION MAP (not a model ranking). Structural-null sufficient condition: both actors sample
+   the same proposal distribution AND select the same child for every admissible slate (incl ties); a
+   source-code change alone does not refute this. Distinguishes exhaustion / poor-proposals / poor-selection
+   / ineffective-metric. (depth_probe.py)
+2. DIAGNOSE THE LIVE GPU AGENT: proposal P x judge J factorial on common checkpoints (P0J0/PgJ0/P0Jg/PgJg);
+   audit whether admission drops delayed-useful procedural changes; use the 2 most-reliable integrated
+   agents to debug, NOT selecting test episodes by their scores.
+3. BUILD TWO LABORATORIES (6 dev instances each; correct starters so valid-Triton is not the barrier):
+   EASY = improve efficiency of experimentation (content-addressed reuse / dedup / staged eval / stopping /
+   measurement allocation; tools MUST execute when revising the procedure itself). MEDIUM = improve
+   information obtained from experiments (input-gen policies / test-transform composition / counterexample
+   reduction / relevance selection / evidence-based admission; enforce a REAL test budget). Publish cost
+   profiles (if API waiting dominates and the tool saves ~no end-to-end time, the lab is unqualified).
+4. QUALIFY REFERENCE DEPTH via 5 gates: (G1) executable opportunity (a reference artifact improves held-out
+   research at budget); (G2) further opportunity after the first update; (G3) causal opportunity (using the
+   inherited change alters later discovery vs a compatible predecessor, w/ prospective intervention+rescue);
+   (G4) LIVE discoverability (a reference model agent actually authors+adopts useful changes; harness does
+   NOT install a prewritten by-round sequence); (G5) replication on fresh instances + independent lineages.
+   Hand-installed chains establish G1-G3 only, NOT G4. Two-stage admission: ELIGIBILITY (executes, respects
+   contract, compatible) then VALUE (descendants after a fixed limited continuation). Keep an archive of
+   ~4 eligible candidates + exploration allocation; the fixed-procedure control gets the SAME archive
+   capacity + budget. Report immediate value AND value at a prespecified continuation horizon (don't redefine
+   F to whichever horizon turns positive).
+5. FREEZE + REPLICATE: freeze family rules/metrics/budgets/windows/min-effect; evaluate fresh instances +
+   lineages; previous cohorts become development data. Split independence by generator ancestry / contract
+   schema / mutation parent / algorithm structure (NOT sha1(name)).
+6. BENCHMARK COMPARISON: full evolving procedure vs frozen-U+growing-K vs fixed-builder(equal construction)
+   vs direct-search(equal total); multiple agents only after opportunity+precision gates work.
+7. EXTERNAL USEFULNESS: do the frozen measurements predict extra engineering progress on an independently
+   built world at fixed continuation budget, above initial-capability+resources.
+
+MEASUREMENT/PROFILE NOTES: keep the common-target estimand (F=V(Ug,T)-V(U_{g-1},T), N=V(Ug,T)-Q(T)); add a
+preregistered SECOND endpoint = F at continuation horizon h (measure both children after the SAME added
+budget; delayed value can't come from giving only the new child extra practice). Prospective branches:
+keep / replace-with-compatible-predecessor / rescue. >=2 fixed windows separated by real practice (no
+post-hoc window selection). Precision: the ~.039-wide easy F1 CI implies paired sd~.0445 -> ~156 paired
+units to resolve .01, ~39 to resolve .02 (ILLUSTRATIVE -- size via paired-lineage simulation of the actual
+estimator). Standard 24h profile = a QUALIFICATION ALLOCATION to validate empirically (0.5h init / 6h eight
+45-min blocks / 4h two common-target assays / 4.5h keep-replace-rescue / 2h transfer / 0.5h final timing /
+6.5h reserve); 8 lineage workers x1 target GPU = <=192 target-GPU-hours (declare model-hosting separately;
+all nested calls count). GPU inference world: verify autoregressive/KV-cache/tokens-denominator/offered-load
+before using serving labels -- until then call it a DECODE MICROBENCHMARK. W/K/U kept; research procedure =
+executed mutable object (propose/choose_experiments/diagnose/measure/select/research); official grader +
+budget + hidden workloads + creds stay IMMUTABLE. Reference agent may adapt Hyperagents (editable meta-agent,
+independently evaluated -- its claims don't validate ours); archive search per Darwin Godel Machine; workload
+gen per SWE-smith -- all as SEPARATE layers, no first-of-kind claim without a claim-specific audit.
+
+MILESTONE (concrete): deliver ONE Easy environment where a live agent authors a useful research change,
+that change raises its chance of discovering the NEXT useful change, the effect repeats on fresh work, and
+matched replace/rescue confirms the inherited role. Then replicate + broaden.
 
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
