@@ -426,6 +426,22 @@ self-check). NEXT: persist model reasoning chains per candidate (user request) f
 value-evaluation; then Gate 3/4 (does using the improved verifier improve a subsequent revision; live
 reference loop) on this realized-opportunity task.
 
+### TRUE RSI + DENSE (user, 2026-09-08): rsi_true.py [RUNNING]
+
+Goal: make the dataset measure TRUE causal recursion (not single-step verifier gain) and DENSELY.
+Design (`v3/rsi_true.py`): verifier-improves-verifier. Agent U = verifier config {n_inputs,n_edge};
+candidates come from a COMMON per-task bank (model-generated once, labels withheld). develop = U's
+verifier selects a patch -> hidden C. revise(actor,target) = propose M mutated child-configs, the
+ACTOR judges each using ITS OWN coverage (reference-assisted on the actor's self-generated inputs --
+NO hidden-oracle leakage in the improvement step) and keeps the best -> child config. So a better
+improver (higher-coverage judge) picks a genuinely better child, which is itself a better judge next
+round: F1=Q(U2)-Q(V2), F2 (repeat), N, rescue via run_lineage. DENSE = all 9 tasks (PROJECTS+HARD+
+VERY_HARD) as the common bank, 12 lineage blocks. Calib PASS (compound F1=.152,F2=.097; oneup
+F1=.021,F2~0) -> the instrument detects repeated causal recursion vs a single upgrade. RUNNING on
+Fable + gpt-oss (API) + qwen-7B/14B + deepseek-6.7B (GPU). This is the Gate-3/4 causal measurement on
+a realized-opportunity substrate; expectation: F dense where capability headroom exists, thin at
+saturated frontier (motivating the extra-hard curation).
+
 ### COHERENCE REQUIREMENT + KERNEL-CONTENT REQUIREMENT (user, 2026-09-07)
 
 1. COHERENCE: the ranking MUST make sense -- best models best, weaker lag. The first very-hard panel
