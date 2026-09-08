@@ -19,6 +19,7 @@ import curate_tasks as CT   # reuse validate() + dedup key -> the SAME executabl
 
 HELDOUT_FRAC = 0.35         # ~35% of each tier is the private leaderboard test set
 SPLIT_SALT = "kernelascent-v1"
+FAMILY_CAP = 3              # max near-duplicate tasks per problem family per tier
 
 
 def _iter_raw(raw_dir):
@@ -76,6 +77,24 @@ def main():
         rec.update(tier=tier, split=split, id=_task_id({**t, "tier": tier}))
         kept.setdefault(split, {}).setdefault(tier, []).append(rec)
         counts["kept"] += 1
+
+    # Per-family cap: exact-code dedup still lets one problem FAMILY dominate a tier (e.g. 6 "semver"
+    # variants). Group by family (first name token) within a tier ACROSS splits, keep at most FAMILY_CAP
+    # by id order, drop the rest -> a tier can't be swamped by near-duplicate problems.
+    def _family(name):
+        return re.split(r"[-_ ]", str(name).lower().strip())[0]
+    for tier in ("easy", "medium", "hard", "ultra"):
+        flat = [r for sp in kept.values() for r in sp.get(tier, [])]
+        by_fam = {}
+        for r in sorted(flat, key=lambda r: r["id"]):
+            by_fam.setdefault(_family(r["name"]), []).append(r)
+        keep_ids = set(); dropped = 0
+        for fam, rs in by_fam.items():
+            keep_ids.update(r["id"] for r in rs[:FAMILY_CAP]); dropped += max(0, len(rs) - FAMILY_CAP)
+        counts["family_capped"] = counts.get("family_capped", 0) + dropped
+        for sp in kept.values():
+            if tier in sp:
+                sp[tier] = [r for r in sp[tier] if r["id"] in keep_ids]
 
     stats = {"counts": counts, "by_split_tier": {}}
     for split in ("public", "heldout"):
