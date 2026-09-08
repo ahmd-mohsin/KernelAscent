@@ -33,5 +33,8 @@ bedrock_creds
 # private held-out test set (never commit)
 dataset/heldout/
 **/heldout/
+# raw curator output contains BOTH splits (incl. held-out) -> never commit
+**/_raw/
+dataset/**/_raw/
 
 hf_token
