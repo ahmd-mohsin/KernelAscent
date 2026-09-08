@@ -5,15 +5,16 @@ import os, math
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
 os.makedirs(OUT, exist_ok=True)
-INK, GRID, MID, PAPER = "#111111", "#e6e6e6", "#9a9a9a", "#ffffff"
-FONT = "font-family='Georgia, \"Times New Roman\", serif'"
-SANS = "font-family='ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif'"
+# black & white, transparent background so figures MERGE with the page; serif labels (Lora/Georgia)
+INK, GRID, MID, PAPER = "#111111", "#ededed", "#8a8a8a", "none"
+_SERIF = "font-family='Lora, Georgia, \"Times New Roman\", serif'"
+FONT = _SERIF
+SANS = _SERIF
 
 
 def _hdr(w, h):
     return ("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 %d %d' width='100%%' "
-            "role='img' style='max-width:%dpx;display:block;margin:auto'>"
-            "<rect width='%d' height='%d' fill='%s'/>" % (w, h, w, w, h, PAPER))
+            "role='img' style='display:block;margin:auto;overflow:visible'>" % (w, h))
 
 
 def _smooth(pts):

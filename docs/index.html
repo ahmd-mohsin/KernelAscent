@@ -3,132 +3,147 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KernelAscent — Do agents improve with experience?</title>
-<meta name="description" content="A benchmark of agents that improve with experience: measuring first-order improvement, causal producer advantage, and recursive compounding — with controls, replication, and transfer." />
+<title>KernelAscent — Does self-improvement compound?</title>
+<meta name="description" content="A benchmark of agents that improve with experience. First-order improvement is real, causal, capability-graded, and transferable — but causal producer advantage and recursive compounding are a well-controlled bounded-negative." />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <header class="nav">
-  <div class="brand"><span class="logo">▲</span> KernelAscent</div>
+  <div class="brand"><a href="#top">▲ KernelAscent</a></div>
   <nav>
-    <a href="#overview">Overview</a>
     <a href="#mechanism">Mechanism</a>
     <a href="#findings">Findings</a>
-    <a href="#leaderboard">Leaderboard</a>
+    <a href="#leaderboards">Leaderboards</a>
     <a href="#dataset">Dataset</a>
-    <a href="#submit">Submit</a>
-    <a class="ghlink" href="https://github.com/ahmd-mohsin/KernelAscent">GitHub</a>
+    <a href="https://github.com/ahmd-mohsin/KernelAscent">GitHub</a>
   </nav>
 </header>
 
-<section class="hero">
-  <div class="tag">Agents that improve with experience</div>
-  <h1>Does self-improvement&nbsp;<i>compound</i>?</h1>
-  <p class="lede">KernelAscent asks a sharper question than "can an agent improve?": when an agent improves the <b>research procedure</b> it uses, does <b>using</b> that improvement help it produce a <b>further</b> improvement — and does it <b>repeat</b>? We separate the actor that produces an improvement from the target it edits, so a later producer is credited only if it beats an earlier one on the <b>same</b> target.</p>
-  <div class="hero-eqn"><code>improve procedure → use it → produce a better next improvement → … ?</code></div>
+<article class="article" id="top">
+  <div class="meta">Benchmark · September 2026 · two substrates · four RSI tests</div>
+  <h1>Does self-improvement actually <em>compound</em>?</h1>
+  <p class="dek">KernelAscent measures agents that improve with experience. It asks the sharp question — not "can an agent improve?", but: when an agent improves the <b>research procedure</b> it uses, does <b>using</b> that improvement help it produce a <b>better next</b> improvement, and does it <b>repeat</b>? We separate the actor that produces an improvement from the target it edits, so a later producer earns credit only if it beats an earlier one on the same target.</p>
+
   <div class="kpis">
-    <div class="kpi"><div class="kpi-n">2</div><div class="kpi-l">task substrates</div></div>
-    <div class="kpi"><div class="kpi-n">109</div><div class="kpi-l">curated code tasks</div></div>
-    <div class="kpi"><div class="kpi-n">4</div><div class="kpi-l">RSI substrates tested</div></div>
-    <div class="kpi"><div class="kpi-n">public + held-out</div><div class="kpi-l">leaderboard split</div></div>
-  </div>
-</section>
-
-<main>
-<section id="overview">
-  <h2>What it measures</h2>
-  <p>Recursive self-improvement (RSI) is central to frontier AI, yet has almost no rigorous, controlled benchmark. KernelAscent decomposes it into <b>separately reported axes</b> instead of one headline number:</p>
-  <div class="cards">
-    <div class="card"><h3>Capability</h3><p>Can the agent produce a correct, fast solution? Two substrates: <b>GPU-kernel</b> optimization (fp32-gold correctness + speedup vs <code>min(eager, torch.compile)</code>) and a <b>code bug-fix</b> bank curated by a single strong model and executable-validated.</p></div>
-    <div class="card"><h3>First-order improvement</h3><p>Does one self-revision of the research procedure raise the quality of what it then produces? Measured as <code>q₁−q₀</code> and <code>N</code> (does the child beat the unchanged target).</p></div>
-    <div class="card"><h3>Causal recursion</h3><p>The hard part. <code>F = Q(U₂) − Q(V₂)</code>: a newer producer and an older producer edit the <b>same</b> target; does the newer build a better child, and does it <b>repeat</b> (<code>F₂</code>)?</p></div>
-  </div>
-  <p class="muted small">Full running record and every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>. Instruments are validated by deterministic calibration; every effect is reported as an estimate with a 95% CI against a prespecified meaningful effect δ = 0.05.</p>
-</section>
-
-<section id="mechanism" class="panel">
-  <h2>The mechanism</h2>
-  <p>An agent's state <code>U</code> is its executed <b>research procedure</b> (how it proposes, evaluates, and selects). <code>develop</code> runs the procedure on a fresh task under a fixed budget; <code>revise</code> lets an <b>actor</b> edit a copy of a <b>target</b> procedure to produce a child. In a causal fork, two different actors edit the <i>identical</i> target — so a later actor earns credit only if it produces a genuinely better child.</p>
-  <div class="figwrap"><img src="figures/mechanism.svg" alt="The improvement loop and the causal contrast" /></div>
-  <p>This actor/target separation is what turns "the score went up" into a testable causal claim. A rising task score, or editable source code, is <b>not</b> enough — the inherited procedure must causally cause a better next producer.</p>
-</section>
-
-<section id="findings">
-  <h2>Findings</h2>
-  <p>Across four substrates — the kernel flagship, a verifier-improvement loop, a GPU inference world, and an efficiency-of-experimentation lab <i>engineered to favor recursion</i> — plus live-model runs, the picture is consistent and well-controlled.</p>
-
-  <div class="figwrap"><img src="figures/forest.svg" alt="Causal decomposition forest plot" />
-    <div class="figcap">Live-model (opus-5, 40 lineages). First-order improvement and child value are resolved above zero; the causal producer link and compounding are not — and stay below the meaningful-effect line δ = 0.05.</div></div>
-
-  <div class="figgrid">
-    <div class="figwrap"><img src="figures/bars.svg" alt="Capability gradient and coadaptation" />
-      <div class="figcap">Capable models discover and climb the improvement opportunity (clean gradient); the compounding channel is the proposal × judgment <i>interaction</i>, invisible to either alone.</div></div>
-    <div class="figwrap"><img src="figures/budget.svg" alt="Procedure value vs deployment budget" />
-      <div class="figcap">A good procedure beats brute-force search, and the edge <i>widens</i> as budget tightens — but iterating to find it beats neither direct construction nor direct search at matched budget.</div></div>
+    <div><div class="kpi-n">4</div><div class="kpi-l">RSI substrates tested</div></div>
+    <div><div class="kpi-n">109</div><div class="kpi-l">curated code tasks</div></div>
+    <div><div class="kpi-n">δ = 0.05</div><div class="kpi-l">prespecified effect</div></div>
+    <div><div class="kpi-n">public + held-out</div><div class="kpi-l">leaderboard split</div></div>
   </div>
 
-  <h3 style="margin-top:26px">What is resolved</h3>
-  <div class="finding"><div class="mark">✓</div><div><b>First-order improvement is real, causal, and capability-graded.</b><span class="badge">resolved</span><br/><span class="muted small">Agents improve their procedure with experience (opus q₁−q₀ = +0.30 &gt; gpt-oss +0.10 &gt; deepseek +0.02); the child beats the unchanged target (N₁ resolved &gt; 0 for two models); the gain beats a frozen-procedure-with-growing-memory control — so it is the procedure change, not accumulated data.</span></div></div>
-  <div class="finding"><div class="mark">✓</div><div><b>Learned procedures transfer.</b><span class="badge">resolved</span><br/><span class="muted small">A procedure evolved on one task family, deployed on a structurally different family, beats the baseline there by +0.091 [0.037, 0.146] — nearly matching a procedure evolved on that family directly.</span></div></div>
-  <div class="finding"><div class="mark">✓</div><div><b>Procedure quality is a real, measurable lever.</b><span class="badge">resolved</span><br/><span class="muted small">The good procedure beats brute-force search by +0.15 → +0.18 as the deployment budget tightens.</span></div></div>
+  <h2 id="mechanism">The mechanism</h2>
+  <p>An agent's state <code>U</code> is its executed research procedure — how it proposes candidates, evaluates them, and selects. <code>develop</code> runs the procedure on a fresh task under a fixed budget and returns a quality <code>Q</code>. <code>revise</code> lets an <b>actor</b> edit a copy of a <b>target</b> procedure to produce a child. In a causal fork, two different actors edit the <em>identical</em> target — so a later actor is credited only if it produces a genuinely better child. That is what turns "the score went up" into a testable causal claim; a rising task score, or merely editable source code, is not enough.</p>
 
-  <h3 style="margin-top:20px">What is a bounded negative</h3>
-  <div class="finding"><div class="mark">—</div><div><b>No resolved causal producer advantage.</b><span class="badge neg">bounded −</span><br/><span class="muted small">F₁ = +0.019 [−0.013, 0.051] at n = 40 — bounded below δ = 0.05. A promising small-sample value (+0.042 at n = 16) regressed to ≈ 0 once properly powered.</span></div></div>
-  <div class="finding"><div class="mark">—</div><div><b>No compounding.</b><span class="badge neg">bounded −</span><br/><span class="muted small">F₂ ≈ 0 on every substrate — including one built to give recursion its best chance. The improvement's value is front-loaded into the first step.</span></div></div>
-  <div class="finding"><div class="mark">—</div><div><b>Iterating ≠ constructing; the investment doesn't amortize.</b><span class="badge neg">bounded −</span><br/><span class="muted small">Iterative self-improvement underperforms building the good procedure directly (−0.18), and matches direct search at equal total budget (break-even → ∞).</span></div></div>
+  <figure>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 300' role='img'><defs><marker id='a' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z' fill='#111111'/></marker></defs><text x='24' y='28' font-size='16' font-weight='700' fill='#111111'>The improvement loop and the causal contrast</text><rect x='40' y='70' width='180' height='60' rx='8' stroke='#111111' stroke-width='1.4' fill='none'/><text x='130' y='94' text-anchor='middle' font-size='15' font-weight='700' fill='#111111'>develop(U)</text><text x='130' y='113' text-anchor='middle' font-size='11.5' fill='#8a8a8a'>run procedure U under budget → Q</text><rect x='300' y='70' width='200' height='60' rx='8' stroke='#111111' stroke-width='1.4' fill='none'/><text x='400' y='94' text-anchor='middle' font-size='15' font-weight='700' fill='#111111'>revise(actor, target)</text><text x='400' y='113' text-anchor='middle' font-size='11.5' fill='#8a8a8a'>actor edits a COPY of target → child</text><rect x='600' y='70' width='220' height='60' rx='8' stroke='#111111' stroke-width='1.4' fill='none'/><text x='710' y='94' text-anchor='middle' font-size='15' font-weight='700' fill='#111111'>common-target fork</text><text x='710' y='113' text-anchor='middle' font-size='11.5' fill='#8a8a8a'>U₁ and U₀ edit the SAME target</text><line x1='220' y1='100' x2='300' y2='100' stroke='#111111' stroke-width='1.4' marker-end='url(#a)'/><line x1='500' y1='100' x2='600' y2='100' stroke='#111111' stroke-width='1.4' marker-end='url(#a)'/><rect x='560' y='190' width='130' height='54' rx='8' stroke='#111111' stroke-width='1.4' fill='none' stroke-dasharray='5 4'/><text x='625' y='214' text-anchor='middle' font-size='15' font-weight='700' fill='#111111'>U₂ = revise(U₁, T)</text><text x='625' y='233' text-anchor='middle' font-size='11.5' fill='#8a8a8a'>newer producer</text><rect x='710' y='190' width='130' height='54' rx='8' stroke='#111111' stroke-width='1.4' fill='none' stroke-dasharray='5 4'/><text x='775' y='214' text-anchor='middle' font-size='15' font-weight='700' fill='#111111'>V₂ = revise(U₀, T)</text><text x='775' y='233' text-anchor='middle' font-size='11.5' fill='#8a8a8a'>older producer</text><line x1='660' y1='130' x2='625' y2='190' stroke='#111111' stroke-width='1.4' marker-end='url(#a)'/><line x1='760' y1='130' x2='775' y2='190' stroke='#111111' stroke-width='1.4' marker-end='url(#a)'/><text x='700' y='280' text-anchor='middle' font-size='13' font-weight='700' fill='#111111'>F = Q(U₂) − Q(V₂)  (does the newer producer build a better child?)</text><text x='40' y='170' font-size='12.5' fill='#8a8a8a'>N = Q(child) − Q(target): does the child beat keeping the target?</text><text x='40' y='190' font-size='12.5' fill='#8a8a8a'>q₁−q₀: first-order improvement from one self-revision.</text></svg>
+    <figcaption><span class="fnum">Figure 1.</span> The estimators. <code>N</code> asks whether a produced child beats the unchanged target (first-order). <code>F</code> is the causal contrast: two producers of different vintage edit the same target — recursion means the newer one wins, and <code>F₂</code> asks whether that repeats.</figcaption>
+  </figure>
 
-  <p class="muted small" style="margin-top:16px">Honest one-line claim: <b>agents improve their research procedure with experience — first-order, causal, capability-graded, and transferable — but this does not (yet) produce a resolved causal producer advantage or recursive compounding.</b> A clean bounded-negative on recursion, with genuine positive findings, on a qualified opportunity — not a dead instrument.</p>
-</section>
+  <h2 id="findings">Findings</h2>
+  <p>We tested this on four substrates — a GPU-kernel flagship, a verifier-improvement loop, a GPU inference world, and an efficiency-of-experimentation lab <em>engineered to give recursion its best chance</em> — plus live-model runs, with matched-budget controls, replication on held-out instances, and transfer. Every effect is an estimate with a 95% CI, judged against a prespecified meaningful effect δ = 0.05.</p>
 
-<section id="leaderboard" class="panel">
-  <div class="lb-head">
-    <h2>Capability leaderboard</h2>
-    <div class="lb-meta" id="lb-updated"></div>
-  </div>
-  <p class="muted" id="lb-note">Kernel track — fixed Medium tasks, correct-rate and fast-rate (fast = beats <code>torch.compile</code>). Two walls; the frontier is separated by speed.</p>
-  <div class="table-wrap">
+  <figure>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 300' role='img'><text x='24' y='30' font-size='16' font-weight='700' fill='#111111'>Causal decomposition — opus-5, 40 lineages, 95% CI</text><text x='24' y='50' font-size='12' fill='#8a8a8a'>first-order improvement is resolved; the causal producer link and compounding are not</text><line x1='391.3' y1='60' x2='391.3' y2='254' stroke='#111111' stroke-width='1'/><text x='391.3' y='270' text-anchor='middle' font-size='10.5' fill='#8a8a8a'>0</text><line x1='437.0' y1='60' x2='437.0' y2='254' stroke='#8a8a8a' stroke-width='1' stroke-dasharray='4 4'/><text x='437.0' y='270' text-anchor='middle' font-size='10.5' fill='#8a8a8a'>δ = 0.05</text><text x='284' y='92' text-anchor='end' font-size='12.5' fill='#111111'>q₁−q₀  first-order improvement</text><line x1='645.1' y1='88' x2='708.1' y2='88' stroke='#111111' stroke-width='1.6'/><line x1='645.1' y1='83' x2='645.1' y2='93' stroke='#111111' stroke-width='1.6'/><line x1='708.1' y1='83' x2='708.1' y2='93' stroke='#111111' stroke-width='1.6'/><circle cx='663.4' cy='88' r='5' fill='#111111' stroke='#111111' stroke-width='1.5'/><text x='716.1' y='92' font-size='11' fill='#111111'>+0.298</text><text x='284' y='138' text-anchor='end' font-size='12.5' fill='#111111'>N₁  child beats target</text><line x1='397.7' y1='134' x2='464.3' y2='134' stroke='#111111' stroke-width='1.6'/><line x1='397.7' y1='129' x2='397.7' y2='139' stroke='#111111' stroke-width='1.6'/><line x1='464.3' y1='129' x2='464.3' y2='139' stroke='#111111' stroke-width='1.6'/><circle cx='430.6' cy='134' r='5' fill='#111111' stroke='#111111' stroke-width='1.5'/><text x='472.3' y='138' font-size='11' fill='#111111'>+0.043</text><text x='284' y='184' text-anchor='end' font-size='12.5' fill='#111111'>F₁  causal producer link</text><line x1='379.4' y1='180' x2='437.9' y2='180' stroke='#111111' stroke-width='1.6'/><line x1='379.4' y1='175' x2='379.4' y2='185' stroke='#111111' stroke-width='1.6'/><line x1='437.9' y1='175' x2='437.9' y2='185' stroke='#111111' stroke-width='1.6'/><circle cx='408.7' cy='180' r='5' fill='none' stroke='#111111' stroke-width='1.5'/><text x='445.9' y='184' font-size='11' fill='#111111'>+0.019</text><text x='284' y='230' text-anchor='end' font-size='12.5' fill='#111111'>F₂  compounding (repeat)</text><line x1='338.3' y1='226' x2='409.6' y2='226' stroke='#111111' stroke-width='1.6'/><line x1='338.3' y1='221' x2='338.3' y2='231' stroke='#111111' stroke-width='1.6'/><line x1='409.6' y1='221' x2='409.6' y2='231' stroke='#111111' stroke-width='1.6'/><circle cx='374.0' cy='226' r='5' fill='none' stroke='#111111' stroke-width='1.5'/><text x='417.6' y='230' font-size='11' fill='#111111'>−0.019</text><text x='284' y='288' font-size='10.5' fill='#8a8a8a'>● filled = CI excludes 0 (resolved)   ○ open = spans 0</text></svg>
+    <figcaption><span class="fnum">Figure 2.</span> The headline decomposition for the strongest live model. First-order improvement (q₁−q₀) and child value (N₁) sit clearly above zero; the causal producer link (F₁) and compounding (F₂) straddle zero and stay below δ.</figcaption>
+    <div class="takeaway"><b>What we learn:</b> the agent genuinely gets better at producing improvements (N₁ resolved), but a <em>newer</em> producer is not reliably better than an <em>older</em> one on the same target — and there is no second link. A promising F₁ = +0.042 at n = 16 regressed to +0.019 once powered to n = 40: it was small-sample noise.</div>
+  </figure>
+
+  <figure>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 320' role='img'><text x='24' y='30' font-size='16' font-weight='700' fill='#111111'>First-order improvement is capability-graded</text><rect x='60' y='101.0' width='70' height='149.0' fill='#111111'/><text x='95' y='266' text-anchor='middle' font-size='11' fill='#111111'>opus-5</text><text x='95' y='95.0' text-anchor='middle' font-size='11' fill='#111111'>+0.30</text><rect x='170' y='201.0' width='70' height='49.0' fill='#111111'/><text x='205' y='266' text-anchor='middle' font-size='11' fill='#111111'>gpt-oss-120b</text><text x='205' y='195.0' text-anchor='middle' font-size='11' fill='#111111'>+0.10</text><rect x='280' y='239.5' width='70' height='10.5' fill='#111111'/><text x='315' y='266' text-anchor='middle' font-size='11' fill='#111111'>deepseek</text><text x='315' y='233.5' text-anchor='middle' font-size='11' fill='#111111'>+0.02</text><text x='60' y='54' font-size='11.5' fill='#8a8a8a'>q₁−q₀ (procedure gain from experience)</text><text x='440' y='54' font-size='11.5' fill='#8a8a8a'>coadaptation: only proposal × judgment TOGETHER helps</text><rect x='440' y='222.4' width='44' height='27.6' fill='#8a8a8a'/><text x='462' y='266' text-anchor='middle' font-size='10.5' fill='#111111'>P₀J₀</text><text x='462' y='216.4' text-anchor='middle' font-size='10' fill='#111111'>0.91</text><rect x='500' y='222.4' width='44' height='27.6' fill='#8a8a8a'/><text x='522' y='266' text-anchor='middle' font-size='10.5' fill='#111111'>P_gJ₀</text><text x='522' y='216.4' text-anchor='middle' font-size='10' fill='#111111'>0.91</text><rect x='560' y='201.1' width='44' height='48.9' fill='#8a8a8a'/><text x='582' y='266' text-anchor='middle' font-size='10.5' fill='#111111'>P₀J_g</text><text x='582' y='195.1' text-anchor='middle' font-size='10' fill='#111111'>0.92</text><rect x='620' y='103.4' width='44' height='146.6' fill='#111111'/><text x='642' y='266' text-anchor='middle' font-size='10.5' fill='#111111'>P_gJ_g</text><text x='642' y='97.4' text-anchor='middle' font-size='10' fill='#111111'>0.97</text><text x='440' y='290' font-size='10.5' fill='#111111'>interaction +0.045 — the compounding channel</text></svg>
+    <figcaption><span class="fnum">Figure 3.</span> Left: capable models discover and climb the improvement opportunity; weaker ones barely do — a clean capability gradient. Right: neither a better proposer (P<sub>g</sub>) nor a better judge (J<sub>g</sub>) helps <em>alone</em>; only together, through a positive interaction.</figcaption>
+    <div class="takeaway"><b>What we learn:</b> improvement is real and scales with capability, and the true compounding channel is the proposal × judgment <em>interaction</em> — invisible when the procedure is a single fused lever. This is what a recursion loop must be built to climb.</div>
+  </figure>
+
+  <figure>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 780 380' role='img'><text x='24' y='30' font-size='16' font-weight='700' fill='#111111'>Procedure value vs deployment budget</text><text x='24' y='48' font-size='12' fill='#8a8a8a'>the good procedure's edge over brute-force widens as budget tightens</text><line x1='70' y1='294.0' x2='700' y2='294.0' stroke='#ededed' stroke-width='1'/><text x='62' y='297.0' text-anchor='end' font-size='10.5' fill='#8a8a8a'>0.5</text><line x1='70' y1='242.0' x2='700' y2='242.0' stroke='#ededed' stroke-width='1'/><text x='62' y='245.0' text-anchor='end' font-size='10.5' fill='#8a8a8a'>0.6</text><line x1='70' y1='190.0' x2='700' y2='190.0' stroke='#ededed' stroke-width='1'/><text x='62' y='193.0' text-anchor='end' font-size='10.5' fill='#8a8a8a'>0.7</text><line x1='70' y1='138.0' x2='700' y2='138.0' stroke='#ededed' stroke-width='1'/><text x='62' y='141.0' text-anchor='end' font-size='10.5' fill='#8a8a8a'>0.8</text><line x1='70' y1='86.0' x2='700' y2='86.0' stroke='#ededed' stroke-width='1'/><text x='62' y='89.0' text-anchor='end' font-size='10.5' fill='#8a8a8a'>0.9</text><text x='116.4' y='316' text-anchor='middle' font-size='10.5' fill='#8a8a8a'>30</text><text x='385.0' y='316' text-anchor='middle' font-size='10.5' fill='#8a8a8a'>60</text><text x='653.6' y='316' text-anchor='middle' font-size='10.5' fill='#8a8a8a'>90</text><text x='385' y='340' text-anchor='middle' font-size='11.5' fill='#111111'>deployment budget (eval units)</text><text x='18' y='190' text-anchor='middle' font-size='11.5' fill='#111111' transform='rotate(-90 18 190)'>research productivity Q</text><path d='M 116.4 148.9 C 160 142.4 300 120.4 385.0 109.9 C 470 99.4 610 90.0 653.6 86.0' fill='none' stroke='#111111' stroke-width='2.4'/><circle cx='116.4' cy='148.9' r='3' fill='#111111'/><circle cx='385.0' cy='109.9' r='3' fill='#111111'/><circle cx='653.6' cy='86.0' r='3' fill='#111111'/><text x='120' y='140' font-size='11' fill='#111111'>good procedure (built directly)</text><path d='M 116.4 243.0 C 160 233.5 300 203.3 385.0 185.8 C 470 168.3 610 146.0 653.6 138.0' fill='none' stroke='#111111' stroke-width='1.8' stroke-dasharray='7 5'/><circle cx='116.4' cy='243.0' r='3' fill='#111111'/><circle cx='385.0' cy='185.8' r='3' fill='#111111'/><circle cx='653.6' cy='138.0' r='3' fill='#111111'/><text x='120' y='235' font-size='11' fill='#111111'>direct brute-force search</text><path d='M 116.4 263.8 C 160 254.0 300 220.9 385.0 205.1 C 470 189.3 610 175.2 653.6 169.2' fill='none' stroke='#111111' stroke-width='1.8' stroke-dasharray='2 4'/><circle cx='116.4' cy='263.8' r='3' fill='#111111'/><circle cx='385.0' cy='205.1' r='3' fill='#111111'/><circle cx='653.6' cy='169.2' r='3' fill='#111111'/><text x='430' y='198' font-size='11' fill='#111111'>iterative self-improvement</text><path d='M 116.4 289.8 C 160 288.6 300 284.5 385.0 282.6 C 470 280.7 610 279.1 653.6 278.4' fill='none' stroke='#111111' stroke-width='1.2' stroke-dasharray='1 3'/><circle cx='116.4' cy='289.8' r='3' fill='#111111'/><circle cx='385.0' cy='282.6' r='3' fill='#111111'/><circle cx='653.6' cy='278.4' r='3' fill='#111111'/><text x='430' y='276' font-size='11' fill='#111111'>baseline (no improvement)</text></svg>
+    <figcaption><span class="fnum">Figure 4.</span> A good procedure beats brute-force search, and its edge <em>widens</em> as the budget tightens (+0.15 → +0.18). But <em>iterating</em> to find it (dotted) beats neither building it directly nor brute-force search at matched budget.</figcaption>
+    <div class="takeaway"><b>What we learn:</b> procedure quality is a real, measurable lever — but the iterative/recursive way of obtaining it does not pay for itself here (break-even → ∞). The value is front-loaded into the first improvement.</div>
+  </figure>
+
+  <blockquote>Agents improve their research procedure with experience — first-order, causal, capability-graded, and transferable — but this does not yet produce a resolved causal producer advantage or recursive compounding.</blockquote>
+
+  <h3>What is resolved (positive)</h3>
+  <ul>
+    <li><b>First-order improvement is real, causal, and capability-graded.</b> Two capable models improve their procedure (opus-5 q₁−q₀ = +0.30 &gt; gpt-oss +0.10 &gt; deepseek +0.02); the child beats the unchanged target (N₁ resolved for two models); and it beats a frozen-procedure-with-growing-memory control — so it is the procedure change, not accumulated data.</li>
+    <li><b>Learned procedures transfer.</b> A procedure evolved on one task family, deployed on a structurally different family, beats the baseline there by +0.091 [0.037, 0.146].</li>
+    <li><b>Procedure quality is a real lever.</b> The good procedure beats brute-force search by +0.15 → +0.18 as budget tightens.</li>
+  </ul>
+  <h3>What is a bounded negative</h3>
+  <ul>
+    <li><b>No resolved causal producer advantage:</b> F₁ = +0.019 [−0.013, 0.051] at n = 40, bounded below δ.</li>
+    <li><b>No compounding:</b> F₂ ≈ 0 on every substrate, including one engineered to favor it.</li>
+    <li><b>Iterating ≠ constructing:</b> iterative self-improvement underperforms building the good procedure directly (−0.18) and matches direct search at equal total budget.</li>
+  </ul>
+
+  <h2 id="leaderboards">Leaderboards</h2>
+
+  <h3>Capability — GPU-kernel track</h3>
+  <p class="small muted">Fixed Medium tasks, k = 5. <code>correct</code> = matches fp32 gold; <code>fast</code> = beats <code>torch.compile</code>. Two walls; the frontier is separated by speed. Click a header to sort.</p>
+  <div class="tablewrap">
     <table id="lb">
       <thead><tr>
-        <th data-k="model">Model</th>
-        <th data-k="kind">Kind</th>
+        <th data-k="model">Model</th><th data-k="kind">Kind</th>
         <th data-k="correct_rate" class="num">correct</th>
         <th data-k="fast_rate" class="num">fast</th>
         <th data-k="meanC" class="num">meanC</th>
-      </tr></thead>
-      <tbody></tbody>
+      </tr></thead><tbody></tbody>
     </table>
   </div>
-  <p class="muted small">Sortable — click a column header. Full 22-model table and the RSI decomposition per model live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</p>
-</section>
 
-<section id="dataset">
-  <h2>Dataset &amp; splits</h2>
-  <p>The curated code-task bank is difficulty-graded and executable-validated (a single strong curator, family-diversity-forced, then re-validated + deduped). It ships with a public / held-out split so the leaderboard can't be overfit.</p>
-  <div class="cards">
-    <div class="card"><h3>Public split</h3><p><b>75 tasks</b> — easy 21 · medium 17 · hard 18 · ultra 19, each with 14–16 distinct problem families. On <a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HuggingFace</a> and in <code>dataset/tasks/public/</code>.</p></div>
-    <div class="card"><h3>Held-out test</h3><p><b>34 tasks</b> (~35%), split deterministically by name hash, <b>never published</b> — the private leaderboard set. Kept gitignored; maintainers score submissions on it.</p></div>
-    <div class="card"><h3>Kernel track</h3><p>A separate procedural GPU-kernel task bank (1000+ tasks, 6 families) powers the capability leaderboard and the kernel causal-RSI runs.</p></div>
+  <h3>Recursive self-improvement — decomposition by model</h3>
+  <p class="small muted">Efficiency-of-experimentation lab, live models. Positive means improvement; F₁/F₂ are the causal/compounding links (95% CI).</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Model</th><th class="num">n</th><th class="num">q₁−q₀</th><th class="num">N₁</th><th class="num">F₁</th><th class="num">F₂</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>opus-5</td><td class="num">40</td><td class="num">+0.298</td><td class="num tag-pos">+0.043</td><td class="num">+0.019</td><td class="num">−0.019</td><td>first-order + child value; no causal link</td></tr>
+        <tr><td>sonnet-5</td><td class="num">16</td><td class="num">+0.335</td><td class="num">+0.003</td><td class="num">−0.004</td><td class="num">+0.016</td><td>strong first-order only</td></tr>
+        <tr><td>gpt-oss-120b</td><td class="num">16</td><td class="num">+0.098</td><td class="num tag-pos">+0.092</td><td class="num">−0.026</td><td class="num">+0.014</td><td>child value; no causal link</td></tr>
+        <tr><td>deepseek-v3.2</td><td class="num">14</td><td class="num">+0.021</td><td class="num">+0.004</td><td class="num">+0.007</td><td class="num">+0.001</td><td>barely discovers the opportunity</td></tr>
+      </tbody>
+    </table>
   </div>
-  <pre class="arch">from datasets import load_dataset
-ds = load_dataset("muahmed7338/kernelascent-tasks")   # splits: easy / medium / hard / ultra
-task = ds["medium"][0]     # fix task["buggy_code"] to match task["reference_code"] on sampled + edge inputs</pre>
-</section>
 
-<section id="submit" class="panel">
-  <h2>Submit a model</h2>
-  <p>Everything is reproducible and the leaderboard is scored on a private held-out split. Code, harness, and the full record are on GitHub.</p>
-  <pre class="arch">pip install "kernelascent @ git+https://github.com/ahmd-mohsin/KernelAscent"
+  <h3>Matched-budget controls &amp; transfer</h3>
+  <p class="small muted">Per-project Q on fresh held-out worlds (n = 20, deployment budget 60); transfer to a structurally different family.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Arm</th><th class="num">Q</th><th>vs treatment (paired 95% CI)</th></tr></thead>
+      <tbody>
+        <tr><td>baseline (no improvement)</td><td class="num">0.522</td><td class="tag-pos">evolved − baseline = +0.149 [0.066, 0.233]</td></tr>
+        <tr><td><b>evolved (treatment)</b></td><td class="num">0.671</td><td>—</td></tr>
+        <tr><td>frozen procedure + growing memory</td><td class="num">0.523</td><td class="tag-pos">evolved − frozen = +0.148 [0.065, 0.230]</td></tr>
+        <tr><td>good procedure built directly</td><td class="num">0.854</td><td class="tag-neg">evolved − built = −0.183 [−0.267, −0.100]</td></tr>
+        <tr><td>direct brute-force search</td><td class="num">0.708</td><td class="tag-neg">evolved − search = −0.037 [−0.139, 0.066]</td></tr>
+        <tr><td>transfer to family B</td><td class="num">0.617</td><td class="tag-pos">evolved − baseline on B = +0.091 [0.037, 0.146]</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted">Full 22-model capability table and every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</p>
 
-# capability (API model, no GPU to generate; grade on any GPU):
-kernelascent gen   --model us.anthropic.claude-opus-5 --tiers L1,L2 --out runs/opus
-kernelascent grade --candir runs/opus --out runs/opus/summary.json</pre>
-  <p>Then open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model-submission issue</a> or a PR. See <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/SUBMISSION.md">SUBMISSION.md</a>.</p>
-</section>
-</main>
+  <h2 id="dataset">Dataset &amp; splits</h2>
+  <p>The curated code-task bank is difficulty-graded and executable-validated — a single strong curator, diversity-forced across problem families, then re-validated and deduplicated. It ships with a public / held-out split so the leaderboard cannot be overfit.</p>
+  <ul>
+    <li><b>Public split:</b> 75 tasks (easy 21 · medium 17 · hard 18 · ultra 19), 14–16 distinct problem families per tier — on <a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HuggingFace</a> and in <code>dataset/tasks/public/</code>.</li>
+    <li><b>Held-out test:</b> 34 tasks (~35%), split deterministically by name hash, never published — the private leaderboard set.</li>
+    <li><b>Kernel track:</b> a separate procedural GPU-kernel bank (1000+ tasks, 6 families) powers the capability leaderboard.</li>
+  </ul>
+  <pre><code>from datasets import load_dataset
+ds = load_dataset("muahmed7338/kernelascent-tasks")   # easy / medium / hard / ultra
+task = ds["medium"][0]   # fix task["buggy_code"] to match task["reference_code"]</code></pre>
+
+  <h2 id="run">Reproduce &amp; submit</h2>
+  <p>Everything is dockerized behind a single scoring command; the leaderboard is scored on a private held-out split.</p>
+  <pre><code>docker build -t ka -f docker/Dockerfile .
+docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
+  -v $PWD/creds:/creds:ro -v $PWD/out:/out ka \
+  --track capability --api-model us.anthropic.claude-opus-5 --tier medium
+# writes out/scorecard.json</code></pre>
+  <p>Then open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model-submission issue</a> with your scorecard. See <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/docker/README.md">docker/README.md</a>.</p>
+</article>
 
 <footer>
-  <div>KernelAscent · A benchmark of agents that improve with experience</div>
-  <div class="muted small">Actor/target-separated causal estimators · deterministic calibration · controls, replication, and transfer · reported against δ = 0.05</div>
+  KernelAscent · a benchmark of agents that improve with experience · actor/target-separated causal estimators, deterministic calibration, controls · replication · transfer, reported against δ = 0.05.
 </footer>
 
 <script src="app.js"></script>
