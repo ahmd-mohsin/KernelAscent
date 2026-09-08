@@ -14,10 +14,29 @@ reference must not raise on it); degenerate out-of-domain inputs are dropped, ne
 Gate 2 (deterministic): a stronger (nested) verifier raises future productivity Q at matched
 candidates -> the improvement opportunity provably exists. --calib validates run_lineage detection.
 """
-import os, sys, json, argparse, random, copy, re
+import os, sys, json, argparse, random, copy, re, signal
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, ROOT); sys.path.insert(0, os.path.dirname(HERE))
 from kernelascent.v3.core import run_lineage, aggregate_lineages, _mean_ci
+
+
+class _Timeout(Exception):
+    pass
+
+
+def guarded(fn, args, sec=1.0):
+    """Run candidate fn(*args) under a wall-clock guard so a pathological (e.g. infinite-loop)
+    candidate cannot hang the grader. Timeout/any exception -> raised (callers treat as failure).
+    Uses SIGALRM; grading is single-threaded main-thread, so this is safe."""
+    def _h(signum, frame):
+        raise _Timeout()
+    old = signal.signal(signal.SIGALRM, _h)
+    signal.setitimer(signal.ITIMER_REAL, sec)
+    try:
+        return fn(*args)
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, old)
 
 
 # ------------------------------------------------------------------- oracles + samplers (in-domain)
@@ -121,7 +140,7 @@ def select(project, candidates, inputs):
         s = 0
         for a, t in zip(inputs, truth):
             try:
-                s += (fn(*a) == t)
+                s += (guarded(fn, a) == t)
             except Exception:
                 pass
         if s > best_s:
@@ -138,7 +157,7 @@ def hidden_grade(project, fn, rng, n_hidden=60):
             continue
         tot += 1
         try:
-            ok += (fn(*a) == t)
+            ok += (guarded(fn, a) == t)
         except Exception:
             pass
     frac = ok / tot if tot else 0.0
