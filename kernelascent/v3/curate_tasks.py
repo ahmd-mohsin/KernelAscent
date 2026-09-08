@@ -114,8 +114,14 @@ def main():
     cur = CB.Curator("us.anthropic.claude-fable-5-1", args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
     rid, mt = cur.resolve(); cur.resolve_reasoning()
     cur.reasoning = {"thinking": {"type": "adaptive"}, "output_config": {"effort": args.effort}}
-    cur.resolved = (rid, min(mt, 8000))   # small JSON output -> cap tokens so max-effort returns promptly
-    print("curator", rid, "effort", args.effort, flush=True)
+    # max effort spends many tokens on (encrypted) reasoning -> need generous output budget so the JSON
+    # answer is not truncated; and a long read timeout so a max-effort call can complete.
+    import boto3
+    from botocore.config import Config as _Cfg
+    cur.rt = boto3.Session(profile_name="bedrock").client("bedrock-runtime", region_name=args.region,
+                                                          config=_Cfg(read_timeout=1800, connect_timeout=60, retries={"max_attempts": 1}))
+    cur.resolved = (rid, min(mt, 24000))
+    print("curator", rid, "effort", args.effort, "maxTokens", cur.resolved[1], flush=True)
     bank = {}
     for tier in ("easy", "medium", "hard", "ultra"):
         got = []
