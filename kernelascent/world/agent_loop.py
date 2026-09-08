@@ -19,6 +19,14 @@ from kernelascent.v3.core import run_lineage, aggregate_lineages, _mean_ci
 from kernelascent.world import inference_world as WLD
 
 MLP_SRC = "def mlp(x, Wg, Wu, Wd):\n    return (F.silu(x @ Wg) * (x @ Wu)) @ Wd\n"
+# M2 diversity: the agent optimizes DIFFERENT operators across projects; a good research strategy (U)
+# must generalize across them (real diversity + transfer, not 4 shapes of one op).
+OP_SRC = {
+    "mlp": MLP_SRC,
+    "qkv": "def qkv(x, Wqkv):\n    return x @ Wqkv\n",
+    "oproj": "def oproj(x, Wo):\n    return x @ Wo\n",
+}
+OP_SHARE = {"mlp": 0.567, "qkv": 0.171, "oproj": 0.095}
 BASE_SOLVE = ("Rewrite the operator to run FASTER on an A100 while numerically equivalent (bf16). Use any "
               "approach you judge fastest (fused torch, better tiling, Triton). Keep the exact signature.")
 BASE_REVISE = ("Improve the strategy another agent uses to speed up this operator: point it at the highest-"
@@ -42,25 +50,26 @@ def score_from_grade(g):
     return max(0.0, min(1.0, 0.5 + 0.5 * min(1.0, (sp - 1.0) / 1.0)))   # 0.5 at parity -> 1.0 at 2x
 
 
-def make_behaviors(gen_fn, practice_cfgs, share=0.567):
-    def develop(agent, anchor_cfg, rng):
-        prompt = SOLVE_TMPL.format(share=share, strat=agent["params"].get("solve_strategy", BASE_SOLVE), src=MLP_SRC)
+def make_behaviors(gen_fn, practice_projects):
+    def develop(agent, anchor, rng):
+        op, cfg = anchor                                        # anchor = (operator_name, world_cfg)
+        prompt = SOLVE_TMPL.format(strat=agent["params"].get("solve_strategy", BASE_SOLVE), src=OP_SRC[op])
         code = _extract(gen_fn(prompt) or "")
         try:
-            fn = WLD.load_op(code, "mlp")
+            fn = WLD.load_op(code, op)
         except Exception:
             fn = None
         if fn is None:
             return 0.0
         try:
-            g = WLD.grade({"mlp": fn}, cfg=anchor_cfg)          # end-to-end SERVICE grade (correctness + speedup)
+            g = WLD.grade({op: fn}, cfg=cfg)                    # end-to-end SERVICE grade (correctness + speedup)
         except Exception:
             return 0.0
         return score_from_grade(g)
 
     def revise(actor, target, rng):
         child = copy.deepcopy(target)
-        fb = ["cfg%d=%.2f" % (i, develop(target, c, rng)) for i, c in enumerate(practice_cfgs[:2])]
+        fb = ["%s=%.2f" % (p[0], develop(target, p, rng)) for p in practice_projects[:2]]
         ap = actor["params"]
         ask = (BASE_REVISE + " Your guidance: " + ap.get("revise_strategy", BASE_REVISE) +
                "\nTarget's current strategy: %r. Practice operator-scores (0 wrong /0.5 parity /1.0 ~2x): %s.\n"
@@ -79,12 +88,14 @@ def make_behaviors(gen_fn, practice_cfgs, share=0.567):
     return develop, revise
 
 
-def anchor_configs():
-    # "different serving projects" = different shapes; world reset to common state each assay
+def anchor_projects():
+    """Diverse 'projects' = (operator, world-shape) pairs. A good research strategy must generalize
+    across operators (mlp/qkv/oproj) and shapes -- this is the diversity the RSI signal needs."""
     base = WLD.world_config()
     outs = []
-    for (B, S) in [(8, 256), (4, 512), (16, 128), (8, 384)]:
-        c = dict(base); c["B"], c["S"] = B, S; outs.append(c)
+    for op in ("mlp", "qkv", "oproj"):
+        for (B, S) in [(8, 256), (4, 512), (16, 128)]:
+            c = dict(base); c["B"], c["S"] = B, S; outs.append((op, c))
     return outs
 
 
@@ -106,12 +117,12 @@ def run(args):
                 o = mdl.generate(**enc, max_new_tokens=args.max_new, do_sample=True, temperature=0.7, top_p=0.9, pad_token_id=tok.pad_token_id)
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
-    anchors = anchor_configs()
-    print("AGENT-LOOP %s blocks=%d anchors=%d" % (who, args.blocks, len(anchors)), flush=True)
+    anchors = anchor_projects()
+    print("AGENT-LOOP %s blocks=%d anchors=%d (ops x shapes)" % (who, args.blocks, len(anchors)), flush=True)
     results = []
     for b in range(args.blocks):
         rng = random.Random(3000 + b)
-        practice = [anchors[(b + 1) % len(anchors)], anchors[(b + 2) % len(anchors)]]
+        practice = [anchors[(b + 1) % len(anchors)], anchors[(b + 4) % len(anchors)]]
         develop, revise = make_behaviors(gen_fn, practice)
         U0 = {"params": {"solve_strategy": BASE_SOLVE, "revise_strategy": BASE_REVISE}, "skills": []}
         r = run_lineage(U0, develop, revise, anchors, rng, reps=1)
