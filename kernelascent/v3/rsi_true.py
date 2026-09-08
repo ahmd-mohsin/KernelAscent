@@ -125,11 +125,16 @@ def run(args):
                 o = mdl.generate(**enc, max_new_tokens=args.max_new, do_sample=True, temperature=0.7, top_p=0.9, pad_token_id=tok.pad_token_id)
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
-    print("RSI-TRUE %s tasks=%d blocks=%d" % (who, len(ALL_TASKS), args.blocks), flush=True)
+    if getattr(args, "curated", ""):
+        from kernelascent.v3 import curated_loader
+        tasks = curated_loader.load_projects(args.curated, args.tier, getattr(args, "limit", 0) or None)
+    else:
+        tasks = ALL_TASKS
+    print("RSI-TRUE %s curated=%s tier=%s tasks=%d blocks=%d" % (who, bool(getattr(args, "curated", "")), getattr(args, "tier", ""), len(tasks), args.blocks), flush=True)
     rng0 = random.Random(0)
     # DENSE common banks: K candidates per task (once), reused across the lineage
     banks = []
-    for task in ALL_TASKS:
+    for task in tasks:
         banks.append((task, V.gen_candidates(task, gen_fn, args.K,
                       trace_dir=os.path.join(args.outdir, "traces"), tag=task["name"])))
     results = []
@@ -144,7 +149,7 @@ def run(args):
         results.append(r)
         print("b%d F1=%+.3f F2=%+.3f N1=%+.3f N2=%+.3f rescue=%+.3f" % (b, r.F1, r.F2, r.N1, r.N2, r.rescue_minus_revert), flush=True)
         agg = aggregate_lineages(results)
-        json.dump({"who": who, "tasks": len(ALL_TASKS), "blocks_done": b + 1, "K": args.K,
+        json.dump({"who": who, "tier": getattr(args, "tier", ""), "tasks": len(tasks), "blocks_done": b + 1, "K": args.K,
                    "agg": agg}, open(os.path.join(args.outdir, "rsi_true.json"), "w"), indent=2)
     print("\n=== RSI-TRUE %s ===" % who)
     for k in ("q1_minus_q0", "F1", "N1", "F2", "N2", "rescue_minus_revert"):
@@ -157,6 +162,9 @@ def main():
     ap.add_argument("--model", default=""); ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--K", type=int, default=8); ap.add_argument("--M", type=int, default=5)
     ap.add_argument("--blocks", type=int, default=12); ap.add_argument("--anchor-n", type=int, default=6); ap.add_argument("--practice-n", type=int, default=3)
+    ap.add_argument("--curated", default="", help="dir/file of curated tasks; overrides ALL_TASKS")
+    ap.add_argument("--tier", default="", help="curated tier: easy|medium|hard|ultra")
+    ap.add_argument("--limit", type=int, default=0, help="cap curated tasks (0=all)")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsitrue")
     args = ap.parse_args()
     if args.calib:

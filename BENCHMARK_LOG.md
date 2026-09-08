@@ -4,6 +4,30 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## RSI ON CURATED EASY/MEDIUM — two-part result (2026-09-08)
+
+Ran ALL code-task RSI measurements on the curated bank (`rsi_verify --panel` = verifier-improvement +
+capability; `rsi_true` = verifier-improves-verifier causal F1/F2), 5 models (frontier Opus-5/Sonnet-5 +
+open gpt-oss-120b/qwen3-32b/deepseek-v3.2), easy+medium, limit 8, K=4, via Bedrock. Loader
+`kernelascent/v3/curated_loader.py` maps curated tasks -> PROJECTS shape; curated `buggy_code` = the
+injected edge-subtle distractor. Both calibs still PASS. Full table: `ka_data/rsi_curated/aggregate.json`.
+
+- **Procedural / verifier-improvement RSI = POSITIVE + clean difficulty gradient.** verifier_dQ (strong
+  nested edge-verifier minus weak verifier, paired): easy **+0.38** [+0.02,+0.73], medium **+0.94**
+  [+0.81,+1.06], every model. On medium the weak verifier is fooled by the edge-subtle buggy (Cw≈0.06)
+  and edge coverage recovers full correctness (Cs=1.0). This is the easy<medium separation the kernel/
+  inference substrates never produced — the curated edge-subtlety is what makes it show up.
+- **Causal recursive RSI (F1/F2) = NULL (0/10 cells F1 CI>0)**, BUT now for a CEILING-SATURATION reason:
+  oracle=1.0 and a modest verifier already hits Cs=1.0, so Q(U) pins at the ceiling and a better improver
+  can't beat a worse one on a common target -> F≈0 by construction, not by absent mechanism. (deepseek
+  medium F1=+0.03[-0.01,+0.07], qwen medium F2=+0.04[+0.01,+0.07] = noise.) Distinct from the earlier
+  bounded-null. To probe causal compounding needs headroom tasks (hard/ultra tiers where oracle<1).
+- Composite rollup (mean of capability, max(verifier_dQ,0), max(F1,0)) — frontier easy≈0.46, medium≈0.65;
+  all 5 models cluster (capability+verifier saturated, nobody separates on causal recursion). Composite
+  is a rollup, NOT a substitute for reading the 3 axes.
+- HONEST HEADLINE: the tiers fixed the CAPABILITY + PROCEDURAL-IMPROVEMENT gradient (frontier gains are
+  real + graded); the CAUSAL-COMPOUNDING axis remains null (on easy/medium, because too solvable).
+
 ## DATASET RELEASE — code-task bank (2026-09-08)
 
 Published a difficulty-graded, executable-validated **code bug-fix task bank** (the RSI-VERIFY /

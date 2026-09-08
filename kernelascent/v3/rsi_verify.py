@@ -379,6 +379,8 @@ def edge_mutants(project):
     """Edge-subtle WRONG patches: pass typical/random inputs, fail only on edges. Injected as
     distractors so a weak verifier can misselect one and a strong (edge) verifier rejects it ->
     the verifier-improvement opportunity is REALIZED for real model candidates."""
+    if project.get("mutants"):                       # curated tasks: the validated buggy IS the edge-subtle distractor
+        return [("mut_" + n, f) for n, f in project["mutants"]]
     pool = _synth_pool(project)
     return [(("mut_" + n), f) for n, f in pool if n != "correct"]
 
@@ -490,7 +492,11 @@ def panel(args):
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
     rng = random.Random(0); cw, cs_, base, oracle, attain = [], [], [], [], []
-    projs = VERY_HARD_PROJECTS if getattr(args, "veryhard", False) else (HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS)
+    if getattr(args, "curated", ""):
+        from kernelascent.v3 import curated_loader
+        projs = curated_loader.load_projects(args.curated, args.tier, getattr(args, "limit", None) or None)
+    else:
+        projs = VERY_HARD_PROJECTS if getattr(args, "veryhard", False) else (HARD_PROJECTS if getattr(args, "hard", False) else PROJECTS)
     for proj in projs:
         muts = edge_mutants(proj) if args.inject else []
         for rep in range(args.reps):
@@ -512,6 +518,7 @@ def panel(args):
     dq = [cs_[i] - cw[i] for i in range(n)]
     res = {"who": who, "n_cells": n, "K": args.K, "inject": args.inject, "hard": bool(getattr(args, "hard", False)),
            "veryhard": bool(getattr(args, "veryhard", False)),
+           "curated": bool(getattr(args, "curated", "")), "tier": getattr(args, "tier", ""),
            "attainable_C": round(matt, 3),                              # mean_pool(max_candidate C) = proper ceiling; selected_C <= this
            "oracle_pool_success": round(morc, 3),                       # binary: frac pools with >=1 FULLY-correct candidate
            "randomized_select_C0": round(mb, 3),                        # first-in-shuffled-pool (no verifier)
@@ -530,6 +537,9 @@ def main():
     ap.add_argument("--inject", type=int, default=1, help="inject edge-subtle mutant distractors (1=on)")
     ap.add_argument("--hard", action="store_true", help="use the HARD edge-rich task set (frontier not saturated)")
     ap.add_argument("--veryhard", action="store_true", help="use the VERY-HARD/Ultra tier (frontier traps)")
+    ap.add_argument("--curated", default="", help="dir/file of curated tasks (dataset/tasks/public); overrides built-in sets")
+    ap.add_argument("--tier", default="", help="curated tier: easy|medium|hard|ultra")
+    ap.add_argument("--limit", type=int, default=0, help="cap number of curated tasks (0=all)")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsiv")
     args = ap.parse_args()
     if args.gate2: sys.exit(gate2())
