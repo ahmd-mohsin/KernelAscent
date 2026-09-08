@@ -4,6 +4,34 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## ⚠ OPEN ISSUE — FLAGGED FOR REVIEW (2026-09-08) [read first]
+
+**Causal compounding (F1/F2) is null for a STRUCTURAL reason, and this is the current key open question.**
+
+Chain of results that got us here:
+1. First causal-RSI on curated easy/medium: F1/F2 = 0 — but this was a CEILING ARTIFACT (Q pinned at 1.0;
+   any decent verifier solves the task, so a better-improver has no room to beat a worse one). NOT a finding.
+2. Headroom fix (graded candidate ladder + continuous scoring): ceiling removed, Q0 = 0.87 easy / 0.77
+   medium. First-order improvement now shows (N1 easy = +0.032 [+0.006,+0.058], CI > 0). But F1/F2 STILL ~0.
+3. Diagnosis: the improvable lever in this loop (verifier edge-coverage `n_inputs`/`n_edge`) is essentially
+   SINGLE-STEP. One bump from `n_edge=0` to high captures the available gain; there is nothing left for the
+   next improvement to build on -> improvements don't CHAIN -> F1/F2 ~ 0 by structure, not by ceiling.
+
+Why the distinction matters (benchmark honesty): "no compounding because tasks are trivially solved"
+(artifact, bad) vs "no compounding because the improvable procedure has no multi-step depth" (a real,
+reportable property). We are now in the second case.
+
+DECISION PENDING (user feedback requested): two paths —
+- (A) REPORT AS HONEST FINDING: headroom added, first-order improvement (N1) confirmed real, causal
+  compounding absent because the loop's improvable procedure is single-step. A clean bounded-negative.
+- (B) CHASE A POSITIVE via a redesigned loop with genuine RECURSIVE DEPTH: the improvable procedure must
+  be one where improvement N makes improvement N+1 REACHABLE. Candidate design: the verifier accumulates a
+  TRANSFERABLE library of edge-patterns (not just a coverage scalar); a better pattern library both selects
+  better AND discovers still-better patterns next round (compounding channel). This is a change to the LOOP,
+  not the tasks. Risk: may still be null (would then be a stronger, genuinely-earned negative).
+
+Everything below is the detailed dated record.
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
