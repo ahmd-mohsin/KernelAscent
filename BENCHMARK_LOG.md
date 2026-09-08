@@ -4,6 +4,32 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## LIT REVIEW ADOPTED + E1/E3 (2026-09-08) [newest]
+
+External primary-paper + diagnostic review adopted -> `docs/RSI_LIT_REVIEW_AND_PLAN.md`. It CORRECTS two
+overclaims in `docs/RSI_DIAGNOSIS.md` (both retracted there): frozen weights do NOT make an improved
+producer impossible (the API researcher = fixed model ∘ executed procedure; changing the procedure changes
+the computation); and the n=16->n=40 F1 shrinkage doesn't *prove* noise and its CI still includes delta.
+Core redirect: principal task = improving an executable GPU RESEARCH ALGORITHM (recurring decisions:
+propose/allocate/fidelity/select/transfer), not one-shot switches; kernels/inference = downstream apps;
+report 3 outcomes (useful research / improved researcher / causal reuse) with an actor x target MATRIX +
+opportunity map; prioritize API-track E0-E4 before the weight loop.
+
+BUILT `kernelascent/v3/lab_engine.py` (recurring-decision engine, model-free) + ran E1 (trajectory) + E3
+(actor x target matrix):
+- E1: STILL FRONT-LOADED even with continuous interacting recurring-decision policies -- greedy improvement
+  finds ONE dominant move (structured proposal -> reach good designs, Q 0.52->0.86 = 89% of total gain).
+  Continuous recurring policies alone don't defeat front-loading: a single capability still suffices.
+- E3 (the useful part): producer advantage is REAL but MASKED by target headroom. M(actor,target):
+  on easy target T0 all actors gain ~0.2 (target headroom swamps actor differences -> why F~0 on easy
+  targets); on ADVANCED target T2 a producer gradient emerges (actor2 +0.073 > actor1 +0.040 > actor0
+  +0.019). A better producer DOES build better children -- only where the front-loaded win can't mask it.
+- DESIGN IMPLICATION (matches review §4/§5): a non-front-loaded ladder needs a task where NO SINGLE
+  CAPABILITY SUFFICES -- good designs unreachable without structured proposal AND unverifiable without good
+  fidelity/selection, in sequence -- and F should be measured on ADVANCED targets (matrix column), not the
+  raw U0 target. Next: E2 (longer campaign, checkpoints 0/8/16/32) on a multi-bottleneck world; then E4
+  repeated causal continuations measured off advanced targets. Data: ka_data/lab_engine/lab_engine.json.
+
 ## ⚠ OPEN ISSUE — FLAGGED FOR REVIEW (2026-09-08) [read first]
 
 **Causal compounding (F1/F2) is null for a STRUCTURAL reason, and this is the current key open question.**

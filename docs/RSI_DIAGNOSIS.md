@@ -4,6 +4,17 @@
 compounding, separates artifact from finding, and states the concrete requirements a loop must meet for
 F₂ to be a live, non-trivial number. Decision on the path forward is left to the user.
 
+> **CORRECTIONS (2026-09-08, external review — see `RSI_LIT_REVIEW_AND_PLAN.md` §3).** Two claims below
+> were overstated and are retracted: (1) "frozen weights make an improved producer impossible" — WRONG:
+> the API-track researcher is `fixed model ∘ executed procedure`; changing the procedure changes the
+> computation, so a fixed model CAN be part of an improved researcher. Keep the *front-loaded /
+> local-saturation observation*; drop the *impossibility explanation*. (2) The n=16→n=40 F₁ shrinkage does
+> not *prove* the earlier value was noise, and F₁=+0.019 [−0.013, 0.051] does **not** exclude δ=0.05 (its
+> CI still includes δ). Also: F₂ is a *repeated producer contrast*, not the second derivative of the
+> task-score trajectory — declining absolute gains can coexist with positive F if matched older producers
+> do worse. The retained, correct core is: gains are front-loaded and locally saturating in the *shallow*
+> procedure spaces tested so far.
+
 Notation: `U` = an agent's executed research procedure. `develop(U)` → quality `Q`. `revise(actor,target)`
 → a child procedure. `q₁−q₀` = first-order improvement. `N` = child beats unchanged target. `F₁` = a newer
 producer beats an older one on a **common** target (causal link). `F₂` = that link **repeats** (compounding).
