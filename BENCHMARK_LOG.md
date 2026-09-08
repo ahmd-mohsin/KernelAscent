@@ -120,6 +120,29 @@ MILESTONE (concrete): deliver ONE Easy environment where a live agent authors a 
 that change raises its chance of discovering the NEXT useful change, the effect repeats on fresh work, and
 matched replace/rescue confirms the inherited role. Then replicate + broaden.
 
+### EXPERIMENT 1 RESULT — structural claim RESOLVED (2026-09-08): NOT a structural null, it's underpowered-tiny
+
+`kernelascent/v3/depth_probe.py` (model-free, ladder banks). Headroom/selection map:
+| tier | current Q(2,0) | best-legal Q | procedure headroom | old/new judge agreement | benefit/disagreement |
+|---|---|---|---|---|---|
+| easy | 0.884 | 1.000 @(8,24) | +0.115 | 0.62 | +0.010 |
+| medium | 0.835 | 0.997 @(16,24) | +0.162 | 0.30 | +0.007 |
+Three facts REFUTE the earlier "single-step structural null": (1) PROCEDURE HEADROOM exists (0.12-0.16) --
+better configs than U0 are reachable, not exhausted; (2) old and new actors pick DIFFERENT children
+(agreement 0.62/0.30, not ~1.0 -> the structural-null sufficient condition is FALSE); (3) the newer actor's
+picks ARE better, but only by +0.007-0.010 per disagreement. => true producer advantage
+E[F] ~ P(disagree) x benefit ~ 0.004 (easy) / 0.005 (medium) -- REAL but ~10x below the prespecified
+meaningful effect delta=0.05. The 20-block F1~0 was UNDERPOWERED (CI width ~0.04 >> 0.005), and the live
+lineage contrast (U1 vs U0) is an even smaller actor gap -> F1 even tinier.
+CORRECTED VERDICT: under delta=0.05 the verifier-config loop is a CALIBRATED BOUNDED-NEGATIVE (producer
+advantage negligible, NOT absent-by-structure, NOT ceiling-artifact). My prior "single-step, nothing to
+build on" wording was WRONG (the review was right to flag it). A MEANINGFUL positive requires a procedure
+where each recursive step's producer advantage is LARGE -- i.e. step 3's two laboratories (experimentation
+efficiency / experiment information), where a better tool changes the discovery of the NEXT tool by much
+more than a config coverage bump. More statistical power alone would only resolve a ~0.005 effect, which is
+practically negligible by design. Data: ka_data/depth_probe/depth_probe.json. NEXT: step 2 (proposal x judge
+on the live GPU agent) + step 3 (build the two laboratories).
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
