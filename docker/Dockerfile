@@ -1,4 +1,5 @@
-# KernelAscent RSI-VERIFY-01 benchmark image (GPU-capable; API-only works CPU-only too).
+# KernelAscent standard evaluation image (GPU-capable; API models work CPU-only).
+# One command to score a model on the PUBLIC benchmark and emit a submittable scorecard.
 FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1
@@ -10,16 +11,27 @@ WORKDIR /bench
 COPY docker/requirements.txt /bench/requirements.txt
 RUN pip3 install --no-cache-dir -r /bench/requirements.txt
 
+# code + the bundled PUBLIC curated task bank (held-out split is NOT in the image)
 COPY kernelascent /bench/kernelascent
-ENV PYTHONPATH=/bench:/bench/kernelascent
+COPY dataset/tasks/public /bench/dataset/tasks/public
+ENV PYTHONPATH=/bench:/bench/kernelascent KA_DATA=/bench/dataset/tasks/public
 
-# Default: run the deterministic self-checks (no model, no GPU, no creds needed).
-#   docker run --rm ka-rsi                      -> gate2 + calib
-#   docker run --rm ka-rsi --gate2              -> opportunity proof only
-#   API panel (mount creds):
-#     docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
-#       -v /path/creds:/creds ka-rsi --panel --api-model us.anthropic.claude-fable-5-1 --outdir /out
-#   GPU panel:
-#     docker run --rm --gpus all -v $HF:/hf -e HF_HOME=/hf ka-rsi --panel --model Qwen/Qwen2.5-Coder-7B-Instruct --outdir /out
-ENTRYPOINT ["python3", "-u", "kernelascent/v3/rsi_verify.py"]
-CMD ["--gate2"]
+# ---------------------------------------------------------------------------
+# Self-check (no model / GPU / creds): deterministic gates must pass.
+#   docker run --rm ka                 -> --track capability needs a model, so default = self-check
+#   docker run --rm --entrypoint bash ka docker/entrypoint_selfcheck.sh
+#
+# Evaluate an API model (mount Bedrock creds; no GPU):
+#   docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
+#     -v $PWD/creds:/creds -v $PWD/out:/out ka \
+#     --track capability --api-model us.anthropic.claude-opus-5 --tier medium
+#   docker run --rm ... ka --track rsi --api-model us.anthropic.claude-opus-5 --lineages 16
+#
+# Evaluate an open-weight model on GPU (capability track):
+#   docker run --rm --gpus all -v $HF:/hf -e HF_HOME=/hf -v $PWD/out:/out ka \
+#     --track capability --model Qwen/Qwen2.5-Coder-7B-Instruct --tier hard
+#
+# Output: /out/scorecard.json  (open a model-submission issue; maintainers verify on the held-out split)
+# ---------------------------------------------------------------------------
+ENTRYPOINT ["python3", "-u", "-m", "kernelascent.evaluate"]
+CMD ["--help"]

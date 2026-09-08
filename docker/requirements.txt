@@ -3,3 +3,5 @@ transformers==4.47.1
 accelerate
 boto3
 numpy
+huggingface_hub>=0.23
+datasets>=2.19
