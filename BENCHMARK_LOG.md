@@ -4,6 +4,32 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## DATASET RELEASE — code-task bank (2026-09-08)
+
+Published a difficulty-graded, executable-validated **code bug-fix task bank** (the RSI-VERIFY /
+code-correctness substrate), curated by a single strong curator (**Fable 5.1**, xhigh effort; ultra at
+high effort so its long JSON isn't truncated). Every task admitted only after executable checks:
+reference matches all examples + never raises on sampled/edge inputs; buggy is genuinely wrong yet
+plausible; medium+/hard/ultra must AGREE with reference on typical inputs but DIFFER on edges.
+
+- **v2 = 109 tasks**: public 75 (easy 21 / medium 17 / hard 18 / ultra 19), held-out 34 (11/9/7/7).
+- **Diversity forcing** (key fix): the curator first collapsed onto one family per tier (raw medium was
+  12/20 `merge-intervals`). Added an avoid-list (seeded with used families + accumulated in-run) + a
+  per-family cap during generation, and a `FAMILY_CAP=3` cap in the packager. Result: each public tier
+  now has **14–16 distinct problem families**, max 3 per family.
+- **Splits**: deterministic by `sha1(name)` (stable as the bank grows). `public` = dev split, committed
+  + on HF. `heldout` (~35%) = private leaderboard test set, **never published** (gitignored: `heldout/`,
+  `_raw/`). `examples` stored as a JSON string so HF/Arrow loads cleanly.
+- **Locations**: GitHub `dataset/tasks/public/*.jsonl` (+ `build_dataset.py`, `hf_upload.py`, card);
+  HF dataset `muahmed7338/kernelascent-tasks` (public only). Held-out lives only on the box + local
+  `dataset/tasks/{heldout,_raw}` (ignored).
+- Pipeline: `dataset/build_dataset.py` (global dedup + re-validation + family cap + split);
+  `dataset/hf_upload.py` (public-only upload, refuses to include heldout). Idempotent — re-run to
+  absorb more curated tasks. Curator: `kernelascent/v3/curate_tasks.py` (`--tier`, `--avoid`,
+  `--fam-cap`, `--effort`).
+- NOTE: this is a SEPARATE dataset from the existing GPU-kernel task bank (`dataset/curated/` +
+  `dataset/public/{Easy,Medium,Hard,Ultra}` + `manifest.json`), which is untouched.
+
 ## BENCHMARK — CURRENT STATE (2026-09-07) [read this first]
 
 KernelAscent is now a benchmark of **agents that improve with experience**, with the LIVE RECURSIVE
