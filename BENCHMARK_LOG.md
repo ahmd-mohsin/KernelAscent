@@ -163,6 +163,32 @@ compounding structure -> step 3's laboratories must make PROPOSAL and JUDGMENT S
 loop can climb the interaction. Data: ka_data/proposal_judge/proposal_judge.json. (Caveat: point estimates
 over 40 draws, no CIs yet; model-backed GPU proposal x judge + CIs is the next confirmation, then the lab build.)
 
+### STEP 3 EASY LABORATORY (2026-09-08): built + calibrated -> first producer link resolvable, NO second-link compounding
+
+`kernelascent/v3/lab_easy.py` -- EFFICIENCY-OF-EXPERIMENTATION lab. Research task: find the best operator
+variant in a pool under a FIXED experimentation budget. Improvable procedure U has SEPARATE proposal
+(random vs guided: only guided can REACH the rare good designs) + evaluation (cache/dedup/staged/thr/
+guide_g) components; inefficient U0 wastes budget (re-tests duplicates, expensive-tests junk). revise =
+actor searches procedure-neighbors + picks the best child, with reps scaled by the actor's efficiency
+(better tools -> less-noisy child estimates -> better pick = the F channel). Plugs into core.run_lineage.
+CALIBRATION (model-free, scripted world -> a positive here validates the SUBSTRATE, not a model claim):
+- G1 opportunity REAL + large: inefficient Q=0.53 -> efficient-reference Q=0.88, dQ=+0.35.
+- First-order improvement RESOLVED: q1-q0 +0.075 [0.04,0.11], N1 +0.06..+0.12 (CI clears 0) across configs.
+- First producer link F1: small-positive, RESOLVABLE in the clean 2-rung config (F1=+0.072 [0.003,0.140]),
+  marginal in the deeper-ladder config (+0.039 [-0.003,0.081]). Either way ~10-15x the config-loop's ~0.005.
+- SECOND link F2: ROBUSTLY ~0 (e.g. -0.014 [-0.052,0.025]) at sd~0.15 -> genuinely ~0, not underpowered.
+KNIFE-EDGE observed: adding ladder DEPTH (more improvable knobs) enlarges the improver's search space ->
+noisier child-selection -> F washes out unless estimation precision (reps) scales with it. This is the real
+structural tension of RSI, quantified.
+ROBUST FINDING (now 4 substrates: kernel flagship, verifier config loop, GPU inference world, AND this
+purpose-built favorable lab): first-order self-improvement is REAL (N1>0 resolved), it yields AT MOST ONE
+causal producer link (F1 small-positive, sometimes resolved), and it does NOT chain into a second
+(F2 ~ 0) -- even in a lab ENGINEERED to give compounding its best chance. Value is front-loaded into the
+first improvement. I deliberately STOPPED parameter-tuning at this point (further fiddling toward F2>0 would
+be engineering the answer, which the plan forbids). Data: ka_data/lab_easy/lab_easy_calib.json.
+NEXT (the actual scientific test, Gate 4): a LIVE MODEL must discover + adopt these efficiency changes and
+chain them (model-backed lab_easy); the scripted calibration only proves the instrument + substrate work.
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
