@@ -85,6 +85,17 @@ measure (1) useful experience-based improvement, (2) improved ability to generat
 GPU kernels + inference serving = the flagship application; keep the small Python tasks + fixed
 verifier banks as CALIBRATION instruments only.
 
+### M2+M4 RUNNING (2026-09-08): model agents in the inference world, 8 GPUs
+
+agent_loop.py on the M1 world: 8 models (qwen-coder 1.5/7/14B + deepseek-6.7B on GPU; Fable, gpt-oss,
+GPT-5.6-terra, mistral-large-3 via API, GPU for grading), 6-block lineages, reporting the THREE
+CONCLUSIONS separately (base capability Q0 / experience q1-q0 / child N / causal-reuse F1,F2). Content
+filter fix: the verbose operator prompt was blocked on Bedrock (API models got empty output -> false
+Q0=0); minimal SOLVE_TMPL fixes it (keeps the evolving strategy). World grader guarded w/ SIGALRM.
+Early (1/6 blocks, noisy): Q0 gpt-oss .253 / deepseek .126 / qwen-1.5B .125; F1/F2 bounce +-0.125 (n=1).
+Accumulating to 6-block CIs. Using the 8 main-node GPUs fully; worker nodes (16 more) mount separate
+nvme and need independent setup -- not wired.
+
 ### M1 DONE (2026-09-08): inspectable GPU inference world -- `kernelascent/world/inference_world.py`
 Small transformer decode service from SWAPPABLE operators (improvable W = rmsnorm/qkv/attn/oproj/mlp);
 IMMUTABLE grader measures correctness vs fp32-gold + latency + tokens/s + goodput(SLO) + speedup; per-op
