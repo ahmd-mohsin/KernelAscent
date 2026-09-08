@@ -233,6 +233,40 @@ bounded < delta, F2 ~ 0). A clean well-powered BOUNDED-NEGATIVE on causal recurs
 first-order finding -- NOT a null instrument (the lab cleanly detects N1>0 + the capability gradient).
 Data: ka_data/lab_easy/lab_easy_api_*.json.
 
+### STEPS 5-7 (2026-09-08): freeze+replicate, matched-budget CONTROLS, transfer -> release-grade result
+
+`kernelascent/v3/lab_controls.py` (model-free, FRESH held-out world seeds 5000+ = replication independent
+of the dev seeds; n=20 replications; per-project verified-best-Q). Two deployment budgets.
+CONTROL COMPARISON (dep budget=60 / 30):
+| arm | Q@60 | Q@30 |
+|---|---|---|
+| baseline_U0   | 0.522 | 0.508 |
+| evolved (treatment) | 0.671 | 0.558 |
+| fixed_builder (build good procedure directly) | 0.854 | 0.779 |
+| direct_search (brute-force full pool at deploy budget) | 0.708 | 0.598 |
+| frozen_K (U0 + persistent cache, U fixed) | 0.523 | 0.506 |
+PAIRED (n=20, @60): evolved - baseline +0.149 [0.066,0.233] RESOLVED; evolved - frozen_K +0.148
+[0.065,0.230] RESOLVED; evolved - fixed_builder -0.183 [-0.267,-0.100] RESOLVED NEGATIVE;
+evolved - direct_search -0.037 [-0.139,0.066] spans 0.
+FINDINGS (release-grade):
+1. The improvement is CAUSAL, not memory: evolved beats baseline AND frozen-U+cache (both +0.15 resolved)
+   -> kills the "memory != recursion" confound; the gain is the PROCEDURE change.
+2. But the ITERATIVE improver UNDERPERFORMS one-shot construction: evolved << fixed_builder (-0.18 resolved)
+   -> iterating adds nothing over directly building the good procedure here.
+3. At matched TOTAL budget the investment does NOT amortize: evolved ~ direct_search (spans 0),
+   break-even M = INF at both deploy budgets. (The PROCEDURE has real value -- fixed_builder beats
+   direct_search by +0.146 @60 and +0.181 @30, WIDENING as budget tightens -- but the iterative process
+   is not the way to get it; direct construction is far better.)
+4. TRANSFER (step 7, structurally-different family B: bigger pool, rarer good): a procedure evolved on
+   family A, deployed on B, beats baseline on B by +0.091 [0.037,0.146] RESOLVED, ~matching evolve-on-B
+   directly (0.617 vs 0.600) -> the learned procedure GENERALIZES (external-validity proxy positive).
+RELEASE-GRADE HEADLINE: procedure QUALITY is real + measurable (fixed_builder >> baseline, >> direct-search,
+growing as budget tightens) and learned procedures TRANSFER; the improvement is causal not memory; BUT
+ITERATIVE/RECURSIVE self-improvement gives no benefit over one-shot construction and does not amortize vs
+direct search -> no support for a recursive-compounding claim, consistent with F1<delta, F2~0. This is the
+well-controlled, replicated, transfer-tested bounded-negative on recursion WITH resolved positives on
+first-order improvement, procedure value, and transfer. Data: ka_data/lab_controls/lab_controls.json.
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
