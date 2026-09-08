@@ -1,23 +1,23 @@
 {
   "counts": {
-    "in": 88,
+    "in": 137,
     "dup": 1,
     "invalid": 0,
-    "kept": 87,
+    "kept": 136,
     "family_capped": 28
   },
   "by_split_tier": {
     "public": {
-      "easy": 13,
-      "medium": 7,
-      "hard": 13,
-      "ultra": 13
+      "easy": 21,
+      "medium": 17,
+      "hard": 18,
+      "ultra": 19
     },
     "heldout": {
-      "easy": 3,
-      "medium": 3,
-      "hard": 3,
-      "ultra": 5
+      "easy": 11,
+      "medium": 9,
+      "hard": 7,
+      "ultra": 7
     }
   }
 }
