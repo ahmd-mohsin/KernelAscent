@@ -88,13 +88,19 @@ def make_behaviors(gen_fn, practice_projects):
     return develop, revise
 
 
-def anchor_projects():
-    """Diverse 'projects' = (operator, world-shape) pairs. A good research strategy must generalize
-    across operators (mlp/qkv/oproj) and shapes -- this is the diversity the RSI signal needs."""
+# TIERS BY HEADROOM (the axis that gates whether recursive improvement can even show up):
+#   medium = high-headroom operator (MLP, ~2.3x service ceiling) -> a better strategy CAN compound (target F>0 for capable models)
+#   hard   = low-headroom operators (qkv/oproj ~1.1x ceiling)    -> almost no room -> F~0 is forced regardless of model (honest null)
+#   all    = mixed (dilutes the signal; diagnostic only)
+TIER_OPS = {"medium": ["mlp"], "hard": ["qkv", "oproj"], "all": ["mlp", "qkv", "oproj"]}
+
+
+def anchor_projects(tier="all"):
+    """'projects' = (operator, world-shape) pairs for the chosen tier."""
     base = WLD.world_config()
     outs = []
-    for op in ("mlp", "qkv", "oproj"):
-        for (B, S) in [(8, 256), (4, 512), (16, 128)]:
+    for op in TIER_OPS.get(tier, TIER_OPS["all"]):
+        for (B, S) in [(8, 256), (4, 512), (16, 128), (8, 384)]:
             c = dict(base); c["B"], c["S"] = B, S; outs.append((op, c))
     return outs
 
@@ -117,8 +123,8 @@ def run(args):
                 o = mdl.generate(**enc, max_new_tokens=args.max_new, do_sample=True, temperature=0.7, top_p=0.9, pad_token_id=tok.pad_token_id)
             return tok.decode(o[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         who = "hf:" + args.model
-    anchors = anchor_projects()
-    print("AGENT-LOOP %s blocks=%d anchors=%d (ops x shapes)" % (who, args.blocks, len(anchors)), flush=True)
+    anchors = anchor_projects(args.tier)
+    print("AGENT-LOOP %s tier=%s blocks=%d anchors=%d" % (who, args.tier, args.blocks, len(anchors)), flush=True)
     results = []
     for b in range(args.blocks):
         rng = random.Random(3000 + b)
@@ -169,6 +175,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--calib", action="store_true")
     ap.add_argument("--model", default=""); ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--tier", choices=["medium", "hard", "all"], default="all")
     ap.add_argument("--blocks", type=int, default=6); ap.add_argument("--max-new", type=int, default=2048); ap.add_argument("--outdir", default="/tmp/agentloop")
     args = ap.parse_args()
     if args.calib:
