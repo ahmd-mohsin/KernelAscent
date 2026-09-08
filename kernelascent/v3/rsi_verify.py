@@ -164,6 +164,24 @@ def hidden_grade(project, fn, rng, n_hidden=60):
     return 1.0 if frac >= 0.999 else (0.5 if frac >= 0.8 else 0.0)
 
 
+def continuous_grade(project, fn, rng, n_hidden=120, edge_frac=0.75):
+    """CONTINUOUS correctness = fraction of hidden (edge-weighted) inputs the candidate matches the
+    oracle on. Unlike hidden_grade's 1.0/0.5/0 step, this leaves a gradient so a graded candidate
+    ladder yields Q that climbs with verifier coverage instead of pinning at the ceiling."""
+    ref = project["ref"]; ok = 0; tot = 0
+    for i in range(n_hidden):
+        a = (project["edge"] if rng.random() < edge_frac else project["sampler"])(rng)
+        valid, t = _safe_ref(ref, a)
+        if not valid:
+            continue
+        tot += 1
+        try:
+            ok += 1 if guarded(fn, a) == t else 0
+        except Exception:
+            pass
+    return ok / tot if tot else 0.0
+
+
 # ------------------------------------------------------------------- model-backed candidates
 # ------------------------------------------------------------------- HARD task set (edge-rich; frontier not saturated)
 def h_simplify(path):

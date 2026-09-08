@@ -4,6 +4,31 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
+## HEADROOM FIX — graded candidate ladder (2026-09-08)
+
+User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),
+not a finding — must leave headroom by design. Fix, two levers:
+- CONTINUOUS scoring (`rsi_verify.continuous_grade`): score = fraction of hidden edge-weighted inputs the
+  selected candidate passes (kills the 1.0/0.5/0 step).
+- GRADED CANDIDATE LADDER (`kernelascent/v3/curate_ladder.py`, Fable-high): per task, N buggy variants
+  failing on progressively RARER edges; measured hidden pass-rates give a real ladder (e.g. digital-root
+  [0.57,0.77,0.84,0.93,0.94,0.95]; merge-touching [0.60,0.81,0.82,0.83,0.99]). easy 18 / medium 15 laddered.
+- MODEL-FREE causal loop (`rsi_true --headroom`): fixed common bank = reference + ladder; SHUFFLED so a
+  weak verifier can't tie-break to the reference. No test-taker model at run time -> dense, cheap, and a
+  property of the benchmark+loop itself.
+
+RESULT (20 blocks): ceiling REMOVED — Q0 easy=0.873, medium=0.770 (headroom now exists). With headroom:
+- N1 (child value) easy = **+0.032 [+0.006,+0.058]** -> CI strictly >0: a produced child verifier does
+  improve the target (first-order improvement is REAL once there's room). medium N1 +0.016 (straddles).
+- q1_minus_q0 easy ~0, medium +0.030 [-0.01,+0.07] (leans +, straddles).
+- F1/F2 (CAUSAL COMPOUNDING) STILL NULL: easy F1 +0.012 [-0.007,+0.032], medium F1 -0.025 [-0.051,+0.001];
+  F2 ~0 both. CIs straddle 0.
+INTERPRETATION (now substantive, not an artifact): the ladder gave real score headroom and a first-order
+child-improvement signal appears (N1>0 easy), but recursive COMPOUNDING doesn't — because the improvable
+lever (verifier edge-coverage n_inputs/n_edge) is ~SINGLE-STEP: one bump captures the gain, leaving
+nothing for the next round to build on. True F1/F2>0 needs an improvable procedure with multi-step depth
+(each improvement unlocks the next), which the verifier-config loop lacks. Data: ka_data/headroom_{easy,medium}.
+
 ## RSI ON CURATED EASY/MEDIUM — two-part result (2026-09-08)
 
 Ran ALL code-task RSI measurements on the curated bank (`rsi_verify --panel` = verifier-improvement +

@@ -54,13 +54,16 @@ def _judge_correct(task, fn, actor_cfg, rng):
     return True
 
 
-def make_behaviors(banks_anchor, banks_practice, M=5):
-    """banks_* : list of (task, bank) pairs. Anchors score Q (hidden); practice used by revise."""
+def make_behaviors(banks_anchor, banks_practice, M=5, grade_fn=None):
+    """banks_* : list of (task, bank) pairs. Anchors score Q (hidden); practice used by revise.
+    grade_fn(task, fn, rng) scores the selected candidate; default = step hidden_grade, headroom mode
+    passes continuous_grade so a graded ladder yields non-saturating Q."""
+    grade_fn = grade_fn or V.hidden_grade
     def develop(agent, anchor, rng):
         task, bank = anchor
         if not bank:
             return 0.0
-        return V.hidden_grade(task, cfg_select(task, bank, agent["params"], rng), rng)
+        return grade_fn(task, cfg_select(task, bank, agent["params"], rng), rng)
 
     def revise(actor, target, rng):
         cands = [mutate(target["params"], rng) for _ in range(M)]
@@ -107,7 +110,54 @@ def calib():
 
 
 # ---------------------------------------------------------------- real run
+def run_headroom(args):
+    """Model-free causal-RSI: fixed common bank = reference + curated graded ladder per task; continuous
+    scoring. Tests whether, WITH headroom, a better verifier-improver builds a better child verifier
+    (F1/F2) on easy/medium. This is a property of the benchmark+loop, not of any test-taker model."""
+    from kernelascent.v3 import curated_loader as CL
+    projs = CL.load_projects(args.curated, args.tier, args.limit or None)
+    ladders = json.load(open(args.ladder)).get(args.tier, {})
+    banks = []
+    for task in projs:
+        lad = ladders.get(task["name"])
+        if not lad:
+            continue
+        bank = [("ref", task["ref"])] + [("l%d" % i, CL._compile(r["code"], task["fn"])) for i, r in enumerate(lad)]
+        bank = [(n, f) for n, f in bank if callable(f)]
+        # SHUFFLE so ties (weak verifier can't separate ref from high rungs) don't always resolve to the
+        # reference -> a low-coverage verifier picks a random tied candidate (often a flawed rung) -> Q<1,
+        # and rises as edge coverage grows. Deterministic per task for reproducibility.
+        random.Random(hash(task["name"]) & 0xffffffff).shuffle(bank)
+        if len(bank) >= 3:                          # need the ref + >=2 rungs for a real ladder
+            banks.append((task, bank))
+    who = "headroom:%s" % args.tier
+    print("RSI-TRUE %s tasks_with_ladder=%d (of %d) blocks=%d" % (who, len(banks), len(projs), args.blocks), flush=True)
+    if not banks:
+        print("NO LADDERED TASKS -- run curate_ladder.py first"); return
+    results = []
+    for b in range(args.blocks):
+        rng = random.Random(1000 + b)
+        idx = list(range(len(banks))); rng.shuffle(idx)
+        anch = [banks[i] for i in idx[: args.anchor_n]]
+        prac = [banks[i] for i in idx[args.anchor_n: args.anchor_n + args.practice_n]] or anch
+        develop, revise = make_behaviors(anch, prac, M=args.M, grade_fn=V.continuous_grade)
+        U0 = {"params": {"n_inputs": 2, "n_edge": 0}}
+        r = run_lineage(U0, develop, revise, anch, rng, reps=1)
+        results.append(r)
+        print("b%d Q0=%.3f q1-q0=%+.3f F1=%+.3f F2=%+.3f N1=%+.3f" % (b, r.Q["U0"], r.q1_minus_q0, r.F1, r.F2, r.N1), flush=True)
+        agg = aggregate_lineages(results)
+        json.dump({"who": who, "tier": args.tier, "tasks": len(banks), "blocks_done": b + 1,
+                   "Q0": _mean_ci([x.Q["U0"] for x in results]), "agg": agg},
+                  open(os.path.join(args.outdir, "rsi_true.json"), "w"), indent=2)
+    print("\n=== RSI-TRUE HEADROOM %s ===" % who)
+    print("  Q0:", _mean_ci([x.Q["U0"] for x in results]))
+    for k in ("q1_minus_q0", "F1", "N1", "F2", "N2", "rescue_minus_revert"):
+        print("  %-20s %s" % (k, aggregate_lineages(results)[k]))
+
+
 def run(args):
+    if getattr(args, "headroom", False):
+        run_headroom(args); return
     if args.api_model:
         import curate_bedrock as CB
         cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
@@ -165,6 +215,8 @@ def main():
     ap.add_argument("--curated", default="", help="dir/file of curated tasks; overrides ALL_TASKS")
     ap.add_argument("--tier", default="", help="curated tier: easy|medium|hard|ultra")
     ap.add_argument("--limit", type=int, default=0, help="cap curated tasks (0=all)")
+    ap.add_argument("--headroom", action="store_true", help="model-free: reference+ladder fixed bank + continuous scoring")
+    ap.add_argument("--ladder", default="/tmp/instance_storage/ka_data/ladders/ladders.json", help="ladders.json from curate_ladder.py")
     ap.add_argument("--max-new", type=int, default=1024); ap.add_argument("--outdir", default="/tmp/rsitrue")
     args = ap.parse_args()
     if args.calib:

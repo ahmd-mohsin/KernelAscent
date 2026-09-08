@@ -36,7 +36,8 @@ def load_projects(path, tier, limit=None):
             ex = json.loads(ex)
         examples = [(tuple(a), o) for a, o in ex]
         proj = {"name": t["name"], "ref": ref, "fn": t["fn"], "sampler": samp, "edge": edge,
-                "spec": t["spec"], "buggy": t["buggy_code"], "examples": examples, "tier": tier}
+                "spec": t["spec"], "buggy": t["buggy_code"], "reference_src": t["reference_code"],
+                "examples": examples, "tier": tier}
         buggy_fn = _compile(t["buggy_code"], t["fn"])
         if callable(buggy_fn):
             proj["mutants"] = [("buggy", buggy_fn)]
