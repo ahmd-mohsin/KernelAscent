@@ -30,6 +30,29 @@ BUILT `kernelascent/v3/lab_engine.py` (recurring-decision engine, model-free) + 
   raw U0 target. Next: E2 (longer campaign, checkpoints 0/8/16/32) on a multi-bottleneck world; then E4
   repeated causal continuations measured off advanced targets. Data: ka_data/lab_engine/lab_engine.json.
 
+### KEY SYNTHESIS (2026-09-08): front-loading is structural to FIXED procedure spaces -> need OPEN-ENDEDNESS
+
+Ran E1 on THREE world designs -- simple one-shot flags, continuous recurring-decision policies, and a
+MULTI-BOTTLENECK world (good designs unreachable w/o structured proposal, unverifiable w/o selection under
+heavy noise, unaffordable w/o fidelity). ALL THREE stay FRONT-LOADED: greedy improvement finds one dominant
+move first (step-1 share 89-96% of total gain), remainder marginal. This is now a robust, repeated result,
+not a world-specific artifact.
+INTERPRETATION (the real principle): optimizing a FIXED policy space is inherently front-loaded -- you
+converge to a ceiling and the biggest step comes first, regardless of how the knobs interact. So on any
+closed procedure space, F2 ~ 0 is close to STRUCTURAL. Genuine compounding (F2>0) requires an OPEN-ENDED
+space where each improvement CREATES NEW improvement opportunities (new tools / operators / abstractions
+that did not exist before) -- open-ended capability growth, not knob-tuning toward a fixed optimum. This
+matches the review's "useful intermediate tools whose value emerges through later experiments" and the
+DGM / AlphaEvolve archive-of-growing-capabilities. It also refines the earlier "front-loaded / one-shot"
+diagnosis into its root: closed vs open-ended improvement space.
+E3 (actor x target matrix) stands: producer advantage is REAL but MASKED by target headroom on easy targets
+and EMERGES on advanced targets (actor2 +0.073 > actor0 +0.019 on T2) -- so F must be measured OFF advanced
+targets, and the substrate must be OPEN-ENDED for F to keep being non-zero across links.
+DESIGN DIRECTION (supersedes "multi-bottleneck alone"): build the GPU research engine so improvements can
+ADD capabilities (new proposal operators, new reusable tools, new abstractions entering the archive) that
+open further opportunities -- the DGM/AlphaEvolve growing-archive shape -- and measure F on advanced
+checkpoints. A closed knob-space (however deep) will read F2 ~ 0 by construction. Data: ka_data/lab_engine/.
+
 ## ⚠ OPEN ISSUE — FLAGGED FOR REVIEW (2026-09-08) [read first]
 
 **Causal compounding (F1/F2) is null for a STRUCTURAL reason, and this is the current key open question.**

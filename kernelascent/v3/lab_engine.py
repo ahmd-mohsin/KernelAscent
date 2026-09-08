@@ -29,6 +29,24 @@ GRID = {"propose_struct": [0.0, 0.25, 0.5, 0.75, 1.0], "fidelity_thr": [0.0, 0.3
         "alloc_temp": [0.0, 0.25, 0.5, 1.0], "select_k": [1, 2, 3, 4], "transfer_w": [0.0, 0.5, 1.0]}
 
 
+def make_world_mb(seed, n_designs=80, dup_rate=0.6, good_frac=0.05):
+    """MULTI-BOTTLENECK world: no single capability suffices. Good designs are (a) reachable ONLY via
+    structured proposal (absent from the junk-biased random draw), (b) NOISY under cheap eval (high sigma
+    -> must be CONFIRMED with select_k or you pick false-positives), and the budget is tight (-> expensive
+    tests must be RATIONED via fidelity). The very best sit in a cluster you only refine into by EXPLOITING
+    (low alloc_temp). So high Q requires fidelity AND proposal AND selection AND allocation in sequence."""
+    w = LE.make_world(seed, n_designs=n_designs, dup_rate=dup_rate, good_frac=good_frac)
+    w["sigma"] = 0.34                      # heavy cheap-eval noise -> selection matters
+    # a rare "elite" sub-cluster among the good designs: only reached by exploiting a found good region
+    w["elite"] = set(sorted((i for i in range(n_designs) if w["qual"][i] >= 0.8),
+                            key=lambda i: -w["qual"][i])[:2])
+    return w
+
+
+def _cheap(world, d, rng):
+    return max(0.0, min(1.0, world["qual"][d] + rng.gauss(0, world.get("sigma", LE.SIGMA_CHEAP))))
+
+
 def develop(U, world, rng, budget=60, memory=None):
     """Recurring-decision research loop; returns best VERIFIED quality. memory (dict) persists good regions
     across projects when transfer_w>0."""
@@ -46,13 +64,13 @@ def develop(U, world, rng, budget=60, memory=None):
             pool = list(memory.keys()) if (tw > 0 and memory and rng.random() < tw) else None
             opts = [(pool[rng.randrange(len(pool))] if pool else rng.randrange(N)) for _ in range(gg)]
             spent += gg * C_CHEAP * (0.5 + ps)             # structured proposal is budget-hungry
-            ce = {d: LE._cheap(world, d, rng) for d in opts}
+            ce = {d: _cheap(world, d, rng) for d in opts}
             d = max(opts, key=lambda x: ce[x]); cheap_d = ce[d]
         else:
-            d = draw[rng.randrange(len(draw))]; cheap_d = LE._cheap(world, d, rng); spent += C_CHEAP
+            d = draw[rng.randrange(len(draw))]; cheap_d = _cheap(world, d, rng); spent += C_CHEAP
         # ALLOC (recurring): with prob (1-atemp) exploit -> re-pick from remembered good region instead
         if rng.random() > atemp and good_hits:
-            d = max(good_hits, key=lambda x: seen.get(x, 0)); cheap_d = LE._cheap(world, d, rng)
+            d = max(good_hits, key=lambda x: seen.get(x, 0)); cheap_d = _cheap(world, d, rng)
         # FIDELITY (recurring): skip the expensive verified test on unpromising candidates
         if cheap_d < fthr:
             continue
@@ -60,7 +78,7 @@ def develop(U, world, rng, budget=60, memory=None):
             q = seen[d]                                    # cache (competent baseline: always on)
         else:
             # SELECT (recurring): gather sk cheap confirmations before spending the expensive test
-            confirms = [LE._cheap(world, d, rng) for _ in range(sk - 1)]; spent += (sk - 1) * C_CHEAP
+            confirms = [_cheap(world, d, rng) for _ in range(sk - 1)]; spent += (sk - 1) * C_CHEAP
             if confirms and statistics.mean(confirms + [cheap_d]) < fthr:
                 continue
             spent += C_EXP; q = world["qual"][d]; seen[d] = q
@@ -91,17 +109,31 @@ def best_legal(worlds, rng, budget, base):
     return cur, curq
 
 
-def greedy_revision(U, worlds, rng, budget):
-    """One revision = the single best legal single-coordinate change (a competent improver's step)."""
-    curq = Q(U, worlds, rng, budget); best_c, best_q = None, curq
+def _neighbors(U, pairs):
+    """single-coordinate changes; if pairs=True also all 2-coordinate joint changes (a STRONGER improver
+    that can make the COORDINATED moves a multi-bottleneck world requires)."""
+    single = []
     for k, vals in GRID.items():
         for v in vals:
-            if U["params"][k] == v:
-                continue
-            cand = copy.deepcopy(U); cand["params"][k] = v
-            q = Q(cand, worlds, rng, budget)
-            if q > best_q + 1e-4:
-                best_c, best_q = cand, q
+            if U["params"][k] != v:
+                c = copy.deepcopy(U); c["params"][k] = v; single.append(c)
+    out = list(single)
+    if pairs:
+        for i in range(len(single)):
+            for k2, vals2 in GRID.items():
+                for v2 in vals2:
+                    if single[i]["params"][k2] != v2:
+                        c = copy.deepcopy(single[i]); c["params"][k2] = v2; out.append(c)
+    return out
+
+
+def greedy_revision(U, worlds, rng, budget, pairs=False):
+    """One revision = the best legal neighbor (single- or, if pairs, up-to-two-coordinate change)."""
+    curq = Q(U, worlds, rng, budget); best_c, best_q = None, curq
+    for cand in _neighbors(U, pairs):
+        q = Q(cand, worlds, rng, budget)
+        if q > best_q + 1e-4:
+            best_c, best_q = cand, q
     return (best_c or copy.deepcopy(U)), best_q
 
 
@@ -109,10 +141,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--worlds", type=int, default=6); ap.add_argument("--budget", type=int, default=60)
     ap.add_argument("--steps", type=int, default=5)
+    ap.add_argument("--world", choices=["simple", "mb"], default="simple")
+    ap.add_argument("--pairs", action="store_true", help="stronger improver: allow 2-coordinate coordinated moves")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/lab_engine")
     args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
-    worlds = [LE.make_world(s) for s in range(args.worlds)]
+    mk = make_world_mb if args.world == "mb" else LE.make_world
+    worlds = [mk(s) for s in range(args.worlds)]
     rng = random.Random(0)
 
     # E1: greedy improvement TRAJECTORY -> is per-step gain spread (non-front-loaded) or front-loaded?
@@ -122,7 +157,7 @@ def main():
                  "params": dict(U["params"])})
     checkpoints = [copy.deepcopy(U)]
     for s in range(1, args.steps + 1):
-        U, q = greedy_revision(U, worlds, rng, args.budget)
+        U, q = greedy_revision(U, worlds, rng, args.budget, pairs=args.pairs)
         traj.append({"step": s, "Q": round(q, 4), "gain": round(q - q_prev, 4),
                      "remaining_headroom": round(ceiling - q, 4), "params": dict(U["params"])})
         checkpoints.append(copy.deepcopy(U)); q_prev = q
@@ -145,7 +180,7 @@ def main():
     tgt = cps
     def child_of(actor, target):
         # actor's policy governs a one-coordinate improving search on the common target (its "revise")
-        c, _ = greedy_revision(target, worlds, rng, args.budget)
+        c, _ = greedy_revision(target, worlds, rng, args.budget, pairs=args.pairs)
         # actor quality modulates how reliably the improving change is found: better actor (higher struct+
         # fidelity+select) = less noise -> keep; worse actor may miss it (return target).
         eff = actor["params"]["propose_struct"] + (1 - actor["params"]["fidelity_thr"]) * 0 + 0.15 * actor["params"]["select_k"]
