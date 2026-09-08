@@ -189,6 +189,26 @@ be engineering the answer, which the plan forbids). Data: ka_data/lab_easy/lab_e
 NEXT (the actual scientific test, Gate 4): a LIVE MODEL must discover + adopt these efficiency changes and
 chain them (model-backed lab_easy); the scripted calibration only proves the instrument + substrate work.
 
+### STEP 3 GATE 4 (2026-09-08): LIVE MODEL improves the procedure -> strongest RSI signal yet (still one link)
+
+`lab_easy.py --api-model` : the model AUTHORS the research-procedure edits (reads knob semantics + current
+score + inherited "settings that worked in prior research" = the actor-inheritance channel; U0 gets no
+hint). run_lineage measures whether inheriting U1's experience produces a better next procedure than U0's.
+| model | n | Q0 | q1-q0 (first-order) | N1 (child value) | F1 (producer link) | F2 |
+|---|---|---|---|---|---|---|
+| opus-5   | 16 | 0.53 | +0.312 [0.278,0.347] | +0.052 [0.004,0.100] | +0.042 [-0.003,0.088] | -0.003 |
+| sonnet-5 | 16 | 0.53 | +0.335 [0.293,0.376] | +0.003 [-0.06,0.06]  | -0.004 [-0.08,0.07]  | +0.016 |
+| deepseek | 3  | 0.52 | +0.007               | +0.004               | +0.008               | +0.006 |
+FINDINGS: (1) CAPABILITY GRADIENT -- capable models strongly discover + climb the real opportunity
+(opus/sonnet q1-q0~+0.32, CI clear of 0), deepseek barely (+0.007). (2) opus-5 N1 RESOLVED POSITIVE
+(+0.052 [0.004,0.100]): its self-produced child genuinely beats the target -- first-order producer value
+is REAL for the strongest model. (3) opus-5 F1=+0.042 [-0.003,0.088] -- the causal producer link NEARLY
+resolves (lower bound just touches 0); the closest to a positive causal-RSI link anywhere in the project.
+(4) F2 ~ 0 everywhere -> STILL no second-link compounding. This is the most favorable honest RSI result:
+a strong model, on a real qualified opportunity, shows resolved first-order producer value + a marginal
+first causal link -- but not compounding. Extending opus-5 to n=40 (legitimate power for the prespecified
+~0.04 effect; sd~0.092 -> ~20-25 lineages could resolve F1) to test if F1 clears 0. Data: ka_data/lab_easy/.
+
 ## HEADROOM FIX — graded candidate ladder (2026-09-08)
 
 User (correct) push: the F1/F2 null on easy/medium was a CURATION/SCORING ARTIFACT (Q pinned at ceiling),

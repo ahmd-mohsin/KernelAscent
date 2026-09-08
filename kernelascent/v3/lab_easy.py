@@ -143,6 +143,67 @@ INEFFICIENT_U0 = {"params": {"propose": "random", "cache": 0, "dedup": 0, "stage
 EFFICIENT_REF = {"params": {"propose": "guided", "cache": 1, "dedup": 1, "staged": 1, "stage_thr": 0.5, "guide_g": 7}}
 
 
+# ------------------------------------------------------------------ Gate 4: LIVE MODEL improves the procedure
+LAB_TMPL = (
+    "You tune a research procedure that searches a pool of operator variants under a fixed budget to find "
+    "the fastest correct one. Higher score = better. Maximize the score. Knobs:\n"
+    "  propose: 'random' (cheap, only reaches common variants) or 'guided' (costs budget, can reach rare fast ones)\n"
+    "  cache 0/1 (reuse a tested result), dedup 0/1 (skip re-testing), staged 0/1 (cheap-filter before the costly test)\n"
+    "  stage_thr 0.1-0.9 (cheap-filter cutoff), guide_g 2-8 (how many options guided ranks; higher finds better but costs more)\n"
+    "Procedure to edit: {cur}\nMeasured score: {q:.3f}.{hint}\nReturn ONLY JSON with all seven keys.")
+
+
+def make_model_revise(gen_fn, worlds, eval_budget, rng_seed=0):
+    import re, copy
+    def revise(actor, target, rng):
+        qcur = statistics.mean(develop(target, worlds[rng.randrange(len(worlds))], rng, eval_budget) for _ in range(2))
+        # inheritance channel: the actor passes only the settings that WORKED in its prior research
+        # (guided + enabled efficiency flags); U0 has none -> no misleading anchor. Better actor -> better prior.
+        good = [k for k in ("cache", "dedup", "staged") if actor["params"].get(k)]
+        if actor["params"].get("propose") == "guided":
+            good = ["guided"] + good
+        hint = (" From your prior research these settings worked well: %s." % ", ".join(good)) if good else ""
+        raw = gen_fn(LAB_TMPL.format(cur=json.dumps(target["params"]), q=qcur, hint=hint)) or ""
+        m = re.search(r"\{.*\}", raw, re.S)
+        child = copy.deepcopy(target["params"])
+        if m:
+            try:
+                d = json.loads(m.group(0))
+                if d.get("propose") in ("random", "guided"): child["propose"] = d["propose"]
+                for k in ("cache", "dedup", "staged"):
+                    if k in d: child[k] = 1 if d[k] in (1, True, "1", "true") else 0
+                if isinstance(d.get("stage_thr"), (int, float)): child["stage_thr"] = min(0.9, max(0.1, float(d["stage_thr"])))
+                if isinstance(d.get("guide_g"), (int, float)): child["guide_g"] = int(min(8, max(2, d["guide_g"])))
+            except Exception:
+                pass
+        return {"params": child}
+    return revise
+
+
+def run_model(args):
+    import curate_bedrock as CB
+    cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
+    cur.resolve(); cur.resolve_reasoning(); gen_fn = lambda p: cur.generate(p); who = "api:" + args.api_model
+    anchors = [make_world(s) for s in range(args.anchors)]
+    worlds = [make_world(1000 + s) for s in range(args.anchors)]
+    revise = make_model_revise(gen_fn, worlds, args.budget)
+    print("LAB-EASY Gate4 %s anchors=%d lineages=%d" % (who, args.anchors, args.lineages), flush=True)
+    results = []
+    for s in range(args.lineages):
+        r = run_lineage(INEFFICIENT_U0, develop, revise, anchors, random.Random(s), reps=args.reps)
+        results.append(r)
+        agg = aggregate_lineages(results)
+        print("lin%d Q0=%.3f q1-q0=%+.3f F1=%+.3f N1=%+.3f F2=%+.3f" %
+              (s, r.Q["U0"], r.q1_minus_q0, r.F1, r.N1, r.F2), flush=True)
+        q0 = _mean_ci([x.Q["U0"] for x in results])
+        json.dump({"who": who, "lineages": s + 1, "Q0": q0, "agg": agg},
+                  open(os.path.join(args.outdir, "lab_easy_%s.json" % who.replace(":", "_").replace("/", "_").replace(".", "_")), "w"), indent=2)
+    print("\n=== LAB-EASY Gate4 %s ===" % who)
+    print("  Q0:", _mean_ci([x.Q["U0"] for x in results]))
+    for k in ("q1_minus_q0", "F1", "N1", "F2", "N2"):
+        print("  %-12s %s" % (k, aggregate_lineages(results)[k]))
+
+
 # ------------------------------------------------------------------ tests / calibration
 def calib(args):
     anchors = [make_world(s) for s in range(args.anchors)]
@@ -178,14 +239,18 @@ def calib(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--calib", action="store_true")
+    ap.add_argument("--api-model", default=""); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--anchors", type=int, default=6); ap.add_argument("--lineages", type=int, default=30)
     ap.add_argument("--reps", type=int, default=2); ap.add_argument("--rev-reps", type=int, default=2)
-    ap.add_argument("--budget", type=int, default=80)
+    ap.add_argument("--budget", type=int, default=60)
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/lab_easy")
     args = ap.parse_args()
+    os.makedirs(args.outdir, exist_ok=True)
     if args.calib:
         calib(args); return
-    print("use --calib (model-free lab mechanism test); model-backed qualification is the next build")
+    if args.api_model:
+        run_model(args); return
+    print("use --calib (model-free) or --api-model <id> (Gate 4: live model improves the procedure)")
 
 
 if __name__ == "__main__":
