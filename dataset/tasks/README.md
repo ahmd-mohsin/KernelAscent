@@ -62,7 +62,7 @@ cannot be contaminated by training on this data. Do not attempt to reconstruct i
 
 ```python
 from datasets import load_dataset
-ds = load_dataset("HF_REPO_PLACEHOLDER")
+ds = load_dataset("muahmed7338/kernelascent-tasks")
 task = ds["medium"][0]
 # fix task["buggy_code"] so it matches task["reference_code"] on sampled + edge inputs
 ```
