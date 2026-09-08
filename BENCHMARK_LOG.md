@@ -85,6 +85,17 @@ measure (1) useful experience-based improvement, (2) improved ability to generat
 GPU kernels + inference serving = the flagship application; keep the small Python tasks + fixed
 verifier banks as CALIBRATION instruments only.
 
+### M1 DONE (2026-09-08): inspectable GPU inference world -- `kernelascent/world/inference_world.py`
+Small transformer decode service from SWAPPABLE operators (improvable W = rmsnorm/qkv/attn/oproj/mlp);
+IMMUTABLE grader measures correctness vs fp32-gold + latency + tokens/s + goodput(SLO) + speedup; per-op
+Amdahl profiler. A100 smoke: baseline 11.3ms / 180k tok/s / correct(rel-err .013); OPPORTUNITY MAP =
+{mlp .567, qkv .171, rmsnorm .098, oproj .095, attn .07} -> MLP is the lever (caps ~2.3x service
+speedup), attn caps ~1.08x. Grader end-to-end validated (swap op -> correctness gate -> service metric).
+This is the world where opportunities (profile), decisions (which op), causal deps (op->service, gated by
+correctness), and downstream consequences (tok/s, goodput) are ALL measurable. NEXT (M2/M4): hook a model
+agent to optimize an operator + report the three conclusions (experience-improvement / better-improver /
+causal-reuse) SEPARATELY; add more worlds/operators + workload shift for transfer.
+
 ### M0 FIXES (do first, before more runs)
 - METRIC-BOUND BUG (real, caught): selected_C EXCEEDS oracle_pool_success in the log (Hard qwen-1.5B
   0.73>0.67; very-hard deepseek 0.35>0.17; llama4 0.77>0.75). Cause = semantic mismatch: selected_C
