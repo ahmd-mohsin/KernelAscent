@@ -96,6 +96,28 @@ Early (1/6 blocks, noisy): Q0 gpt-oss .253 / deepseek .126 / qwen-1.5B .125; F1/
 Accumulating to 6-block CIs. Using the 8 main-node GPUs fully; worker nodes (16 more) mount separate
 nvme and need independent setup -- not wired.
 
+### M4 RESULT (2026-09-08): RSI null CONFIRMED on the flagship GPU world (3 conclusions, 8 models)
+
+agent_loop on the M1 world, 6-block lineages, model authors BOTH develop (writes the operator) and
+revise (rewrites the strategy) -- M0 attribution: model-authored, NOT a fixed optimizer (contrast
+rsi_true). After the content-filter template fix Fable/GPT-5.6 produce real operators.
+| model | Q0 capability | experience q1-q0 | causal F1 [95% CI] |
+|---|---|---|---|
+| Fable 5.1 | 0.370 | -0.119 | +0.114 (1 blk, wide) |
+| GPT-5.6-terra | 0.287 | +0.041 | +0.047 [-0.031,0.124] |
+| deepseek-6.7B | 0.104 | +0.104 | +0.024 [-0.049,0.097] |
+| gpt-oss-120b | 0.063 | +0.041 | -0.020 [-0.096,0.056] |
+| qwen-1.5B/7B/14B, mistral-large-3 | 0.00-0.08 | ~+-0.04 | span 0 (e.g. -0.021[-0.119,0.078]) |
+THREE CONCLUSIONS, separated: (1) CAPABILITY Q0 ranks coherently at the top (Fable .37 > GPT-5.6 .29 >>
+open ~0-0.1); frontier writes better/faster operators. (2) EXPERIENCE q1-q0 small + mixed (no reliable
+first-order gain from one self-revision of the STRATEGY here). (3) CAUSAL RECURSION F1/F2 span 0 for
+every model. => RSI NULL now holds on ALL THREE substrates (kernels, verifier, GPU inference world),
+densely, with the pathway model-authored and the instrument calibrated. This is the benchmark's core
+honest finding: capability is real and ranks cleanly; causal compounding self-improvement is ABSENT at
+this scale/diversity. Caveat: 6 blocks + 4 shape-anchors of ONE operator (MLP) = thin diversity; wide
+CIs at the top (Fable/GPT-5.6 still finishing). Densifying a POSITIVE needs M2 diversity (many operators
++ worlds) and E7 external validity -- but the honest current answer is a bounded negative.
+
 ### M1 DONE (2026-09-08): inspectable GPU inference world -- `kernelascent/world/inference_world.py`
 Small transformer decode service from SWAPPABLE operators (improvable W = rmsnorm/qkv/attn/oproj/mlp);
 IMMUTABLE grader measures correctness vs fp32-gold + latency + tokens/s + goodput(SLO) + speedup; per-op
