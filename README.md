@@ -1,312 +1,107 @@
 # KernelAscent
 
-**A benchmark of agents that improve with experience — capability, verification, and causal recursive self-improvement (RSI), on GPU-kernel and verifier-improvement substrates.**
+**A benchmark of agents that improve with experience.** It asks the sharp question — not "can an agent
+solve a task?", but: when an agent improves the *research procedure* it uses, does *using* that improvement
+causally produce a *better next* improvement, and does it *compound*? Effects are estimated with 95% CIs
+against a prespecified meaningful effect δ = 0.05; every headline separates the axes rather than collapsing
+them into one "RSI score".
 
-KernelAscent is a benchmark for recursive self-improvement (RSI). An agent optimizes
-the GPU kernels used to train itself; under a fixed wall-clock budget those faster
-kernels buy more effective training, producing a more capable model, which then
-optimizes kernels better. The headline question is whether kernel-optimization
-capability **compounds** across rounds or plateaus.
+Site: https://ahmd-mohsin.github.io/KernelAscent/ · Full running record + every number: [`BENCHMARK_LOG.md`](BENCHMARK_LOG.md)
 
-The raw capability (writing fast GPU kernels) is well studied — KernelBench,
-TritonBench, RE-Bench, robust-kbench, Kevin-32B. The novel, unbenchmarked part is the
-closed `kernel -> faster training -> better model -> better kernel` loop and its
-measured takeoff shape. See `proposal/` for the full motivation and design.
+## Three axes (reported separately)
 
-## Current state (September 2026) — what the benchmark measures now
-
-KernelAscent has grown into a benchmark of **agents that improve with experience**, with the **live
-recursive loop** as the flagship. It has **two task substrates** and **three measurement axes**, all on
-instruments validated by deterministic calibration. Full running record + every score: `BENCHMARK_LOG.md`.
-
-**Two substrates**
-- **Kernel track** — procedural GPU-kernel optimization tasks; crash-isolated grader; correctness vs
-  fp32-gold and speedup vs `min(eager, torch.compile)`. Powers the capability leaderboard and the
-  kernel causal-RSI runs. Runs on GPU (open models) + Bedrock (API models).
-- **RSI-VERIFY** — a bug-fix agent whose **local verifier** (a spec-derived checker run on N
-  self-generated inputs) gates its patch selection. Improving the verifier (more inputs + edge
-  coverage) is a *measurable procedural improvement*. Pure-Python grading (API models need no GPU),
-  three difficulty tiers, dockerized.
-
-**Three axes (reported separately — never one "RSI IQ.")**
 1. **Capability** — can the agent produce a correct/fast solution.
-2. **Verification** — does having a local verifier (best-of-K selection) help.
-3. **Recursion** — does using an improvement *causally enable a further* improvement (F1→F2).
+2. **First-order improvement** — does one self-revision of the procedure raise the quality of what it then
+   produces (`q₁−q₀`, and `N` = does the child beat the unchanged target).
+3. **Causal recursion** — `F = Q(U₂) − Q(V₂)`: a newer producer and an older producer edit the **same**
+   target; recursion means the newer wins, and `F₂` asks whether that **repeats** (compounding). The
+   actor/target separation is what turns "the score went up" into a causal claim; a rising task score or
+   editable source is not enough.
 
-**Metric fields** (RSI-VERIFY): `oracle_pool_success` (≥1 fully-correct candidate exists = capability
-ceiling), `randomized_select_C0`, `selected_C_weak/strong`, `selection_headroom`, `verifier_dQ`. These
-separate "no correct candidate" from "verifier misselected" — the core measurement fix.
+## Substrates
 
-**Difficulty tiers** (RSI-VERIFY): `calibration` (trivial, wiring tests) / `hard` (edge-rich:
-kth_largest, rle, merge_intervals) / `very-hard` (frontier traps: integer expression eval with
-truncation-toward-zero + precedence, wildcard matching, Gregorian day-of-week with leap-century).
+- **GPU-kernel track** — procedural kernel-optimization tasks; crash-isolated grader; correctness vs
+  fp32-gold and speedup vs `min(eager, torch.compile)`. Powers the capability leaderboard. Two walls:
+  correctness ranks the low/mid band, beating `torch.compile` is the frontier discriminator.
+- **Code / RSI track** — pure-Python, executable-graded. A difficulty-graded bug-fix bank (capability +
+  local-verifier selection), and an **open-ended research engine** where the improvable state is a growing
+  **archive** of reusable, debugged abstractions (library learning). This is where the recursion axis lives.
 
-### Headline results (all with resolved CIs; see `BENCHMARK_LOG.md`)
-- **Capability is a clean frontier gradient.** E0 leaderboard (22 models): GPT-5.6 sol/terra top both
-  walls (beat torch.compile on ~60–67% of kernels); open Coder models cluster at the correctness wall.
-  Very-hard RSI-VERIFY: oracle spreads deepseek-6.7B 0.17 … qwen-14B 0.96 … frontier 1.00.
-- **Verification helps, capability-graded.** Adding a local verifier lifts weak models most
-  (+0.25 for 1.5–3B), ~0 for saturated frontier.
-- **Causal recursion (true RSI): a well-controlled bounded negative — with genuine positives.** Latest
-  program (Sept 8; curated code-task bank + an efficiency-of-experimentation lab *engineered to favor
-  recursion* + live-model runs + matched-budget controls + replication + transfer):
-  - **Resolved positives:** first-order improvement is real, causal (beats a frozen-procedure+growing-memory
-    control), and capability-graded (opus-5 q₁−q₀ = +0.30 > gpt-oss +0.10 > deepseek +0.02); the child
-    beats the unchanged target (N₁ resolved > 0 for two models); and **learned procedures transfer** to a
-    structurally different task family (+0.091 [0.037, 0.146]).
-  - **Bounded negatives:** the **causal producer advantage** F₁ = +0.019 [−0.013, 0.051] at n=40 (bounded
-    below δ=0.05; a promising +0.042 at n=16 was small-sample noise), and **compounding** F₂ ≈ 0 on all
-    four substrates. Iterating to find a good procedure beats neither direct construction (−0.18) nor direct
-    search at matched budget (break-even → ∞).
-  - Honest one-liner: **agents improve their research procedure with experience — first-order, causal,
-    capability-graded, transferable — but this does not (yet) produce a resolved causal producer advantage
-    or recursive compounding.** Not a dead instrument (it cleanly detects N₁>0 + the capability gradient).
+## Headline findings (honest)
 
-**Curated code-task dataset** (difficulty-graded, executable-validated, family-diversity-forced): 75 public
-tasks (easy 21 / medium 17 / hard 18 / ultra 19) on
-[HuggingFace](https://huggingface.co/datasets/muahmed7338/kernelascent-tasks) + `dataset/tasks/public/`; a
-34-task held-out split powers the leaderboard and is never published. Site (black-and-white, with mechanism
-+ findings curves): https://ahmd-mohsin.github.io/KernelAscent/
+- **Capability is a clean, capability-graded gradient** (E0, 22 models): GPT-5.6 tops both walls; open
+  ≤14B models sit at the correctness wall with fast-rate 0.
+- **First-order self-improvement is real and capability-graded — including a negative regime.** On the
+  load-bearing open-ended substrate (live models, 12 lineages, 95% CI): the strongest model improves its
+  procedure (Opus-5 `q₁−q₀` = **+0.083 [0.014, 0.153]**, resolved > 0) while weaker models are *hurt* by
+  self-revision (Gemma-3-12B −0.039, Llama-3.1-8B −0.207, both resolved < 0) — weak models poison their own
+  library with buggy abstractions.
+- **Causal recursion is substrate-dependent, and this is the core result.** In a *closed* procedure space
+  (knob-tuning) `F₂ ≈ 0` is essentially structural — gains front-load into the first step. In an
+  *open-ended archive* (each improvement creates new improvement opportunities) the **instrument resolves
+  compounding**: scripted calibration gives `F₁ = +0.010 [0.006, 0.014]`, `F₂ = +0.028 [0.023, 0.033]`
+  (accelerating), while a frozen-archive+growing-memory control is exactly 0 (memory ≠ recursion). **No
+  live model yet shows resolved positive `F₂`** — even on the open-ended substrate — so *true RSI is not
+  demonstrated*; the benchmark is the instrument that reads ~0 until it happens and >0 when it does.
+- **The load-bearing constraint** (why live compounding is hard): if a strong model can re-derive a helper
+  inline, an optional archive adds nothing. Compounding needs the archive to be load-bearing — components
+  hard-to-write-correctly but easy-to-reuse (edge-trap, or too-long-to-re-derive). GPU kernels, where
+  frontier genuinely fails, are the natural home for the next step.
 
-This negative is the point, not a bug: the benchmark is built to measure recursion honestly and report
-where it is absent, with the two "walls" (correctness, speed) and the saturation/headroom structure made
-explicit. Validity gates: capability ranks sensibly across the spectrum (best models best), and every
-anomalous low score (GPT-5.6 temperature-field rejection, an `eval`-token content-filter) was
-root-caused to a harness artifact rather than trusted.
+## Datasets
 
-### Docker
-`docker/` packages RSI-VERIFY (CUDA base, GPU-capable, API-only works CPU-only) with a CI self-check
-entrypoint (deterministic gate + calibration, no model/GPU/creds). Creds mount at runtime, never baked
-in. A drop-in path for evaluating fine-tuned models is planned once the fundamentals are frozen.
+Two-split design (public committed + on HuggingFace; a held-out split powers the leaderboard and is never
+released).
 
-### Status / roadmap
-Validated + pushed: kernel grader/generator, E0 leaderboard, causal core + calibrations, executed-
-successor flagship, RSI-VERIFY (tiers + metrics + reasoning-chain capture), dockerization.
-Next: substantial **kernel problems in the hard/ultra tiers**; **world-first** environment (one realistic
-world, experts author tasks against it); research-hard curation (Fable-5.1 max-thinking) to separate the
-top frontier; and continued Gate-3/4 causal work.
+- **Code bug-fix bank** — 75 public tasks (easy 21 / medium 17 / hard 18 / ultra 19), 14–16 distinct
+  problem families per tier, curated by Fable 5.1 and executable-validated:
+  [`dataset/tasks/public/`](dataset/tasks/public) · HF `muahmed7338/kernelascent-tasks`.
+- **Open-ended RSI task bank** — hard list-of-int synthesis tasks that *share* number-theory/digit
+  primitives so a reused verified helper can compound: [`dataset/rsi_tasks/`](dataset/rsi_tasks).
+- **GPU-kernel bank** — 1000+ procedural tasks, 6 families: [`dataset/curated/`](dataset/curated).
 
-## Difficulty tiers and empirical calibration
-
-Tasks are organized into four difficulty tiers, and every task carries an empirical
-difficulty label measured by running 13 open-weight models (Qwen2.5-Coder and
-Qwen2.5-Instruct 0.5B to 14B, plus DeepSeek-Coder-6.7B, StarCoder2-15B,
-CodeLlama-13B) as test-takers on a 24 GPU fleet.
-
-- Easy: small power-of-two elementwise fusion or a single reduction (softmax,
-  layernorm, rmsnorm). The accessible floor, solvable by 1.5B and up.
-- Medium: matmul with a fused epilogue, or short fused chains at moderate shapes.
-- Hard: matmul-bearing fusion chains, full and causal attention, RoPE attention.
-- Ultra: soft-MoE and large or irregular shapes for frontier headroom.
-
-Two failure walls are reported separately, because models fail in two different ways.
-Correctness (can the model emit a valid, correct kernel) is the binding constraint
-below roughly 14B; speed (does a correct kernel beat the min(eager, torch.compile)
-roofline) is the binding constraint above it. Mean correctness% / beats-roofline%
-by model-size band:
-
-```
-band            Easy       Medium     Hard       Ultra
-small (<=3B)    46 / 23    38 / 13    36 / 4     31 / 3
-mid   (6-8B)    80 / 28    67 / 12    54 / 6     38 / 6
-large (13-15B)  73 / 30    70 / 22    63 / 7     52 / 11
+```python
+from datasets import load_dataset
+ds = load_dataset("muahmed7338/kernelascent-tasks")   # easy / medium / hard / ultra
 ```
 
-Correctness falls monotonically Easy to Ultra in every band and rises with model
-size, so the ladder is calibrated. The roofline is torch.compile, which is not
-optimal (expert kernels beat it), so there is genuine headroom above the bar at every
-tier and no global optimum, which is what an RSI loop is meant to climb into. See
-`analysis/calibration_run.md` for the full failure breakdown and the reasons
-self-improvement does not yet compound.
+## Evaluate a model (dockerized)
 
-The public split lives in `dataset/public/<Tier>/<task>/` with `task.py` plus a
-`meta.json` carrying the tier, family, shapes, and the empirical difficulty
-(`solve_rate` and `best_speedup_observed` across the 13 models). `dataset/public/manifest.json`
-indexes the set.
-
-## How we evaluate
-
-Correctness gate. A candidate `ModelNew` is checked against an fp32 gold reference on N=4
-fresh random inputs with a relative L2 tolerance no tighter than the working dtype's own
-rounding error, and an input-sensitivity check that rejects constant or input-ignoring
-outputs. Correctness is verified on the same run that is timed, so a fast wrong path cannot
-score. Each candidate is graded in an isolated subprocess, so a native compiler abort or a
-hang loses only that candidate, never the run. `kernelascent/test_grader.py` asserts all of
-this on the GPU (correct passes, wrong fails, reward-hack rejected, erroring isolated).
-
-Two walls, reported separately. Models fail in two distinct ways and we never fuse them
-into one number. Correctness rate is whether a valid correct kernel was produced at all
-(the binding constraint below roughly 14B). Speed rate is whether a correct kernel beats
-the roofline (the binding constraint above it).
-
-Speed score, a slope not a cliff. Speed is scored on a continuous log-interpolated ladder
-between three rungs, eager, `torch.compile`, and an expert kernel:
-`s = clip((ln t_eager - ln t_cand) / (ln t_eager - ln t_expert), 0, 1.2)`, so 0 is eager
-parity and 1 is expert parity, with compile parity as a milestone. The expert rungs are
-reconstructed with a strong curator (Fable 5.1) and verified to beat `torch.compile`. This
-gives incremental speedups rising credit rather than a single pass or fail at the compiler
-bar (`kernelascent/scoring.py`).
-
-## How we measure progress (RSI)
-
-Raw capability is the tier ladder above. Recursive self-improvement is measured with
-campaigns, not one-shot scores. A model runs K rounds; each round has a practice phase
-(public seeds, it may grow a persistent artifact) and a transfer phase (private seeds,
-artifact frozen). The transfer score across rounds is the signal. Improvement is credited
-only when it persists in an artifact, transfers to held-out tasks, and beats controls.
-
-The central question is causal: does the agent become better at generating future
-improvements, and which inherited changes cause that. We separate a checkpoint into a solver
-`S_k` (prompts, reusable kernels, retrieval, tools) and an improver `U_k` (how practice is
-chosen, failures analyzed, edits proposed, artifacts admitted). The decisive experiment is a
-transplant: does the later improver `U_k` produce a better descendant from a common starting
-solver `S_0` than `U_0` does. A rising task score alone is not enough, because it conflates
-task capability, transferable memory, extra compute, and improved improvement ability.
-
-Controls make the claim honest: a frozen-nonempty library (isolates growing from having), an
-offline-built library (recursion vs ordinary construction), matched-compute search (rules out
-more sampling), and a measured unchanged-state noise floor (at small n, sampling alone moves
-the score, so effects must clear that floor). The permission levels L0 to L5 are an
-edit-permission taxonomy, not intrinsic depths of recursion; depth is measured by intervening
-on artifact ancestry. Full design in `docs/RSI_CAUSAL_PLAN.md`; findings and honest
-corrections in `analysis/` (`EVALUATION_REPORT.md`, `l2_result.md`, `phase0_exit.md`).
-
-## Current status (v3: causal recursive-improvement core)
-
-Established. Capability calibration across 13 models (the two walls). A 15-model x 4-arm
-causal sweep (growing / frozen-nonempty / offline-built / matched-search) then found that
-matched-compute search beats recursive library-growing on average, and growing is below its
-strongest control for 13 of 15 models: no evidence that recursively growing a skill library
-beats spending the same budget on more attempts (see `analysis/causal_sweep_15model.md`). This
-is a clean negative for that form of memory-RSI, not proof recursion is impossible, because the
-sweep never measured whether an evolved procedure produces a better next procedure.
-
-The redesign. The benchmark's central object is now the causal returns to recursive
-improvement: separate the actor (the procedure generating a patch) from the target (the thing
-patched) so competing producers edit the SAME target, and measure Q (research productivity),
-V (producing a better improver), F (causal producer contrast), N (live-child value), across a
-two-link lineage with rescue. Full design in `docs/RSI_V3_PLAN.md`.
-
-Instrument validated. A deterministic calibration suite (`kernelascent/v3/calibration.py`)
-proves the pipeline distinguishes a repeating recursive positive control (F1>0, F2>0) from a
-one-time upgrade (F2~0), best-of-N (score rises, F~0), nulls, and broken interventions -- ALL
-PASS. A model-level null is therefore credible: the instrument would detect a positive control
-of the tested size.
-
-Running now. A Stage-5 pilot runs the validated instrument on real models (Fable 5.1, Opus 5,
-open-weight) over independent lineages, reporting Q/F/N with lineage-level uncertainty.
-
-## Repository layout
-
-```
-proposal/
-  proposal.md                 Extended design doc (tiers, scoring, threat model)
-  proposal.tex / proposal.pdf 2-page RSI proposal (loop C)
-  rsi_bench_form_answers.md   RSI Bench submission-form answers
-kernelascent/
-  task_schema.py              Task object: reference, inputs, tolerance, tier, tags
-  gen_tasks.py                Procedural op-graph generator (closure tasks)
-  gen_source_tasks.py         KernelBench-style SOURCE tasks for LLM agents
-  run_bench.py                Harness: grade a candidate vs a roofline baseline
-  agent_bench.py              LLM agent benchmark (Qwen2.5-Coder), best-of-k
-legacy/
-  ka_harness.py               First hardcoded-softmax harness (kept for reference)
-  cand_softmax_triton.py      Sample Triton candidate
-results/
-  agent_run2.json             First valid agent run (Qwen2.5-Coder-7B)
-  results_verify.json         Roofline + scoring verification run
-```
-
-## How scoring works
-
-- **Procedural tasks.** A task is a randomly sampled fused op-graph (matmul, pointwise,
-  reduction) with randomized shape, dtype, and length, including non-power-of-2 widths.
-  Tasks are generated from a seed, so a held-out seed range gives a private, hard to
-  memorize split.
-- **Correctness against fp32 gold.** A candidate passes when its relative L2 error to an
-  fp32 gold is no worse than the reference's own fp16/bf16 rounding error, times a
-  margin. This never demands more precision than the working dtype allows.
-- **Roofline-relative speedup.** `speedup = t_baseline / t_candidate`, where the baseline
-  is a strong automated reference (`torch.compile`). Timing uses warmup, median-of-N, an
-  L2 flush, and GPU clocks pinned for reproducibility.
-- **Primary metric `fast_p`.** Fraction of tasks with speedup greater than p (1, 1.5, 2).
-  Geometric mean is reported over passing tasks only, so correctness failures do not
-  collapse it. For agents we also report `pass@k`.
-
-## Running
+One command → a submittable scorecard; the leaderboard is scored on a private held-out split.
 
 ```bash
-pip install "kernelascent @ git+https://github.com/ahmd-mohsin/KernelAscent"
+docker build -t ka -f docker/Dockerfile .
 
-export AWS_PROFILE=bedrock                      # Bedrock access (us-east-1)
-kernelascent gen   --model us.anthropic.claude-opus-4-8 --tiers L1,L2 --out runs/opus   # API, no GPU
-kernelascent grade --candir runs/opus --out runs/opus/summary.json                      # GPU
-# or, on a GPU box, end-to-end:
-kernelascent eval  --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --out runs/qwen3-32b
+# capability (API model, no GPU):
+docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
+  -v $PWD/creds:/creds:ro -v $PWD/out:/out ka \
+  --track capability --api-model us.anthropic.claude-opus-5 --tier medium
+
+# recursion (open-ended library-learning loop):
+docker run --rm ... ka --track rsi --api-model us.anthropic.claude-opus-5 --lineages 12
 ```
 
-`gen` calls the model via Bedrock and stores candidate kernels + reasoning trajectories;
-`grade` runs/times them on a GPU against the `min(eager, torch.compile)` roofline. See
-`QUICKSTART.md`. For reproducible timing, lock GPU clocks: `sudo nvidia-smi -lgc 1410`.
+Then open a [model-submission issue](https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml).
+Self-check (no model/GPU/creds): `docker run --rm --entrypoint bash ka docker/entrypoint_selfcheck.sh`.
 
-## Three tracks
+## Repo layout
 
-KernelAscent scopes the RSI claim across three tracks, each with its own leaderboard:
-
-1. **Capability** (all models, API or open) — kernel-optimization skill. An AI-R&D capability leaderboard, distinct from the recursive loop.
-2. **Scaffold-RSI** (API-eligible) — the agent recursively improves its own optimization scaffold around a frozen model; scored by the compounding coefficient vs a frozen-scaffold control.
-3. **Weight-RSI** (open-weight only) — the kernel-to-model training loop; scored by the compounding coefficient and the Δ_k control. Requires GRPO training, so API models cannot participate.
-
-## Dataset
-
-The curated dataset is published on both GitHub (`dataset/curated/`) and Hugging Face
-(`muahmed7338/kernelascent`): **1,064 tasks, 3,130 candidate solutions** from the Claude
-Fable 5 curator across 6 families (matmul, norm-act, attention, rope-attention,
-quant-gemm, moe) and tiers L1–L3.
-
-### Getting it
-
-```bash
-# Hugging Face (dataset repo)
-huggingface-cli download muahmed7338/kernelascent --repo-type dataset --local-dir kernelascent-data
-# or GitHub
-git clone https://github.com/ahmd-mohsin/KernelAscent && ls KernelAscent/dataset
-```
-
-### Layout
-
-- `dataset/public/` — released dev split, **problems only** (`<task>/task.py` + `meta.json` + `manifest.json`). Use it to benchmark your own models and in papers.
-- `dataset/curated/` (and HF `curated/`) — full bundles: `task.py` (the problem), `cand_*.py` (Fable candidate solutions), `reference_solution.py` (best correct+fastest kernel), `results.json`, and `meta.json` (tier, family, tags, difficulty).
-- **Held-out split** — a private seed range (10,000,000+), never released; it powers the leaderboards so scores can't be gamed.
-
-### Each task
-
-`task.py` is a self-contained, seeded `Model(nn.Module)` with `get_inputs()`. An agent must return an equivalent, faster `ModelNew`. Regenerate any split deterministically:
-
-```bash
-python kernelascent/make_dataset.py --split public --outdir dataset/public
-```
-
-### Using it
-
-```bash
-# score a model on the public split (see QUICKSTART.md)
-kernelascent eval --model qwen.qwen3-32b-v1:0 --tiers L1,L2 --split public --out runs/qwen3-32b
-```
-Or load a `task.py` directly: `exec(open(".../task.py").read())` gives `Model` + `get_inputs`; grade any `ModelNew` against it with `kernelascent/grade_candidates.py`.
+| path | what |
+|---|---|
+| `kernelascent/v3/core.py` | Q/V/F/N estimators + lineage runner (actor/target separation); deterministic calibrations |
+| `kernelascent/v3/lab_open.py` | scripted open-ended substrate (compounding calibration: F₂>0) |
+| `kernelascent/v3/lab_open_live.py` | live-model open-ended library-learning loop (load-bearing archive) |
+| `kernelascent/v3/rsi_verify.py` · `rsi_true.py` | verifier-improvement + verifier-improves-verifier substrates |
+| `kernelascent/v3/lab_engine.py` · `depth_probe.py` · `proposal_judge.py` | front-loading / headroom / coadaptation diagnostics |
+| `kernelascent/evaluate.py` | single scoring entrypoint (capability / rsi tracks) → scorecard.json |
+| `dataset/` | code, RSI, and kernel task banks + build/publish pipeline |
+| `docker/` | dockerized standard evaluation image |
+| `docs/` | website (black-and-white, mechanism + findings figures + leaderboards) |
+| `BENCHMARK_LOG.md` · `docs/RSI_*` | full dated record, diagnosis, and adopted plan |
 
 ## Status
 
-Working end to end: procedural generation, fp32-gold correctness, roofline-relative
-`fast_p`, pinned-clock timing, reward-hack-resistant multi-input grading, and a
-generation backend for open-weight models (local) and 76 Bedrock models (API).
-
-The **Capability leaderboard is being populated**: Tier-1 (L1) and Tier-2 (L2) tasks are
-run across all 76 Bedrock text/chat models, storing full reasoning trajectories; results
-are graded on GPU against the `min(eager, torch.compile)` roofline.
-
-## Roadmap
-
-1. Complete the Tier-1/Tier-2 capability sweep across the 76 Bedrock models and publish the leaderboard.
-2. Scaffold-RSI runs (self-improving scaffold vs frozen-scaffold control).
-3. Weight-RSI: GRPO training loop on open-weight models, measuring the compounding coefficient.
+Validated + reproducible: capability leaderboard (22 models), calibrated causal estimators, the
+open-ended compounding calibration, the load-bearing live RSI leaderboard, and the dockerized evaluator.
+Open: eliciting resolved *live* compounding — the next experiment is a load-bearing GPU-kernel archive
+(frontier genuinely fails there; verified fast kernels are hard to re-derive).
