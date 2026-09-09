@@ -4,7 +4,28 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## OPEN-ENDED SUBSTRATE COMPOUNDS — first resolved F2>0 (2026-09-08) [newest]
+## LIVE-MODEL open-ended test — machinery works; models CEILING on the task set (2026-09-08) [newest]
+
+`kernelascent/v3/lab_open_live.py` — live-model library-learning open-ended substrate (model writes
+solve(xs) using a growing library of reusable helpers it must discover+compose; verified by execution;
+actor proposes new abstractions built on its inherited library). Ran opus-5 / gpt-oss-120b / deepseek-v3.2
+/ qwen3-32b, 10 lineages.
+TWO HARNESS ARTIFACTS caught + fixed via smoke (per the coherence rule -- root-cause a strong-model zero):
+(1) exec namespace too restrictive (no math/bool/pow) -> valid opus code false-failed -> Q0=0; broadened
+to a safe-builtins whitelist + controlled __import__. (2) literal ```python + "helpers above" in the prompt
+made opus return EMPTY -> matched the working phrasing.
+RESULT: after the fixes ALL FOUR models CEILING on the 8 list tasks -- Q0 opus 0.875, gpt-oss 1.0,
+qwen 1.0, deepseek 0.979 (deepseek's pre-fix 0.365 was the namespace artifact). At ceiling there is NO
+library-growth headroom, so live F1/F2 ~ 0 (gpt-oss F1 +0.011/F2 -0.008; opus -0.025/-0.025; deepseek
++0.146 is ONE noisy lineage). This is a CEILING, NOT evidence against open-ended compounding.
+STANDING: the SCRIPTED open-ended result (below) stands -- the substrate + instrument CAN measure resolved,
+accelerating compounding, and distinguish open/closed/memory. The LIVE test is blocked by the ceiling:
+these compositional-list tasks are one-shot-trivial for strong models. To unblock, the task set must be
+genuinely HARD for frontier (Q0 mid-range) AND share sub-structure so a reused helper compounds -- i.e.
+Fable-curated hard compositional tasks (fresh creds available). That is the concrete next build; the
+machinery + artifact fixes are done and validated. Data: ka_data/lab_open_live/.
+
+## OPEN-ENDED SUBSTRATE COMPOUNDS — first resolved F2>0 (2026-09-08)
 
 `kernelascent/v3/lab_open.py` — open-ended research engine: the procedure is a GROWING ARCHIVE of
 composable skills; the ACTOR can only BUILD a skill whose prerequisites are in the ACTOR's OWN archive
