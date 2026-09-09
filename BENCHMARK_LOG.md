@@ -4,7 +4,30 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## WEIGHT-RSI — 7B ON FABLE-CURATED BANK: MECHANISM YES, COMPOUNDING NOT RESOLVED (2026-09-09) [newest]
+## RSI — DIFFICULTY-STANDARDIZED PIPELINE (2026-09-09) [newest]
+
+Goal (user): make model failure attributable to PROBLEM difficulty, not benchmark artifact. Systematic pipeline:
+1. Curate a hard, L2/L3-weighted bank with Fable-5.1 (curate_kernel_tasks.py). L3-curation hang FIXED:
+   Fable stalls on the open-ended "deep chain" L3 prompt but answers a CONCRETE single-op spec fast — so L3
+   now rotates through L3_SPECS (SDPA, layernorm+matmul+gelu+residual, SiLU-gated MLP, RMSNorm+proj, causal MHA,
+   GQA, ...) at effort=high with read_timeout=120s + retry-on-error/timeout (was 1800s → 30-min hang). Curated
+   70 candidates (L1:6 L2:24 L3:40) in ~30 min, 3 tiers parallel on GPU0/1/2.
+2. Difficulty-filter (difficulty_filter.py) vs the FROZEN 7B: k=8 samples/task, keep iff correct_rate>0
+   (learnable — a positive SFT example exists) AND best_score<=0.75 (headroom — base not already fast). Drops
+   tasks the base one-shots fast (e.g. l1_1 best=1.00 → drop) and keeps correct-but-slow (l1_2 best=0.50 → keep).
+   Guarantees C0 on the kept set is deliberately LOW with room to climb → a flat RSI result is the MODEL's, not
+   the bank's.
+3. Confirm C0 low on the filtered bank; 4. rerun 1.5B + 7B with tight CIs. (in progress)
+
+## WEIGHT-RSI — 7B ON 29-TASK FABLE BANK: FLAT (held too easy → no headroom) (2026-09-09)
+
+Ran 7B on the 29-task Fable bank (L1:10 L2:15 L3:4), train=6 held=23 k=4, fp32 sharded 2 GPUs/arm, grade GPU6.
+C0=0.477±0.095 (tight CI from 23 held tasks). RESULT: C_self by round [0.498,0.455,0.498,0.450,0.442,0.437],
+self-minus-ctrl [+.015,-.013,+.016,-.052,-.048,+.003] → "not resolved". C_self oscillates then drifts DOWN;
+control keeps pace. CONFOUNDED: bank is L1/L2-heavy which the 7B one-shots (C0 already near its ceiling on these
+tasks), so there is no headroom to measure compounding — this motivated the difficulty-standardized pipeline above.
+
+## WEIGHT-RSI — 7B ON FABLE-CURATED BANK: MECHANISM YES, COMPOUNDING NOT RESOLVED (2026-09-09)
 
 Followed the densify plan: (a) Fable-5.1 curated the WHOLE task bank (curate_kernel_tasks.py, 12 GPU-validated
 KernelBench-style tasks, tiers L1 mem/reduction:4, L2 matmul+epilogue:4, L3 attention/norm:4 — no hand-written

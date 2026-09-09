@@ -20,7 +20,20 @@ TIER = {
        "correctly and to beat torch.compile",
 }
 # how many VALIDATED tasks to admit per tier (weighted hard: most of the bank is L3 to give a strong model headroom)
-COUNTS = {"L1": 10, "L2": 15, "L3": 30}
+COUNTS = {"L1": 6, "L2": 24, "L3": 40}   # hard-weighted over-sample; difficulty_filter.py trims to the learnable band
+
+# Concrete, single-op L3 specs. Fable STALLS on the open-ended "deep chain" phrasing but answers a specific
+# fusion quickly; we rotate through these so each L3 attempt asks for one well-defined hard kernel.
+L3_SPECS = [
+ "scaled-dot-product attention (softmax(QK^T/sqrt(d))V) for one multi-head batch, no mask, no dropout",
+ "layernorm followed by a linear (matmul+bias) then gelu then a residual add",
+ "a fused SiLU-gated MLP: y = down_proj( silu(gate_proj(x)) * up_proj(x) )",
+ "RMSNorm followed by a linear projection (matmul+bias)",
+ "multi-head attention with a causal mask (softmax over masked QK^T/sqrt(d), then times V)",
+ "a bias-add + GELU + dropout-free layernorm chain over the last dim",
+ "grouped-query attention: fewer KV heads than Q heads, softmax(QK^T/sqrt(d))V, no mask",
+ "softmax over the last dim then a matmul with a weight matrix (attention-style probability-weighted sum)",
+]
 TMPL = (
  "Create ONE PyTorch module optimization task at tier {t}: {desc}.\n"
  "Return ONLY a python code block defining EXACTLY:\n"
@@ -38,6 +51,7 @@ def main():
     ap.add_argument("--effort", default="max"); ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--only-tier", default="", help="restrict to one tier (L1/L2/L3) for parallel curation")
     ap.add_argument("--out-name", default="kernel_tasks.json"); ap.add_argument("--max-tokens", type=int, default=20000)
+    ap.add_argument("--read-timeout", type=int, default=120, help="abandon a stalled Fable call after this many seconds")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/kernel_bank"); args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
     from kernelascent import agent_bench as AB
@@ -47,17 +61,18 @@ def main():
     import boto3
     from botocore.config import Config as _C
     cur.rt = boto3.Session(profile_name="bedrock").client("bedrock-runtime", region_name=args.region,
-                                                          config=_C(read_timeout=1800, connect_timeout=60, retries={"max_attempts": 1}))
+                                                          config=_C(read_timeout=args.read_timeout, connect_timeout=30, retries={"max_attempts": 1}))
     cur.resolved = (rid, min(mt, args.max_tokens))
     cur.reasoning = {"thinking": {"type": "adaptive"}, "output_config": {"effort": args.effort}}
 
     def gen(p):
-        o = ""
-        for _ in range(3):
+        """Retry on empty OR error/timeout. A stalled Fable call now raises ReadTimeoutError in
+        ~read_timeout s (not 30 min), so a hung request is abandoned and retried instead of blocking."""
+        for _ in range(4):
             o = cur.generate(p) or ""
-            if o.strip():
+            if o.strip() and not o.startswith("BEDROCK_ERROR"):
                 return o
-        return o
+        return ""
 
     def extract(t):
         m = re.search(r"```(?:python)?\s*(.*?)```", t or "", re.S)
@@ -83,7 +98,9 @@ def main():
         for a in range(target * args.attempts):
             if got >= target:
                 break
-            src = extract(gen(TMPL.format(t=tier, desc=TIER[tier])))
+            desc = ("an ATTENTION or NORMALIZATION kernel: " + L3_SPECS[a % len(L3_SPECS)] +
+                    " on realistic transformer shapes; genuinely hard to fuse and beat torch.compile") if tier == "L3" else TIER[tier]
+            src = extract(gen(TMPL.format(t=tier, desc=desc)))
             key = hashlib.sha1(re.sub(r"\s+", "", src).encode()).hexdigest()
             if key in seen or not src:
                 print("  %s a%d: empty/dup" % (tier, a), flush=True); continue
