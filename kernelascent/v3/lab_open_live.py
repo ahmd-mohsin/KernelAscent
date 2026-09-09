@@ -55,26 +55,57 @@ def _local_max_idx(xs):
     return [i for i in range(len(xs)) if (i == 0 or xs[i] > xs[i - 1]) and (i == len(xs) - 1 or xs[i] > xs[i + 1])] if xs else []
 
 
+def _pfactors(n):
+    n = abs(n); out = set(); d = 2
+    while d * d <= n:
+        while n % d == 0:
+            out.add(d); n //= d
+        d += 1
+    if n > 1:
+        out.add(n)
+    return out
+
+
+def _digsum(n):
+    return sum(int(c) for c in str(abs(n)))
+
+
+def _digroot(n):
+    n = abs(n)
+    while n >= 10:
+        n = _digsum(n)
+    return n
+
+
+def _is_pal(n):
+    s = str(abs(n)); return s == s[::-1]
+
+
+# HARD, EDGE-HEAVY tasks that SHARE sub-structure (is_prime, distinct-prime-factors, digit-sum/root,
+# palindrome). Building ONE verified helper (e.g. is_prime, factorize) helps SEVERAL tasks -> a growing
+# archive compounds. Compositional + trap-laden -> leaves headroom below frontier ceiling.
 TASKS = [
-    ("the sum of the values in xs that occur at PRIME indices (0-based; empty->0)",
-     lambda xs: sum(xs[i] for i in range(len(xs)) if _is_prime(i))),
-    ("the count of PRIME values in xs", lambda xs: sum(1 for x in xs if _is_prime(x))),
-    ("run-length encode xs as a list of [value, count] pairs (consecutive runs)",
-     lambda xs: [list(t) for t in _rle(xs)]),
-    ("the length of the longest run of EQUAL consecutive elements in xs (0 if empty)",
-     lambda xs: (max(c for _, c in _rle(xs)) if xs else 0)),
-    ("the indices of strict local maxima in xs (strictly greater than each existing neighbor)",
-     _local_max_idx),
-    ("the number of strict local maxima in xs", lambda xs: len(_local_max_idx(xs))),
-    ("the sorted list of DISTINCT values that appear more than once in xs",
-     lambda xs: sorted(v for v in set(xs) if xs.count(v) > 1)),
-    ("the value in xs with the highest count (ties -> smallest such value; -1 if empty)",
-     lambda xs: (min(sorted(set(xs)), key=lambda v: (-xs.count(v), v)) if xs else -1)),
+    ("the number of unordered index pairs i<j such that xs[i]+xs[j] is prime",
+     lambda xs: sum(1 for i in range(len(xs)) for j in range(i + 1, len(xs)) if _is_prime(xs[i] + xs[j]))),
+    ("the count of elements x in xs whose digit-sum is prime",
+     lambda xs: sum(1 for x in xs if _is_prime(_digsum(x)))),
+    ("the total number of DISTINCT prime factors across all elements of xs > 1 (counting a prime once per element)",
+     lambda xs: sum(len(_pfactors(x)) for x in xs if x > 1)),
+    ("the largest element of xs that is a base-10 palindrome (or -1 if none)",
+     lambda xs: (max([x for x in xs if _is_pal(x)]) if any(_is_pal(x) for x in xs) else -1)),
+    ("the digital root of the sum of squares of xs (0 if empty)",
+     lambda xs: (_digroot(sum(x * x for x in xs)) if xs else 0)),
+    ("the sum of the DISTINCT prime factors of max(xs) (0 if empty or max(xs)<2)",
+     lambda xs: (sum(_pfactors(max(xs))) if xs and max(xs) >= 2 else 0)),
+    ("the count of elements x in xs that are prime AND a base-10 palindrome",
+     lambda xs: sum(1 for x in xs if _is_prime(x) and _is_pal(x))),
+    ("the number of elements of xs whose digital root equals the count of their distinct prime factors",
+     lambda xs: sum(1 for x in xs if _digroot(x) == len(_pfactors(x)))),
 ]
 
 
 def _sample(rng):
-    n = rng.randint(0, 9); return [rng.randint(0, 12) for _ in range(n)]
+    n = rng.randint(0, 8); return [rng.randint(0, 200) for _ in range(n)]
 
 
 SOLVE_TMPL = ("Write a Python function solve(xs), where xs is a list of ints, that returns: {spec}.\n"

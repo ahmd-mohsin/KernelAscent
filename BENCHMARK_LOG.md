@@ -4,7 +4,29 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## LIVE-MODEL open-ended test — machinery works; models CEILING on the task set (2026-09-08) [newest]
+## LIVE-MODEL open-ended, HARD shared-structure tasks (2026-09-08) [newest]
+
+Curated a HARD shared-sub-structure task family (number-theory/digit: pair-prime-counting, distinct-prime-
+factors, digital-root, palindrome-prime, ... sharing is_prime/factorize/digitsum/palindrome helpers so a
+reused verified helper can compound) and ran the live open-ended test across a capability SPREAD
+(opus-5, gpt-oss-120b, deepseek-v3.2, qwen3-32b, llama-3.1-8b), 10 lineages.
+RESULT: headroom now exists for SOME models -- opus-5 Q0=0.750, llama-8b Q0=0.760 (vs gpt-oss/deepseek/
+qwen at Q0=1.0 ceiling, F=0). Where there's headroom, F leans POSITIVE but is NOT resolved at n=10:
+opus F1=+0.075 [-0.072,0.222], llama F2=+0.082 [-0.031,0.196] (both span 0).
+KEY FINDING (why, and it's important): q1-q0 ~ 0 for the headroom models -> the models are NOT LEVERAGING
+the archive. A capable model RE-DERIVES helpers inline (it writes a correct is_prime itself), so an
+OPTIONAL archive adds nothing -> no compounding channel, even with task headroom. The scripted lab_open
+compounds because its archive is LOAD-BEARING (a skill is literally unreachable without its prereqs); an
+optional library that a strong model can re-derive is not.
+DESIGN CONSTRAINT (the honest requirement for LIVE open-ended compounding): the archive must be
+LOAD-BEARING -- the solution must REQUIRE archived capabilities the model cannot re-derive within budget:
+either (a) building blocks that are hard-to-write-correctly but easy-to-reuse (subtle, edge-trap
+components whose verified archived version beats a fresh inline attempt), or (b) compositions so long that
+re-deriving every sub-part each time exhausts the budget, forcing reuse. The GPU-kernel substrate (frontier
+genuinely fails, verified fast kernels are hard to re-derive) is the natural home for (a). This is the
+crisp next design target; the machinery + capability-spread harness are done. Data: ka_data/lab_open_live_hard/.
+
+## LIVE-MODEL open-ended test — machinery works; models CEILING on the easy task set (2026-09-08)
 
 `kernelascent/v3/lab_open_live.py` — live-model library-learning open-ended substrate (model writes
 solve(xs) using a growing library of reusable helpers it must discover+compose; verified by execution;
