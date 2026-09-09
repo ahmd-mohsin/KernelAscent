@@ -17,7 +17,9 @@ a:hover{text-decoration-color:var(--ink)}
 /* top bar */
 .nav{max-width:var(--measure);margin:0 auto;padding:30px 24px 0;display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap}
 .brand{font-weight:600;font-size:18px;letter-spacing:-.01em}
+.brand a{display:inline-flex;align-items:center;gap:9px}
 .brand a,.nav nav a{text-decoration:none}
+.logo{height:26px;width:26px;object-fit:contain;mix-blend-mode:multiply}
 .nav nav{display:flex;gap:20px;flex-wrap:wrap}
 .nav nav a{font-size:14px;color:var(--sub)}
 .nav nav a:hover{color:var(--ink)}
