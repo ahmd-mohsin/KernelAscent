@@ -4,7 +4,32 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## LIT REVIEW ADOPTED + E1/E3 (2026-09-08) [newest]
+## OPEN-ENDED SUBSTRATE COMPOUNDS — first resolved F2>0 (2026-09-08) [newest]
+
+`kernelascent/v3/lab_open.py` — open-ended research engine: the procedure is a GROWING ARCHIVE of
+composable skills; the ACTOR can only BUILD a skill whose prerequisites are in the ACTOR's OWN archive
+(must know the components to compose the next abstraction), installed onto the target -> a richer actor
+builds DEEPER skills a poorer one cannot -> newer producer builds a better child on the SAME target ->
+F>0, and the child is richer -> F2>0 (library-learning / DGM-AlphaEvolve growing-archive shape). Plugs into
+core.run_lineage unchanged.
+RESULT (n=40 lineages, model-free calibration):
+- E1 trajectory NON-FRONT-LOADED: 7/8 revisions meaningful, first-step share 14% (vs 89-96% on closed
+  spaces); Q climbs 0.008 -> 0.282 as the archive grows skill by skill.
+- q1-q0 +0.034 [0.030,0.038]; N1 +0.015 [0.013,0.018]; **F1 +0.010 [0.006,0.014] RESOLVED >0**;
+  N2 +0.031; **F2 +0.028 [0.023,0.033] RESOLVED >0 and F2 > F1 -> ACCELERATING** (deeper actors build
+  deeper skills).
+- CONTROL frozen-archive + growing memory: q1-q0 = F1 = F2 = EXACTLY 0 -> compounding is from CAPABILITY
+  GROWTH (the archive), NOT memory -> kills the memory-vs-recursion confound.
+THE KEY COMPARATIVE RESULT (validates the instrument): the benchmark DISTINGUISHES
+  closed knob-space (F2~0, structural) | frozen-archive+memory (F2=0, memory) | OPEN-ENDED archive
+  (F2>0 resolved, accelerating). So the compounding axis is a LIVE, discriminating measurement -- not a
+  zero-by-construction. This is the substrate class where RSI compounding is measurable; the design target
+  is found. CAVEAT: this is SCRIPTED calibration -- it proves the instrument + an open-ended substrate CAN
+  exhibit resolved compounding and that closed/memory cannot. The SCIENTIFIC claim needs a LIVE MODEL to
+  discover/build the abstractions on an open-ended world (next: live-model lab_open + real GPU-kernel
+  operators/abstractions as the archive). Data: ka_data/lab_open/lab_open.json.
+
+## LIT REVIEW ADOPTED + E1/E3 (2026-09-08)
 
 External primary-paper + diagnostic review adopted -> `docs/RSI_LIT_REVIEW_AND_PLAN.md`. It CORRECTS two
 overclaims in `docs/RSI_DIAGNOSIS.md` (both retracted there): frozen weights do NOT make an improved
