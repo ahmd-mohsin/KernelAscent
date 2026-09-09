@@ -31,7 +31,7 @@ def build(model_id):
     tok = AutoTokenizer.from_pretrained(model_id)
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
-    mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="cuda")
+    mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.float32, device_map="cuda")
     lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], task_type="CAUSAL_LM")
     mdl = get_peft_model(mdl, lcfg)
     return tok, mdl
@@ -42,6 +42,19 @@ def _chat(tok, user):
                                    tokenize=False, add_generation_prompt=True)
 
 
+from transformers import LogitsProcessor, LogitsProcessorList
+
+
+class _Sanitize(LogitsProcessor):
+    """replace nan/inf logits with finite values so multinomial never sees a bad probability tensor
+    (a nan/inf there triggers an uncatchable CUDA device-side assert that poisons the whole process)."""
+    def __call__(self, input_ids, scores):
+        return torch.nan_to_num(scores, nan=-1e4, posinf=1e4, neginf=-1e4)
+
+
+_LP = LogitsProcessorList([_Sanitize()])
+
+
 def generate(tok, mdl, task_src, k, max_new=900, temp=0.8, adapter=True):
     ctx = mdl.disable_adapter() if not adapter else _null()
     with ctx:
@@ -49,7 +62,7 @@ def generate(tok, mdl, task_src, k, max_new=900, temp=0.8, adapter=True):
         enc = tok([text], return_tensors="pt").to("cuda")
         with torch.no_grad():
             out = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95, num_return_sequences=k,
-                               max_new_tokens=max_new, pad_token_id=tok.pad_token_id)
+                               max_new_tokens=max_new, pad_token_id=tok.pad_token_id, logits_processor=_LP)
         gen = out[:, enc["input_ids"].shape[1]:]
         return [tok.decode(g, skip_special_tokens=True) for g in gen]
 
@@ -59,33 +72,50 @@ class _null:
     def __exit__(self, *a): return False
 
 
+def _grade_isolated(src, codes):
+    """Grade candidate kernels in a FRESH subprocess (CUDA crash-isolation). Returns [(ok, sp), ...]."""
+    import subprocess, tempfile
+    if not codes:
+        return []
+    fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+    json.dump({"task": src, "codes": codes}, open(path, "w"))
+    env = dict(os.environ, PYTHONPATH="/tmp/instance_storage:/tmp/instance_storage/kernelascent",
+               HF_HOME="/tmp/instance_storage/ka_data/hf")
+    try:
+        r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
+                           capture_output=True, text=True, timeout=240, env=env)
+        line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
+        res = json.loads(line[-1][len("RESULT"):]) if line else []
+    except Exception:
+        res = []
+    os.remove(path)
+    return res + [[False, 0.0]] * (len(codes) - len(res))
+
+
 def eval_tasks(tok, mdl, names, k, adapter=True):
     """mean over tasks of best-of-k speed-resolved score (capability C). Training examples = the BEST
-    CORRECT candidate per task (rejection-sampling SFT toward correct + fastest) -> gives signal even when
-    the model rarely beats the baseline (a 1.5B model's correctness IS the first-order gain to reinforce)."""
+    CORRECT candidate per task (rejection-sampling SFT). Generation runs in-process (safe); candidate
+    EXECUTION is isolated in a subprocess so a bad kernel can't poison the trainer's CUDA context."""
     scores = []; examples = []
     for n in names:
-        src, ref, x, gold, bound, tbase = LK._ref(n)
-        best = 0.0; bestcode = None
-        for txt in generate(tok, mdl, src, k, adapter=adapter):
-            code = AB.extract_modelnew(txt)
-            if not code:
-                continue
-            try:
-                ok, err, sp, msg = AB.grade(src, code, ref, x, gold, bound, tbase)
-            except Exception:
-                continue
-            s = LK._score(ok, sp)                          # 0 if wrong; 0.5 at parity -> 1.0 at 1.5x
+        src = LK.TASKS[n]
+        codes = [c for c in (AB.extract_modelnew(t) for t in generate(tok, mdl, src, k, adapter=adapter)) if c]
+        res = _grade_isolated(src, codes)
+        best = 0.0
+        for code, (ok, sp) in zip(codes, res):
+            s = LK._score(ok, sp)
             if s > best:
-                best = s; bestcode = code
+                best = s
+            if ok:                                         # keep ALL correct kernels -> more SFT data
+                examples.append((src, code))
         scores.append(best)
-        if bestcode is not None:                           # best CORRECT kernel this task -> SFT target
-            examples.append((src, bestcode))
     return statistics.mean(scores) if scores else 0.0, examples
 
 
-def sft(tok, mdl, pairs, steps, lr=1e-4, bs=2):
-    """LoRA rejection-sampling SFT on (task_src, ModelNew code) pairs; loss on completion tokens only."""
+def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
+    """LoRA rejection-sampling SFT on (task_src, ModelNew code) pairs; loss on completion tokens only.
+    Stabilized: low lr + grad clipping + steps scaled to data size (avoid the overfit-to-NaN that made
+    generation emit inf/nan logits)."""
     if not pairs:
         return 0.0
     mdl.train(); opt = torch.optim.AdamW([p for p in mdl.parameters() if p.requires_grad], lr=lr)
@@ -96,6 +126,7 @@ def sft(tok, mdl, pairs, steps, lr=1e-4, bs=2):
         cids = tok(comp, add_special_tokens=False)["input_ids"]
         ids = (pids + cids)[:1536]; labels = ([-100] * len(pids) + cids)[:1536]
         data.append((ids, labels))
+    steps = min(steps, max(3, 3 * len(data)))              # scale to data -> no catastrophic overfit
     losses = []
     for step in range(steps):
         random.shuffle(data)
@@ -105,8 +136,12 @@ def sft(tok, mdl, pairs, steps, lr=1e-4, bs=2):
         lab = torch.tensor([l + [-100] * (m - len(l)) for _, l in batch]).cuda()
         att = (input_ids != tok.pad_token_id).long()
         out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
-        out.loss.backward(); opt.step(); opt.zero_grad(); losses.append(out.loss.item())
-    mdl.eval(); return statistics.mean(losses)
+        if not torch.isfinite(out.loss):
+            opt.zero_grad(); continue                      # skip a non-finite step
+        out.loss.backward()
+        torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
+        opt.step(); opt.zero_grad(); losses.append(out.loss.item())
+    mdl.eval(); return statistics.mean(losses) if losses else 0.0
 
 
 def run(args):

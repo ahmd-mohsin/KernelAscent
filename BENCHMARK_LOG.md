@@ -4,7 +4,37 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## TOWER (true-RSI attempt) LIVE — strong models one-shot pure-Python towers (2026-09-09) [newest]
+## WEIGHT-RSI — FIRST LIVE COMPOUNDING SIGNAL (2026-09-09) [newest]
+
+`kernelascent/v3/lab_weight_rsi.py` on p4d: open-weight Qwen2.5-Coder-1.5B writes GPU kernels ->
+crash-isolated GPU grading (grade_batch.py subprocess, so a bad kernel's CUDA device-assert can't poison
+the trainer) -> LoRA rejection-sampling SFT on its OWN correct kernels -> weights improve -> re-measure.
+Stabilized: fp32 model + logits sanitizer (nan/inf -> finite, else multinomial device-assert) + grad-clip +
+lr 2e-5 + steps scaled to data.
+RESULT (6 rounds, frozen-base control C0=0.457):
+  trainC : 0.167 -> 0.334 -> 0.504 -> 0.505 -> 0.502 -> 0.512   (learns to write correct kernels)
+  ex     : 2 -> 5 -> 8 -> 10 -> 10 -> 11                          (more correct kernels each round)
+  C_held : 0.00 -> 0.24 -> 0.00 -> 0.507 -> 0.502 -> 0.752
+  Delta  : -0.46 -> -0.22 -> -0.46 -> +0.05 -> +0.046 -> +0.295   (RISING)
+=> An open-weight model IMPROVED ITS OWN held-out kernel-writing by training on its own kernels, round over
+round (held 0.457 -> 0.752, Delta=+0.295). This is the FIRST live compounding signal in the project --
+weight-RSI works where every frozen-weight substrate was flat, because the improver's WEIGHTS change so it
+actually gets better. This is the payoff of open-weight (closed/API models structurally cannot do step 2).
+CAVEAT (do not overclaim): noisy -- only 2 held-out tasks x best-of-6, early rounds bounce (0/0.24/0); the
+"compounding=YES" is directional (last Delta >> first), NOT yet resolved with CIs. Needs densification.
+
+### DENSIFY -> then CONSOLIDATE (user directive 2026-09-09)
+Plan to make weight-RSI a robust, clear, concrete benchmark, THEN prune:
+1. DENSIFY: many more kernel tasks (stable held-out C, not 2), multiple seeds/reps -> CIs on C_r and Delta_r;
+   add the round-0-data control (train only on round-0 kernels) to isolate SELF-improvement from more compute;
+   scale to larger open models (7B/14B) + show it works for stronger (near-frontier open) models.
+2. CONSOLIDATE (delete redundant): once weight-RSI is dense+robust, prune the exploratory frozen-weight
+   substrates that only served to establish the ceiling (lab_engine/depth_probe/proposal_judge/lab_open_live
+   /lab_tower/lab_kernel diagnostics) down to: (A) Capability leaderboard, (B) Weight-RSI (the real RSI axis).
+   Keep lab_open's scripted calibration as the instrument-validation fixture. Result = a clear 2-axis
+   benchmark: "can it solve?" (capability) + "does self-improvement compound?" (weight-RSI, open-weight).
+
+## TOWER (true-RSI attempt) LIVE — strong models one-shot pure-Python towers (2026-09-09)
 
 New box mi-04bda6cc49fc25e21 (p4d). Built + design-validated the COMPOSITIONAL TOWER (`lab_tower.py`):
 rung k = layer h_k ∘ rung k-1; from-scratch correctness should compound down (~p^k) making a verified
