@@ -109,7 +109,9 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
             if ok:                                         # keep ALL correct kernels -> more SFT data
                 examples.append((src, code))
         scores.append(best)
-    return statistics.mean(scores) if scores else 0.0, examples
+    mean = statistics.mean(scores) if scores else 0.0
+    ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
+    return mean, examples, scores, ci
 
 
 def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
@@ -148,34 +150,40 @@ def run(args):
     random.seed(0); torch.manual_seed(0)
     for n in LK.TASKS:
         LK._ref(n)                                          # warm GPU baselines
-    tok, mdl = build(args.model)
-    names = list(LK.TASKS)
+    tok, mdl = build(args.model)                            # SELF arm: trains on its own kernels each round
+    tok2, ctrl = build(args.model)                          # CONTROL arm: trains ONLY on round-0 kernels
+    names = list(LK.TASKS); random.Random(1).shuffle(names)
     train, held = names[:args.n_train], names[args.n_train:]
-    print("WEIGHT-RSI %s train=%s held=%s" % (args.model, train, held), flush=True)
-    C0_frozen, _ = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base control (constant)
-    print("C0 frozen-base (held-out) = %.3f" % C0_frozen, flush=True)
-    hist = []
+    print("WEIGHT-RSI %s train=%d held=%d k=%d" % (args.model, len(train), len(held), args.k), flush=True)
+    C0, _, _, c0ci = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base (no training)
+    print("C0 frozen-base held-out = %.3f +-%.3f" % (C0, c0ci), flush=True)
+    hist = []; ex0 = None
     for r in range(args.rounds):
         t0 = time.time()
-        # 1. self-generate + grade on TRAIN -> collect correct+fast kernels
-        trainC, pairs = eval_tasks(tok, mdl, train, args.k, adapter=True)
-        # 2. LoRA rejection-sampling SFT on own kernels -> weights improve
-        loss = sft(tok, mdl, pairs, args.sft_steps)
-        # 3. measure held-out capability C_r (self, post-update)
-        Cr, _ = eval_tasks(tok, mdl, held, args.k, adapter=True)
-        delta = Cr - C0_frozen
-        hist.append({"round": r, "trainC": round(trainC, 3), "n_train_ex": len(pairs),
-                     "sft_loss": round(loss, 3), "C_held": round(Cr, 3), "delta_vs_frozen": round(delta, 3)})
-        print("round %d trainC=%.3f ex=%d loss=%.3f  C_held=%.3f  Delta=%+.3f  (%.0fs)" %
-              (r, trainC, len(pairs), loss, Cr, delta, time.time() - t0), flush=True)
+        trainC, pairs, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=True)   # self: generate+grade train
+        if ex0 is None:
+            ex0 = pairs                                     # freeze round-0 self-generated data for the control
+        loss = sft(tok, mdl, pairs, args.sft_steps)         # SELF: SFT on THIS round's own kernels
+        sft(tok2, ctrl, ex0, args.sft_steps)                # CONTROL: SFT again on round-0 kernels only
+        Cs, _, _, sci = eval_tasks(tok, mdl, held, args.k, adapter=True)
+        Cc, _, _, cci = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
+        row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
+               "C_self": round(Cs, 3), "C_self_ci": round(sci, 3), "C_ctrl": round(Cc, 3), "C_ctrl_ci": round(cci, 3),
+               "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": round(Cs - Cc, 3)}
+        hist.append(row)
+        print("round %d trainC=%.3f ex=%d | C_self=%.3f+-%.3f C_ctrl=%.3f+-%.3f | dSelf=%+.3f self-ctrl=%+.3f (%.0fs)" %
+              (r, trainC, len(pairs), Cs, sci, Cc, cci, Cs - C0, Cs - Cc, time.time() - t0), flush=True)
         os.makedirs(args.outdir, exist_ok=True)
-        json.dump({"model": args.model, "C0_frozen": C0_frozen, "history": hist},
+        json.dump({"model": args.model, "C0_frozen": C0, "C0_ci": c0ci, "history": hist},
                   open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)
-    dl = [h["delta_vs_frozen"] for h in hist]
-    print("\n=== WEIGHT-RSI SUMMARY ===")
-    print("  C_held by round:", [h["C_held"] for h in hist])
-    print("  Delta vs frozen:", dl)
-    print("  compounding (Delta rising)?", "YES" if len(dl) >= 2 and dl[-1] > dl[0] + 0.02 else "not resolved")
+    print("\n=== WEIGHT-RSI SUMMARY (%s) ===" % args.model)
+    print("  frozen-base C0 = %.3f +-%.3f" % (C0, c0ci))
+    print("  C_self by round :", [h["C_self"] for h in hist])
+    print("  C_ctrl by round :", [h["C_ctrl"] for h in hist])
+    print("  self-minus-ctrl :", [h["delta_self_minus_ctrl"] for h in hist])
+    scm = [h["delta_self_minus_ctrl"] for h in hist]
+    print("  RSI (self-training on NEW kernels beats retraining on round-0)?",
+          "YES" if len(scm) >= 3 and statistics.mean(scm[-2:]) > 0.05 else "not resolved")
 
 
 def main():

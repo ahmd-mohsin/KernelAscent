@@ -30,6 +30,15 @@ TASKS = {
     "rmsnorm": _task("return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + 1e-6)"),
     "logsumexp": _task("return x - torch.logsumexp(x, dim=-1, keepdim=True)"),
     "gelu_sum": _task("return torch.nn.functional.gelu(x) + x"),
+    "l2norm": _task("return x / (x.norm(dim=-1, keepdim=True) + 1e-6)"),
+    "max_sub": _task("return x - x.max(dim=-1, keepdim=True).values"),
+    "silu": _task("return torch.sigmoid(x) * x"),
+    "cumsum": _task("return x.cumsum(dim=-1)"),
+    "softplus": _task("return torch.nn.functional.softplus(x)"),
+    "std_norm": _task("return (x - x.mean(-1, keepdim=True)) / (x.std(-1, keepdim=True) + 1e-6)"),
+    "tanh_gelu": _task("return torch.nn.functional.gelu(torch.tanh(x))"),
+    "l1norm": _task("return x / (x.abs().sum(-1, keepdim=True) + 1e-6)"),
+    "relu_sq": _task("return torch.relu(x) ** 2"),
 }
 _REF = {}
 
