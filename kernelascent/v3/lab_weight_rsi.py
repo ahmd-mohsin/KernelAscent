@@ -25,16 +25,32 @@ def _prompt(task_src):
     return LK.OPT.format(arch="", src=task_src)
 
 
-def build(model_id):
+def build(model_id, gpus=(0,)):
+    """Load one arm sharded across the given GPU indices (fp32 7B needs >40GB during SFT, so 2 GPUs/arm).
+    max_memory forces accelerate to place layers ONLY on `gpus` (others capped at 0), keeping the two arms
+    on disjoint devices within one process."""
     from transformers import AutoTokenizer, AutoModelForCausalLM
     from peft import get_peft_model, LoraConfig
     tok = AutoTokenizer.from_pretrained(model_id)
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
-    mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.float32, device_map="cuda")
+    dt = torch.bfloat16 if os.environ.get("KA_DTYPE", "bf16") == "bf16" else torch.float32
+    gpus = tuple(gpus)
+    if len(gpus) == 1:
+        dm = {"": "cuda:%d" % gpus[0]}
+        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map=dm)
+    else:
+        n = torch.cuda.device_count()
+        mm = {i: ("40GiB" if i in gpus else "0GiB") for i in range(n)}
+        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map="auto", max_memory=mm)
     lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], task_type="CAUSAL_LM")
     mdl = get_peft_model(mdl, lcfg)
+    mdl.enable_input_require_grads()                       # needed for grad-checkpointing during SFT
     return tok, mdl
+
+
+def _dev(mdl):
+    return next(mdl.parameters()).device
 
 
 def _chat(tok, user):
@@ -59,7 +75,7 @@ def generate(tok, mdl, task_src, k, max_new=900, temp=0.8, adapter=True):
     ctx = mdl.disable_adapter() if not adapter else _null()
     with ctx:
         text = _chat(tok, _prompt(task_src))
-        enc = tok([text], return_tensors="pt").to("cuda")
+        enc = tok([text], return_tensors="pt").to(_dev(mdl))
         with torch.no_grad():
             out = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95, num_return_sequences=k,
                                max_new_tokens=max_new, pad_token_id=tok.pad_token_id, logits_processor=_LP)
@@ -80,7 +96,8 @@ def _grade_isolated(src, codes):
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     json.dump({"task": src, "codes": codes}, open(path, "w"))
     env = dict(os.environ, PYTHONPATH="/tmp/instance_storage:/tmp/instance_storage/kernelascent",
-               HF_HOME="/tmp/instance_storage/ka_data/hf")
+               HF_HOME="/tmp/instance_storage/ka_data/hf",
+               CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # grade on a spare GPU (arms hold 0,1)
     try:
         r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
                            capture_output=True, text=True, timeout=240, env=env)
@@ -109,6 +126,7 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
             if ok:                                         # keep ALL correct kernels -> more SFT data
                 examples.append((src, code))
         scores.append(best)
+        torch.cuda.empty_cache()                            # keep generation KV-cache from accumulating across tasks
     mean = statistics.mean(scores) if scores else 0.0
     ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
     return mean, examples, scores, ci
@@ -120,7 +138,9 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
     generation emit inf/nan logits)."""
     if not pairs:
         return 0.0
-    mdl.train(); opt = torch.optim.AdamW([p for p in mdl.parameters() if p.requires_grad], lr=lr)
+    mdl.train(); mdl.gradient_checkpointing_enable(); mdl.config.use_cache = False   # cut 7B activation memory
+    opt = torch.optim.AdamW([p for p in mdl.parameters() if p.requires_grad], lr=lr)
+    dev = _dev(mdl)
     data = []
     for src, code in pairs:
         pr = _chat(tok, _prompt(src)); comp = "```python\n" + code.strip() + "\n```" + tok.eos_token
@@ -134,8 +154,8 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
         random.shuffle(data)
         batch = data[:bs]
         m = max(len(i) for i, _ in batch)
-        input_ids = torch.tensor([i + [tok.pad_token_id] * (m - len(i)) for i, _ in batch]).cuda()
-        lab = torch.tensor([l + [-100] * (m - len(l)) for _, l in batch]).cuda()
+        input_ids = torch.tensor([i + [tok.pad_token_id] * (m - len(i)) for i, _ in batch]).to(dev)
+        lab = torch.tensor([l + [-100] * (m - len(l)) for _, l in batch]).to(dev)
         att = (input_ids != tok.pad_token_id).long()
         out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
         if not torch.isfinite(out.loss):
@@ -143,15 +163,19 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
         out.loss.backward()
         torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
         opt.step(); opt.zero_grad(); losses.append(out.loss.item())
-    mdl.eval(); return statistics.mean(losses) if losses else 0.0
+    mdl.gradient_checkpointing_disable(); mdl.config.use_cache = True; mdl.eval()   # restore fast generation
+    del opt; import gc; gc.collect(); torch.cuda.empty_cache()   # reclaim optimizer/activation memory (fp32 7B is tight on 40GB)
+    return statistics.mean(losses) if losses else 0.0
 
 
 def run(args):
     random.seed(0); torch.manual_seed(0)
     for n in LK.TASKS:
         LK._ref(n)                                          # warm GPU baselines
-    tok, mdl = build(args.model)                            # SELF arm: trains on its own kernels each round
-    tok2, ctrl = build(args.model)                          # CONTROL arm: trains ONLY on round-0 kernels
+    sg = [int(x) for x in str(args.self_gpu).split(",")]    # SELF arm sharded across these GPUs
+    cg = [int(x) for x in str(args.ctrl_gpu).split(",")]    # CONTROL arm sharded across these GPUs
+    tok, mdl = build(args.model, sg)                        # SELF arm: trains on its own kernels each round
+    tok2, ctrl = build(args.model, cg)                      # CONTROL arm: trains ONLY on round-0 kernels
     names = list(LK.TASKS); random.Random(1).shuffle(names)
     train, held = names[:args.n_train], names[args.n_train:]
     print("WEIGHT-RSI %s train=%d held=%d k=%d" % (args.model, len(train), len(held), args.k), flush=True)
@@ -163,8 +187,14 @@ def run(args):
         trainC, pairs, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=True)   # self: generate+grade train
         if ex0 is None:
             ex0 = pairs                                     # freeze round-0 self-generated data for the control
-        loss = sft(tok, mdl, pairs, args.sft_steps)         # SELF: SFT on THIS round's own kernels
-        sft(tok2, ctrl, ex0, args.sft_steps)                # CONTROL: SFT again on round-0 kernels only
+        def _try_sft(t, m, p):                              # resilient: a rare OOM round skips training, run continues
+            try:
+                return sft(t, m, p, args.sft_steps)
+            except torch.cuda.OutOfMemoryError:
+                import gc; gc.collect(); torch.cuda.empty_cache()
+                print("  [oom] skipped sft this round", flush=True); return float("nan")
+        loss = _try_sft(tok, mdl, pairs)                    # SELF: SFT on THIS round's own kernels
+        _try_sft(tok2, ctrl, ex0)                           # CONTROL: SFT again on round-0 kernels only
         Cs, _, _, sci = eval_tasks(tok, mdl, held, args.k, adapter=True)
         Cc, _, _, cci = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
         row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
@@ -191,6 +221,7 @@ def main():
     ap.add_argument("--model", default="Qwen/Qwen2.5-Coder-1.5B-Instruct")
     ap.add_argument("--rounds", type=int, default=4); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--n-train", type=int, default=3); ap.add_argument("--sft-steps", type=int, default=40)
+    ap.add_argument("--self-gpu", default="0,1"); ap.add_argument("--ctrl-gpu", default="2,3")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/weight_rsi")
     args = ap.parse_args()
     run(args)

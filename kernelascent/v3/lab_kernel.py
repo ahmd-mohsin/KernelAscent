@@ -62,8 +62,11 @@ def _archive_text(lib):
 
 
 OPT = ("Optimize this PyTorch module for speed on an A100 GPU, numerically equivalent (same dtype, same "
-       "output). Use fused ops / Triton if it helps. Return ONLY a class ModelNew(nn.Module) in a python "
-       "code block.\n{arch}\n{src}")
+       "output). The code must be SELF-CONTAINED and RUN AS-IS: import ONLY torch and torch.nn as nn "
+       "(optionally `import triton` and `import triton.language as tl` — nothing else, no other triton "
+       "submodules, no autocast wrappers, no external packages). Prefer fused torch ops; a plain-torch "
+       "kernel that is correct beats a fancy one that errors. Define ONLY `class ModelNew(nn.Module)` with "
+       "the same __init__/forward signature, in ONE python code block.\n{arch}\n{src}")
 
 
 def make_behaviors(gen):
