@@ -53,7 +53,7 @@ def _sample(rng):
 
 
 def _spec(k):
-    return "apply, in order, then return the result: " + " -> ".join("(%d) %s" % (i + 1, LAYERS[i][0]) for i in range(k))
+    return " -> ".join("(%d) %s" % (i + 1, LAYERS[i][0]) for i in range(k))
 
 
 # ---------------------------------------------------------------- deterministic calibration
@@ -148,8 +148,9 @@ def make_behaviors(gen):
         if key in cache:
             return cache[key]
         ex = "; ".join("%r->%r" % (a, f_rung(k, a)) for a in [_sample(random.Random(i)) for i in range(3)])
-        p = ("Write solve(xs), xs a list of ints, that computes rung %d: %s.\nExamples: %s\n%s"
-             "Return ONLY solve as a python code block." % (k, _spec(k), ex, _libtxt(lib)))
+        p = ("Write a Python function solve(xs), where xs is a list of ints, that returns the result of "
+             "applying these operations to xs IN ORDER: %s.\nExamples: %s\n%sReturn ONLY the solve function "
+             "as a python code block." % (_spec(k), ex, _libtxt(lib)))
         ns = _ns({("solve%d" % j): s for j, s in lib.items()})
         try:
             exec(compile(_extract(gen(p)), "<s>", "exec"), ns); fn = ns.get("solve")
@@ -166,8 +167,10 @@ def make_behaviors(gen):
         ex = "; ".join("%r->%r" % (a, f_rung(r, a)) for a in [_sample(random.Random(i)) for i in range(4)])
         helpers = _libtxt(actor["params"]["lib"])
         def build(extra=""):
-            p = ("Write a function solve%d(xs) computing rung %d: %s.\nExamples: %s\n%sYou may CALL the "
-                 "verified helpers. Return ONLY solve%d as a python code block.%s" % (r, r, _spec(r), ex, helpers, r, extra))
+            p = ("Write a Python function solve%d(xs), where xs is a list of ints, that returns the result "
+                 "of applying these operations to xs IN ORDER: %s.\nExamples: %s\n%sYou may CALL the verified "
+                 "helpers above. Return ONLY the solve%d function as a python code block.%s"
+                 % (r, _spec(r), ex, helpers, r, extra))
             return _extract(gen(p))
         def verify(src):
             ns = _ns({("solve%d" % j): s for j, s in actor["params"]["lib"].items()})
@@ -192,7 +195,14 @@ def make_behaviors(gen):
 def run(args):
     import curate_bedrock as CB
     cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
-    cur.resolve(); cur.resolve_reasoning(); gen = lambda p: cur.generate(p); who = "api:" + args.api_model
+    cur.resolve(); cur.resolve_reasoning(); who = "api:" + args.api_model
+    def gen(p):                                    # reasoning models intermittently return empty -> retry
+        o = ""
+        for _ in range(4):
+            o = cur.generate(p) or ""
+            if o.strip():
+                return o
+        return o
     develop, revise = make_behaviors(gen)
     rungs = list(range(1, D + 1))
     U0 = {"params": {"lib": {}}}

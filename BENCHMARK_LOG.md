@@ -4,7 +4,30 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## LIVE RSI LEADERBOARD — load-bearing open-ended substrate, all models (2026-09-08) [newest]
+## TOWER (true-RSI attempt) LIVE — strong models one-shot pure-Python towers (2026-09-09) [newest]
+
+New box mi-04bda6cc49fc25e21 (p4d). Built + design-validated the COMPOSITIONAL TOWER (`lab_tower.py`):
+rung k = layer h_k ∘ rung k-1; from-scratch correctness should compound down (~p^k) making a verified
+archived rung load-bearing. CALIB PASSES (compound F1=+0.082 F2=+0.074; one-up F2=0) -> the design detects
+compounding when the builder is competent.
+LIVE result (8-layer tower): the substrate does NOT force load-bearing for strong models --
+- gpt-oss-120b ONE-SHOTS the whole tower: meanQ over 8 rungs = 1.000 with an EMPTY archive -> no headroom.
+- Building + USING the archive is NET-NEGATIVE: after archive grows to [1,2,3], meanQ drops 1.000 -> 0.448
+  (using unfamiliar helpers introduces errors) -> q1-q0 < 0, F ~ 0.
+- opus-5 hits an intermittent + phrasing-deterministic EMPTY-OUTPUT quirk on Bedrock (reasoning consumes
+  the token budget); retry-on-empty helps the intermittent case but a helper-listing phrase deterministically
+  empties it -> artificial 0. (Non-Claude models don't have this.)
+ROBUST CONCLUSION (now confirmed on every pure-Python substrate: config loop, recurring-decision engine,
+open-ended library, hard shared-structure, AND the compositional tower): frontier/strong models RE-DERIVE
+composable pure-Python components one-shot, so an archive is optional and often net-negative -> live
+compounding (F2>0) is NOT elicited on pure Python. The scripted calibrations prove the INSTRUMENT detects
+compounding; strong live models simply don't exhibit it where they can re-derive.
+THE decisive substrate for TRUE live RSI is where frontier GENUINELY FAILS: GPU KERNELS (E0 fast-rate ~0.6
+-- they cannot reliably beat torch.compile). A verified fast kernel is hard-to-re-derive + easy-to-reuse =
+load-bearing by nature. The new p4d box has the GPUs; wiring the existing crash-isolated kernel grader into
+the tower/open-ended loop (archive = verified fast kernels/schedules) is the definitive next build.
+
+## LIVE RSI LEADERBOARD — load-bearing open-ended substrate, all models (2026-09-08)
 
 Recurated the substrate around the load-bearing insight and ran the full model spread -> a live RSI
 leaderboard. Load-bearing mechanism (lab_open_live): (1) revise = BUILD-TEST-FIX loop (helper is exercised
