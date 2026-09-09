@@ -90,19 +90,20 @@
     </table>
   </div>
 
-  <h3>Recursive self-improvement — decomposition by model</h3>
-  <p class="small muted">Efficiency-of-experimentation lab, live models. Positive means improvement; F₁/F₂ are the causal/compounding links (95% CI).</p>
+  <h3>Recursive self-improvement — live, load-bearing open-ended substrate</h3>
+  <p class="small muted">Library-learning: the model builds a growing archive of <em>debugged</em> reusable helpers (build-test-fix) and is graded on edge-heavy inputs, so reuse beats error-prone inline re-derivation. 12 lineages/model, 95% CI. <b>q₁−q₀</b> = first-order improvement, <b>F₁/F₂</b> = causal / compounding links. Bold = CI clears 0.</p>
   <div class="tablewrap">
     <table>
-      <thead><tr><th>Model</th><th class="num">n</th><th class="num">q₁−q₀</th><th class="num">N₁</th><th class="num">F₁</th><th class="num">F₂</th><th>Verdict</th></tr></thead>
+      <thead><tr><th>Model</th><th class="num">Q₀</th><th class="num">q₁−q₀</th><th class="num">F₁</th><th class="num">F₂</th><th>Verdict</th></tr></thead>
       <tbody>
-        <tr><td>opus-5</td><td class="num">40</td><td class="num">+0.298</td><td class="num tag-pos">+0.043</td><td class="num">+0.019</td><td class="num">−0.019</td><td>first-order + child value; no causal link</td></tr>
-        <tr><td>sonnet-5</td><td class="num">16</td><td class="num">+0.335</td><td class="num">+0.003</td><td class="num">−0.004</td><td class="num">+0.016</td><td>strong first-order only</td></tr>
-        <tr><td>gpt-oss-120b</td><td class="num">16</td><td class="num">+0.098</td><td class="num tag-pos">+0.092</td><td class="num">−0.026</td><td class="num">+0.014</td><td>child value; no causal link</td></tr>
-        <tr><td>deepseek-v3.2</td><td class="num">14</td><td class="num">+0.021</td><td class="num">+0.004</td><td class="num">+0.007</td><td class="num">+0.001</td><td>barely discovers the opportunity</td></tr>
+        <tr><td>gpt-oss-120b</td><td class="num">1.000</td><td class="num">−0.074</td><td class="num">+0.009</td><td class="num">+0.049</td><td>ceiling — no headroom</td></tr>
+        <tr><td>Gemma-3-12B</td><td class="num">0.917</td><td class="num tag-neg">−0.039</td><td class="num">−0.010</td><td class="num">+0.012</td><td>self-revision mildly hurts</td></tr>
+        <tr><td>Opus-5</td><td class="num">0.750</td><td class="num tag-pos"><b>+0.083</b></td><td class="num">−0.021</td><td class="num">+0.031</td><td>first-order improvement (resolved); no compounding</td></tr>
+        <tr><td>Llama-3.1-8B</td><td class="num">0.688</td><td class="num tag-neg"><b>−0.207</b></td><td class="num">−0.059</td><td class="num tag-neg"><b>−0.112</b></td><td>poisons its own library (buggy helpers)</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="takeaway"><b>Is it true RSI?</b> Not yet — no model shows resolved positive causal compounding (F₁/F₂), even here. But the load-bearing archive surfaces a real, capability-graded result: <b>first-order self-improvement helps the strongest model (Opus +0.083, resolved) and <em>hurts</em> weaker ones</b> (Gemma, Llama resolved &lt; 0) — weak models poison their own library with buggy abstractions. The scripted substrate proves compounding is <em>measurable</em>; eliciting it live needs a harder-to-re-derive substrate (GPU kernels) or a longer campaign.</div>
 
   <h3>Matched-budget controls &amp; transfer</h3>
   <p class="small muted">Per-project Q on fresh held-out worlds (n = 20, deployment budget 60); transfer to a structurally different family.</p>

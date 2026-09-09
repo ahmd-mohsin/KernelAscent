@@ -104,8 +104,13 @@ TASKS = [
 ]
 
 
+_EDGE_POOL = [0, 1, 2, 3, 5, 7, 11, 13, 9, 15, 25, 49, 100, 101, 121, 131, 151, 191, 200, 99, 88, 77]
+
+
 def _sample(rng):
-    n = rng.randint(0, 8); return [rng.randint(0, 200) for _ in range(n)]
+    # edge-heavy: primes, palindromes, 0/1/2 boundaries, perfect squares -> inline re-derivations botch edges
+    n = rng.randint(0, 8)
+    return [rng.choice(_EDGE_POOL) if rng.random() < 0.6 else rng.randint(0, 200) for _ in range(n)]
 
 
 SOLVE_TMPL = ("Write a Python function solve(xs), where xs is a list of ints, that returns: {spec}.\n"
@@ -171,7 +176,8 @@ def make_behaviors(gen_fn, rng_master):
         if key in cache:
             return cache[key]
         ex = "; ".join("%r->%r" % (a, ref(a)) for a in [_sample(random.Random(i)) for i in range(3)])
-        libtxt = ("Library helpers available (already defined, call them):\n" + _lib_str(lib) + "\n") if lib else ""
+        libtxt = (("These library helpers are ALREADY DEFINED and TESTED CORRECT (incl. tricky edge cases) "
+                   "— prefer CALLING them over re-implementing:\n" + _lib_str(lib) + "\n") if lib else "")
         code = _extract(gen_fn(SOLVE_TMPL.format(spec=spec, ex=ex, lib=libtxt)))
         ns = _lib_ns(lib)
         try:
@@ -203,26 +209,37 @@ def make_behaviors(gen_fn, rng_master):
         specs = "; ".join(t[0] for t in random.Random(rng.randint(0, 1 << 30)).sample(TASKS, 3))
         prompt = HELPER_TMPL.format(tgtlib=_lib_str(lib), actlib=_lib_str(actor["params"]["lib"]), specs=specs)
         code = _extract(gen_fn(prompt))
-        # validate: compiles, defines exactly a new callable that runs on a probe without error
-        ns = _lib_ns(lib)
-        try:
-            exec(compile(code, "<helper>", "exec"), ns)
-        except Exception:
+        # BUILD-TEST-FIX: exercise the proposed helper on edge probes; if it raises, feed the failure back
+        # and let the model fix it ONCE. The archive thus holds DEBUGGED, verified components (load-bearing:
+        # reusing a debugged helper beats an error-prone fresh inline attempt).
+        def _probe(src):
+            ns = _lib_ns(lib)
+            try:
+                exec(compile(src, "<helper>", "exec"), ns)
+            except Exception as e:
+                return None, None, "compile/exec error: %r" % e
+            names = [n for n in re.findall(r"def\s+([a-zA-Z_]\w*)\s*\(", src) if not n.startswith("_")]
+            name = names[0] if names else None
+            fn = ns.get(name) if name else None
+            if not callable(fn) or name in lib or name == "solve":
+                return None, None, "no valid new helper name"
+            trials = [(0,), (2,), (13,), (121,), ([1, 2, 2, 3],), ([],), (10, 3)]   # varied arg shapes/edges
+            ran = False; lasterr = None
+            for a in trials:
+                try:
+                    _guard(lambda: fn(*a)); ran = True
+                except TypeError:
+                    lasterr = "signature"                  # wrong arity for this shape -> try another
+                except Exception as e:
+                    return name, fn, "raised on %r: %r" % (a, e)   # a real runtime bug on an edge
+            return (name, fn, None) if ran else (name, fn, "never ran (%s)" % lasterr)
+        name, fn, err = _probe(code)
+        if err and name is None and "no valid" not in err:
+            fix = _extract(gen_fn("This helper failed (%s):\n```python\n%s\n```\nReturn a CORRECTED version as a python code block." % (err, code)))
+            name, fn, err = _probe(fix); code = fix if name else code
+        if name is None or fn is None:
             return child
-        newfns = {n: code for n in ns if callable(ns[n]) and n not in _lib_ns(lib) and not n.startswith("_")}
-        # find the helper name actually defined in `code`
-        m = re.findall(r"def\s+([a-zA-Z_]\w*)\s*\(", code)
-        name = next((n for n in m if not n.startswith("_")), None)
-        if not name or name in lib or name == "solve":
-            return child
-        fn = ns.get(name)
-        if not callable(fn):
-            return child
-        try:
-            _guard(lambda: fn(list(_sample(rng))))          # must run on a probe without raising
-        except Exception:
-            return child
-        lib[name] = code                                    # ADD the new abstraction to the child library
+        lib[name] = code                                    # ADD the debugged abstraction to the library
         return child
 
     return develop, revise

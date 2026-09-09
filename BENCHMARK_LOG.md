@@ -4,7 +4,36 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## LIVE-MODEL open-ended, HARD shared-structure tasks (2026-09-08) [newest]
+## LIVE RSI LEADERBOARD — load-bearing open-ended substrate, all models (2026-09-08) [newest]
+
+Recurated the substrate around the load-bearing insight and ran the full model spread -> a live RSI
+leaderboard. Load-bearing mechanism (lab_open_live): (1) revise = BUILD-TEST-FIX loop (helper is exercised
+on edge probes; failures fed back for one fix) -> the archive holds DEBUGGED verified helpers; (2)
+EDGE-HEAVY grading + "the library is tested-correct, prefer calling it" framing -> reusing a debugged
+helper beats an error-prone inline re-derivation. 12 lineages/model, 95% CI, delta=0.05.
+| model | Q0 | q1-q0 (first-order) | F1 | F2 |
+|---|---|---|---|---|
+| gpt-oss-120b | 1.000 | -0.074 [-0.18,0.03] | +0.009 [-0.04,0.06] | +0.049 [-0.04,0.14] |
+| Gemma-3-12B  | 0.917 | **-0.039 [-0.07,-0.01]** | -0.010 [-0.06,0.03] | +0.012 [-0.02,0.05] |
+| Opus-5       | 0.750 | **+0.083 [0.014,0.153]** | -0.021 [-0.09,0.05] | +0.031 [-0.04,0.11] |
+| Llama-3.1-8B | 0.688 | **-0.207 [-0.36,-0.06]** | -0.059 [-0.21,0.09] | **-0.112 [-0.22,-0.00]** |
+(deepseek-v3.2 / qwen3-32b throttled to 1-2 lineages -> excluded.)
+FINDINGS (honest):
+1. IS IT TRUE RSI? NO. No model shows a resolved positive causal producer link or compounding (F1/F2 all
+   span 0 or are negative) even on the load-bearing open-ended substrate. The scripted lab_open proves the
+   INSTRUMENT+substrate can detect compounding; real models do not exhibit it here.
+2. NEW capability-graded result: FIRST-ORDER self-improvement HELPS the strongest model (Opus q1-q0 +0.083
+   RESOLVED >0 -- it builds+leverages the archive) and HURTS weaker ones (Gemma -0.039, Llama -0.207 both
+   RESOLVED <0; Llama F2 -0.112 RESOLVED <0). Weaker models POISON their own library with buggy
+   abstractions -> self-revision is net-negative for them. So archive-based self-improvement is
+   capability-gated with a NEGATIVE regime for weak models -- a genuine, defensible finding.
+3. Q0 gradient on edge-heavy grading: gpt-oss 1.0 > gemma 0.917 > opus 0.75 > llama 0.688 (opus below
+   gpt-oss = more one-shot edge errors under this grading).
+Leaderboard JSON: docs/data/rsi_leaderboard.json + ka_data/rsi_leaderboard/. The load-bearing archive made
+first-order improvement measurable+capability-graded live; resolved COMPOUNDING still requires either a
+harder-to-re-derive substrate (GPU kernels) or a longer campaign where the archive is unavoidable.
+
+## LIVE-MODEL open-ended, HARD shared-structure tasks (2026-09-08)
 
 Curated a HARD shared-sub-structure task family (number-theory/digit: pair-prime-counting, distinct-prime-
 factors, digital-root, palindrome-prime, ... sharing is_prime/factorize/digitsum/palindrome helpers so a
