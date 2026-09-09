@@ -61,9 +61,12 @@
     </div>
     <div class="track">
       <h3>Recursion <span class="lab">setting B — RSI</span></h3>
-      <p>Does improving the procedure compound? An <b>open-ended</b> research engine: the improvable state is a growing <b>archive</b> of reusable, <em>debugged</em> abstractions (a build-test-fix library). Tasks share sub-structure and are edge-graded, so a verified helper is <b>load-bearing</b> — reuse beats error-prone re-derivation.</p>
+      <p>Does improving the procedure compound? The improvable state is a growing <b>archive</b> of reusable, <em>debugged</em> abstractions (a build-test-fix library). Two tiers by how <b>load-bearing</b> the archive is:</p>
+      <ul class="small">
+        <li><b>R1 · shared-helper</b> — tasks share number-theory/digit primitives; exposes first-order improvement (and the negative regime).</li>
+        <li><b>R2 · compositional tower</b> — a depth-D ladder where rung <em>k</em> = layer ∘ rung <em>k−1</em>; from-scratch correctness compounds down, so a verified archived rung is <em>required</em> — the setting where <b>F₂ compounding</b> is measurable.</li>
+      </ul>
       <div class="metrics">measures: q₁−q₀ · N · F₁ (causal link) · F₂ (compounding)</div>
-      <p class="small">Reads ~0 on closed / memory-only substrates; &gt;0 only when improvement <em>creates new improvement opportunities</em>.</p>
       <div class="cmdlabel">score a model</div>
       <pre><code>evaluate --track rsi \
   --api-model us.anthropic.claude-opus-5 \
@@ -113,14 +116,18 @@
 </section>
 
 <section id="dataset">
-  <div class="snum">05 — DATASETS</div>
-  <h2>Task banks</h2>
-  <p class="sub">Public splits are committed + on HuggingFace; a held-out split (never released) scores the leaderboard.</p>
-  <ul>
-    <li><b>Code bug-fix</b> — 75 public tasks (easy 21 / medium 17 / hard 18 / ultra 19), Fable-curated, executable-validated. <a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a> · <code>dataset/tasks/public/</code></li>
-    <li><b>Open-ended RSI bank</b> — hard synthesis tasks sharing number-theory/digit primitives so a reused verified helper compounds. <code>dataset/rsi_tasks/</code> · HF <code>rsi/</code></li>
-    <li><b>GPU-kernel bank</b> — 1000+ procedural tasks, 6 families. <code>dataset/curated/</code></li>
-  </ul>
+  <div class="snum">05 — TASK BANKS &amp; TIERS</div>
+  <h2>Task banks, by tier</h2>
+  <p class="sub">Public splits committed + on HuggingFace; a disjoint held-out split (never released) scores the leaderboard. Full taxonomy: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/docs/TIERS.md">TIERS.md</a>.</p>
+  <div class="tablewrap">
+    <table><thead><tr><th>Setting</th><th>Bank</th><th>Tiers</th><th>Location</th></tr></thead>
+    <tbody>
+      <tr><td>Capability</td><td>Code bug-fix (75 public)</td><td>Easy · Medium · Hard · Ultra (edge-subtlety)</td><td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a> · <code>dataset/tasks/</code></td></tr>
+      <tr><td>Capability</td><td>GPU kernels (1000+)</td><td>L1 memory · L2 tensor-core · L3 attention</td><td><code>dataset/curated/</code></td></tr>
+      <tr><td>Recursion</td><td>RSI · R1 shared-helper</td><td>number-theory/digit tasks sharing primitives</td><td><code>dataset/rsi_tasks/</code> · HF <code>rsi/</code></td></tr>
+      <tr><td>Recursion</td><td>RSI · R2 compositional tower</td><td>depth-graded ladder (shallow 1–3 · deep 4–8)</td><td><code>lab_tower.py</code></td></tr>
+    </tbody></table>
+  </div>
   <pre><code>from datasets import load_dataset
 ds = load_dataset("muahmed7338/kernelascent-tasks")   # easy / medium / hard / ultra</code></pre>
 </section>
