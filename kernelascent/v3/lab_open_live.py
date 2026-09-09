@@ -113,6 +113,32 @@ def _sample(rng):
     return [rng.choice(_EDGE_POOL) if rng.random() < 0.6 else rng.randint(0, 200) for _ in range(n)]
 
 
+def load_bank(path):
+    """Load the standardized RSI task bank (JSONL: name/spec/reference_code/sampler_code) -> TASKS list of
+    (spec, ref_callable, sampler_callable). Makes the benchmark bank-driven + versioned, not hardcoded."""
+    import json as _j
+    tasks = []
+    for line in open(path):
+        line = line.strip()
+        if not line:
+            continue
+        t = _j.loads(line)
+        ns = {"__builtins__": __builtins__, "math": __import__("math")}
+        try:
+            exec(compile(t["reference_code"], "<ref>", "exec"), ns)
+            exec(compile(t["sampler_code"], "<smp>", "exec"), ns)
+        except Exception:
+            continue
+        f, s = ns.get("f"), ns.get("sample")
+        if callable(f) and callable(s):
+            tasks.append((t["spec"], f, s))
+    return tasks
+
+
+def _task_sampler(task):
+    return task[2] if len(task) > 2 else None
+
+
 SOLVE_TMPL = ("Write a Python function solve(xs), where xs is a list of ints, that returns: {spec}.\n"
               "Examples: {ex}\n{lib}Return ONLY the solve function as a python code block.")
 HELPER_TMPL = ("You are building a LIBRARY of reusable Python helper functions for list-of-int problems.\n"
@@ -170,12 +196,13 @@ def make_behaviors(gen_fn, rng_master):
     cache = {}
 
     def develop(agent, task, rng):
-        spec, ref = task
+        spec, ref = task[0], task[1]
+        samp = task[2] if len(task) > 2 else _sample          # per-task sampler when bank-driven
         lib = agent["params"]["lib"]
         key = (spec, tuple(sorted(lib)))
         if key in cache:
             return cache[key]
-        ex = "; ".join("%r->%r" % (a, ref(a)) for a in [_sample(random.Random(i)) for i in range(3)])
+        ex = "; ".join("%r->%r" % (a, ref(a)) for a in [samp(random.Random(i)) for i in range(3)])
         libtxt = (("These library helpers are ALREADY DEFINED and TESTED CORRECT (incl. tricky edge cases) "
                    "— prefer CALLING them over re-implementing:\n" + _lib_str(lib) + "\n") if lib else "")
         code = _extract(gen_fn(SOLVE_TMPL.format(spec=spec, ex=ex, lib=libtxt)))
@@ -190,7 +217,7 @@ def make_behaviors(gen_fn, rng_master):
         ok = tot = 0
         rg = random.Random(hash(spec) & 0xffff)
         for _ in range(12):
-            a = _sample(rg)
+            a = samp(rg)
             try:
                 exp = ref(a)
             except Exception:
@@ -250,11 +277,12 @@ def run(args):
     cur = CB.Curator(args.api_model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
     cur.resolve(); cur.resolve_reasoning(); gen_fn = lambda p: cur.generate(p); who = "api:" + args.api_model
     develop, revise = make_behaviors(gen_fn, random.Random(0))
+    tasks = load_bank(args.bank) if getattr(args, "bank", "") else TASKS
     U0 = {"params": {"lib": {}}}
-    print("LAB-OPEN-LIVE %s lineages=%d tasks=%d" % (who, args.lineages, len(TASKS)), flush=True)
+    print("LAB-OPEN-LIVE %s lineages=%d tasks=%d bank=%s" % (who, args.lineages, len(tasks), args.bank or "builtin"), flush=True)
     results = []
     for s in range(args.lineages):
-        r = run_lineage(copy.deepcopy(U0), develop, revise, TASKS, random.Random(s), reps=1)
+        r = run_lineage(copy.deepcopy(U0), develop, revise, tasks, random.Random(s), reps=1)
         results.append(r)
         agg = aggregate_lineages(results)
         print("lin%d Q0=%.3f q1-q0=%+.3f N1=%+.3f F1=%+.3f F2=%+.3f  (agg F1=%+.3f F2=%+.3f)" %
@@ -273,6 +301,7 @@ def run(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--api-model", required=True); ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--bank", default="", help="RSI task-bank JSONL (default: built-in tasks)")
     ap.add_argument("--lineages", type=int, default=6)
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/lab_open_live")
     args = ap.parse_args()
