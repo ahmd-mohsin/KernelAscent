@@ -51,19 +51,21 @@ def run_capability(args):
 
 
 def run_rsi(args):
-    from kernelascent.v3 import lab_easy as LE
-    a = types.SimpleNamespace(api_model=args.api_model, region=args.region, anchors=6,
-                              lineages=args.lineages, reps=1, budget=60, outdir=args.outdir)
+    from kernelascent.v3 import lab_open_live as LOL
     if not args.api_model:
         sys.exit("rsi track currently runs API models (--api-model); GPU-model rsi is a separate path")
-    LE.run_model(a)
+    bank = args.bank or os.path.join(ROOT, "dataset", "rsi_tasks", "public.jsonl")
+    a = types.SimpleNamespace(api_model=args.api_model, region=args.region,
+                              lineages=args.lineages, bank=(bank if os.path.exists(bank) else ""),
+                              outdir=args.outdir)
+    LOL.run(a)
     who = "api:" + args.api_model
-    f = os.path.join(args.outdir, "lab_easy_%s.json" % who.replace(":", "_").replace("/", "_").replace(".", "_"))
+    f = os.path.join(args.outdir, "lab_open_live_%s.json" % who.replace(":", "_").replace("/", "_").replace(".", "_"))
     d = json.load(open(f)); agg = d["agg"]
     g = lambda k: agg[k]["mean"]
-    return {"track": "rsi", "lineages": d["lineages"], "Q0": d["Q0"]["mean"],
-            "q1_minus_q0": g("q1_minus_q0"), "N1": g("N1"), "F1": g("F1"), "F2": g("F2"),
-            "F1_ci": agg["F1"].get("ci95"), "N1_ci": agg["N1"].get("ci95")}
+    return {"track": "rsi", "substrate": "open-ended library-learning", "bank": bank, "lineages": d["lineages"],
+            "Q0": d["Q0"]["mean"], "q1_minus_q0": g("q1_minus_q0"), "N1": g("N1"), "F1": g("F1"), "F2": g("F2"),
+            "F1_ci": agg["F1"].get("ci95"), "F2_ci": agg["F2"].get("ci95")}
 
 
 def main():
@@ -73,6 +75,7 @@ def main():
     ap.add_argument("--region", default="us-east-1")
     ap.add_argument("--tier", default="medium", help="capability tier: easy|medium|hard|ultra")
     ap.add_argument("--curated", default="", help="curated public dir/jsonl (default: bundled / HF)")
+    ap.add_argument("--bank", default="", help="rsi task-bank JSONL (default: bundled dataset/rsi_tasks/public.jsonl)")
     ap.add_argument("--K", type=int, default=6); ap.add_argument("--reps", type=int, default=2)
     ap.add_argument("--limit", type=int, default=0); ap.add_argument("--lineages", type=int, default=16)
     ap.add_argument("--max-new", type=int, default=1024)

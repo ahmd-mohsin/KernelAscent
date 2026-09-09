@@ -11,9 +11,10 @@ WORKDIR /bench
 COPY docker/requirements.txt /bench/requirements.txt
 RUN pip3 install --no-cache-dir -r /bench/requirements.txt
 
-# code + the bundled PUBLIC curated task bank (held-out split is NOT in the image)
+# code + the bundled PUBLIC task banks (held-out splits are NOT in the image)
 COPY kernelascent /bench/kernelascent
 COPY dataset/tasks/public /bench/dataset/tasks/public
+COPY dataset/rsi_tasks/public.jsonl /bench/dataset/rsi_tasks/public.jsonl
 ENV PYTHONPATH=/bench:/bench/kernelascent KA_DATA=/bench/dataset/tasks/public
 
 # ---------------------------------------------------------------------------
