@@ -1,0 +1,492 @@
+[
+  {
+    "name": "l1_1",
+    "tier": "L1",
+    "correct_rate": 0.625,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l1_2",
+    "tier": "L1",
+    "correct_rate": 0.5,
+    "best_score": 0.501,
+    "keep": true
+  },
+  {
+    "name": "l1_3",
+    "tier": "L1",
+    "correct_rate": 1.0,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l1_4",
+    "tier": "L1",
+    "correct_rate": 1.0,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l1_5",
+    "tier": "L1",
+    "correct_rate": 0.375,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l1_6",
+    "tier": "L1",
+    "correct_rate": 0.625,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l2_1",
+    "tier": "L2",
+    "correct_rate": 0.25,
+    "best_score": 0.489,
+    "keep": true
+  },
+  {
+    "name": "l2_2",
+    "tier": "L2",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "keep": false
+  },
+  {
+    "name": "l2_3",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.495,
+    "keep": true
+  },
+  {
+    "name": "l2_4",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.587,
+    "keep": true
+  },
+  {
+    "name": "l2_5",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.498,
+    "keep": true
+  },
+  {
+    "name": "l2_6",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.497,
+    "keep": true
+  },
+  {
+    "name": "l2_7",
+    "tier": "L2",
+    "correct_rate": 0.75,
+    "best_score": 0.591,
+    "keep": true
+  },
+  {
+    "name": "l2_8",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l2_9",
+    "tier": "L2",
+    "correct_rate": 0.75,
+    "best_score": 0.54,
+    "keep": true
+  },
+  {
+    "name": "l2_10",
+    "tier": "L2",
+    "correct_rate": 0.125,
+    "best_score": 0.495,
+    "keep": true
+  },
+  {
+    "name": "l2_11",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l2_12",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.546,
+    "keep": true
+  },
+  {
+    "name": "l2_13",
+    "tier": "L2",
+    "correct_rate": 0.75,
+    "best_score": 0.581,
+    "keep": true
+  },
+  {
+    "name": "l2_14",
+    "tier": "L2",
+    "correct_rate": 0.75,
+    "best_score": 0.486,
+    "keep": true
+  },
+  {
+    "name": "l2_15",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.496,
+    "keep": true
+  },
+  {
+    "name": "l2_16",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l2_17",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.497,
+    "keep": true
+  },
+  {
+    "name": "l2_18",
+    "tier": "L2",
+    "correct_rate": 0.875,
+    "best_score": 0.593,
+    "keep": true
+  },
+  {
+    "name": "l2_19",
+    "tier": "L2",
+    "correct_rate": 0.875,
+    "best_score": 0.501,
+    "keep": true
+  },
+  {
+    "name": "l2_20",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l2_21",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l2_22",
+    "tier": "L2",
+    "correct_rate": 0.875,
+    "best_score": 0.491,
+    "keep": true
+  },
+  {
+    "name": "l2_23",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l2_24",
+    "tier": "L2",
+    "correct_rate": 0.75,
+    "best_score": 0.491,
+    "keep": true
+  },
+  {
+    "name": "l3_1",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.85,
+    "keep": false
+  },
+  {
+    "name": "l3_2",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l3_3",
+    "tier": "L3",
+    "correct_rate": 0.5,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l3_4",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.644,
+    "keep": true
+  },
+  {
+    "name": "l3_5",
+    "tier": "L3",
+    "correct_rate": 0.5,
+    "best_score": 0.804,
+    "keep": false
+  },
+  {
+    "name": "l3_6",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_7",
+    "tier": "L3",
+    "correct_rate": 0.125,
+    "best_score": 0.962,
+    "keep": false
+  },
+  {
+    "name": "l3_8",
+    "tier": "L3",
+    "correct_rate": 1.0,
+    "best_score": 0.502,
+    "keep": true
+  },
+  {
+    "name": "l3_9",
+    "tier": "L3",
+    "correct_rate": 0.875,
+    "best_score": 0.752,
+    "keep": false
+  },
+  {
+    "name": "l3_10",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l3_11",
+    "tier": "L3",
+    "correct_rate": 0.875,
+    "best_score": 0.494,
+    "keep": true
+  },
+  {
+    "name": "l3_12",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.652,
+    "keep": true
+  },
+  {
+    "name": "l3_13",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.806,
+    "keep": false
+  },
+  {
+    "name": "l3_14",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.501,
+    "keep": true
+  },
+  {
+    "name": "l3_15",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.955,
+    "keep": false
+  },
+  {
+    "name": "l3_16",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l3_17",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_18",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.379,
+    "keep": true
+  },
+  {
+    "name": "l3_19",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.498,
+    "keep": true
+  },
+  {
+    "name": "l3_20",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.661,
+    "keep": true
+  },
+  {
+    "name": "l3_21",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l3_22",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.578,
+    "keep": true
+  },
+  {
+    "name": "l3_23",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.937,
+    "keep": false
+  },
+  {
+    "name": "l3_24",
+    "tier": "L3",
+    "correct_rate": 0.875,
+    "best_score": 0.501,
+    "keep": true
+  },
+  {
+    "name": "l3_25",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_26",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.498,
+    "keep": true
+  },
+  {
+    "name": "l3_27",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.499,
+    "keep": true
+  },
+  {
+    "name": "l3_28",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.919,
+    "keep": false
+  },
+  {
+    "name": "l3_29",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.821,
+    "keep": false
+  },
+  {
+    "name": "l3_30",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_31",
+    "tier": "L3",
+    "correct_rate": 0.125,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_32",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 1.0,
+    "keep": false
+  },
+  {
+    "name": "l3_33",
+    "tier": "L3",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "keep": false
+  },
+  {
+    "name": "l3_34",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.884,
+    "keep": false
+  },
+  {
+    "name": "l3_35",
+    "tier": "L3",
+    "correct_rate": 0.375,
+    "best_score": 0.497,
+    "keep": true
+  },
+  {
+    "name": "l3_36",
+    "tier": "L3",
+    "correct_rate": 0.25,
+    "best_score": 0.621,
+    "keep": true
+  },
+  {
+    "name": "l3_37",
+    "tier": "L3",
+    "correct_rate": 0.625,
+    "best_score": 0.664,
+    "keep": true
+  },
+  {
+    "name": "l3_38",
+    "tier": "L3",
+    "correct_rate": 0.75,
+    "best_score": 0.5,
+    "keep": true
+  },
+  {
+    "name": "l3_39",
+    "tier": "L3",
+    "correct_rate": 0.875,
+    "best_score": 0.944,
+    "keep": false
+  },
+  {
+    "name": "l3_40",
+    "tier": "L3",
+    "correct_rate": 0.5,
+    "best_score": 0.501,
+    "keep": true
+  }
+]
