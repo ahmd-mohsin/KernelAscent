@@ -24,22 +24,20 @@ def _task(fwd, M=4096, Dd=4096):
             "    def forward(self, x):\n        %s\n"
             "def get_inputs():\n    return [torch.randn(%d,%d, dtype=DT)]\n" % (fwd, M, Dd))
 
-TASKS = {
-    "softmax": _task("return torch.softmax(x, dim=-1)"),
-    "layernorm": _task("return torch.nn.functional.layer_norm(x, (x.shape[-1],))"),
-    "rmsnorm": _task("return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + 1e-6)"),
-    "logsumexp": _task("return x - torch.logsumexp(x, dim=-1, keepdim=True)"),
-    "gelu_sum": _task("return torch.nn.functional.gelu(x) + x"),
-    "l2norm": _task("return x / (x.norm(dim=-1, keepdim=True) + 1e-6)"),
-    "max_sub": _task("return x - x.max(dim=-1, keepdim=True).values"),
-    "silu": _task("return torch.sigmoid(x) * x"),
-    "cumsum": _task("return x.cumsum(dim=-1)"),
-    "softplus": _task("return torch.nn.functional.softplus(x)"),
-    "std_norm": _task("return (x - x.mean(-1, keepdim=True)) / (x.std(-1, keepdim=True) + 1e-6)"),
-    "tanh_gelu": _task("return torch.nn.functional.gelu(torch.tanh(x))"),
-    "l1norm": _task("return x / (x.abs().sum(-1, keepdim=True) + 1e-6)"),
-    "relu_sq": _task("return torch.relu(x) ** 2"),
-}
+# ALL task CONTENT is Fable-5.1-curated (curate_kernel_tasks.py); we never hand-write tasks. Load the
+# curated bank (KernelBench-style Model sources, tier-graded, GPU-validated). Override path via KA_KERNEL_BANK.
+def _load_bank():
+    import glob
+    cands = [os.environ.get("KA_KERNEL_BANK", ""),
+             "/tmp/instance_storage/ka_data/kernel_bank/kernel_tasks.json",
+             os.path.join(ROOT, "dataset", "kernel_bank", "kernel_tasks.json")]
+    for p in cands:
+        if p and os.path.exists(p):
+            bank = json.load(open(p))
+            return {b["name"]: b["source"] for b in bank}, {b["name"]: b.get("tier", "L1") for b in bank}
+    raise FileNotFoundError("Fable-curated kernel bank not found; run curate_kernel_tasks.py (searched %r)" % cands)
+
+TASKS, TIER = _load_bank()
 _REF = {}
 
 

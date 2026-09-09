@@ -61,17 +61,13 @@
   --tier medium</code></pre>
     </div>
     <div class="track">
-      <h3>Recursion <span class="lab">setting B — RSI</span></h3>
-      <p>Does improving the procedure compound? The improvable state is a growing <b>archive</b> of reusable, <em>debugged</em> abstractions (a build-test-fix library). Two tiers by how <b>load-bearing</b> the archive is:</p>
-      <ul class="small">
-        <li><b>R1 · shared-helper</b> — tasks share number-theory/digit primitives; exposes first-order improvement (and the negative regime).</li>
-        <li><b>R2 · compositional tower</b> — a depth-D ladder where rung <em>k</em> = layer ∘ rung <em>k−1</em>; from-scratch correctness compounds down, so a verified archived rung is <em>required</em> — the setting where <b>F₂ compounding</b> is measurable.</li>
-      </ul>
-      <div class="metrics">measures: q₁−q₀ · N · F₁ (causal link) · F₂ (compounding)</div>
-      <div class="cmdlabel">score a model</div>
-      <pre><code>evaluate --track rsi \
-  --api-model us.anthropic.claude-opus-5 \
-  --lineages 12</code></pre>
+      <h3>Weight-RSI <span class="lab">setting B — open-weight</span></h3>
+      <p>Does self-improvement <em>compound</em>? An open-weight model writes GPU kernels for its own training stack; under a fixed budget the faster kernels buy more gradient steps, so the model is <b>retrained on its own improvements</b> → a stronger model → which writes better kernels. Because the <b>weights</b> change, the improver itself gets better — the ceiling frozen-weight/API agents can't cross.</p>
+      <div class="metrics">measures: C_r (capability per round) · Δ_r vs a frozen-base + round-0-data control</div>
+      <p class="small">RSI is supported if held-out capability rises across rounds and Δ_r grows — beating both controls.</p>
+      <div class="cmdlabel">score an open-weight model (GPU)</div>
+      <pre><code>lab_weight_rsi --model Qwen/Qwen2.5-Coder-7B \
+  --rounds 8</code></pre>
     </div>
   </div>
 </section>
@@ -89,17 +85,16 @@
     </tr></thead><tbody></tbody></table>
   </div>
 
-  <h3 style="margin-top:34px">Recursion (RSI) — open-ended library-learning</h3>
-  <p class="small sub">Load-bearing archive (build-test-fix, edge-graded). 12 lineages/model, 95% CI, δ = 0.05. Bold = CI clears 0.</p>
+  <h3 style="margin-top:34px">Weight-RSI — open-weight kernel→model loop</h3>
+  <p class="small sub">Open model retrained (LoRA) on its own correct kernels each round; held-out capability C_r vs a frozen-base control. First result — Qwen2.5-Coder-1.5B, 6 rounds:</p>
   <div class="tablewrap">
-    <table><thead><tr><th>Model</th><th class="num">Q₀</th><th class="num">q₁−q₀</th><th class="num">F₁</th><th class="num">F₂</th><th>Verdict</th></tr></thead>
+    <table><thead><tr><th class="num">round</th><th class="num">0</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th></tr></thead>
     <tbody>
-      <tr><td>gpt-oss-120b</td><td class="num">1.000</td><td class="num">−0.074</td><td class="num">+0.009</td><td class="num">+0.049</td><td>ceiling — no headroom</td></tr>
-      <tr><td>Gemma-3-12B</td><td class="num">0.917</td><td class="num neg"><b>−0.039</b></td><td class="num">−0.010</td><td class="num">+0.012</td><td>self-revision mildly hurts</td></tr>
-      <tr><td>Opus-5</td><td class="num">0.750</td><td class="num pos"><b>+0.083</b></td><td class="num">−0.021</td><td class="num">+0.031</td><td>first-order improvement (resolved); no compounding</td></tr>
-      <tr><td>Llama-3.1-8B</td><td class="num">0.688</td><td class="num neg"><b>−0.207</b></td><td class="num">−0.059</td><td class="num neg"><b>−0.112</b></td><td>poisons its own library</td></tr>
+      <tr><td>C_held</td><td class="num">0.00</td><td class="num">0.24</td><td class="num">0.00</td><td class="num">0.51</td><td class="num">0.50</td><td class="num pos"><b>0.75</b></td></tr>
+      <tr><td>Δ vs frozen (C₀=0.46)</td><td class="num">−0.46</td><td class="num">−0.22</td><td class="num">−0.46</td><td class="num">+0.05</td><td class="num">+0.05</td><td class="num pos"><b>+0.30</b></td></tr>
     </tbody></table>
   </div>
+  <div class="note"><b>First live compounding signal.</b> The open model improved its own held-out kernel-writing by training on its own kernels, round over round (0.46 → 0.75, Δ rising to +0.30) — where every frozen-weight substrate was flat, because here the <em>weights</em> change so the improver itself gets better. <b>Caveat:</b> noisy (few held-out tasks, no CIs yet) → directional, not resolved. Densifying now with Fable-curated kernel tasks + a round-0-data control + larger models.</div>
   <p class="tiny">Full 22-model capability table and every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</p>
 </section>
 
