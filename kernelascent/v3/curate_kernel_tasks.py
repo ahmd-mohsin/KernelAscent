@@ -15,8 +15,12 @@ import curate_bedrock as CB
 TIER = {
  "L1": "a MEMORY/REDUCTION-bound fusion (elementwise chains, softmax/normalization pieces, reductions) on a large 2-D tensor; hard to beat torch.compile because it is bandwidth-bound",
  "L2": "a MATMUL with a fused epilogue (bias/activation/scale/residual) on realistic shapes; hard to beat cuBLAS/torch.compile",
- "L3": "an ATTENTION or full NORMALIZATION chain (e.g. scaled-dot-product attention, layernorm+residual+gelu) on realistic transformer shapes; genuinely hard to fuse",
+ "L3": "an ATTENTION or full NORMALIZATION chain (e.g. scaled-dot-product attention, layernorm+residual+gelu, "
+       "a fused SiLU-gate MLP, multi-head attention) on realistic transformer shapes; genuinely hard to fuse "
+       "correctly and to beat torch.compile",
 }
+# how many VALIDATED tasks to admit per tier (weighted hard: most of the bank is L3 to give a strong model headroom)
+COUNTS = {"L1": 10, "L2": 15, "L3": 30}
 TMPL = (
  "Create ONE PyTorch module optimization task at tier {t}: {desc}.\n"
  "Return ONLY a python code block defining EXACTLY:\n"
@@ -30,8 +34,10 @@ TMPL = (
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--per-tier", type=int, default=4); ap.add_argument("--attempts", type=int, default=6)
+    ap.add_argument("--per-tier", type=int, default=0, help="0 = use per-tier COUNTS map"); ap.add_argument("--attempts", type=int, default=4)
     ap.add_argument("--effort", default="max"); ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--only-tier", default="", help="restrict to one tier (L1/L2/L3) for parallel curation")
+    ap.add_argument("--out-name", default="kernel_tasks.json"); ap.add_argument("--max-tokens", type=int, default=20000)
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/kernel_bank"); args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
     from kernelascent import agent_bench as AB
@@ -42,7 +48,7 @@ def main():
     from botocore.config import Config as _C
     cur.rt = boto3.Session(profile_name="bedrock").client("bedrock-runtime", region_name=args.region,
                                                           config=_C(read_timeout=1800, connect_timeout=60, retries={"max_attempts": 1}))
-    cur.resolved = (rid, min(mt, 20000))
+    cur.resolved = (rid, min(mt, args.max_tokens))
     cur.reasoning = {"thinking": {"type": "adaptive"}, "output_config": {"effort": args.effort}}
 
     def gen(p):
@@ -70,10 +76,12 @@ def main():
         return True, "ok tbase=%.3fms rerr=%.2g" % (tbase * 1e3, rerr)
 
     bank = []; seen = set()
-    for tier in ("L1", "L2", "L3"):
+    tiers = (args.only_tier,) if args.only_tier else ("L1", "L2", "L3")
+    for tier in tiers:
+        target = args.per_tier if args.per_tier > 0 else COUNTS[tier]
         got = 0
-        for a in range(args.per_tier * args.attempts):
-            if got >= args.per_tier:
+        for a in range(target * args.attempts):
+            if got >= target:
                 break
             src = extract(gen(TMPL.format(t=tier, desc=TIER[tier])))
             key = hashlib.sha1(re.sub(r"\s+", "", src).encode()).hexdigest()
@@ -84,8 +92,8 @@ def main():
             if ok:
                 seen.add(key); got += 1
                 bank.append({"name": "%s_%d" % (tier.lower(), got), "tier": tier, "source": src})
-                json.dump(bank, open(os.path.join(args.outdir, "kernel_tasks.json"), "w"), indent=2)
-        print("TIER %s: %d/%d" % (tier, got, args.per_tier), flush=True)
+                json.dump(bank, open(os.path.join(args.outdir, args.out_name), "w"), indent=2)
+        print("TIER %s: %d/%d" % (tier, got, target), flush=True)
     print("DONE", {t: sum(1 for b in bank if b["tier"] == t) for t in ("L1", "L2", "L3")}, flush=True)
 
 

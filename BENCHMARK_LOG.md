@@ -4,7 +4,34 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## WEIGHT-RSI — FIRST LIVE COMPOUNDING SIGNAL (2026-09-09) [newest]
+## WEIGHT-RSI — 7B ON FABLE-CURATED BANK: MECHANISM YES, COMPOUNDING NOT RESOLVED (2026-09-09) [newest]
+
+Followed the densify plan: (a) Fable-5.1 curated the WHOLE task bank (curate_kernel_tasks.py, 12 GPU-validated
+KernelBench-style tasks, tiers L1 mem/reduction:4, L2 matmul+epilogue:4, L3 attention/norm:4 — no hand-written
+tasks); lab_kernel now loads it via KA_KERNEL_BANK. (b) Scaled the model 1.5B -> Qwen2.5-Coder-7B-Instruct on
+user request. Infra fixes for 7B: prompt tightened to force SELF-CONTAINED torch-only kernels (7B otherwise
+0/0 — it hallucinated triton submodules `from triton import kernel/csrc`, `triton.testing.ignore_warnings`);
+fp32 needed for SFT stability (bf16 SFT collapsed BOTH arms to C=0.000); gradient-checkpointing during sft();
+each arm sharded across 2 A100-40GB (self=GPU0,1 ctrl=GPU2,3 grade=GPU4) because fp32-7B SFT peak > 40GB
+(single-GPU OOM'd round 2). n_train=5, held=7, k=8, 8 rounds.
+
+RESULT (frozen-base C0=0.367+-0.173):
+  C_self  : 0.439 0.428 0.357 0.357 0.358 0.357 0.357 0.357   (jumps in r0, then LOCKS to a fixed point)
+  C_ctrl  : 0.388 0.286 0.357 0.367 0.438 0.367 0.357 0.367
+  self-ctrl: +0.052 +0.142 -0.00 -0.01 -0.081 -0.011 -0.00 -0.01
+  ex      : 14 18 24 22 22 24 24 24   (self keeps producing MANY correct kernels every round)
+  => RSI "not resolved". dSelf>0 in r0-1 (self-training lifts held ABOVE frozen base, real) but NO compounding:
+     C_self saturates at 0.357 by round 2 and self-minus-ctrl is noise around 0.
+
+INTERPRETATION (honest): the MECHANISM fires (weights change, held rises above frozen base early), but the
+7B one-shot-saturates the SMALL 7-task held set at round 0 (C0 already 0.367; r0 -> 0.439), so there is NO
+HEADROOM to measure compounding. Counter-intuitively the *stronger* model shows *less* compounding than the
+1.5B-on-easy-tasks run below — same lesson as the frozen-weight ceiling: compounding is only measurable where
+there is headroom. BOTTLENECK = held set too small + too easy for a strong model, NOT the model.
+NEXT: to elicit compounding on a strong model, curate a MUCH larger + harder Fable bank (many L3 attention/
+fusion tasks the 7B cannot one-shot) so held-out C has room to climb over rounds; then CIs on C_r/Delta_r.
+
+## WEIGHT-RSI — FIRST LIVE COMPOUNDING SIGNAL (2026-09-09)
 
 `kernelascent/v3/lab_weight_rsi.py` on p4d: open-weight Qwen2.5-Coder-1.5B writes GPU kernels ->
 crash-isolated GPU grading (grade_batch.py subprocess, so a bad kernel's CUDA device-assert can't poison

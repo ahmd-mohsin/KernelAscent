@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KernelAscent — measuring whether self-improvement compounds</title>
-<meta name="description" content="A benchmark of agents that improve with experience. Two settings — Capability and Recursion — with actor/target-separated causal estimators, calibrated instruments, and a load-bearing open-ended substrate." />
+<title>KernelAscent — a two-task benchmark: Capability and RSI</title>
+<meta name="description" content="KernelAscent has two tasks. Capability: can a model write a correct, fast GPU kernel? RSI: does an open-weight model that trains on its own kernels keep getting better? Each task has its own dataset and a held-out split." />
 <link rel="icon" href="logo.png" />
 <link rel="stylesheet" href="style.css" />
 </head>
@@ -12,10 +12,9 @@
 <header class="nav">
   <div class="brand"><a href="#top"><img src="logo.png" alt="" class="logo"/> KernelAscent</a></div>
   <nav>
-    <a href="#measure">Mechanism</a>
-    <a href="#settings">Settings</a>
+    <a href="#tasks">The two tasks</a>
+    <a href="#data">Datasets</a>
     <a href="#boards">Leaderboards</a>
-    <a href="#findings">Findings</a>
     <a href="#submit">Submit</a>
     <a href="https://github.com/ahmd-mohsin/KernelAscent">GitHub</a>
   </nav>
@@ -24,60 +23,147 @@
 <div class="wrap">
 <section class="hero" id="top" style="border:none">
   <div class="eyebrow">Agents that improve with experience</div>
-  <h1>Does self-improvement&nbsp;<em>compound</em>?</h1>
-  <p class="dek">Not "can an agent solve a task?" — but: when an agent improves the <b>research procedure</b> it uses, does <b>using</b> that improvement causally produce a <b>better next</b> improvement, and does it <b>repeat</b>? KernelAscent measures this with two evaluation settings, actor/target-separated causal estimators, and calibrated instruments.</p>
-  <div class="loopeqn">improve procedure&nbsp;→&nbsp;use it&nbsp;→&nbsp;produce a better next improvement&nbsp;→&nbsp;…&nbsp;?</div>
+  <h1>Two tasks: <em>Capability</em> and <em>RSI</em></h1>
+  <p class="dek">KernelAscent asks two questions on the same substrate — GPU kernels. <b>Task 1 — Capability:</b> can a model write a kernel that is <b>correct</b> (matches fp32 gold) and <b>fast</b> (beats <code>torch.compile</code>)? <b>Task 2 — RSI:</b> when an <b>open-weight</b> model trains on its <em>own</em> correct kernels, do its weights keep getting better round after round — recursive self-improvement? Each task has its own dataset and a held-out split.</p>
   <div class="kpis">
-    <div><div class="kpi-n">2</div><div class="kpi-l">evaluation settings</div></div>
-    <div><div class="kpi-n">3</div><div class="kpi-l">task banks</div></div>
-    <div><div class="kpi-n">δ = 0.05</div><div class="kpi-l">meaningful effect</div></div>
-    <div><div class="kpi-n">public + held-out</div><div class="kpi-l">split</div></div>
+    <div><div class="kpi-n">2</div><div class="kpi-l">tasks — Capability · RSI</div></div>
+    <div><div class="kpi-n">2</div><div class="kpi-l">datasets, one per task</div></div>
+    <div><div class="kpi-n">held-out</div><div class="kpi-l">split scores the board</div></div>
+    <div><div class="kpi-n">A100 / H100</div><div class="kpi-l">GPU-graded</div></div>
   </div>
 </section>
 
-<section id="measure">
-  <div class="snum">01 — MECHANISM</div>
-  <h2>How we measure RSI</h2>
-  <p>An agent's state <code>U</code> is its executed <b>research procedure</b>. <code>develop(U)</code> runs it on a fresh task under a fixed budget and returns a quality <code>Q</code>. <code>revise(actor, target)</code> lets an <b>actor</b> edit a copy of a <b>target</b> procedure to produce a child. The trick: in a causal fork, two different actors edit the <em>identical</em> target — so a later actor earns credit only if it builds a genuinely better child.</p>
-  <figure>
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 860 300' role='img'><defs><marker id='a' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z' fill='#141414'/></marker></defs><text x='24' y='26' font-size='15.5' font-weight='700' fill='#141414'>The improvement loop and the causal contrast</text><rect x='40' y='68' width='180' height='58' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/><text x='130' y='92' text-anchor='middle' font-size='15' font-weight='700' fill='#141414'>develop(U)</text><text x='130' y='111' text-anchor='middle' font-size='11.5' fill='#9a9a9a'>run procedure U → quality Q</text><rect x='300' y='68' width='200' height='58' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/><text x='400' y='92' text-anchor='middle' font-size='15' font-weight='700' fill='#141414'>revise(actor, target)</text><text x='400' y='111' text-anchor='middle' font-size='11.5' fill='#9a9a9a'>actor edits a copy of target → child</text><rect x='600' y='68' width='220' height='58' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/><text x='710' y='92' text-anchor='middle' font-size='15' font-weight='700' fill='#141414'>common-target fork</text><text x='710' y='111' text-anchor='middle' font-size='11.5' fill='#9a9a9a'>U₁ and U₀ edit the SAME target</text><line x1='220' y1='97' x2='300' y2='97' stroke='#141414' stroke-width='1.3' marker-end='url(#a)'/><line x1='500' y1='97' x2='600' y2='97' stroke='#141414' stroke-width='1.3' marker-end='url(#a)'/><rect x='560' y='188' width='130' height='52' rx='8' stroke='#141414' stroke-width='1.3' fill='none' stroke-dasharray='5 4'/><text x='625' y='211' text-anchor='middle' font-size='14.5' font-weight='700' fill='#141414'>U₂ = revise(U₁,T)</text><text x='625' y='229' text-anchor='middle' font-size='11' fill='#9a9a9a'>newer producer</text><rect x='710' y='188' width='130' height='52' rx='8' stroke='#141414' stroke-width='1.3' fill='none' stroke-dasharray='5 4'/><text x='775' y='211' text-anchor='middle' font-size='14.5' font-weight='700' fill='#141414'>V₂ = revise(U₀,T)</text><text x='775' y='229' text-anchor='middle' font-size='11' fill='#9a9a9a'>older producer</text><line x1='660' y1='126' x2='625' y2='188' stroke='#141414' stroke-width='1.3' marker-end='url(#a)'/><line x1='760' y1='126' x2='775' y2='188' stroke='#141414' stroke-width='1.3' marker-end='url(#a)'/><text x='700' y='278' text-anchor='middle' font-size='13' font-weight='700' fill='#141414'>F = Q(U₂) − Q(V₂) — does the newer producer build a better child?</text><text x='40' y='168' font-size='12' fill='#9a9a9a'>N = Q(child) − Q(target): does the child beat keeping the target?</text><text x='40' y='187' font-size='12' fill='#9a9a9a'>q₁−q₀: first-order improvement from one self-revision.</text></svg>
-    <figcaption><span class="fnum">The estimators.</span> <b>q₁−q₀</b> and <b>N</b> are first-order (does improving help). <b>F</b> is the causal producer link, and <b>F₂</b> asks whether it <em>repeats</em> — that is compounding. Instruments are validated by deterministic calibration; a rising task score or editable source alone is <em>not</em> RSI.</figcaption>
-  </figure>
-</section>
+<section id="tasks">
+  <div class="snum">01 — THE TWO TASKS</div>
+  <h2>What each task measures</h2>
+  <p class="sub">Both run on GPU kernels and are graded the same way — a candidate kernel is <b>correct</b> if its output matches the fp32 reference and <b>fast</b> by its speedup over eager / <code>torch.compile</code>. They differ in what is being tested: a single solve (Capability) vs. improvement over rounds (RSI).</p>
 
-<section id="settings">
-  <div class="snum">02 — TWO SETTINGS</div>
-  <h2>What you can evaluate</h2>
-  <p class="sub">Every submission reports the axes separately. Both settings share the same estimators; they differ in the substrate.</p>
+  <figure>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 470' role='img' font-family='Georgia, serif'>
+      <!-- divider -->
+      <line x1='450' y1='40' x2='450' y2='450' stroke='#e2e0da' stroke-width='1'/>
+      <defs><marker id='ar' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z' fill='#141414'/></marker></defs>
+
+      <!-- ===== Task 1 : Capability ===== -->
+      <text x='40' y='30' font-size='13' font-weight='700' fill='#9a9a9a' letter-spacing='1'>TASK 1</text>
+      <text x='40' y='52' font-size='19' font-weight='700' fill='#141414'>Capability — one solve</text>
+
+      <rect x='40' y='80' width='150' height='52' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='115' y='104' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>model</text>
+      <text x='115' y='121' text-anchor='middle' font-size='11' fill='#9a9a9a'>any (API or open)</text>
+
+      <rect x='250' y='80' width='160' height='52' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='330' y='104' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>GPU kernel</text>
+      <text x='330' y='121' text-anchor='middle' font-size='11' fill='#9a9a9a'>ModelNew(nn.Module)</text>
+      <line x1='190' y1='106' x2='250' y2='106' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+      <text x='220' y='98' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>writes</text>
+
+      <rect x='150' y='190' width='190' height='58' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='245' y='214' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>GPU grader</text>
+      <text x='245' y='233' text-anchor='middle' font-size='11' fill='#9a9a9a'>correct? vs fp32 gold · fast?</text>
+      <line x1='330' y1='132' x2='270' y2='190' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+
+      <rect x='150' y='300' width='190' height='58' rx='8' stroke='#141414' stroke-width='1.6' fill='#f7f6f2'/>
+      <text x='245' y='324' text-anchor='middle' font-size='14.5' font-weight='700' fill='#141414'>score C</text>
+      <text x='245' y='343' text-anchor='middle' font-size='11' fill='#9a9a9a'>0 wrong · 0.5 parity · 1.0 at 1.5×</text>
+      <line x1='245' y1='248' x2='245' y2='300' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+      <text x='120' y='410' font-size='12' fill='#9a9a9a'>Measures: correct-rate,</text>
+      <text x='120' y='428' font-size='12' fill='#9a9a9a'>fast-rate, mean C — a single</text>
+      <text x='120' y='446' font-size='12' fill='#9a9a9a'>snapshot of raw skill.</text>
+
+      <!-- ===== Task 2 : RSI ===== -->
+      <text x='490' y='30' font-size='13' font-weight='700' fill='#9a9a9a' letter-spacing='1'>TASK 2</text>
+      <text x='490' y='52' font-size='19' font-weight='700' fill='#141414'>RSI — improvement over rounds</text>
+
+      <rect x='490' y='80' width='170' height='56' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='575' y='104' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>open model U<tspan baseline-shift='sub' font-size='10'>r</tspan></text>
+      <text x='575' y='122' text-anchor='middle' font-size='11' fill='#9a9a9a'>trainable weights</text>
+
+      <rect x='720' y='80' width='150' height='56' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='795' y='104' text-anchor='middle' font-size='13.5' font-weight='700' fill='#141414'>own correct</text>
+      <text x='795' y='121' text-anchor='middle' font-size='13.5' font-weight='700' fill='#141414'>kernels</text>
+      <line x1='660' y1='108' x2='720' y2='108' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+      <text x='690' y='100' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>writes+grades</text>
+
+      <rect x='720' y='200' width='150' height='56' rx='8' stroke='#141414' stroke-width='1.3' fill='none'/>
+      <text x='795' y='224' text-anchor='middle' font-size='13.5' font-weight='700' fill='#141414'>LoRA SFT</text>
+      <text x='795' y='242' text-anchor='middle' font-size='11' fill='#9a9a9a'>train on the correct ones</text>
+      <line x1='795' y1='136' x2='795' y2='200' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+
+      <rect x='490' y='200' width='170' height='56' rx='8' stroke='#141414' stroke-width='1.6' fill='#f7f6f2'/>
+      <text x='575' y='224' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>stronger U<tspan baseline-shift='sub' font-size='10'>r+1</tspan></text>
+      <text x='575' y='242' text-anchor='middle' font-size='11' fill='#9a9a9a'>weights improved</text>
+      <line x1='720' y1='228' x2='660' y2='228' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+
+      <!-- loop back -->
+      <path d='M575 200 C 575 170, 575 150, 575 136' stroke='#141414' stroke-width='1.3' fill='none' marker-end='url(#ar)'/>
+      <text x='548' y='170' text-anchor='end' font-size='10.5' fill='#9a9a9a'>next round</text>
+
+      <rect x='490' y='320' width='380' height='58' rx='8' stroke='#141414' stroke-width='1.6' fill='none'/>
+      <text x='680' y='344' text-anchor='middle' font-size='14' font-weight='700' fill='#141414'>held-out capability C<tspan baseline-shift='sub' font-size='10'>r</tspan> each round</text>
+      <text x='680' y='363' text-anchor='middle' font-size='11' fill='#9a9a9a'>vs frozen-base control &amp; round-0-data control</text>
+      <line x1='575' y1='256' x2='620' y2='320' stroke='#141414' stroke-width='1.3' marker-end='url(#ar)'/>
+      <text x='490' y='410' font-size='12' fill='#9a9a9a'>RSI is supported if C<tspan baseline-shift='sub' font-size='9'>r</tspan> rises across rounds AND</text>
+      <text x='490' y='428' font-size='12' fill='#9a9a9a'>beats both controls — the model gets better because</text>
+      <text x='490' y='446' font-size='12' fill='#9a9a9a'>its own weights change, not just because it retried.</text>
+    </svg>
+    <figcaption><span class="fnum">The two tasks.</span> <b>Left — Capability:</b> a model writes one kernel; the GPU grader scores it for correctness and speed. <b>Right — RSI:</b> an open-weight model writes kernels, is retrained (LoRA) on the ones that graded correct, and is re-measured on a held-out set each round. Capability is a snapshot; RSI is the slope. Only <b>open-weight</b> models can do the RSI task — a frozen/API model cannot change its own weights.</figcaption>
+  </figure>
+
   <div class="tracks">
     <div class="track">
-      <h3>Capability <span class="lab">setting A</span></h3>
-      <p>Can the agent produce a correct, fast solution? Two banks: <b>GPU kernels</b> (correctness vs fp32-gold, speedup vs <code>min(eager, torch.compile)</code>) and a <b>code bug-fix</b> bank (produce a correct patch; a local verifier selects it).</p>
-      <div class="metrics">measures: Q₀ · correct-rate · fast-rate · verifier_dQ</div>
-      <p class="small">Two walls — correctness ranks the low/mid band; beating <code>torch.compile</code> is the frontier discriminator.</p>
-      <div class="cmdlabel">score a model</div>
+      <h3>Task 1 — Capability</h3>
+      <p>Can the model produce a correct, fast kernel in one shot? Graded on GPU: <b>correct</b> = matches fp32 gold; <b>fast</b> = speedup over <code>min(eager, torch.compile)</code>. Two walls — correctness ranks the low/mid band, beating <code>torch.compile</code> is the frontier discriminator.</p>
+      <div class="metrics">measures: correct-rate · fast-rate · mean C</div>
+      <div class="cmdlabel">score any model</div>
       <pre><code>evaluate --track capability \
-  --api-model us.anthropic.claude-opus-5 \
-  --tier medium</code></pre>
+  --api-model us.anthropic.claude-opus-5 --tier medium</code></pre>
     </div>
     <div class="track">
-      <h3>Weight-RSI <span class="lab">setting B — open-weight</span></h3>
-      <p>Does self-improvement <em>compound</em>? An open-weight model writes GPU kernels for its own training stack; under a fixed budget the faster kernels buy more gradient steps, so the model is <b>retrained on its own improvements</b> → a stronger model → which writes better kernels. Because the <b>weights</b> change, the improver itself gets better — the ceiling frozen-weight/API agents can't cross.</p>
-      <div class="metrics">measures: C_r (capability per round) · Δ_r vs a frozen-base + round-0-data control</div>
-      <p class="small">RSI is supported if held-out capability rises across rounds and Δ_r grows — beating both controls.</p>
+      <h3>Task 2 — RSI <span class="lab">open-weight only</span></h3>
+      <p>Does self-improvement <em>compound</em>? Each round the model writes kernels for a train split, is LoRA-retrained on its own correct kernels, and is re-scored on a disjoint held-out split. Because the <b>weights</b> change, the improver itself gets better — the ceiling a frozen/API agent cannot cross.</p>
+      <div class="metrics">measures: C_r per round · Δ vs frozen-base &amp; round-0-data controls</div>
       <div class="cmdlabel">score an open-weight model (GPU)</div>
       <pre><code>lab_weight_rsi --model Qwen/Qwen2.5-Coder-7B \
-  --rounds 8</code></pre>
+  --rounds 6 --k 4</code></pre>
     </div>
   </div>
+</section>
+
+<section id="data">
+  <div class="snum">02 — DATASETS</div>
+  <h2>One dataset per task, each with a held-out split</h2>
+  <p class="sub">Every task ships a <b>public</b> split (committed + on HuggingFace) for development and a disjoint <b>held-out</b> split that is <em>never released</em> — the leaderboard is scored only on held-out, so scores can't be overfit. Full taxonomy: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/docs/TIERS.md">TIERS.md</a>.</p>
+  <div class="tablewrap">
+    <table><thead><tr><th>Task</th><th>Dataset</th><th>Tiers</th><th>Public split</th><th>Held-out (scoring)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Capability</b></td>
+        <td>GPU-kernel bank</td>
+        <td>L1 memory/reduction · L2 matmul+epilogue · L3 attention/norm</td>
+        <td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a> · <code>dataset/kernel_bank/</code></td>
+        <td>disjoint kernel set, unreleased</td>
+      </tr>
+      <tr>
+        <td><b>RSI</b></td>
+        <td>RSI kernel bank (Fable-5.1-curated, GPU-validated)</td>
+        <td>L1 memory/reduction · L2 matmul+epilogue · L3 attention/norm</td>
+        <td><code>dataset/kernel_bank/</code> (train split)</td>
+        <td>held-out kernels re-scored every round</td>
+      </tr>
+    </tbody></table>
+  </div>
+  <p class="small">Both tasks draw from the same tier taxonomy so a kernel technique learned at one tier is testable at another. The RSI task splits its bank into a <b>train</b> set (the model writes+learns from these) and a <b>held-out</b> set (used only to measure C_r) — the two never overlap.</p>
+  <pre><code>from datasets import load_dataset
+ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier</code></pre>
 </section>
 
 <section id="boards">
   <div class="snum">03 — LEADERBOARDS</div>
   <h2>Results</h2>
 
-  <h3>Capability — GPU-kernel track</h3>
-  <p class="small sub">Fixed Medium tasks, k = 5. <code>correct</code> = matches fp32 gold; <code>fast</code> = beats <code>torch.compile</code>. Click a header to sort.</p>
+  <h3>Task 1 — Capability (GPU-kernel track)</h3>
+  <p class="small sub">Fixed tasks, k = 5. <code>correct</code> = matches fp32 gold; <code>fast</code> = beats <code>torch.compile</code>. Click a header to sort.</p>
   <div class="tablewrap">
     <table id="lb"><thead><tr>
       <th data-k="model">Model</th><th data-k="kind">Kind</th>
@@ -85,8 +171,8 @@
     </tr></thead><tbody></tbody></table>
   </div>
 
-  <h3 style="margin-top:34px">Weight-RSI — open-weight kernel→model loop</h3>
-  <p class="small sub">Open model retrained (LoRA) on its own correct kernels each round; held-out capability C_r vs a frozen-base control. First result — Qwen2.5-Coder-1.5B, 6 rounds:</p>
+  <h3 style="margin-top:34px">Task 2 — RSI (open-weight kernel→model loop)</h3>
+  <p class="small sub">Open model retrained (LoRA) on its own correct kernels each round; held-out capability C_r vs a frozen-base control. First live signal — Qwen2.5-Coder-1.5B, 6 rounds:</p>
   <div class="tablewrap">
     <table><thead><tr><th class="num">round</th><th class="num">0</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th></tr></thead>
     <tbody>
@@ -94,61 +180,31 @@
       <tr><td>Δ vs frozen (C₀=0.46)</td><td class="num">−0.46</td><td class="num">−0.22</td><td class="num">−0.46</td><td class="num">+0.05</td><td class="num">+0.05</td><td class="num pos"><b>+0.30</b></td></tr>
     </tbody></table>
   </div>
-  <div class="note"><b>First live compounding signal.</b> The open model improved its own held-out kernel-writing by training on its own kernels, round over round (0.46 → 0.75, Δ rising to +0.30) — where every frozen-weight substrate was flat, because here the <em>weights</em> change so the improver itself gets better. <b>Caveat:</b> noisy (few held-out tasks, no CIs yet) → directional, not resolved. Densifying now with Fable-curated kernel tasks + a round-0-data control + larger models.</div>
-  <p class="tiny">Full 22-model capability table and every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</p>
-</section>
-
-<section id="findings">
-  <div class="snum">04 — FINDINGS</div>
-  <h2>What the benchmark shows</h2>
-  <p><b>Agents do improve with experience.</b> On the load-bearing open-ended substrate, first-order self-improvement is resolved and capability-graded — the strongest model measurably improves its own research procedure (Opus-5 <b>q₁−q₀ = +0.083</b>, CI clears 0), and its produced child beats the unchanged target (<b>N₁ resolved &gt; 0</b>).</p>
-  <p><b>And the instrument resolves compounding when it's there.</b> On a scripted open-ended substrate, F₁ and F₂ are resolved above zero <em>and accelerating</em> (F₂ &gt; F₁), while a frozen-archive-plus-memory control is exactly 0 — proving the estimator detects genuine recursion and isn't fooled by mere memory. This is what makes it a real thermometer.</p>
-  <p><b>Is it <em>fully</em> recursive (compounding) for a live model? Not yet — and that is the point.</b> No current model shows resolved live compounding (F₁/F₂ still span 0); that is the open frontier this benchmark exists to detect, and it will read positive the moment a system genuinely compounds. A benchmark that always answered "yes" would measure nothing.</p>
-  <figure>
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 300' role='img'><text x='24' y='28' font-size='15.5' font-weight='700' fill='#141414'>Causal decomposition — Opus-5, 40 lineages, 95% CI</text><text x='24' y='48' font-size='12' fill='#9a9a9a'>first-order improvement is resolved; the causal link and compounding are not</text><line x1='391.3' y1='60' x2='391.3' y2='254' stroke='#141414' stroke-width='1'/><text x='391.3' y='270' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>0</text><line x1='437' y1='60' x2='437' y2='254' stroke='#9a9a9a' stroke-width='1' stroke-dasharray='4 4'/><text x='437' y='270' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>δ=0.05</text><text x='284' y='92' text-anchor='end' font-size='12.5' fill='#141414'>q₁−q₀  first-order</text><line x1='645.1' y1='88' x2='708.1' y2='88' stroke='#141414' stroke-width='1.6'/><line x1='645.1' y1='83' x2='645.1' y2='93' stroke='#141414' stroke-width='1.6'/><line x1='708.1' y1='83' x2='708.1' y2='93' stroke='#141414' stroke-width='1.6'/><circle cx='663.4' cy='88' r='5' fill='#141414'/><text x='716' y='92' font-size='11' fill='#141414'>+0.298</text><text x='284' y='138' text-anchor='end' font-size='12.5' fill='#141414'>N₁  child beats target</text><line x1='397.7' y1='134' x2='464.3' y2='134' stroke='#141414' stroke-width='1.6'/><line x1='397.7' y1='129' x2='397.7' y2='139' stroke='#141414' stroke-width='1.6'/><line x1='464.3' y1='129' x2='464.3' y2='139' stroke='#141414' stroke-width='1.6'/><circle cx='430.6' cy='134' r='5' fill='#141414'/><text x='472' y='138' font-size='11' fill='#141414'>+0.043</text><text x='284' y='184' text-anchor='end' font-size='12.5' fill='#141414'>F₁  causal link</text><line x1='379.4' y1='180' x2='437.9' y2='180' stroke='#141414' stroke-width='1.6'/><line x1='379.4' y1='175' x2='379.4' y2='185' stroke='#141414' stroke-width='1.6'/><line x1='437.9' y1='175' x2='437.9' y2='185' stroke='#141414' stroke-width='1.6'/><circle cx='408.7' cy='180' r='5' fill='#fff' stroke='#141414' stroke-width='1.5'/><text x='446' y='184' font-size='11' fill='#141414'>+0.019</text><text x='284' y='230' text-anchor='end' font-size='12.5' fill='#141414'>F₂  compounding</text><line x1='338.3' y1='226' x2='409.6' y2='226' stroke='#141414' stroke-width='1.6'/><line x1='338.3' y1='221' x2='338.3' y2='231' stroke='#141414' stroke-width='1.6'/><line x1='409.6' y1='221' x2='409.6' y2='231' stroke='#141414' stroke-width='1.6'/><circle cx='374' cy='226' r='5' fill='#fff' stroke='#141414' stroke-width='1.5'/><text x='417' y='230' font-size='11' fill='#141414'>−0.019</text><text x='284' y='288' font-size='10.5' fill='#9a9a9a'>● filled = CI excludes 0 (resolved)   ○ open = spans 0</text></svg>
-    <figcaption><span class="fnum">The decomposition.</span> First-order improvement and child value clear zero; the causal link and compounding do not (both below δ).</figcaption>
-  </figure>
-  <div class="note"><b>The result that survives:</b> archive-based self-improvement <b>helps the strongest model</b> (Opus q₁−q₀ resolved &gt; 0) and <b>hurts weaker ones</b> (Gemma, Llama resolved &lt; 0) — weak models poison their library with buggy abstractions. Compounding is <em>measurable</em>; eliciting it live needs a harder-to-re-derive substrate (GPU kernels).</div>
-</section>
-
-<section id="dataset">
-  <div class="snum">05 — TASK BANKS &amp; TIERS</div>
-  <h2>Task banks, by tier</h2>
-  <p class="sub">Public splits committed + on HuggingFace; a disjoint held-out split (never released) scores the leaderboard. Full taxonomy: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/docs/TIERS.md">TIERS.md</a>.</p>
-  <div class="tablewrap">
-    <table><thead><tr><th>Setting</th><th>Bank</th><th>Tiers</th><th>Location</th></tr></thead>
-    <tbody>
-      <tr><td>Capability</td><td>Code bug-fix (75 public)</td><td>Easy · Medium · Hard · Ultra (edge-subtlety)</td><td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a> · <code>dataset/tasks/</code></td></tr>
-      <tr><td>Capability</td><td>GPU kernels (1000+)</td><td>L1 memory · L2 tensor-core · L3 attention</td><td><code>dataset/curated/</code></td></tr>
-      <tr><td>Recursion</td><td>RSI · R1 shared-helper</td><td>number-theory/digit tasks sharing primitives</td><td><code>dataset/rsi_tasks/</code> · HF <code>rsi/</code></td></tr>
-      <tr><td>Recursion</td><td>RSI · R2 compositional tower</td><td>depth-graded ladder (shallow 1–3 · deep 4–8)</td><td><code>lab_tower.py</code></td></tr>
-    </tbody></table>
-  </div>
-  <pre><code>from datasets import load_dataset
-ds = load_dataset("muahmed7338/kernelascent-tasks")   # easy / medium / hard / ultra</code></pre>
+  <div class="note"><b>First live compounding signal.</b> The open model improved its own held-out kernel-writing by training on its own kernels, round over round (0.46 → 0.75, Δ rising to +0.30) — the RSI task reads positive exactly when a model genuinely gets better because its weights changed. <b>Honest caveats:</b> the clean climb is on a smaller/weaker model with headroom; a stronger 7B one-shot-saturates a small held set (no room to compound), so we are densifying with a larger Fable-curated bank + tight CIs. Directional, not yet CI-resolved. Every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</div>
 </section>
 
 <section id="submit">
-  <div class="snum">06 — SUBMIT</div>
-  <h2>Add your model — both settings</h2>
+  <div class="snum">04 — SUBMIT</div>
+  <h2>Add your model — either task</h2>
   <p>Everything is dockerized behind one entrypoint; the leaderboard is scored on a private held-out split, so results can't be overfit.</p>
   <pre><code>docker build -t ka -f docker/Dockerfile .
 
-# Setting A — Capability
+# Task 1 — Capability (any model)
 docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
   -v $PWD/creds:/creds:ro -v $PWD/out:/out ka \
   --track capability --api-model &lt;model&gt; --tier medium
 
-# Setting B — Recursion (RSI)
-docker run --rm ... ka --track rsi --api-model &lt;model&gt; --lineages 12
+# Task 2 — RSI (open-weight, GPU)
+docker run --rm --gpus all -v $PWD/out:/out ka \
+  --track rsi --model &lt;hf-id&gt; --rounds 6 --k 4
 
 # each writes out/scorecard.json</code></pre>
-  <p>Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model-submission issue</a> with your <code>scorecard.json</code> (state the setting). Maintainers re-run on the held-out split and add your row. Open-weight models run on GPU with <code>--model &lt;hf-id&gt; --gpus all</code>; self-check with <code>docker run --rm --entrypoint bash ka docker/entrypoint_selfcheck.sh</code>.</p>
+  <p>Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model-submission issue</a> with your <code>scorecard.json</code> (state the task). Maintainers re-run on the held-out split and add your row. Self-check with <code>docker run --rm --entrypoint bash ka docker/entrypoint_selfcheck.sh</code>.</p>
 </section>
 </div>
 
 <footer>
-  KernelAscent · a benchmark of agents that improve with experience · actor/target-separated causal estimators, deterministic calibration, controls · replication · transfer, reported against δ = 0.05.
+  KernelAscent · a two-task benchmark of agents that improve with experience · Capability (one correct, fast kernel) and RSI (open-weight self-training loop) · GPU-graded on a held-out split.
 </footer>
 
 <script src="app.js"></script>
