@@ -126,15 +126,15 @@
 <section id="rsi">
   <div class="snum">03 / RSI leaderboard</div>
   <h2>Task 2, does self improvement compound</h2>
-  <p class="small sub">Open models only. Each model trains on its own correct kernels for 5 rounds on a difficulty standardized hard bank. We keep only tasks the frozen base can sometimes solve but not already run fast, so the score has room to climb and any failure reflects the model. <span id="rsi-updated" class="tiny"></span></p>
+  <p class="small sub">Open models only, five rounds on the difficulty standardized hard bank. Three arms run in parallel. Self trains on its own kernels. Fresh-frozen trains on kernels freshly sampled from the unchanged base each round. Round0 retrains on the first round's data. The key column is <b>self vs fresh-frozen</b>. A positive value means an improving producer causes better descendants than a frozen producer given the same fresh data. That is the causal recursion signal, stronger than beating a static replay. Correctness and compiled speedup are shown separately so a gain in reliably writing a correct kernel is not confused with a gain in writing a faster one. <span id="rsi-updated" class="tiny"></span></p>
   <div class="chart" id="rsi-chart"></div>
   <div class="tablewrap">
     <table id="rsi-lb"><thead><tr>
-      <th>Model</th><th>Family</th><th class="num">rounds</th><th class="num">C0</th><th class="num">peak</th>
-      <th class="num">delta vs frozen</th><th class="num">self vs control</th><th>verdict</th>
+      <th>Model</th><th>Family</th><th class="num">rounds</th><th class="num">C0</th><th class="num">final</th>
+      <th class="num">correct</th><th class="num">compiled x</th><th class="num">delta vs frozen</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>What the board shows.</b> Small models start low on the hard bank and gain from self training. Some families keep pulling ahead of the fixed data control, which is genuine compounding. Very small models stay flat because they never write a correct kernel to learn from. A strong 7B overfits, since it keeps solving the train tasks while its held out score falls. The RSI score is a thermometer, not a cheerleader. Full numbers live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</div>
+  <div class="note"><b>What the board shows.</b> Small models compound. Their improving producer beats a fresh-frozen producer, so self vs fresh-frozen is positive. Large models tend to be flat. They already solve most held tasks, so correctness is high and there is little room to gain. Many models that merely gain versus the frozen base do so from fresh data, not a better producer, and the fresh-frozen column separates the two. The score is a thermometer, not a cheerleader. Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
 </section>
 
 <section id="data">

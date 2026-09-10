@@ -72,8 +72,9 @@ fetch("data/rsi_leaderboard.json").then(r => r.json()).then(d => {
   const ms = d.models || [];
   tb.innerHTML = ms.map(m => `<tr>
     <td><b>${m.model}</b></td><td><span class="pill kind">${m.family}</span></td>
-    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.peak)}</td>
-    <td class="num">${deltaBar(m.delta_frozen)}</td><td class="num mono">${num(m.self_minus_ctrl)}</td>
+    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.Cfinal)}</td>
+    <td class="num">${num(m.correct_rate)}</td><td class="num mono">${num(m.compiled_sp)}</td>
+    <td class="num">${deltaBar(m.delta_frozen)}</td><td class="num">${deltaBar(m.self_minus_fresh)}</td>
     <td>${verdictPill(m.verdict)}</td></tr>`).join("");
   renderRsiChart(ms);
 }).catch(e => {
@@ -100,15 +101,15 @@ function renderCapChart(models){
 }
 function renderRsiChart(models){
   const el = document.getElementById("rsi-chart"); if (!el) return;
-  const ms = [...models].filter(m=>typeof m.delta_frozen==="number").sort((a,b)=>b.delta_frozen-a.delta_frozen);
-  // symmetric scale around 0, map [-1,1] to [0,100] with zero at 50
+  // chart the CAUSAL metric: self vs fresh-frozen producer, centered at 0
+  const ms = [...models].filter(m=>typeof m.self_minus_fresh==="number").sort((a,b)=>b.self_minus_fresh-a.self_minus_fresh);
   const rows = ms.map(m=>{
-    const d = Math.max(-1,Math.min(1,m.delta_frozen));
+    const d = Math.max(-0.5,Math.min(0.5,m.self_minus_fresh))/0.5;   // scale +-0.5 to full width
     const pct = Math.abs(d)*50; const left = d>=0?50:50-pct;
-    return chartRow(m.model, pct, verdictClass(m.verdict), (d>=0?"+":"")+m.delta_frozen.toFixed(3), left);
+    return chartRow(m.model, pct, verdictClass(m.verdict), (m.self_minus_fresh>=0?"+":"")+m.self_minus_fresh.toFixed(3), left);
   });
   el.innerHTML = rows.join("")
-    + `<div class="chart-legend"><span><i style="background:linear-gradient(90deg,#151515,#333)"></i>compounds</span><span><i style="background:linear-gradient(90deg,#5c5c5c,#8a8a8a)"></i>gains</span><span><i style="background:#d0d0d0"></i>flat</span><span>bar = delta vs frozen, center = 0</span></div>`;
+    + `<div class="chart-legend"><span><i style="background:linear-gradient(90deg,#151515,#333)"></i>compounds</span><span><i style="background:linear-gradient(90deg,#5c5c5c,#8a8a8a)"></i>gains</span><span><i style="background:#d0d0d0"></i>flat</span><span>bar = self minus fresh-frozen producer, center = 0</span></div>`;
   animateFills(el);
 }
 
