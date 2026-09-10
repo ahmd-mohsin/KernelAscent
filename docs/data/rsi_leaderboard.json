@@ -18,14 +18,14 @@
     {
       "model": "Llama-3.1-8B",
       "family": "Meta",
-      "rounds": 2,
+      "rounds": 3,
       "C0": 0.016645026207231663,
-      "Cfinal": 0.299,
-      "delta_frozen": 0.2823549737927683,
-      "self_minus_fresh": 0.128,
-      "self_minus_ctrl": -0.032,
-      "correct_rate": 0.633,
-      "compiled_sp": 0.405,
+      "Cfinal": 0.383,
+      "delta_frozen": 0.3663549737927683,
+      "self_minus_fresh": 0.182,
+      "self_minus_ctrl": -0.027,
+      "correct_rate": 0.7,
+      "compiled_sp": 0.51,
       "verdict": "compounds (beats frozen producer)"
     },
     {
@@ -39,6 +39,32 @@
       "self_minus_ctrl": 0.091,
       "correct_rate": 1.0,
       "compiled_sp": 0.711,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Yi-Coder-1.5B",
+      "family": "Yi",
+      "rounds": 1,
+      "C0": 0.0,
+      "Cfinal": 0.0,
+      "delta_frozen": 0.0,
+      "self_minus_fresh": 0.0,
+      "self_minus_ctrl": 0.0,
+      "correct_rate": 0.0,
+      "compiled_sp": 0.0,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "family": "Qwen",
+      "rounds": 2,
+      "C0": 0.49000005558332194,
+      "Cfinal": 0.547,
+      "delta_frozen": 0.056999944416678106,
+      "self_minus_fresh": -0.02,
+      "self_minus_ctrl": -0.037,
+      "correct_rate": 0.967,
+      "compiled_sp": 0.71,
       "verdict": "gains vs frozen"
     },
     {
@@ -57,28 +83,15 @@
     {
       "model": "Qwen2.5-Coder-7B",
       "family": "Qwen",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.4133697569871507,
-      "Cfinal": 0.416,
-      "delta_frozen": 0.0026302430128492538,
-      "self_minus_fresh": -0.04,
-      "self_minus_ctrl": 0.008,
-      "correct_rate": 0.8,
-      "compiled_sp": 0.557,
-      "verdict": "flat"
-    },
-    {
-      "model": "Qwen2.5-Coder-14B",
-      "family": "Qwen",
-      "rounds": 1,
-      "C0": 0.49000005558332194,
-      "Cfinal": 0.477,
-      "delta_frozen": -0.013000055583321957,
-      "self_minus_fresh": -0.081,
-      "self_minus_ctrl": -0.071,
-      "correct_rate": 0.933,
-      "compiled_sp": 0.664,
-      "verdict": "flat"
+      "Cfinal": 0.331,
+      "delta_frozen": -0.08236975698715071,
+      "self_minus_fresh": -0.069,
+      "self_minus_ctrl": -0.011,
+      "correct_rate": 0.667,
+      "compiled_sp": 0.458,
+      "verdict": "overfits"
     }
   ]
 }
