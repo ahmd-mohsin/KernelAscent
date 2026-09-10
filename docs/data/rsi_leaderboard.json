@@ -36,17 +36,6 @@
       "verdict": "COMPOUNDS (self>ctrl, held rises)"
     },
     {
-      "model": "Llama-3.1-8B",
-      "family": "Meta",
-      "rounds": 4,
-      "C0": 0.01668588612608676,
-      "peak": 0.45,
-      "Cfinal": 0.45,
-      "delta_frozen": 0.4333141138739133,
-      "self_minus_ctrl": 0.064,
-      "verdict": "COMPOUNDS (self>ctrl, held rises)"
-    },
-    {
       "model": "Gemma-2-2B",
       "family": "Google",
       "rounds": 5,
@@ -55,6 +44,28 @@
       "Cfinal": 0.434,
       "delta_frozen": 0.3673081792120665,
       "self_minus_ctrl": 0.06,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Qwen2.5-Coder-0.5B",
+      "family": "Qwen",
+      "rounds": 2,
+      "C0": 0.1332565582842998,
+      "peak": 0.5,
+      "Cfinal": 0.5,
+      "delta_frozen": 0.36674344171570017,
+      "self_minus_ctrl": 0.009,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Llama-3.1-8B",
+      "family": "Meta",
+      "rounds": 5,
+      "C0": 0.01668588612608676,
+      "peak": 0.45,
+      "Cfinal": 0.369,
+      "delta_frozen": 0.35231411387391326,
+      "self_minus_ctrl": 0.043,
       "verdict": "gains vs frozen"
     },
     {
@@ -93,23 +104,34 @@
     {
       "model": "Qwen2.5-Coder-3B",
       "family": "Qwen",
-      "rounds": 1,
+      "rounds": 2,
       "C0": 0.3562524570183506,
-      "peak": 0.497,
-      "Cfinal": 0.497,
-      "delta_frozen": 0.14074754298164938,
-      "self_minus_ctrl": 0.0,
+      "peak": 0.508,
+      "Cfinal": 0.508,
+      "delta_frozen": 0.15174754298164939,
+      "self_minus_ctrl": 0.013,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "family": "Qwen",
+      "rounds": 1,
+      "C0": 0.09987598167431924,
+      "peak": 0.217,
+      "Cfinal": 0.217,
+      "delta_frozen": 0.11712401832568076,
+      "self_minus_ctrl": 0.05,
       "verdict": "gains vs frozen"
     },
     {
       "model": "DeepSeek-Coder-6.7B",
       "family": "DeepSeek",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.4134523841094267,
       "peak": 0.52,
-      "Cfinal": 0.484,
-      "delta_frozen": 0.07054761589057329,
-      "self_minus_ctrl": -0.002,
+      "Cfinal": 0.502,
+      "delta_frozen": 0.0885476158905733,
+      "self_minus_ctrl": 0.001,
       "verdict": "gains vs frozen"
     },
     {
