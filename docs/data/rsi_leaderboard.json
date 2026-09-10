@@ -60,12 +60,12 @@
     {
       "model": "Yi-Coder-9B",
       "family": "Yi",
-      "rounds": 1,
+      "rounds": 2,
       "C0": 0.2357076719954971,
       "peak": 0.515,
-      "Cfinal": 0.515,
-      "delta_frozen": 0.2792923280045029,
-      "self_minus_ctrl": 0.009,
+      "Cfinal": 0.501,
+      "delta_frozen": 0.26529232800450286,
+      "self_minus_ctrl": -0.002,
       "verdict": "gains vs frozen"
     },
     {
