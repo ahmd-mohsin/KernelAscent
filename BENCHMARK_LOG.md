@@ -4,7 +4,32 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## RSI — STANDARDIZED-BANK 7B RESULT: naive self-SFT OVERFITS (clean negative) (2026-09-09) [newest]
+## RSI v2 — RIGOROUS PROTOCOL, FRESH-FROZEN CONTROL (2026-09-10) [newest]
+
+Responds to the external design audit. Substantive upgrades to lab_weight_rsi + agent_bench + grade_batch:
+1. Grader reports BOTH eager and torch.compile speedups (compiled baseline cached per task) + 3-input numerical
+   correctness check with gold weights copied from the reference. Fixes the false "beats torch.compile" claim and
+   separates correctness from speed.
+2. THIRD ARM = fresh-frozen producer. Each round, data is sampled from the FROZEN base (fresh each round) and a
+   dedicated learner trains on it. delta_self_minus_fresh isolates PRODUCER QUALITY (improving vs frozen) from mere
+   data freshness — the decisive causal control the audit demanded. Arms now: self, fresh-frozen, round0-replay.
+3. Per-round correctness_rate + compiled_sp recorded; run manifest (bank hash, split, dtype, seed, versions); --seed
+   for cross-lineage CIs. Honesty fixes in README/site (eager not compiled; held-out is a public dev split).
+
+RESULT (wave 1, 5 rounds, standardized hard bank, 3 arms; self-minus-fresh = producer-causal signal):
+  DeepSeek-Coder-1.3B  C0 0.00 -> 0.50  self-fresh +0.29  correct 1.00  => COMPOUNDS (producer improves)
+  Llama-3.1-8B         C0 0.02 -> 0.36  self-fresh +0.13  correct 0.70  => COMPOUNDS
+  Qwen2.5-Coder-1.5B   C0 0.10 -> 0.50  self-fresh +0.00  correct 1.00  => gains from FRESH DATA, not producer
+  DeepSeek-Coder-6.7B  C0 0.41 -> 0.50  self-fresh -0.03  correct 1.00  => gains (fresh-data)
+  Qwen2.5-Coder-14B    C0 0.49 -> 0.55  self-fresh ~+.04  correct 1.00  => gains (near threshold)
+  Qwen2.5-Coder-7B     C0 0.41 -> 0.32  self-fresh -0.12  correct 0.63  => OVERFITS
+  Yi-Coder-1.5B        C0 0.00        correct 0.00                     => FLAT (never writes a correct kernel)
+=> The fresh-frozen control cleanly separates genuine recursive improvement (small models: DeepSeek-1.3B, Llama-8B,
+   where the improving producer beats a frozen one) from data-freshness gains (Qwen-1.5B/DeepSeek-6.7B) and from
+   overfitting (Qwen-7B). This is the causal claim v1 could not make. Wave 2 (remaining families) + cross-seed CIs
+   in progress on 72 GPUs. Board data: docs/data/rsi_leaderboard.json (v2 schema). Collector /tmp/ka/collect_v2.sh.
+
+## RSI — STANDARDIZED-BANK 7B RESULT: naive self-SFT OVERFITS (clean negative) (2026-09-09)
 
 First result on the difficulty-standardized bank (50 hard-but-learnable tasks, frozen-7B floor). 7B, train=20
 held=30 k=3 rounds=5, fp32 sharded 2 GPUs/arm, batched gen+grade.
