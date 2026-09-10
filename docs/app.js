@@ -45,7 +45,7 @@ function wireSort() {
 fetch("data/leaderboard.json").then(r => r.json()).then(d => {
   DATA = d.models || [];
   const up = document.getElementById("lb-updated"); if (up) up.textContent = "updated " + (d.updated || "");
-  wireSort(); render();
+  wireSort(); render(); renderCapChart(DATA);
 }).catch(e => {
   const tb = document.querySelector("#lb tbody"); if (tb) tb.innerHTML = `<tr><td colspan="5" class="mid">Serve over HTTP to load the leaderboard.</td></tr>`;
 });
@@ -75,6 +75,48 @@ fetch("data/rsi_leaderboard.json").then(r => r.json()).then(d => {
     <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.peak)}</td>
     <td class="num">${deltaBar(m.delta_frozen)}</td><td class="num mono">${num(m.self_minus_ctrl)}</td>
     <td>${verdictPill(m.verdict)}</td></tr>`).join("");
+  renderRsiChart(ms);
 }).catch(e => {
   const tb = document.querySelector("#rsi-lb tbody"); if (tb) tb.innerHTML = `<tr><td colspan="8" class="mid">Serve over HTTP to load results.</td></tr>`;
 });
+
+// ---- dynamic bar charts ----
+function verdictClass(v){ v=(v||"").toLowerCase(); return v.startsWith("compound")?"good":v.startsWith("gain")?"gain":v.startsWith("degrade")?"bad":"flat"; }
+function chartRow(label, pct, cls, valText, leftPct){
+  const left = leftPct ? `left:${leftPct}%;` : "left:0;";
+  return `<div class="row"><div class="lab" title="${label}">${label}</div>
+    <div class="track2"><span class="zero" style="left:${leftPct||0}%"></span><span class="fill ${cls}" data-w="${pct}" style="${left}"></span></div>
+    <div class="val">${valText}</div></div>`;
+}
+function animateFills(root){
+  requestAnimationFrame(()=>{ root.querySelectorAll(".fill").forEach(f=>{ f.style.width = f.dataset.w + "%"; }); });
+}
+function renderCapChart(models){
+  const el = document.getElementById("cap-chart"); if (!el) return;
+  const ms = [...models].filter(m=>typeof m.meanC==="number").sort((a,b)=>b.meanC-a.meanC).slice(0,14);
+  el.innerHTML = ms.map(m=>chartRow(m.model, Math.round(m.meanC*100), (m.kind==="open"?"open":"closed"), m.meanC.toFixed(3))).join("")
+    + `<div class="chart-legend"><span><i class="fill open" style="background:linear-gradient(90deg,#151515,#444)"></i>open weight</span><span><i class="fill closed" style="background:repeating-linear-gradient(45deg,#151515,#151515 5px,#3d3d3d 5px,#3d3d3d 10px)"></i>closed / API</span><span>bar = mean C</span></div>`;
+  animateFills(el);
+}
+function renderRsiChart(models){
+  const el = document.getElementById("rsi-chart"); if (!el) return;
+  const ms = [...models].filter(m=>typeof m.delta_frozen==="number").sort((a,b)=>b.delta_frozen-a.delta_frozen);
+  // symmetric scale around 0, map [-1,1] to [0,100] with zero at 50
+  const rows = ms.map(m=>{
+    const d = Math.max(-1,Math.min(1,m.delta_frozen));
+    const pct = Math.abs(d)*50; const left = d>=0?50:50-pct;
+    return chartRow(m.model, pct, verdictClass(m.verdict), (d>=0?"+":"")+m.delta_frozen.toFixed(3), left);
+  });
+  el.innerHTML = rows.join("")
+    + `<div class="chart-legend"><span><i style="background:linear-gradient(90deg,#151515,#333)"></i>compounds</span><span><i style="background:linear-gradient(90deg,#5c5c5c,#8a8a8a)"></i>gains</span><span><i style="background:#d0d0d0"></i>flat</span><span>bar = delta vs frozen, center = 0</span></div>`;
+  animateFills(el);
+}
+
+// ---- sticky nav + scroll reveal ----
+(function(){
+  const nav = document.querySelector(".nav");
+  const onScroll = ()=>{ if (nav) nav.classList.toggle("scrolled", window.scrollY > 8); };
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+  const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }); }, {threshold:.12});
+  document.querySelectorAll("section, figure, .track, .note").forEach((el,i)=>{ el.classList.add("reveal"); el.style.transitionDelay=(Math.min(i,6)*40)+"ms"; io.observe(el); });
+})();

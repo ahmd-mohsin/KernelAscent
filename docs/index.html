@@ -114,6 +114,7 @@
   <div class="snum">02 / Capability leaderboard</div>
   <h2>Task 1, one shot skill</h2>
   <p class="small sub">Fixed tasks, k = 5. Correct matches fp32 gold. Fast beats <code>torch.compile</code>. Open and closed models both compete. Click a header to sort. <span id="lb-updated" class="tiny"></span></p>
+  <div class="chart" id="cap-chart"></div>
   <div class="tablewrap">
     <table id="lb"><thead><tr>
       <th data-k="model">Model</th><th data-k="kind">Kind</th>
@@ -126,6 +127,7 @@
   <div class="snum">03 / RSI leaderboard</div>
   <h2>Task 2, does self improvement compound</h2>
   <p class="small sub">Open models only. Each model trains on its own correct kernels for 5 rounds on a difficulty standardized hard bank. We keep only tasks the frozen base can sometimes solve but not already run fast, so the score has room to climb and any failure reflects the model. <span id="rsi-updated" class="tiny"></span></p>
+  <div class="chart" id="rsi-chart"></div>
   <div class="tablewrap">
     <table id="rsi-lb"><thead><tr>
       <th>Model</th><th>Family</th><th class="num">rounds</th><th class="num">C0</th><th class="num">peak</th>

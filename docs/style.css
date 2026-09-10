@@ -15,14 +15,20 @@ a{color:inherit;text-decoration:underline;text-decoration-color:#cfcfcf;text-und
 a:hover{text-decoration-color:var(--ink)}
 
 /* top bar */
-.nav{max-width:var(--measure);margin:0 auto;padding:26px 24px 0;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.nav{position:sticky;top:0;z-index:50;max-width:none;margin:0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:rgba(255,255,255,.72);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s}
+.nav.scrolled{border-bottom-color:var(--hair);box-shadow:0 1px 14px rgba(0,0,0,.04)}
+.nav>*{max-width:var(--measure)}
 .brand{font-weight:600;font-size:17px;letter-spacing:-.01em}
 .brand a{display:inline-flex;align-items:center;gap:10px}
 .brand a,.nav nav a{text-decoration:none}
-.logo{height:30px;width:30px;object-fit:contain;display:block;mix-blend-mode:multiply}
+.logo{height:26px;width:auto;object-fit:contain;display:block;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.brand a:hover .logo{transform:rotate(180deg)}
 .nav nav{display:flex;gap:18px;flex-wrap:wrap}
-.nav nav a{font-size:13px;color:var(--sub)}
+.nav nav a{font-size:13px;color:var(--sub);position:relative;transition:color .2s}
+.nav nav a::after{content:"";position:absolute;left:0;bottom:-3px;width:0;height:1px;background:var(--ink);transition:width .25s ease}
 .nav nav a:hover{color:var(--ink)}
+.nav nav a:hover::after{width:100%}
 
 .wrap{max-width:var(--measure);margin:0 auto;padding:0 24px 90px}
 
@@ -94,3 +100,41 @@ pre code{background:none;padding:0;color:inherit;font-size:12px}
 
 footer{max-width:var(--measure);margin:0 auto;padding:26px 24px 60px;border-top:1px solid var(--hair);color:var(--mid);font-size:12.5px;line-height:1.55}
 @media(max-width:640px){body{font-size:15px}h1{font-size:30px}.dek{font-size:16px}h2{font-size:21px}}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.logo,.nav nav a::after{transition:none}}
+
+/* hero flourish */
+.hero h1{background:linear-gradient(100deg,#151515 0%,#151515 55%,#6b6b6b 100%);-webkit-background-clip:text;background-clip:text}
+.eyebrow{position:relative;display:inline-block}
+.eyebrow::before{content:"";display:inline-block;width:22px;height:1px;background:var(--mid);vertical-align:middle;margin-right:10px}
+.kpi-n{background:linear-gradient(180deg,#151515,#3a3a3a);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* card + row hover polish */
+.track{transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+.track:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.06);border-color:#dcdcdc}
+.pill{transition:transform .2s}
+tbody tr{transition:background .15s}
+.tablewrap{transition:box-shadow .3s}
+.tablewrap:hover{box-shadow:0 6px 24px rgba(0,0,0,.05)}
+figure svg{transition:filter .3s}
+
+/* dynamic bar charts */
+.chart{margin:18px 0 6px}
+.chart .row{display:grid;grid-template-columns:170px 1fr 62px;align-items:center;gap:12px;padding:3px 0;font-size:12.5px}
+.chart .row .lab{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.chart .row .track2{position:relative;height:16px;background:#f4f4f2;border-radius:4px;overflow:hidden}
+.chart .row .fill{position:absolute;top:0;left:0;height:100%;width:0;border-radius:4px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.chart .row .val{font-family:var(--mono);font-size:11px;color:var(--sub);text-align:right}
+.chart .fill.open{background:linear-gradient(90deg,#151515,#444)}
+.chart .fill.closed{background:repeating-linear-gradient(45deg,#151515,#151515 5px,#3d3d3d 5px,#3d3d3d 10px)}
+.chart .fill.good{background:linear-gradient(90deg,#151515,#333)}
+.chart .fill.gain{background:linear-gradient(90deg,#5c5c5c,#8a8a8a)}
+.chart .fill.flat{background:#d0d0d0}
+.chart .fill.bad{background:repeating-linear-gradient(45deg,#c9c9c9,#c9c9c9 5px,#e2e2e2 5px,#e2e2e2 10px)}
+.chart .zero{position:absolute;top:-2px;bottom:-2px;width:1px;background:#bbb}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--sub);margin:10px 0 0}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.chart-legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
