@@ -31,14 +31,14 @@
     {
       "model": "Qwen2.5-Coder-14B",
       "family": "Qwen",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.49000005558332194,
       "Cfinal": 0.548,
       "delta_frozen": 0.057999944416678106,
-      "self_minus_fresh": 0.042,
-      "self_minus_ctrl": -0.033,
+      "self_minus_fresh": 0.034,
+      "self_minus_ctrl": -0.02,
       "correct_rate": 1.0,
-      "compiled_sp": 0.742,
+      "compiled_sp": 0.745,
       "verdict": "gains vs frozen"
     },
     {
@@ -65,6 +65,19 @@
       "self_minus_ctrl": 0.08,
       "correct_rate": 1.0,
       "compiled_sp": 0.711,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "OpenCoder-8B",
+      "family": "OpenCoder",
+      "rounds": 1,
+      "C0": 0.26760591233085007,
+      "Cfinal": 0.483,
+      "delta_frozen": 0.21539408766914991,
+      "self_minus_fresh": -0.017,
+      "self_minus_ctrl": -0.024,
+      "correct_rate": 0.967,
+      "compiled_sp": 0.676,
       "verdict": "gains vs frozen"
     },
     {
