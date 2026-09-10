@@ -18,9 +18,22 @@ TIER = {
  "L3": "an ATTENTION or full NORMALIZATION chain (e.g. scaled-dot-product attention, layernorm+residual+gelu, "
        "a fused SiLU-gate MLP, multi-head attention) on realistic transformer shapes; genuinely hard to fuse "
        "correctly and to beat torch.compile",
+ "ULTRA": "a DEEP multi-stage transformer-block fusion that is hard even for a 14B model to make faster than "
+          "torch.compile: e.g. a full attention block (QKV proj -> multi-head SDPA -> out proj -> residual -> "
+          "layernorm) or a full MLP block (up/gate/down with SiLU + residual + norm), at LARGE shapes",
 }
-# how many VALIDATED tasks to admit per tier (weighted hard: most of the bank is L3 to give a strong model headroom)
-COUNTS = {"L1": 6, "L2": 24, "L3": 40}   # hard-weighted over-sample; difficulty_filter.py trims to the learnable band
+# how many VALIDATED tasks to admit per tier. Graded pool: enough hard/ultra tasks that even large models have headroom.
+COUNTS = {"L1": 8, "L2": 18, "L3": 30, "ULTRA": 30}
+
+# Concrete ULTRA specs (deep blocks, large shapes) so a 14B is correct-but-slow / sometimes fails -> real headroom.
+ULTRA_SPECS = [
+ "a full pre-norm attention block: layernorm, then QKV projection, multi-head scaled-dot-product attention (no mask), output projection, residual add. Batch 8, heads 16, seq 1024, head_dim 64",
+ "a full SwiGLU MLP block: RMSNorm, then gate_proj and up_proj, SiLU(gate)*up, down_proj, residual add. Batch 8, seq 1024, dim 2048, hidden 5632",
+ "a causal multi-head attention block with output projection and residual, batch 4 heads 32 seq 2048 head_dim 64",
+ "layernorm -> linear(4096->4096) -> gelu -> linear(4096->4096) -> residual, batch*seq = 8192 rows",
+ "grouped-query attention block (8 Q heads, 2 KV heads) with QKV+out projections and residual, seq 2048 head_dim 128",
+ "a two-layer fused MLP with gelu and a residual, dim 4096 hidden 11008, batch*seq 4096 rows",
+]
 
 # Concrete, single-op L3 specs. Fable STALLS on the open-ended "deep chain" phrasing but answers a specific
 # fusion quickly; we rotate through these so each L3 attempt asks for one well-defined hard kernel.
@@ -91,15 +104,21 @@ def main():
         return True, "ok tbase=%.3fms rerr=%.2g" % (tbase * 1e3, rerr)
 
     bank = []; seen = set()
-    tiers = (args.only_tier,) if args.only_tier else ("L1", "L2", "L3")
+    tiers = (args.only_tier,) if args.only_tier else ("L1", "L2", "L3", "ULTRA")
     for tier in tiers:
         target = args.per_tier if args.per_tier > 0 else COUNTS[tier]
         got = 0
         for a in range(target * args.attempts):
             if got >= target:
                 break
-            desc = ("an ATTENTION or NORMALIZATION kernel: " + L3_SPECS[a % len(L3_SPECS)] +
-                    " on realistic transformer shapes; genuinely hard to fuse and beat torch.compile") if tier == "L3" else TIER[tier]
+            if tier == "L3":
+                desc = ("an ATTENTION or NORMALIZATION kernel: " + L3_SPECS[a % len(L3_SPECS)] +
+                        " on realistic transformer shapes; genuinely hard to fuse and beat torch.compile")
+            elif tier == "ULTRA":
+                desc = ("a DEEP transformer-block fusion, hard even for a 14B to beat torch.compile: " +
+                        ULTRA_SPECS[a % len(ULTRA_SPECS)] + ". Keep it self-contained and numerically well-defined")
+            else:
+                desc = TIER[tier]
             src = extract(gen(TMPL.format(t=tier, desc=desc)))
             key = hashlib.sha1(re.sub(r"\s+", "", src).encode()).hexdigest()
             if key in seen or not src:
@@ -111,7 +130,7 @@ def main():
                 bank.append({"name": "%s_%d" % (tier.lower(), got), "tier": tier, "source": src})
                 json.dump(bank, open(os.path.join(args.outdir, args.out_name), "w"), indent=2)
         print("TIER %s: %d/%d" % (tier, got, target), flush=True)
-    print("DONE", {t: sum(1 for b in bank if b["tier"] == t) for t in ("L1", "L2", "L3")}, flush=True)
+    print("DONE", {t: sum(1 for b in bank if b["tier"] == t) for t in ("L1", "L2", "L3", "ULTRA")}, flush=True)
 
 
 if __name__ == "__main__":
