@@ -116,7 +116,15 @@ python3 kernelascent/v3/difficulty_filter.py --model Qwen/Qwen2.5-Coder-7B-Instr
 python3 kernelascent/v3/lab_weight_rsi.py --model <hf-id> --rounds 5 --k 3 --n-train 20
 ```
 
-## 9. Where things live
+## 9. Planned, Task 3, teacher RSI
+
+A third task will let closed models participate in the RSI axis as teachers. A closed model writes kernels,
+an open model trains on the correct ones, and we measure the open model's held out gain against the same two
+controls. A closed model cannot change its own weights, but it can raise another model's. This tests whether a
+stronger teacher produces a better student than the student teaching itself. It will be built after Capability
+and self RSI are complete.
+
+## 10. Where things live
 
 | path | what |
 |---|---|
