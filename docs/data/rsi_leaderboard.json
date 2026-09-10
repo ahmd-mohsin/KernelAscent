@@ -102,6 +102,17 @@
       "verdict": "gains vs frozen"
     },
     {
+      "model": "Mistral-7B",
+      "family": "Mistral",
+      "rounds": 2,
+      "C0": 0.06666666666666667,
+      "peak": 0.329,
+      "Cfinal": 0.329,
+      "delta_frozen": 0.26233333333333336,
+      "self_minus_ctrl": -0.059,
+      "verdict": "gains vs frozen"
+    },
+    {
       "model": "OpenCoder-8B",
       "family": "OpenCoder",
       "rounds": 5,
@@ -124,17 +135,6 @@
       "verdict": "gains vs frozen"
     },
     {
-      "model": "CodeGemma-7B",
-      "family": "Google",
-      "rounds": 1,
-      "C0": 0.39365332337415254,
-      "peak": 0.519,
-      "Cfinal": 0.519,
-      "delta_frozen": 0.12534667662584748,
-      "self_minus_ctrl": 0.01,
-      "verdict": "gains vs frozen"
-    },
-    {
       "model": "Qwen2.5-14B (general)",
       "family": "Qwen",
       "rounds": 1,
@@ -144,6 +144,17 @@
       "delta_frozen": 0.12282841922778137,
       "self_minus_ctrl": 0.09,
       "verdict": "COMPOUNDS (self>ctrl, held rises)"
+    },
+    {
+      "model": "CodeGemma-7B",
+      "family": "Google",
+      "rounds": 2,
+      "C0": 0.39365332337415254,
+      "peak": 0.519,
+      "Cfinal": 0.483,
+      "delta_frozen": 0.08934667662584744,
+      "self_minus_ctrl": 0.011,
+      "verdict": "gains vs frozen"
     },
     {
       "model": "DeepSeek-Coder-6.7B",
@@ -157,14 +168,14 @@
       "verdict": "gains vs frozen"
     },
     {
-      "model": "Mistral-7B",
-      "family": "Mistral",
-      "rounds": 1,
-      "C0": 0.06666666666666667,
-      "peak": 0.133,
-      "Cfinal": 0.133,
-      "delta_frozen": 0.06633333333333334,
-      "self_minus_ctrl": -0.114,
+      "model": "Qwen2.5-7B (general)",
+      "family": "Qwen",
+      "rounds": 3,
+      "C0": 0.3480914069777989,
+      "peak": 0.443,
+      "Cfinal": 0.415,
+      "delta_frozen": 0.06690859302220109,
+      "self_minus_ctrl": 0.018,
       "verdict": "gains vs frozen"
     },
     {
@@ -179,37 +190,15 @@
       "verdict": "gains vs frozen"
     },
     {
-      "model": "Qwen2.5-7B (general)",
-      "family": "Qwen",
-      "rounds": 2,
-      "C0": 0.3480914069777989,
-      "peak": 0.443,
-      "Cfinal": 0.396,
-      "delta_frozen": 0.04790859302220113,
-      "self_minus_ctrl": 0.014,
-      "verdict": "flat"
-    },
-    {
       "model": "Qwen2.5-Coder-14B",
       "family": "Qwen",
-      "rounds": 1,
+      "rounds": 2,
       "C0": 0.49069781146716546,
-      "peak": 0.529,
-      "Cfinal": 0.529,
-      "delta_frozen": 0.03830218853283457,
-      "self_minus_ctrl": 0.02,
-      "verdict": "flat"
-    },
-    {
-      "model": "CodeLlama-7B",
-      "family": "Meta",
-      "rounds": 1,
-      "C0": 0.10986972586380744,
-      "peak": 0.133,
-      "Cfinal": 0.133,
-      "delta_frozen": 0.023130274136192563,
-      "self_minus_ctrl": 0.034,
-      "verdict": "flat"
+      "peak": 0.544,
+      "Cfinal": 0.544,
+      "delta_frozen": 0.05330218853283458,
+      "self_minus_ctrl": -0.033,
+      "verdict": "gains vs frozen"
     },
     {
       "model": "Llama-3.2-1B",
@@ -232,6 +221,17 @@
       "delta_frozen": 0.0,
       "self_minus_ctrl": 0.003,
       "verdict": "flat"
+    },
+    {
+      "model": "CodeLlama-7B",
+      "family": "Meta",
+      "rounds": 2,
+      "C0": 0.10986972586380744,
+      "peak": 0.133,
+      "Cfinal": 0.017,
+      "delta_frozen": -0.09286972586380744,
+      "self_minus_ctrl": 0.009,
+      "verdict": "degrades (overfits)"
     },
     {
       "model": "Qwen2.5-Coder-7B",
