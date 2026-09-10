@@ -105,9 +105,13 @@ def run(args):
             return outs[0] if outs else ""
     else:                                          # API researcher (closed model) via curate_bedrock
         import curate_bedrock as CB
-        cur = CB.Curator(args.researcher, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
-        cur.resolve(); cur.resolve_reasoning()
+        _cache = {}
         def researcher(user, system):
+            cur = CB.Curator(args.researcher, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))  # fresh Session re-reads creds file -> survives rotation
+            if _cache:
+                cur.resolved = _cache["r"]; cur.reasoning = _cache["rc"]
+            else:
+                cur.resolve(); cur.resolve_reasoning(); _cache["r"] = cur.resolved; _cache["rc"] = cur.reasoning
             return cur.generate(user) or ""
     names = list(LK.TASKS); random.Random(1).shuffle(names)
     train, held = names[:args.n_train], names[args.n_train:]

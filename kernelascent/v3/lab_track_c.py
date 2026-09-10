@@ -116,12 +116,15 @@ def improve(U, evidence, gen):
 def run(args):
     random.seed(args.seed)
     import curate_bedrock as CB
-    cur = CB.Curator(args.model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
-    cur.resolve(); cur.resolve_reasoning()
+    _cache = {}
     def gen(user, system):
-        cur._drop_system = False
+        cur = CB.Curator(args.model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))  # fresh Session re-reads creds file -> survives rotation
+        if _cache:
+            cur.resolved = _cache["r"]; cur.reasoning = _cache["rc"]
+        else:
+            cur.resolve(); cur.resolve_reasoning(); _cache["r"] = cur.resolved; _cache["rc"] = cur.reasoning
         for _ in range(3):
-            o = cur.generate(user) or ""            # curate_bedrock prepends its own SYS; good enough
+            o = cur.generate(user) or ""
             if o.strip() and not o.startswith("BEDROCK_ERROR"):
                 return o
         return o
