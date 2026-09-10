@@ -64,7 +64,7 @@
     },
     {
       "model": "Fable 5.1",
-      "kind": "open",
+      "kind": "api",
       "correct_rate": 0.36,
       "correct_ci": [
         0.261,
