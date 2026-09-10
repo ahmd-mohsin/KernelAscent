@@ -83,14 +83,14 @@
     {
       "model": "DeepSeek-Coder-6.7B",
       "family": "DeepSeek",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.41446375555900117,
-      "Cfinal": 0.5,
-      "delta_frozen": 0.08553624444099883,
-      "self_minus_fresh": -0.029,
+      "Cfinal": 0.483,
+      "delta_frozen": 0.06853624444099882,
+      "self_minus_fresh": -0.045,
       "self_minus_ctrl": 0.007,
-      "correct_rate": 1.0,
-      "compiled_sp": 0.707,
+      "correct_rate": 0.967,
+      "compiled_sp": 0.681,
       "verdict": "gains vs frozen"
     },
     {
