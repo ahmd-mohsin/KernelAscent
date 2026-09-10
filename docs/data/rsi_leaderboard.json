@@ -124,6 +124,28 @@
       "verdict": "gains vs frozen"
     },
     {
+      "model": "CodeGemma-7B",
+      "family": "Google",
+      "rounds": 1,
+      "C0": 0.39365332337415254,
+      "peak": 0.519,
+      "Cfinal": 0.519,
+      "delta_frozen": 0.12534667662584748,
+      "self_minus_ctrl": 0.01,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Qwen2.5-7B (general)",
+      "family": "Qwen",
+      "rounds": 1,
+      "C0": 0.3480914069777989,
+      "peak": 0.443,
+      "Cfinal": 0.443,
+      "delta_frozen": 0.09490859302220112,
+      "self_minus_ctrl": 0.067,
+      "verdict": "COMPOUNDS (self>ctrl, held rises)"
+    },
+    {
       "model": "DeepSeek-Coder-6.7B",
       "family": "DeepSeek",
       "rounds": 5,
@@ -133,6 +155,39 @@
       "delta_frozen": 0.06954761589057329,
       "self_minus_ctrl": 0.001,
       "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Mistral-7B",
+      "family": "Mistral",
+      "rounds": 1,
+      "C0": 0.06666666666666667,
+      "peak": 0.133,
+      "Cfinal": 0.133,
+      "delta_frozen": 0.06633333333333334,
+      "self_minus_ctrl": -0.114,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "family": "Qwen",
+      "rounds": 1,
+      "C0": 0.49069781146716546,
+      "peak": 0.529,
+      "Cfinal": 0.529,
+      "delta_frozen": 0.03830218853283457,
+      "self_minus_ctrl": 0.02,
+      "verdict": "flat"
+    },
+    {
+      "model": "CodeLlama-7B",
+      "family": "Meta",
+      "rounds": 1,
+      "C0": 0.10986972586380744,
+      "peak": 0.133,
+      "Cfinal": 0.133,
+      "delta_frozen": 0.023130274136192563,
+      "self_minus_ctrl": 0.034,
+      "verdict": "flat"
     },
     {
       "model": "Llama-3.2-1B",
@@ -159,12 +214,12 @@
     {
       "model": "Qwen2.5-Coder-7B",
       "family": "Qwen",
-      "rounds": 3,
+      "rounds": 5,
       "C0": 0.41375133286212984,
       "peak": 0.469,
-      "Cfinal": 0.335,
-      "delta_frozen": -0.07875133286212982,
-      "self_minus_ctrl": -0.05,
+      "Cfinal": 0.302,
+      "delta_frozen": -0.11175133286212985,
+      "self_minus_ctrl": -0.08,
       "verdict": "degrades (overfits)"
     }
   ]
