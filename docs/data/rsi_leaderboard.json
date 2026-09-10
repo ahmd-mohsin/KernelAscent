@@ -18,15 +18,28 @@
     {
       "model": "Llama-3.1-8B",
       "family": "Meta",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.016645026207231663,
-      "Cfinal": 0.383,
-      "delta_frozen": 0.3663549737927683,
-      "self_minus_fresh": 0.182,
-      "self_minus_ctrl": -0.027,
+      "Cfinal": 0.357,
+      "delta_frozen": 0.3403549737927683,
+      "self_minus_fresh": 0.126,
+      "self_minus_ctrl": -0.029,
       "correct_rate": 0.7,
-      "compiled_sp": 0.51,
+      "compiled_sp": 0.49,
       "verdict": "compounds (beats frozen producer)"
+    },
+    {
+      "model": "Yi-Coder-1.5B",
+      "family": "Yi",
+      "rounds": 3,
+      "C0": 0.0,
+      "Cfinal": 0.017,
+      "delta_frozen": 0.017,
+      "self_minus_fresh": 0.009,
+      "self_minus_ctrl": 0.006,
+      "correct_rate": 0.033,
+      "compiled_sp": 0.006,
+      "verdict": "flat"
     },
     {
       "model": "DeepSeek-Coder-6.7B",
@@ -40,19 +53,6 @@
       "correct_rate": 1.0,
       "compiled_sp": 0.707,
       "verdict": "gains vs frozen"
-    },
-    {
-      "model": "Yi-Coder-1.5B",
-      "family": "Yi",
-      "rounds": 2,
-      "C0": 0.0,
-      "Cfinal": 0.0,
-      "delta_frozen": 0.0,
-      "self_minus_fresh": 0.0,
-      "self_minus_ctrl": 0.0,
-      "correct_rate": 0.0,
-      "compiled_sp": 0.0,
-      "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
@@ -83,14 +83,14 @@
     {
       "model": "Qwen2.5-Coder-7B",
       "family": "Qwen",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.4133697569871507,
-      "Cfinal": 0.331,
-      "delta_frozen": -0.08236975698715071,
-      "self_minus_fresh": -0.069,
-      "self_minus_ctrl": -0.011,
-      "correct_rate": 0.667,
-      "compiled_sp": 0.458,
+      "Cfinal": 0.316,
+      "delta_frozen": -0.09736975698715072,
+      "self_minus_fresh": -0.12,
+      "self_minus_ctrl": -0.04,
+      "correct_rate": 0.633,
+      "compiled_sp": 0.443,
       "verdict": "overfits"
     }
   ]
