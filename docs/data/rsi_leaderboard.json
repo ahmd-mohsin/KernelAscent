@@ -70,14 +70,14 @@
     {
       "model": "OpenCoder-8B",
       "family": "OpenCoder",
-      "rounds": 1,
+      "rounds": 2,
       "C0": 0.26760591233085007,
-      "Cfinal": 0.483,
-      "delta_frozen": 0.21539408766914991,
+      "Cfinal": 0.5,
+      "delta_frozen": 0.23239408766914993,
       "self_minus_fresh": -0.017,
-      "self_minus_ctrl": -0.024,
-      "correct_rate": 0.967,
-      "compiled_sp": 0.676,
+      "self_minus_ctrl": -0.012,
+      "correct_rate": 1.0,
+      "compiled_sp": 0.709,
       "verdict": "gains vs frozen"
     },
     {
