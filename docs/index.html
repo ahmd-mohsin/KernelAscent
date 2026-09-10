@@ -25,9 +25,9 @@
 <section class="hero" id="top" style="border:none">
   <div class="eyebrow">Compounding kernel optimization</div>
   <h1>KernelAscent</h1>
-  <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1</b> measures raw skill in one shot. <b>Task 2</b> measures recursive self improvement, where a model trains on its own kernels and we check if it keeps improving. Open and closed models both compete on Task 1. Only open weight models can attempt Task 2, because self improvement here means changing the model's own weights.</p>
+  <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1, Capability</b> measures raw skill in one shot. <b>Task 2, Weight RSI</b> measures recursive self improvement through weight training, for open weight models. <b>Task 3, Procedure RSI</b> lets open and closed models improve their own executable research procedure, weights fixed. Open and closed models both compete on Tasks 1 and 3. Task 2 needs weight access.</p>
   <div class="kpis">
-    <div><div class="kpi-n">2</div><div class="kpi-l">tasks, capability and RSI</div></div>
+    <div><div class="kpi-n">3</div><div class="kpi-l">tasks, capability and two RSI tracks</div></div>
     <div><div class="kpi-n">19</div><div class="kpi-l">open models on RSI</div></div>
     <div><div class="kpi-n">9</div><div class="kpi-l">model families</div></div>
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
@@ -35,9 +35,9 @@
 </section>
 
 <section id="tasks">
-  <div class="snum">01 / The two tasks</div>
+  <div class="snum">01 / The three tasks</div>
   <h2>What each task measures</h2>
-  <p class="sub">Both tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference. Speed is scored against an eager baseline today. A unified <code>torch.compile</code> baseline is being added and reported separately. Task 1 is a single solve. Task 2 is improvement across rounds.</p>
+  <p class="sub">All three tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference. Speed is scored against an eager baseline today. A unified <code>torch.compile</code> baseline is being added and reported separately. Task 1 is a single solve. Task 2 improves the weights across rounds. Task 3 improves the executable procedure across rounds with the weights fixed.</p>
 
   <figure>
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 460' role='img' font-family='Georgia, serif'>
@@ -107,6 +107,11 @@
       <p>Does self improvement compound. Each round the model writes kernels for a train split, trains on its own correct kernels, and is re-scored on a held out split. The weights change, so the improver itself gets better. A frozen or API model cannot cross this line.</p>
       <div class="metrics">reports C per round, delta vs frozen base and control</div>
     </div>
+    <div class="track">
+      <h3>Task 3, Procedure RSI <span class="lab">open and closed</span></h3>
+      <p>A closed model cannot change its weights, but it can improve its own executable research procedure. The editable state is a strategy library, a solver prompt, and an archive of verified kernels. Each round the model solves tasks, then rewrites its own procedure from the evidence. The improved procedure drives the next round. Weights stay fixed. This is how API models join the RSI axis.</p>
+      <div class="metrics">reports Q per round, F = newer procedure beats older, vs frozen and archive-only controls</div>
+    </div>
   </div>
 </section>
 
@@ -173,7 +178,7 @@ docker run --rm --gpus all -v $PWD/out:/out ka \
 </div>
 
 <footer>
-  KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. RSI runs an open weight self training loop. Everything is GPU graded on a held out split.
+  KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. Weight RSI runs an open weight self training loop. Procedure RSI lets open and closed models improve their own executable research procedure with weights fixed. Everything is GPU graded.
 </footer>
 
 <script src="app.js"></script>
