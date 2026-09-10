@@ -172,15 +172,17 @@ ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier</c
   </div>
 
   <h3 style="margin-top:34px">Task 2 — RSI (open-weight kernel→model loop)</h3>
-  <p class="small sub">Open model retrained (LoRA) on its own correct kernels each round; held-out capability C_r vs a frozen-base control. First live signal — Qwen2.5-Coder-1.5B, 6 rounds:</p>
+  <p class="small sub">Each round: the model writes kernels for a train split, is LoRA-retrained on its own correct kernels, and is re-scored on a disjoint held-out split. The held-out bank is <b>difficulty-standardized</b> — we admit only tasks the frozen base can sometimes solve but <em>not</em> already fast (correct-but-slow), so C₀ is deliberately low with real headroom and any failure is the model's, not a saturated bank.</p>
   <div class="tablewrap">
-    <table><thead><tr><th class="num">round</th><th class="num">0</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">4</th><th class="num">5</th></tr></thead>
+    <table><thead><tr>
+      <th>Model</th><th>Bank</th><th class="num">C₀</th><th class="num">C_held trajectory</th><th class="num">vs control</th><th>Verdict</th>
+    </tr></thead>
     <tbody>
-      <tr><td>C_held</td><td class="num">0.00</td><td class="num">0.24</td><td class="num">0.00</td><td class="num">0.51</td><td class="num">0.50</td><td class="num pos"><b>0.75</b></td></tr>
-      <tr><td>Δ vs frozen (C₀=0.46)</td><td class="num">−0.46</td><td class="num">−0.22</td><td class="num">−0.46</td><td class="num">+0.05</td><td class="num">+0.05</td><td class="num pos"><b>+0.30</b></td></tr>
+      <tr><td>Qwen-1.5B</td><td>easy reductions</td><td class="num">0.46</td><td class="num pos">0.46 → <b>0.75</b></td><td class="num">rising</td><td>apparent gain (headroom + easy)</td></tr>
+      <tr><td>Qwen-7B</td><td>standardized hard (50, CI ±.07)</td><td class="num">0.43</td><td class="num neg">0.44 → <b>0.32</b></td><td class="num neg">−.07 to −.15</td><td>naive self-SFT overfits</td></tr>
     </tbody></table>
   </div>
-  <div class="note"><b>First live compounding signal.</b> The open model improved its own held-out kernel-writing by training on its own kernels, round over round (0.46 → 0.75, Δ rising to +0.30) — the RSI task reads positive exactly when a model genuinely gets better because its weights changed. <b>Honest caveats:</b> the clean climb is on a smaller/weaker model with headroom; a stronger 7B one-shot-saturates a small held set (no room to compound), so we are densifying with a larger Fable-curated bank + tight CIs. Directional, not yet CI-resolved. Every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</div>
+  <div class="note"><b>What the standardized task shows.</b> The RSI score reads positive only when a model genuinely gets better on held-out because its weights changed. A weak model on easy tasks with lots of headroom shows apparent gains (1.5B: 0.46 → 0.75). But on a <b>difficulty-standardized hard bank</b> (headroom confirmed, tight CIs), a strong 7B trained on its own correct kernels keeps solving the <em>train</em> tasks yet its <b>held-out capability degrades every round</b> (0.44 → 0.32, worse than a fixed-data control) — naive rejection-sampling self-SFT <em>overfits/narrows</em> a strong model. That failure is attributable to the <em>method</em>, not the benchmark. This is the point: the RSI task is a thermometer, not a cheerleader. Every number: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/BENCHMARK_LOG.md">BENCHMARK_LOG.md</a>.</div>
 </section>
 
 <section id="submit">

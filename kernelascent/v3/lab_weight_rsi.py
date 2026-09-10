@@ -83,6 +83,33 @@ def generate(tok, mdl, task_src, k, max_new=900, temp=0.8, adapter=True):
         return [tok.decode(g, skip_special_tokens=True) for g in gen]
 
 
+def generate_batch(tok, mdl, srcs, k, max_new=900, temp=0.8, adapter=True, bs=4):
+    """Generate k candidates for EACH src, batching several prompts per forward pass to parallelize on the
+    GPU (left-padded). Returns a list (per src) of k decoded strings. This is the big throughput win over
+    calling generate() once per task."""
+    old_side = tok.padding_side; tok.padding_side = "left"
+    results = [[] for _ in srcs]
+    ctx = mdl.disable_adapter() if not adapter else _null()
+    try:
+        with ctx:
+            for i in range(0, len(srcs), bs):
+                chunk = srcs[i:i + bs]
+                texts = [_chat(tok, _prompt(s)) for s in chunk]
+                enc = tok(texts, return_tensors="pt", padding=True).to(_dev(mdl))
+                with torch.no_grad():
+                    out = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95,
+                                       num_return_sequences=k, max_new_tokens=max_new,
+                                       pad_token_id=tok.pad_token_id, logits_processor=_LP)
+                new = out[:, enc["input_ids"].shape[1]:]      # (len(chunk)*k, gen_len), grouped by prompt
+                for j in range(len(chunk)):
+                    for r in range(k):
+                        results[i + j].append(tok.decode(new[j * k + r], skip_special_tokens=True))
+                torch.cuda.empty_cache()
+    finally:
+        tok.padding_side = old_side
+    return results
+
+
 class _null:
     def __enter__(self): return self
     def __exit__(self, *a): return False
@@ -109,15 +136,48 @@ def _grade_isolated(src, codes):
     return res + [[False, 0.0]] * (len(codes) - len(res))
 
 
+def _grade_isolated_batch(items, chunk=12):
+    """Grade MANY tasks' candidates, amortizing torch-init across a whole held-eval: one subprocess per
+    `chunk` tasks (not per task). items = [(src, codes), ...]; returns [[(ok,sp),...] per task]. If a chunk's
+    subprocess dies (a kernel poisons CUDA), fall back to per-task grading for that chunk so one bad kernel
+    only costs its own chunk's speed, never correctness."""
+    import subprocess, tempfile
+    out = [None] * len(items)
+    for i in range(0, len(items), chunk):
+        grp = items[i:i + chunk]
+        payload = {"batch": [{"task": s, "codes": c} for s, c in grp]}
+        fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
+        json.dump(payload, open(path, "w"))
+        env = dict(os.environ, PYTHONPATH="/tmp/instance_storage:/tmp/instance_storage/kernelascent",
+                   HF_HOME="/tmp/instance_storage/ka_data/hf",
+                   CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))
+        res = None
+        try:
+            r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
+                               capture_output=True, text=True, timeout=600, env=env)
+            line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
+            res = json.loads(line[-1][len("RESULT"):]) if line else None
+        except Exception:
+            res = None
+        os.remove(path)
+        if not res or len(res) != len(grp):                    # chunk failed -> per-task fallback
+            res = [_grade_isolated(s, c) for s, c in grp]
+        for j, (s, c) in enumerate(grp):
+            rj = res[j] if j < len(res) else []
+            out[i + j] = rj + [[False, 0.0]] * (len(c) - len(rj))
+    return out
+
+
 def eval_tasks(tok, mdl, names, k, adapter=True):
     """mean over tasks of best-of-k speed-resolved score (capability C). Training examples = the BEST
     CORRECT candidate per task (rejection-sampling SFT). Generation runs in-process (safe); candidate
     EXECUTION is isolated in a subprocess so a bad kernel can't poison the trainer's CUDA context."""
+    srcs = [LK.TASKS[n] for n in names]
+    gen_lists = generate_batch(tok, mdl, srcs, k, adapter=adapter)          # batched generation (big speedup)
+    per_task_codes = [[c for c in (AB.extract_modelnew(t) for t in gl) if c] for gl in gen_lists]
+    grades = _grade_isolated_batch(list(zip(srcs, per_task_codes)))         # batched grading (amortized torch-init)
     scores = []; examples = []
-    for n in names:
-        src = LK.TASKS[n]
-        codes = [c for c in (AB.extract_modelnew(t) for t in generate(tok, mdl, src, k, adapter=adapter)) if c]
-        res = _grade_isolated(src, codes)
+    for src, codes, res in zip(srcs, per_task_codes, grades):
         best = 0.0
         for code, (ok, sp) in zip(codes, res):
             s = LK._score(ok, sp)
@@ -126,7 +186,6 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
             if ok:                                         # keep ALL correct kernels -> more SFT data
                 examples.append((src, code))
         scores.append(best)
-        torch.cuda.empty_cache()                            # keep generation KV-cache from accumulating across tasks
     mean = statistics.mean(scores) if scores else 0.0
     ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
     return mean, examples, scores, ci

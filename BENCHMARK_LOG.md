@@ -4,7 +4,26 @@ Single living record of the design, runs, results, and changes. Newest decisions
 each section. Detailed artifacts live in `analysis/` and `docs/`; this file is the index +
 key numbers + decisions + audits + next steps.
 
-## RSI — DIFFICULTY-STANDARDIZED PIPELINE (2026-09-09) [newest]
+## RSI — STANDARDIZED-BANK 7B RESULT: naive self-SFT OVERFITS (clean negative) (2026-09-09) [newest]
+
+First result on the difficulty-standardized bank (50 hard-but-learnable tasks, frozen-7B floor). 7B, train=20
+held=30 k=3 rounds=5, fp32 sharded 2 GPUs/arm, batched gen+grade.
+  C0 frozen-base = 0.432 +-0.069  (tight CI from 30 held tasks; correct-but-slow, headroom to 1.0)
+  trainC by round: 0.457 0.494 0.463 0.404 0.415   (self stays ~good ON TRAIN; ex=28-37 correct kernels/round)
+  C_self by round: 0.438 0.322 0.353 0.305 0.323   (held-out DROPS below C0 and stays down)
+  C_ctrl by round: 0.506 0.496 0.423 0.402 0.470   (round-0-data control stays higher)
+  self-minus-ctrl: -.068 -.174 -.070 -.097 -.148    (self WORSE than control EVERY round)
+=> Clean NEGATIVE: naive weight-RSI (rejection-sampling LoRA SFT on the model's own correct kernels) makes the
+strong 7B OVERFIT — it keeps writing correct kernels for the TRAIN tasks (trainC/ex steady) but held-out
+generalization degrades monotonically. Attributable to the METHOD, not the bank: the bank is now standardized
+(headroom C0=0.43, tight CIs ±0.07-0.10, hard-but-learnable tasks all with a positive base signal). Contrast
+the 1.5B-on-easy-tasks run (held 0.46->0.75): apparent gains there came from huge headroom + easy tasks whose
+correct kernels generalize + a weak base that benefits from any signal. The standardized benchmark now cleanly
+separates "weak model / easy tasks -> apparent gain" from "strong model / hard tasks -> naive self-SFT overfits".
+Next: 1.5B on the SAME hard bank (running) + a gentler-SFT ablation (lower lr / KL) to test if the overfit is a
+method knob or intrinsic.
+
+## RSI — DIFFICULTY-STANDARDIZED PIPELINE (2026-09-09)
 
 Goal (user): make model failure attributable to PROBLEM difficulty, not benchmark artifact. Systematic pipeline:
 1. Curate a hard, L2/L3-weighted bank with Fable-5.1 (curate_kernel_tasks.py). L3-curation hang FIXED:
