@@ -44,28 +44,15 @@
     {
       "model": "Yi-Coder-1.5B",
       "family": "Yi",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.0,
-      "Cfinal": 0.017,
-      "delta_frozen": 0.017,
+      "Cfinal": 0.0,
+      "delta_frozen": 0.0,
       "self_minus_fresh": 0.009,
-      "self_minus_ctrl": 0.006,
-      "correct_rate": 0.033,
-      "compiled_sp": 0.006,
+      "self_minus_ctrl": 0.004,
+      "correct_rate": 0.0,
+      "compiled_sp": 0.0,
       "verdict": "flat"
-    },
-    {
-      "model": "DeepSeek-Coder-6.7B",
-      "family": "DeepSeek",
-      "rounds": 3,
-      "C0": 0.41446375555900117,
-      "Cfinal": 0.5,
-      "delta_frozen": 0.08553624444099883,
-      "self_minus_fresh": 0.002,
-      "self_minus_ctrl": 0.009,
-      "correct_rate": 1.0,
-      "compiled_sp": 0.707,
-      "verdict": "gains vs frozen"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
@@ -78,6 +65,19 @@
       "self_minus_ctrl": 0.08,
       "correct_rate": 1.0,
       "compiled_sp": 0.711,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "DeepSeek-Coder-6.7B",
+      "family": "DeepSeek",
+      "rounds": 4,
+      "C0": 0.41446375555900117,
+      "Cfinal": 0.5,
+      "delta_frozen": 0.08553624444099883,
+      "self_minus_fresh": -0.029,
+      "self_minus_ctrl": 0.007,
+      "correct_rate": 1.0,
+      "compiled_sp": 0.707,
       "verdict": "gains vs frozen"
     },
     {
