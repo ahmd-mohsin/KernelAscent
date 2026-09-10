@@ -18,14 +18,14 @@
     {
       "model": "Llama-3.1-8B",
       "family": "Meta",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.016645026207231663,
-      "Cfinal": 0.357,
-      "delta_frozen": 0.3403549737927683,
-      "self_minus_fresh": 0.126,
+      "Cfinal": 0.354,
+      "delta_frozen": 0.3373549737927683,
+      "self_minus_fresh": 0.067,
       "self_minus_ctrl": -0.029,
       "correct_rate": 0.7,
-      "compiled_sp": 0.49,
+      "compiled_sp": 0.442,
       "verdict": "compounds (beats frozen producer)"
     },
     {
@@ -44,14 +44,14 @@
     {
       "model": "Yi-Coder-1.5B",
       "family": "Yi",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.0,
-      "Cfinal": 0.0,
-      "delta_frozen": 0.0,
+      "Cfinal": 0.017,
+      "delta_frozen": 0.017,
       "self_minus_fresh": 0.009,
-      "self_minus_ctrl": 0.004,
-      "correct_rate": 0.0,
-      "compiled_sp": 0.0,
+      "self_minus_ctrl": 0.007,
+      "correct_rate": 0.033,
+      "compiled_sp": 0.03,
       "verdict": "flat"
     },
     {
