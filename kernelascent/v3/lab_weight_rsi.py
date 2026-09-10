@@ -31,20 +31,25 @@ def build(model_id, gpus=(0,)):
     on disjoint devices within one process."""
     from transformers import AutoTokenizer, AutoModelForCausalLM
     from peft import get_peft_model, LoraConfig
-    tok = AutoTokenizer.from_pretrained(model_id)
+    tok = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     dt = torch.bfloat16 if os.environ.get("KA_DTYPE", "bf16") == "bf16" else torch.float32
     gpus = tuple(gpus)
     if len(gpus) == 1:
         dm = {"": "cuda:%d" % gpus[0]}
-        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map=dm)
+        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map=dm, trust_remote_code=True)
     else:
         n = torch.cuda.device_count()
         mm = {i: ("40GiB" if i in gpus else "0GiB") for i in range(n)}
-        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map="auto", max_memory=mm)
-    lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], task_type="CAUSAL_LM")
-    mdl = get_peft_model(mdl, lcfg)
+        mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map="auto", max_memory=mm, trust_remote_code=True)
+    try:                                                   # standard attention-proj names (Qwen/Llama/Mistral/Gemma/DeepSeek/StarCoder2)
+        lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
+                          target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], task_type="CAUSAL_LM")
+        mdl = get_peft_model(mdl, lcfg)
+    except (ValueError, KeyError):                         # fused/odd names (e.g. Phi-3 qkv_proj) -> target all linears
+        lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules="all-linear", task_type="CAUSAL_LM")
+        mdl = get_peft_model(mdl, lcfg)
     mdl.enable_input_require_grads()                       # needed for grad-checkpointing during SFT
     return tok, mdl
 
@@ -54,8 +59,19 @@ def _dev(mdl):
 
 
 def _chat(tok, user):
-    return tok.apply_chat_template([{"role": "system", "content": SYS}, {"role": "user", "content": user}],
-                                   tokenize=False, add_generation_prompt=True)
+    """Robust across families: try system+user; if the template rejects a system role (Gemma etc.), merge
+    system into the user turn; if there's no chat template at all (base models), fall back to plain text."""
+    if getattr(tok, "chat_template", None):
+        try:
+            return tok.apply_chat_template([{"role": "system", "content": SYS}, {"role": "user", "content": user}],
+                                           tokenize=False, add_generation_prompt=True)
+        except Exception:
+            try:
+                return tok.apply_chat_template([{"role": "user", "content": SYS + "\n\n" + user}],
+                                               tokenize=False, add_generation_prompt=True)
+            except Exception:
+                pass
+    return SYS + "\n\n" + user + "\n\n"
 
 
 from transformers import LogitsProcessor, LogitsProcessorList
@@ -229,8 +245,9 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
 
 def run(args):
     random.seed(0); torch.manual_seed(0)
-    for n in LK.TASKS:
-        LK._ref(n)                                          # warm GPU baselines
+    # NOTE: no warm-ref loop here — grading is done in crash-isolated subprocesses that build their own refs
+    # on KA_GRADE_GPU. Touching LK._ref in-process would allocate on the default cuda:0 in EVERY parallel run,
+    # colliding with other arms on GPU0 (caused OOMs when running the model ladder concurrently).
     sg = [int(x) for x in str(args.self_gpu).split(",")]    # SELF arm sharded across these GPUs
     cg = [int(x) for x in str(args.ctrl_gpu).split(",")]    # CONTROL arm sharded across these GPUs
     tok, mdl = build(args.model, sg)                        # SELF arm: trains on its own kernels each round
