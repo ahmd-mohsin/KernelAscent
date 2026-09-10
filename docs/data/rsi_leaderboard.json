@@ -31,15 +31,15 @@
     {
       "model": "Qwen2.5-Coder-14B",
       "family": "Qwen",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.49000005558332194,
-      "Cfinal": 0.548,
-      "delta_frozen": 0.057999944416678106,
-      "self_minus_fresh": 0.034,
-      "self_minus_ctrl": -0.02,
-      "correct_rate": 1.0,
-      "compiled_sp": 0.745,
-      "verdict": "gains vs frozen"
+      "Cfinal": 0.52,
+      "delta_frozen": 0.02999994441667808,
+      "self_minus_fresh": 0.028,
+      "self_minus_ctrl": -0.029,
+      "correct_rate": 0.967,
+      "compiled_sp": 0.694,
+      "verdict": "flat"
     },
     {
       "model": "Yi-Coder-1.5B",
@@ -70,12 +70,12 @@
     {
       "model": "OpenCoder-8B",
       "family": "OpenCoder",
-      "rounds": 2,
+      "rounds": 3,
       "C0": 0.26760591233085007,
       "Cfinal": 0.5,
       "delta_frozen": 0.23239408766914993,
-      "self_minus_fresh": -0.017,
-      "self_minus_ctrl": -0.012,
+      "self_minus_fresh": -0.021,
+      "self_minus_ctrl": -0.009,
       "correct_rate": 1.0,
       "compiled_sp": 0.709,
       "verdict": "gains vs frozen"
