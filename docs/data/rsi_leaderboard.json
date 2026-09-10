@@ -135,14 +135,14 @@
       "verdict": "gains vs frozen"
     },
     {
-      "model": "Qwen2.5-7B (general)",
+      "model": "Qwen2.5-14B (general)",
       "family": "Qwen",
       "rounds": 1,
-      "C0": 0.3480914069777989,
-      "peak": 0.443,
-      "Cfinal": 0.443,
-      "delta_frozen": 0.09490859302220112,
-      "self_minus_ctrl": 0.067,
+      "C0": 0.39317158077221864,
+      "peak": 0.516,
+      "Cfinal": 0.516,
+      "delta_frozen": 0.12282841922778137,
+      "self_minus_ctrl": 0.09,
       "verdict": "COMPOUNDS (self>ctrl, held rises)"
     },
     {
@@ -166,6 +166,28 @@
       "delta_frozen": 0.06633333333333334,
       "self_minus_ctrl": -0.114,
       "verdict": "gains vs frozen"
+    },
+    {
+      "model": "StarCoder2-15B",
+      "family": "BigCode",
+      "rounds": 1,
+      "C0": 0.4661470408635201,
+      "peak": 0.52,
+      "Cfinal": 0.52,
+      "delta_frozen": 0.053852959136479917,
+      "self_minus_ctrl": -0.023,
+      "verdict": "gains vs frozen"
+    },
+    {
+      "model": "Qwen2.5-7B (general)",
+      "family": "Qwen",
+      "rounds": 2,
+      "C0": 0.3480914069777989,
+      "peak": 0.443,
+      "Cfinal": 0.396,
+      "delta_frozen": 0.04790859302220113,
+      "self_minus_ctrl": 0.014,
+      "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-14B",
