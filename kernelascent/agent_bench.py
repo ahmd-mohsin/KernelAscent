@@ -88,6 +88,75 @@ def extract_modelnew(text):
     return None
 
 
+def build_ref_c(task_source, n_inputs=3, compiled_cache=None):
+    """Rigorous reference bundle. Builds the fp32 gold and the dtype reference on n_inputs FRESH inputs,
+    and computes BOTH an eager baseline time and a torch.compile baseline time. The compiled time is cached
+    on disk (keyed by task hash) to amortize compilation across rounds. Returns:
+      ref, xs(list), golds(list), bound, tbase_eager, tbase_compiled
+    """
+    import hashlib, json as _json, os as _os
+    ns = {}
+    exec(task_source, ns)
+    DT = ns["DT"]
+    ref = ns["Model"](DT).cuda().eval()
+    gold_m = ns["Model"](torch.float32).cuda().eval()
+    gold_m.load_state_dict({k: v.float() for k, v in ref.state_dict().items()}, strict=False)  # same weights as ref, fp32
+    xs, golds, errs = [], [], []
+    for _ in range(n_inputs):
+        xi = ns["get_inputs"]()[0].cuda()
+        with torch.no_grad():
+            golds.append(gold_m(xi.float())); errs.append(rel_l2(ref(xi), golds[-1]))
+        xs.append(xi)
+    ref_err = max(errs)
+    bound = max(2e-2, 2 * ref_err)
+    tbase_eager = time_fn(lambda z: ref(z), (xs[0],))
+    # compiled baseline (cached per task)
+    tbase_compiled = None
+    key = hashlib.sha1(task_source.encode()).hexdigest()
+    cpath = _os.path.join(compiled_cache, key + ".json") if compiled_cache else None
+    if cpath and _os.path.exists(cpath):
+        try:
+            tbase_compiled = _json.load(open(cpath)).get("tc")
+        except Exception:
+            tbase_compiled = None
+    if tbase_compiled is None:
+        try:
+            cref = torch.compile(ref)
+            with torch.no_grad():
+                for _ in range(3):
+                    cref(xs[0])
+            tbase_compiled = time_fn(lambda z: cref(z), (xs[0],))
+        except Exception:
+            tbase_compiled = tbase_eager      # fall back to eager if compile unavailable
+        if cpath:
+            try:
+                _os.makedirs(compiled_cache, exist_ok=True); _json.dump({"tc": tbase_compiled}, open(cpath, "w"))
+            except Exception:
+                pass
+    return ref, xs, golds, bound, tbase_eager, tbase_compiled
+
+
+def grade_c(task_source, llm_code, ref, xs, golds, bound, tbase_eager, tbase_compiled):
+    """Grade a candidate on ALL inputs (correct only if every input matches), then time it once.
+    Returns (ok, sp_eager, sp_compiled, msg)."""
+    try:
+        mod = load_module(task_source + "\n" + llm_code)
+        MN = mod.ModelNew; DT = mod.DT
+        try:
+            cand = MN(DT).cuda().eval()
+        except TypeError:
+            cand = MN().cuda().eval()
+        with torch.no_grad():
+            for xi, gi in zip(xs, golds):
+                out = cand(xi)
+                if (out.shape != gi.shape) or (rel_l2(out, gi) > bound) or (not torch.isfinite(out).all().item()):
+                    return False, 0.0, 0.0, "wrong/imprecise"
+    except Exception as e:
+        return False, 0.0, 0.0, repr(e)[:80]
+    t_cand = time_fn(lambda z: cand(z), (xs[0],))
+    return True, tbase_eager / t_cand, tbase_compiled / t_cand, "ok"
+
+
 def grade(task_source, llm_code, ref, x, gold, bound, tbase):
     try:
         mod = load_module(task_source + "\n" + llm_code)

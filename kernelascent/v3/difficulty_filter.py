@@ -49,9 +49,9 @@ def main():
         src = t["source"]
         outs = W.generate(tok, mdl, src, args.k, adapter=False)
         codes = [c for c in (AB.extract_modelnew(o) for o in outs) if c]
-        res = W._grade_isolated(src, codes)
-        n_correct = sum(1 for ok, sp in res if ok)
-        best = max([LK._score(ok, sp) for ok, sp in res] + [0.0])
+        res = W._grade_isolated(src, codes)                          # [ok, sp_eager, sp_compiled] per candidate
+        n_correct = sum(1 for g in res if g and g[0])
+        best = max([LK._score(g[0], g[1]) for g in res] + [0.0])     # difficulty on the eager ratio
         cr = n_correct / max(1, args.k)
         keep = (cr > 0.0) and (best <= args.keep_hi) and (cr <= args.learn_hi)
         row = {"name": t["name"], "tier": t["tier"], "correct_rate": round(cr, 3), "best_score": round(best, 3), "keep": keep}

@@ -143,13 +143,13 @@ def _grade_isolated(src, codes):
                CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # grade on a spare GPU (arms hold 0,1)
     try:
         r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
-                           capture_output=True, text=True, timeout=240, env=env)
+                           capture_output=True, text=True, timeout=900, env=env)   # compile baseline is slow
         line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
         res = json.loads(line[-1][len("RESULT"):]) if line else []
     except Exception:
         res = []
     os.remove(path)
-    return res + [[False, 0.0]] * (len(codes) - len(res))
+    return res + [[False, 0.0, 0.0]] * (len(codes) - len(res))
 
 
 def _grade_isolated_batch(items, chunk=12):
@@ -170,7 +170,7 @@ def _grade_isolated_batch(items, chunk=12):
         res = None
         try:
             r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
-                               capture_output=True, text=True, timeout=600, env=env)
+                               capture_output=True, text=True, timeout=1200, env=env)   # compile baseline is slow
             line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
             res = json.loads(line[-1][len("RESULT"):]) if line else None
         except Exception:
@@ -180,7 +180,7 @@ def _grade_isolated_batch(items, chunk=12):
             res = [_grade_isolated(s, c) for s, c in grp]
         for j, (s, c) in enumerate(grp):
             rj = res[j] if j < len(res) else []
-            out[i + j] = rj + [[False, 0.0]] * (len(c) - len(rj))
+            out[i + j] = rj + [[False, 0.0, 0.0]] * (len(c) - len(rj))
     return out
 
 
@@ -191,20 +191,28 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     srcs = [LK.TASKS[n] for n in names]
     gen_lists = generate_batch(tok, mdl, srcs, k, adapter=adapter)          # batched generation (big speedup)
     per_task_codes = [[c for c in (AB.extract_modelnew(t) for t in gl) if c] for gl in gen_lists]
-    grades = _grade_isolated_batch(list(zip(srcs, per_task_codes)))         # batched grading (amortized torch-init)
-    scores = []; examples = []
+    grades = _grade_isolated_batch(list(zip(srcs, per_task_codes)))         # [ok, sp_eager, sp_compiled] per candidate
+    scores = []; examples = []; corr = []; comp = []
     for src, codes, res in zip(srcs, per_task_codes, grades):
-        best = 0.0
-        for code, (ok, sp) in zip(codes, res):
-            s = LK._score(ok, sp)
+        best = 0.0; n_ok = 0; best_c = 0.0
+        for code, g in zip(codes, res):
+            ok, se, sc = (g + [0.0, 0.0, 0.0])[:3]
+            s = LK._score(ok, se)                          # capability C stays on the eager ratio for continuity
             if s > best:
                 best = s
-            if ok:                                         # keep ALL correct kernels -> more SFT data
-                examples.append((src, code))
+            if ok:
+                n_ok += 1
+                if sc > best_c:
+                    best_c = sc
+                examples.append((src, code))               # keep ALL correct kernels -> more SFT data
         scores.append(best)
+        corr.append(1.0 if n_ok > 0 else 0.0)              # per-task solved-at-all (correctness, not speed)
+        comp.append(best_c)                                # best compiled speedup among correct candidates
     mean = statistics.mean(scores) if scores else 0.0
     ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
-    return mean, examples, scores, ci
+    stats = {"correct_rate": round(statistics.mean(corr), 3) if corr else 0.0,
+             "compiled_sp": round(statistics.mean(comp), 3) if comp else 0.0}
+    return mean, examples, scores, ci, stats
 
 
 def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
@@ -243,53 +251,79 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
     return statistics.mean(losses) if losses else 0.0
 
 
+def _manifest(args, train, held):
+    import hashlib, transformers, peft
+    bank = json.dumps({n: LK.TASKS[n] for n in LK.TASKS}, sort_keys=True)
+    return {"model": args.model, "seed": args.seed, "rounds": args.rounds, "k": args.k,
+            "n_train": args.n_train, "sft_steps": args.sft_steps, "dtype": os.environ.get("KA_DTYPE", "bf16"),
+            "bank_path": os.environ.get("KA_KERNEL_BANK", "?"),
+            "bank_sha1": hashlib.sha1(bank.encode()).hexdigest()[:12], "n_tasks": len(LK.TASKS),
+            "train_tasks": train, "held_tasks": held, "lora_targets": "q/k/v/o or all-linear",
+            "transformers": transformers.__version__, "peft": peft.__version__,
+            "grader": "eager+compiled, 3-input", "arms": ["self", "fresh_frozen", "round0_replay"]}
+
+
 def run(args):
-    random.seed(0); torch.manual_seed(0)
-    # NOTE: no warm-ref loop here — grading is done in crash-isolated subprocesses that build their own refs
-    # on KA_GRADE_GPU. Touching LK._ref in-process would allocate on the default cuda:0 in EVERY parallel run,
-    # colliding with other arms on GPU0 (caused OOMs when running the model ladder concurrently).
-    sg = [int(x) for x in str(args.self_gpu).split(",")]    # SELF arm sharded across these GPUs
-    cg = [int(x) for x in str(args.ctrl_gpu).split(",")]    # CONTROL arm sharded across these GPUs
-    tok, mdl = build(args.model, sg)                        # SELF arm: trains on its own kernels each round
-    tok2, ctrl = build(args.model, cg)                      # CONTROL arm: trains ONLY on round-0 kernels
-    names = list(LK.TASKS); random.Random(1).shuffle(names)
+    random.seed(args.seed); torch.manual_seed(args.seed)
+    sg = [int(x) for x in str(args.self_gpu).split(",")]
+    cg = [int(x) for x in str(args.ctrl_gpu).split(",")]
+    fg = [int(x) for x in str(args.fresh_gpu).split(",")] if args.fresh_gpu else None
+    tok, mdl = build(args.model, sg)                        # SELF: producer = improving model, learner = itself
+    tok2, ctrl = build(args.model, cg)                      # ROUND0-REPLAY control: retrains on round-0 data only
+    tok3, fr = (build(args.model, fg) if fg else (None, None))  # FRESH-FROZEN: producer = frozen base, fresh each round
+    names = list(LK.TASKS); random.Random(1).shuffle(names)  # split seed fixed so train/held is stable across arms
     train, held = names[:args.n_train], names[args.n_train:]
-    print("WEIGHT-RSI %s train=%d held=%d k=%d" % (args.model, len(train), len(held), args.k), flush=True)
-    C0, _, _, c0ci = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base (no training)
-    print("C0 frozen-base held-out = %.3f +-%.3f" % (C0, c0ci), flush=True)
+    print("WEIGHT-RSI %s seed=%d train=%d held=%d k=%d arms=%s" %
+          (args.model, args.seed, len(train), len(held), args.k, "self,fresh,round0" if fg else "self,round0"), flush=True)
+    os.makedirs(args.outdir, exist_ok=True)
+    json.dump(_manifest(args, train, held), open(os.path.join(args.outdir, "manifest.json"), "w"), indent=2)
+    C0, _, _, c0ci, st0 = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base held-out
+    print("C0 frozen-base held-out = %.3f +-%.3f (correct=%.2f compiled_sp=%.2f)" %
+          (C0, c0ci, st0["correct_rate"], st0["compiled_sp"]), flush=True)
+
+    def _try_sft(t, m, p):
+        try:
+            return sft(t, m, p, args.sft_steps)
+        except torch.cuda.OutOfMemoryError:
+            import gc; gc.collect(); torch.cuda.empty_cache()
+            print("  [oom] skipped sft this round", flush=True); return float("nan")
+
     hist = []; ex0 = None
     for r in range(args.rounds):
         t0 = time.time()
-        trainC, pairs, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=True)   # self: generate+grade train
+        trainC, pairs, _, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=True)     # self producer, fresh
         if ex0 is None:
-            ex0 = pairs                                     # freeze round-0 self-generated data for the control
-        def _try_sft(t, m, p):                              # resilient: a rare OOM round skips training, run continues
-            try:
-                return sft(t, m, p, args.sft_steps)
-            except torch.cuda.OutOfMemoryError:
-                import gc; gc.collect(); torch.cuda.empty_cache()
-                print("  [oom] skipped sft this round", flush=True); return float("nan")
-        loss = _try_sft(tok, mdl, pairs)                    # SELF: SFT on THIS round's own kernels
-        _try_sft(tok2, ctrl, ex0)                           # CONTROL: SFT again on round-0 kernels only
-        Cs, _, _, sci = eval_tasks(tok, mdl, held, args.k, adapter=True)
-        Cc, _, _, cci = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
+            ex0 = pairs                                                                # freeze round-0 self data
+        loss = _try_sft(tok, mdl, pairs)                                               # SELF learns on its own fresh data
+        _try_sft(tok2, ctrl, ex0)                                                      # ROUND0 control re-trains on ex0
+        Cf = fci = None; stf = {"correct_rate": None, "compiled_sp": None}
+        if fr is not None:
+            _, frpairs, _, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=False)   # FROZEN base producer, fresh each round
+            _try_sft(tok3, fr, frpairs)                                                # FRESH learner trains on frozen-base data
+        Cs, _, _, sci, sts = eval_tasks(tok, mdl, held, args.k, adapter=True)
+        Cc, _, _, cci, _ = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
+        if fr is not None:
+            Cf, _, _, fci, stf = eval_tasks(tok3, fr, held, args.k, adapter=True)
         row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
                "C_self": round(Cs, 3), "C_self_ci": round(sci, 3), "C_ctrl": round(Cc, 3), "C_ctrl_ci": round(cci, 3),
-               "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": round(Cs - Cc, 3)}
+               "C_fresh": (round(Cf, 3) if Cf is not None else None), "C_fresh_ci": (round(fci, 3) if Cf is not None else None),
+               "correct_rate_self": sts["correct_rate"], "compiled_sp_self": sts["compiled_sp"],
+               "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": round(Cs - Cc, 3),
+               "delta_self_minus_fresh": (round(Cs - Cf, 3) if Cf is not None else None)}
         hist.append(row)
-        print("round %d trainC=%.3f ex=%d | C_self=%.3f+-%.3f C_ctrl=%.3f+-%.3f | dSelf=%+.3f self-ctrl=%+.3f (%.0fs)" %
-              (r, trainC, len(pairs), Cs, sci, Cc, cci, Cs - C0, Cs - Cc, time.time() - t0), flush=True)
-        os.makedirs(args.outdir, exist_ok=True)
-        json.dump({"model": args.model, "C0_frozen": C0, "C0_ci": c0ci, "history": hist},
+        print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%.3f | dSelf=%+.3f self-fresh=%s self-ctrl=%+.3f corr=%.2f csp=%.2f (%.0fs)" %
+              (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), Cc, Cs - C0,
+               ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), Cs - Cc, sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
+        json.dump({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
+                   "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"], "history": hist},
                   open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)
-    print("\n=== WEIGHT-RSI SUMMARY (%s) ===" % args.model)
-    print("  frozen-base C0 = %.3f +-%.3f" % (C0, c0ci))
-    print("  C_self by round :", [h["C_self"] for h in hist])
-    print("  C_ctrl by round :", [h["C_ctrl"] for h in hist])
-    print("  self-minus-ctrl :", [h["delta_self_minus_ctrl"] for h in hist])
-    scm = [h["delta_self_minus_ctrl"] for h in hist]
-    print("  RSI (self-training on NEW kernels beats retraining on round-0)?",
-          "YES" if len(scm) >= 3 and statistics.mean(scm[-2:]) > 0.05 else "not resolved")
+    print("\n=== WEIGHT-RSI SUMMARY (%s seed %d) ===" % (args.model, args.seed))
+    print("  C0=%.3f  C_self:" % C0, [h["C_self"] for h in hist])
+    print("  self-minus-fresh (producer-quality):", [h["delta_self_minus_fresh"] for h in hist])
+    print("  self-minus-round0 :", [h["delta_self_minus_ctrl"] for h in hist])
+    smf = [h["delta_self_minus_fresh"] for h in hist if h["delta_self_minus_fresh"] is not None]
+    print("  producer-causal RSI (self beats fresh-frozen)?",
+          "YES" if len(smf) >= 3 and statistics.mean(smf[-2:]) > 0.05 else "not resolved")
 
 
 def main():
@@ -298,6 +332,8 @@ def main():
     ap.add_argument("--rounds", type=int, default=4); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--n-train", type=int, default=3); ap.add_argument("--sft-steps", type=int, default=40)
     ap.add_argument("--self-gpu", default="0,1"); ap.add_argument("--ctrl-gpu", default="2,3")
+    ap.add_argument("--fresh-gpu", default="", help="GPUs for the fresh-frozen-producer arm (empty = disable)")
+    ap.add_argument("--seed", type=int, default=0, help="lineage seed for cross-run CIs")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/weight_rsi")
     args = ap.parse_args()
     run(args)

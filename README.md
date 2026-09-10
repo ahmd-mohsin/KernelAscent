@@ -10,7 +10,7 @@ Site: https://ahmd-mohsin.github.io/KernelAscent/ · Full record and every numbe
 
 ---
 
-KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against `torch.compile`. The benchmark has two tasks.
+KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. The current grader times against eager. A unified `torch.compile` deployment baseline is being added and reported separately. The benchmark has two tasks today and a third in progress.
 
 - **Task 1, Capability.** Can a model write a correct, fast kernel in one shot. Open and closed models both compete.
 - **Task 2, RSI.** Does self improvement compound. An open weight model trains on its own correct kernels and we check whether its held out capability keeps rising. Only open weight models can run this, because self improvement here means changing the model's own weights.
@@ -22,10 +22,10 @@ Capability is a snapshot of raw skill. RSI is the slope.
 A candidate kernel is a `class ModelNew` module. The grader runs in a crash isolated subprocess, so a kernel that triggers a CUDA device assert cannot poison the harness.
 
 - **Correct** when its output matches the fp32 gold within tolerance.
-- **Fast** by speedup over `min(eager, torch.compile)`.
-- **Score C** is 0 when wrong, 0.5 at parity, and rises to 1.0 at a 1.5x speedup.
+- **Fast** by speedup over the eager baseline today. A compiled baseline is being unified across tracks and reported as a separate column.
+- **Score C** is 0 when wrong, 0.5 at eager parity, and rises to 1.0 at a 1.5x eager speedup.
 
-Two walls make the capability board discriminative. Correctness ranks the low and mid band. Beating `torch.compile` separates the frontier.
+Note on interpretation. Because 0.5 is eager parity and all correct kernels are admitted, a mid score can reflect learning to emit a reliably correct kernel rather than a faster one. We are separating correctness acquisition from speed optimization with a candidate audit and a compiled baseline. Treat the current board as a development result.
 
 ## Task 2, the RSI loop
 
@@ -48,7 +48,7 @@ The live leaderboard covers 19 open models across 9 families, including Qwen, De
 
 ## Datasets
 
-Two split design. A public split is committed and on HuggingFace. A disjoint held out split scores the board and is never released.
+Current design. The RSI bank ships publicly as a development split, and each run holds out a subset for scoring within that run. That held out subset is reconstructible from the public bank, so it is a development set, not a secret exam. A sealed evaluation set with structural and project level holdouts is being built to score the official board.
 
 - **Capability kernel bank.** Tiered GPU kernel tasks. `dataset/kernel_bank/` and HF `muahmed7338/kernelascent-tasks`.
 - **RSI hard bank.** Fable 5.1 curated, GPU validated, then difficulty filtered to the hard but learnable band. `dataset/kernel_bank/rsi_bank_hard.json`.
@@ -60,7 +60,7 @@ ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier
 
 ## Evaluate a model
 
-One command produces a submittable scorecard. The board is scored on a private held out split.
+One command produces a submittable scorecard. Current results use a public development split. A sealed evaluation set is in progress.
 
 ```bash
 docker build -t ka -f docker/Dockerfile .

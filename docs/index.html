@@ -25,7 +25,7 @@
 <section class="hero" id="top" style="border:none">
   <div class="eyebrow">Compounding kernel optimization</div>
   <h1>KernelAscent</h1>
-  <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against <code>torch.compile</code>. <b>Task 1</b> measures raw skill in one shot. <b>Task 2</b> measures recursive self improvement, where a model trains on its own kernels and we check if it keeps improving. Open and closed models both compete on Task 1. Only open weight models can attempt Task 2, because self improvement here means changing the model's own weights.</p>
+  <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1</b> measures raw skill in one shot. <b>Task 2</b> measures recursive self improvement, where a model trains on its own kernels and we check if it keeps improving. Open and closed models both compete on Task 1. Only open weight models can attempt Task 2, because self improvement here means changing the model's own weights.</p>
   <div class="kpis">
     <div><div class="kpi-n">2</div><div class="kpi-l">tasks, capability and RSI</div></div>
     <div><div class="kpi-n">19</div><div class="kpi-l">open models on RSI</div></div>
@@ -37,7 +37,7 @@
 <section id="tasks">
   <div class="snum">01 / The two tasks</div>
   <h2>What each task measures</h2>
-  <p class="sub">Both tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference. It is fast by its speedup over eager and <code>torch.compile</code>. Task 1 is a single solve. Task 2 is improvement across rounds.</p>
+  <p class="sub">Both tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference. Speed is scored against an eager baseline today. A unified <code>torch.compile</code> baseline is being added and reported separately. Task 1 is a single solve. Task 2 is improvement across rounds.</p>
 
   <figure>
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 460' role='img' font-family='Georgia, serif'>
@@ -99,7 +99,7 @@
   <div class="tracks">
     <div class="track">
       <h3>Task 1, Capability</h3>
-      <p>Can the model write a correct and fast kernel in one shot. Correct means it matches the fp32 gold. Fast means it beats <code>min(eager, torch.compile)</code>. Correctness ranks the low and mid band. Beating <code>torch.compile</code> separates the frontier.</p>
+      <p>Can the model write a correct and fast kernel in one shot. Correct means it matches the fp32 gold. Fast means it beats the eager baseline today, with a compiled baseline being added. Correctness ranks the low and mid band. Real speedups separate the frontier.</p>
       <div class="metrics">reports correct rate, fast rate, mean C</div>
     </div>
     <div class="track">
@@ -113,7 +113,7 @@
 <section id="capability">
   <div class="snum">02 / Capability leaderboard</div>
   <h2>Task 1, one shot skill</h2>
-  <p class="small sub">Fixed tasks, k = 5. Correct matches fp32 gold. Fast beats <code>torch.compile</code>. Open and closed models both compete. Click a header to sort. <span id="lb-updated" class="tiny"></span></p>
+  <p class="small sub">Fixed tasks, k = 5. Correct matches fp32 gold. Speed is scored against an eager baseline today, with a compiled baseline being added. Open and closed models both compete. Click a header to sort. <span id="lb-updated" class="tiny"></span></p>
   <div class="chart" id="cap-chart"></div>
   <div class="tablewrap">
     <table id="lb"><thead><tr>
