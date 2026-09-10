@@ -192,12 +192,15 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     gen_lists = generate_batch(tok, mdl, srcs, k, adapter=adapter)          # batched generation (big speedup)
     per_task_codes = [[c for c in (AB.extract_modelnew(t) for t in gl) if c] for gl in gen_lists]
     grades = _grade_isolated_batch(list(zip(srcs, per_task_codes)))         # [ok, sp_eager, sp_compiled] per candidate
+    # KA_SCORE=compiled scores capability on the torch.compile speedup (headroom for correct-but-slow models
+    # of ANY size), instead of the correctness-heavy eager score. Isolates SPEED optimization from correctness.
+    use_compiled = os.environ.get("KA_SCORE", "eager") == "compiled"
     scores = []; examples = []; corr = []; comp = []
     for src, codes, res in zip(srcs, per_task_codes, grades):
         best = 0.0; n_ok = 0; best_c = 0.0
         for code, g in zip(codes, res):
             ok, se, sc = (g + [0.0, 0.0, 0.0])[:3]
-            s = LK._score(ok, se)                          # capability C stays on the eager ratio for continuity
+            s = LK._score(ok, sc if use_compiled else se)  # compiled ratio => parity-with-compile=0.5, 1.5x=1.0
             if s > best:
                 best = s
             if ok:
