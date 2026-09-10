@@ -68,6 +68,19 @@
       "verdict": "gains vs frozen"
     },
     {
+      "model": "StarCoder2-15B",
+      "family": "BigCode",
+      "rounds": 1,
+      "C0": 0.4653081417545636,
+      "Cfinal": 0.535,
+      "delta_frozen": 0.06969185824543644,
+      "self_minus_fresh": -0.004,
+      "self_minus_ctrl": -0.016,
+      "correct_rate": 1.0,
+      "compiled_sp": 0.72,
+      "verdict": "gains vs frozen"
+    },
+    {
       "model": "OpenCoder-8B",
       "family": "OpenCoder",
       "rounds": 3,
