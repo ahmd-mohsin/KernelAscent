@@ -6,7 +6,7 @@
       "model": "deepseek-coder-1.3b-instruct",
       "rsi_C": 0.106,
       "best_of_k": 0.0995,
-      "self_refine": null,
+      "self_refine": 0.0446,
       "retrieval": null,
       "recursion_gain": 0.006,
       "budget": 20
@@ -15,8 +15,8 @@
       "model": "Qwen2.5-Coder-1.5B",
       "rsi_C": 0.237,
       "best_of_k": 0.1819,
-      "self_refine": null,
-      "retrieval": null,
+      "self_refine": 0.1643,
+      "retrieval": 0.1151,
       "recursion_gain": 0.055,
       "budget": 20
     }

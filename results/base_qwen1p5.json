@@ -11,6 +11,23 @@
       "ci": 0.0649,
       "correct_rate": 0.647,
       "compiled_sp": 0.466
+    },
+    "self_refine": {
+      "method": "self_refine",
+      "iters": 5,
+      "k": 4,
+      "C": 0.1643,
+      "ci": 0.0625,
+      "correct_rate": 0.5
+    },
+    "retrieval": {
+      "method": "retrieval",
+      "n_shot": 3,
+      "archive": 3,
+      "C": 0.1151,
+      "ci": 0.0607,
+      "correct_rate": 0.353,
+      "compiled_sp": 0.275
     }
   }
 }

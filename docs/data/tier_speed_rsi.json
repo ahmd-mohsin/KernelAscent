@@ -45,7 +45,7 @@
       "C0": 0.219,
       "C_self": 0.311,
       "self_minus_fresh": 0,
-      "verdict": "gains"
+      "verdict": "flat"
     },
     {
       "model": "deepseek-coder-6.7b-instruct",
@@ -90,6 +90,15 @@
       "C0": 0.265,
       "C_self": 0.293,
       "self_minus_fresh": -0.027,
+      "verdict": "overfits"
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "tier": "large",
+      "rounds": 2,
+      "C0": 0.291,
+      "C_self": 0.243,
+      "self_minus_fresh": -0.079,
       "verdict": "overfits"
     }
   ]

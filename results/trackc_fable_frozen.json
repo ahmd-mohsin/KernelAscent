@@ -1,0 +1,15 @@
+{
+  "model": "us.anthropic.claude-fable-5-1",
+  "mode": "frozen",
+  "Q0": 0.7317793917026689,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.741,
+      "delta_vs_base": 0.009,
+      "F_g": null,
+      "n_strategies": 0,
+      "n_archive": 0
+    }
+  ]
+}

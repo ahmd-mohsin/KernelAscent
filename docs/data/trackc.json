@@ -1,23 +1,50 @@
 {
   "updated": "2026-09-11",
-  "note": "procedure RSI: model rewrites its own executable research procedure; Qg vs frozen-procedure base (self-modify arm).",
+  "note": "procedure RSI: model rewrites its own executable research procedure; Qg vs frozen-procedure base.",
   "models": [
     {
       "model": "Nova-Pro",
       "mode": "self-modify",
-      "rounds": 1,
+      "rounds": 5,
       "Q0": 0.401,
-      "Qg": 0.469,
-      "delta_vs_base": 0.068,
+      "Qg": 0.49,
+      "delta_vs_base": 0.089,
       "verdict": "improves"
+    },
+    {
+      "model": "Fable-5.1",
+      "mode": "archive-only",
+      "rounds": 1,
+      "Q0": 0.759,
+      "Qg": 0.78,
+      "delta_vs_base": 0.021,
+      "verdict": "flat"
+    },
+    {
+      "model": "Fable-5.1",
+      "mode": "self-modify",
+      "rounds": 1,
+      "Q0": 0.73,
+      "Qg": 0.745,
+      "delta_vs_base": 0.016,
+      "verdict": "flat"
+    },
+    {
+      "model": "Fable-5.1",
+      "mode": "frozen",
+      "rounds": 1,
+      "Q0": 0.732,
+      "Qg": 0.741,
+      "delta_vs_base": 0.009,
+      "verdict": "flat"
     },
     {
       "model": "Llama-3.3-70B",
       "mode": "self-modify",
-      "rounds": 2,
+      "rounds": 5,
       "Q0": 0.458,
-      "Qg": 0.456,
-      "delta_vs_base": -0.002,
+      "Qg": 0.455,
+      "delta_vs_base": -0.004,
       "verdict": "flat"
     }
   ]
