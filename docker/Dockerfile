@@ -13,9 +13,8 @@ RUN pip3 install --no-cache-dir -r /bench/requirements.txt
 
 # code + the bundled PUBLIC task banks (held-out splits are NOT in the image)
 COPY kernelascent /bench/kernelascent
-COPY dataset/tasks/public /bench/dataset/tasks/public
-COPY dataset/rsi_tasks/public.jsonl /bench/dataset/rsi_tasks/public.jsonl
-ENV PYTHONPATH=/bench:/bench/kernelascent KA_DATA=/bench/dataset/tasks/public
+COPY dataset/kernel_bank /bench/ka_data/kernel_bank
+ENV PYTHONPATH=/bench:/bench/kernelascent KA_DATA_DIR=/bench/ka_data KA_ROOT=/bench KA_SCORE=compiled
 
 # ---------------------------------------------------------------------------
 # Self-check (no model / GPU / creds): deterministic gates must pass.
@@ -28,11 +27,14 @@ ENV PYTHONPATH=/bench:/bench/kernelascent KA_DATA=/bench/dataset/tasks/public
 #     --track capability --api-model us.anthropic.claude-opus-5 --tier medium
 #   docker run --rm ... ka --track rsi --api-model us.anthropic.claude-opus-5 --lineages 16
 #
-# Evaluate an open-weight model on GPU (capability track):
+# Evaluate an open-weight model on GPU (any track), scored with the headroom-normalized metric:
 #   docker run --rm --gpus all -v $HF:/hf -e HF_HOME=/hf -v $PWD/out:/out ka \
-#     --track capability --model Qwen/Qwen2.5-Coder-7B-Instruct --tier hard
+#     --track rsi --model Qwen/Qwen2.5-Coder-7B-Instruct --bank bank_mid.json --gpus 0,1 --rounds 5
+#   docker run --rm --gpus all ... ka --track baselines --model <hf-id> --bank bank_small.json --gpus 0
+#   docker run --rm ... -e AWS_PROFILE=bedrock -v $PWD/creds:/creds ka \
+#     --track combined --trainee <hf-id> --researcher us.anthropic.claude-fable-5-1 --trainee-gpu 0 --ctrl-gpu 1
 #
-# Output: /out/scorecard.json  (open a model-submission issue; maintainers verify on the held-out split)
+# Output: scorecard JSON under KA_DATA_DIR  (open a model-submission issue; maintainers verify on the held-out split)
 # ---------------------------------------------------------------------------
-ENTRYPOINT ["python3", "-u", "-m", "kernelascent.evaluate"]
+ENTRYPOINT ["python3", "-u", "-m", "kernelascent.v3.run_track"]
 CMD ["--help"]

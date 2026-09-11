@@ -23,7 +23,7 @@ Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL gene
 - [ ] >=3-5 seeds per headline cell (weight-RSI + T4). Cross-seed already partial (seed0/1).
 - [ ] Bootstrap CIs + significance test on the primary metric.
 - [x] Pre-registration locked → docs/PREREGISTRATION.md (metrics, hypotheses H1-H3, admission, scoring, stats, controls).
-- [~] Docker image exists (docker/Dockerfile, entrypoint=kernelascent.evaluate); TODO: v3 dispatcher --track {capability,rsi,procedure,combined,baselines} -> v3 labs.
+- [x] One-command Docker repro: kernelascent/v3/run_track.py dispatches --track {capability,rsi,procedure,combined,baselines} -> v3 labs; Dockerfile entrypoint + v3 banks baked; KA_SCORE=compiled default.
 
 ## 4. Safety framing (why the community must care) — [x]
 - [x] Position as EARLY-WARNING eval for recursive self-improvement (ties to eval-awareness / responsible scaling).
