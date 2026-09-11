@@ -1,0 +1,153 @@
+{
+  "updated": "2026-09-11",
+  "note": "cross-seed self-vs-fresh-frozen (pre-registered primary). holds = mean(last-2) > 0.05 AND sign-consistent across seeds. >=3 seeds needed for reported bootstrap CI.",
+  "models": [
+    {
+      "model": "sm_deepseek1p3",
+      "n_seeds": 1,
+      "seeds_final": [
+        0.095
+      ],
+      "mean_final_self_minus_fresh": 0.095,
+      "mean_last2": 0.051,
+      "half_range": null,
+      "sign_consistent": true,
+      "holds": true,
+      "verdict": "compounds",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "sm_qwen1p5",
+      "n_seeds": 2,
+      "seeds_final": [
+        0.085,
+        -0.028
+      ],
+      "mean_final_self_minus_fresh": 0.029,
+      "mean_last2": -0.028,
+      "half_range": 0.057,
+      "sign_consistent": false,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": 0.0,
+      "mean_retention": 0.467,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "sm_opencoder1p5",
+      "n_seeds": 1,
+      "seeds_final": [
+        0.02
+      ],
+      "mean_final_self_minus_fresh": 0.02,
+      "mean_last2": 0.013,
+      "half_range": null,
+      "sign_consistent": true,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "mid_deepseek6p7",
+      "n_seeds": 2,
+      "seeds_final": [
+        0.005,
+        0.02
+      ],
+      "mean_final_self_minus_fresh": 0.013,
+      "mean_last2": -0.002,
+      "half_range": 0.007,
+      "sign_consistent": true,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "sm_starcoder3b",
+      "n_seeds": 1,
+      "seeds_final": [
+        0.008
+      ],
+      "mean_final_self_minus_fresh": 0.008,
+      "mean_last2": -0.003,
+      "half_range": null,
+      "sign_consistent": true,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "mid_qwen3b",
+      "n_seeds": 1,
+      "seeds_final": [
+        -0.0
+      ],
+      "mean_final_self_minus_fresh": 0.0,
+      "mean_last2": 0.0,
+      "half_range": null,
+      "sign_consistent": false,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "mid_starcoder7b",
+      "n_seeds": 1,
+      "seeds_final": [
+        -0.002
+      ],
+      "mean_final_self_minus_fresh": -0.002,
+      "mean_last2": -0.015,
+      "half_range": null,
+      "sign_consistent": true,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "mid_qwen7b",
+      "n_seeds": 2,
+      "seeds_final": [
+        -0.027,
+        0.008
+      ],
+      "mean_final_self_minus_fresh": -0.009,
+      "mean_last2": -0.003,
+      "half_range": 0.018,
+      "sign_consistent": false,
+      "holds": false,
+      "verdict": "flat",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    },
+    {
+      "model": "lg_qwen14b",
+      "n_seeds": 1,
+      "seeds_final": [
+        -0.079
+      ],
+      "mean_final_self_minus_fresh": -0.079,
+      "mean_last2": -0.068,
+      "half_range": null,
+      "sign_consistent": true,
+      "holds": false,
+      "verdict": "overfits",
+      "mean_diversity": null,
+      "mean_retention": null,
+      "note": "single-seed: needs >=3 for CI"
+    }
+  ]
+}
