@@ -27,13 +27,13 @@
     {
       "trainee": "Qwen2.5-Coder-7B",
       "researcher": "Fable-5.1",
-      "rounds": 2,
+      "rounds": 3,
       "C0": 0.083,
-      "C_improved": 0.104,
-      "C_frozen": 0.064,
-      "impr_minus_frozen": 0.041,
-      "auc": 0.013,
-      "verdict": "flat"
+      "C_improved": 0.311,
+      "C_frozen": 0.03,
+      "impr_minus_frozen": 0.281,
+      "auc": 0.102,
+      "verdict": "harness helps"
     },
     {
       "trainee": "Qwen2.5-Coder-1.5B",

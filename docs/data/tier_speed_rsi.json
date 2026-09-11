@@ -37,6 +37,60 @@
       "C_self": 0.008,
       "self_minus_fresh": 0.008,
       "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "tier": "small",
+      "rounds": 4,
+      "C0": 0.219,
+      "C_self": 0.311,
+      "self_minus_fresh": 0,
+      "verdict": "gains"
+    },
+    {
+      "model": "deepseek-coder-6.7b-instruct",
+      "tier": "mid",
+      "rounds": 2,
+      "C0": 0.203,
+      "C_self": 0.318,
+      "self_minus_fresh": 0.02,
+      "verdict": "gains"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B (s1)",
+      "tier": "mid",
+      "rounds": 3,
+      "C0": 0.292,
+      "C_self": 0.316,
+      "self_minus_fresh": 0.008,
+      "verdict": "flat"
+    },
+    {
+      "model": "deepseek-coder-6.7b-instruct (s1)",
+      "tier": "mid",
+      "rounds": 2,
+      "C0": 0.265,
+      "C_self": 0.3,
+      "self_minus_fresh": 0.005,
+      "verdict": "flat"
+    },
+    {
+      "model": "starcoder2-7b",
+      "tier": "mid",
+      "rounds": 3,
+      "C0": 0.023,
+      "C_self": 0.024,
+      "self_minus_fresh": -0.002,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "tier": "mid",
+      "rounds": 4,
+      "C0": 0.265,
+      "C_self": 0.293,
+      "self_minus_fresh": -0.027,
+      "verdict": "overfits"
     }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "model": "us.meta.llama3-3-70b-instruct-v1:0",
+  "mode": "self-modify",
+  "Q0": 0.4582630532785516,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.44,
+      "delta_vs_base": -0.018,
+      "F_g": null,
+      "n_strategies": 9,
+      "n_archive": 2
+    },
+    {
+      "round": 1,
+      "Qg": 0.456,
+      "delta_vs_base": -0.002,
+      "F_g": -0.0,
+      "n_strategies": 11,
+      "n_archive": 2
+    }
+  ]
+}

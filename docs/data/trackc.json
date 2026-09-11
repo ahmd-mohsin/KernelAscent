@@ -1,0 +1,24 @@
+{
+  "updated": "2026-09-11",
+  "note": "procedure RSI: model rewrites its own executable research procedure; Qg vs frozen-procedure base (self-modify arm).",
+  "models": [
+    {
+      "model": "Nova-Pro",
+      "mode": "self-modify",
+      "rounds": 1,
+      "Q0": 0.401,
+      "Qg": 0.469,
+      "delta_vs_base": 0.068,
+      "verdict": "improves"
+    },
+    {
+      "model": "Llama-3.3-70B",
+      "mode": "self-modify",
+      "rounds": 2,
+      "Q0": 0.458,
+      "Qg": 0.456,
+      "delta_vs_base": -0.002,
+      "verdict": "flat"
+    }
+  ]
+}

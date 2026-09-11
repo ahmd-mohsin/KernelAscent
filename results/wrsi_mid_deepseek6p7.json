@@ -1,0 +1,44 @@
+{
+  "model": "deepseek-ai/deepseek-coder-6.7b-instruct",
+  "seed": 0,
+  "C0_frozen": 0.20339434249797061,
+  "C0_ci": 0.049432966829627764,
+  "C0_correct_rate": 0.677,
+  "C0_compiled_sp": 0.507,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.39,
+      "n_ex": 5,
+      "loss": 0.05,
+      "C_self": 0.271,
+      "C_self_ci": 0.05,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.277,
+      "C_fresh_ci": 0.051,
+      "correct_rate_self": 0.846,
+      "compiled_sp_self": 0.653,
+      "delta_self": 0.067,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.006
+    },
+    {
+      "round": 1,
+      "trainC": 0.39,
+      "n_ex": 6,
+      "loss": 0.023,
+      "C_self": 0.318,
+      "C_self_ci": 0.046,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.298,
+      "C_fresh_ci": 0.047,
+      "correct_rate_self": 0.923,
+      "compiled_sp_self": 0.739,
+      "delta_self": 0.115,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.02
+    }
+  ]
+}

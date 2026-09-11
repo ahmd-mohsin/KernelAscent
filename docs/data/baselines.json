@@ -1,0 +1,24 @@
+{
+  "updated": "2026-09-11",
+  "note": "all frozen-weight, compute-matched to weight-RSI (budget=rounds*k per held task). recursion_gain = weight-RSI C_self minus best non-recursive baseline.",
+  "models": [
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "rsi_C": 0.106,
+      "best_of_k": 0.0995,
+      "self_refine": null,
+      "retrieval": null,
+      "recursion_gain": 0.006,
+      "budget": 20
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "rsi_C": 0.237,
+      "best_of_k": 0.1819,
+      "self_refine": null,
+      "retrieval": null,
+      "recursion_gain": 0.055,
+      "budget": 20
+    }
+  ]
+}

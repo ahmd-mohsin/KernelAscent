@@ -20,6 +20,15 @@
       "n_admitted": 1,
       "min_sp": 1.0,
       "strategy": "Write a correct, self-contained kernel, then make it faster than the reference. Workflow: (1) Verify correctness first a"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.311,
+      "C_frozen": 0.03,
+      "delta_improved_minus_frozen": 0.281,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Goal: correct output AND measured speedup >= 1.0 on every task (avg is currently 0.89, so regressions dominate; eliminat"
     }
   ]
 }
