@@ -7,9 +7,11 @@ Status legend: [ ] todo · [~] in progress · [x] done
 P1. DEFINITIVE RE-RUN — [~] multi-seed (>=3), headroom-normalized score, on the filtered SOTA banks, all tasks
     T1/T2/T4 + T3. One sweep closes #0 (ceiling-free numbers), #2 (diversity/forgetting figure), #3 (CIs), #6 (cost).
     Gated on the roofline-gated filters finishing (large now sharded 8x on node A; small/mid on node C).
-P2. LARGE TIER END-TO-END — [ ] StarCoder2-15B + Fable->14B died in C0. Diagnose (OOM during long-kernel gen /
-    compile-baseline grade timeout / 24h wall). Fix: KA_MAXMEM cap + expandable_segments + bf16 frozen-eval +
-    generous grade timeout + shard across GPUs. The size ladder must run 0.5B->14B without gaps.
+P2. LARGE TIER END-TO-END — [~] DIAGNOSED: not C0 — died in LoRA SFT backward, `MmBackward0 expected device
+    meta but got cuda:4`. Root cause: device_map="auto" (an INFERENCE shard layout) used for TRAINING → sharded
+    backward yields a meta-device gradient. FIX: large models train in bf16 on a SINGLE GPU (14B~28GB / 15B~30GB
+    fit one 40GB card with gradient checkpointing) — no device_map sharding, no meta bug. Apply in the definitive
+    re-run: KA_DTYPE=bf16, --self-gpu <one> --fresh-gpu <one>. (Alt for >1 GPU: FSDP, not device_map.)
 P3. STATISTICS — [ ] >=3 seeds per headline cell; bootstrap 95% CIs (ci_analysis.py ready); report per pre-reg rule.
 P4. MECHANISTIC FIGURE — [ ] populate diversity_self + retention (instrumented) via the re-run; plot diversity
     collapse vs compounding and forgetting vs overfit. Turns H1 from hypothesis into a result.
