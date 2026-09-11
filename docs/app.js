@@ -113,6 +113,17 @@ function renderRsiChart(models){
   animateFills(el);
 }
 
+// Per-scale speed board
+fetch("data/tier_speed_rsi.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("ts-updated"); if (up) up.textContent = (d.updated ? d.updated + " · " : "") + (d.metric || "");
+  const tb = document.querySelector("#tier-lb tbody"); if (!tb) return;
+  const ms = [...(d.models||[])].sort((a,b)=>(b.self_minus_fresh??-9)-(a.self_minus_fresh??-9));
+  tb.innerHTML = ms.map(m => `<tr>
+    <td><b>${m.model}</b></td><td><span class="pill kind">${m.tier}</span></td>
+    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_self)}</td>
+    <td class="num">${deltaBar(m.self_minus_fresh)}</td><td>${verdictPill(m.verdict)}</td></tr>`).join("");
+}).catch(e => {});
+
 // Task 3 (closed->open) board
 fetch("data/combined_rsi.json").then(r => r.json()).then(d => {
   const up = document.getElementById("c3-updated"); if (up) up.textContent = (d.updated ? d.updated : "");

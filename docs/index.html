@@ -139,7 +139,19 @@
       <th class="num">correct</th><th class="num">compiled x</th><th class="num">delta vs frozen</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>What the board shows, read honestly.</b> Models with real headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B, both starting near C0 = 0). Models with headroom that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Caveat on large models.</b> This bank was difficulty-filtered against a frozen 7B, so models of 7B and up sit near the correctness ceiling here (correct-rate about 0.97 to 1.0) and have little room to move. Their flat scores are a headroom limit of this bank, not evidence that they cannot compound. Testing them fairly needs a per-scale harder bank, which is in progress. The score is a thermometer, not a cheerleader. Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
+  <div class="note"><b>What the board shows, read honestly.</b> Models with headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B). Models that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Per-scale banks remove the headroom confound.</b> This first board used a single bank filtered against a frozen 7B, which saturated models of 7B and up (correct-rate near 1.0) and made them look flat. That is fixed. Each model now runs on a bank difficulty-filtered against a frozen anchor of ITS OWN scale (small 1.5B, mid 7B, large 14B), scored on speed vs torch.compile where every size has room. On that per-scale speed board, DeepSeek-1.3B compounds with self vs fresh-frozen near +0.26. The score is a thermometer, not a cheerleader. Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
+</section>
+
+<section id="perscale">
+  <div class="snum">03a / Per-scale speed board</div>
+  <h2>Size-fair RSI, scored on speed</h2>
+  <p class="small sub">Each model runs on a bank difficulty-filtered against a frozen anchor of its own scale (small 1.5B, mid 7B, large 14B), scored on <b>speed vs torch.compile</b> where every size has headroom. This removes the benchmark confound so results are pure capability. <span id="ts-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="tier-lb"><thead><tr>
+      <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C0 (speed)</th><th class="num">C final</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+  <div class="note"><b>The fair test.</b> On the speed dimension with a size-matched bank, small models compound (DeepSeek-1.3B self vs fresh-frozen near +0.26). Mid and large tiers run on harder banks (up to deep ULTRA transformer-block fusions) so they too start correct-but-slow with room to improve. No size is saturated by construction.</div>
 </section>
 
 <section id="closed">
