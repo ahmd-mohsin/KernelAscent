@@ -1,0 +1,36 @@
+{
+  "updated": "live",
+  "note": "Fable-5.1 (closed) improves the training harness; improved vs frozen harness on the open trainee",
+  "models": [
+    {
+      "trainee": "Qwen2.5-Coder-1.5B",
+      "researcher": "Fable-5.1 (closed)",
+      "rounds": 5,
+      "C0": 0.11570642488040718,
+      "C_improved": 0.5,
+      "C_frozen": 0.067,
+      "impr_minus_frozen": 0.414,
+      "verdict": "harness helps"
+    },
+    {
+      "trainee": "StableCode-3B",
+      "researcher": "Fable-5.1 (closed)",
+      "rounds": 5,
+      "C0": 0.2145509040794134,
+      "C_improved": 0.225,
+      "C_frozen": 0.504,
+      "impr_minus_frozen": -0.252,
+      "verdict": "hurts"
+    },
+    {
+      "trainee": "DeepSeek-Coder-1.3B",
+      "researcher": "Fable-5.1 (closed)",
+      "rounds": 5,
+      "C0": 0.016371338612897628,
+      "C_improved": 0.05,
+      "C_frozen": 0.483,
+      "impr_minus_frozen": -0.442,
+      "verdict": "hurts"
+    }
+  ]
+}

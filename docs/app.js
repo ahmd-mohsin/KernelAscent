@@ -113,6 +113,18 @@ function renderRsiChart(models){
   animateFills(el);
 }
 
+// Task 3 (closed->open) board
+fetch("data/combined_rsi.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("c3-updated"); if (up) up.textContent = (d.updated ? d.updated : "");
+  const tb = document.querySelector("#rsi3-lb tbody"); if (!tb) return;
+  const ms = d.models || [];
+  tb.innerHTML = ms.map(m => `<tr>
+    <td><b>${m.trainee}</b></td><td><span class="pill kind">${m.researcher}</span></td>
+    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_improved)}</td>
+    <td class="num">${num(m.C_frozen)}</td><td class="num">${deltaBar(m.impr_minus_frozen)}</td>
+    <td>${verdictPill(m.verdict==="harness helps"?"compounds":(m.verdict==="hurts"?"overfits":"flat"))}</td></tr>`).join("");
+}).catch(e => {});
+
 // ---- sticky nav + scroll reveal ----
 (function(){
   const nav = document.querySelector(".nav");

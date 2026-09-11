@@ -142,6 +142,18 @@
   <div class="note"><b>What the board shows, read honestly.</b> Models with real headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B, both starting near C0 = 0). Models with headroom that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Caveat on large models.</b> This bank was difficulty-filtered against a frozen 7B, so models of 7B and up sit near the correctness ceiling here (correct-rate about 0.97 to 1.0) and have little room to move. Their flat scores are a headroom limit of this bank, not evidence that they cannot compound. Testing them fairly needs a per-scale harder bank, which is in progress. The score is a thermometer, not a cheerleader. Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
 </section>
 
+<section id="closed">
+  <div class="snum">03b / Task 3 board, closed to open</div>
+  <h2>Closed models improving open models</h2>
+  <p class="small sub">A closed model (Fable-5.1, fixed weights) rewrites the training harness each round; the harness trains an open model. The key column is <b>improved vs frozen harness</b> on the open trainee. Positive means the closed model's procedure edits causally produced a better open model. <span id="c3-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="rsi3-lb"><thead><tr>
+      <th>Open trainee</th><th>Researcher</th><th class="num">rounds</th><th class="num">C0</th><th class="num">C improved</th><th class="num">C frozen</th><th class="num">improved vs frozen</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+  <div class="note"><b>Why this matters.</b> A closed model cannot change its own weights, but it can improve the executable procedure that trains an open model. When improved vs frozen is positive, that is true recursive improvement with a downstream payoff, driven by a closed model. Fable-5.1 to Qwen-1.5B has run improved minus frozen positive and growing across rounds.</div>
+</section>
+
 <section id="data">
   <div class="snum">04 / Datasets</div>
   <h2>One dataset per task, each with a held out split</h2>
