@@ -50,8 +50,16 @@ def _ref(name):
     return _REF[name]
 
 
-def _score(ok, sp):
-    return 0.0 if not ok else max(0.0, min(1.0, 0.5 + 0.5 * min(1.0, (sp - 1.0) / 0.5)))   # 0.5 at parity -> 1.0 at 1.5x
+def _score(ok, sp, ceiling=1.5):
+    """Correctness + HEADROOM-NORMALIZED speed. Correct-at-parity = 0.5; correct at the per-task achievable
+    ceiling = 1.0, whether that ceiling is 1.1x or 40x. `ceiling` is the roofline-achievable speedup over the
+    baseline (from the grader). This makes the score the MODEL's ceiling (did it capture the physically-available
+    headroom), not a fixed 1.5x anchor that some tasks can't reach and others trivially saturate. Default 1.5
+    recovers the legacy behavior when no ceiling is supplied."""
+    if not ok:
+        return 0.0
+    room = max(ceiling - 1.0, 1e-6)
+    return max(0.0, min(1.0, 0.5 + 0.5 * min(1.0, (sp - 1.0) / room)))
 
 
 def _archive_text(lib):

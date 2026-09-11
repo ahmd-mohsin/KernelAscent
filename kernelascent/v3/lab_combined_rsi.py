@@ -58,12 +58,13 @@ def eval_harness(tok, mdl, names, k, strategy, grade, adapter=True):
         W._prompt = old
     per = [[c for c in (AB.extract_modelnew(t) for t in gl) if c] for gl in gen_lists]
     grades = W._grade_isolated_batch(list(zip(srcs, per)))
+    use_compiled = os.environ.get("KA_SCORE", "eager") == "compiled"
     scores = []; cand = []
     for src, codes, res in zip(srcs, per, grades):
         best = 0.0
         for code, g in zip(codes, res):
-            ok, se, sc = (g + [0, 0, 0])[:3]
-            best = max(best, W.LK._score(ok, se))
+            ok, se, sc, ceil = (list(g) + [0, 0, 0, 1.5])[:4]
+            best = max(best, W.LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5)))
             if ok:
                 cand.append((src, code, sc))
         scores.append(best)

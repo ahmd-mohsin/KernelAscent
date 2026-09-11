@@ -3,6 +3,11 @@
 Goal: convert strong prototype → award-level benchmark. Budget + 72-GPU fleet available.
 Status legend: [ ] todo · [~] in progress · [x] done
 
+## 0. NO BENCHMARK CEILING (core invariant) — [~]
+Every measured number must be the MODEL's ceiling, never the benchmark's.
+- [x] Headroom-normalized speed score: `_score(ok, sp, ceiling)` credits fraction of the PER-TASK roofline-achievable speedup captured (correct-at-parity=0.5, correct-at-hardware-limit=1.0) whether the limit is 1.1x or 40x. Replaces the fixed-1.5x anchor that capped compute-bound tasks below 1.0 and let memory-bound tasks saturate at a trivial 1.5x. Ceiling computed in build_ref_c (FLOPs+bytes roofline), cached, threaded through grade_batch -> eval_tasks / baselines / combined.
+- [x] Roofline-headroom ADMISSION in difficulty_filter (--min-ceiling 1.3): drop un-improvable tasks (torch.compile already near roofline) so no task's ceiling is the benchmark.
+- [ ] Re-run headline cells on the SOTA bank under the new score (old runs used the 1.5x anchor; not directly comparable).
 ## 1. Compute-matched baselines (prove improvement is FROM recursion) — [~]
 Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL generation budget.
 - [~] `lab_baselines.py`: best-of-k (frozen eval at k=rounds*k_rsi), self-refine (in-context iterative, no weight change), retrieval (archive few-shot, no weight change). All scored with the SAME grader/_score → directly comparable to weight-RSI C.

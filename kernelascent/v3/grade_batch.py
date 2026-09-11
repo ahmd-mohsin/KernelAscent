@@ -17,16 +17,16 @@ CACHE = os.environ.get("KA_COMPILED_CACHE") or os.path.join(
 
 def grade_one(src, codes):
     try:
-        ref, xs, golds, bound, te, tc = AB.build_ref_c(src, n_inputs=3, compiled_cache=CACHE)
+        ref, xs, golds, bound, te, tc, ceil = AB.build_ref_c(src, n_inputs=3, compiled_cache=CACHE)
     except Exception:
-        return [[False, 0.0, 0.0] for _ in codes]
+        return [[False, 0.0, 0.0, 1.5] for _ in codes]
     out = []
     for code in codes:
         try:
             ok, se, sc, msg = AB.grade_c(src, code, ref, xs, golds, bound, te, tc)
-            out.append([bool(ok), float(se), float(sc)])
+            out.append([bool(ok), float(se), float(sc), float(ceil)])   # 4th = per-task roofline ceiling
         except Exception:
-            out.append([False, 0.0, 0.0])
+            out.append([False, 0.0, 0.0, float(ceil)])
     return out
 
 

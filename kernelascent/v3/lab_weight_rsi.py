@@ -212,8 +212,8 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     for src, codes, res in zip(srcs, per_task_codes, grades):
         best = 0.0; n_ok = 0; best_c = 0.0
         for code, g in zip(codes, res):
-            ok, se, sc = (g + [0.0, 0.0, 0.0])[:3]
-            s = LK._score(ok, sc if use_compiled else se)  # compiled ratio => parity-with-compile=0.5, 1.5x=1.0
+            ok, se, sc, ceil = (list(g) + [0.0, 0.0, 0.0, 1.5])[:4]
+            s = LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))  # headroom-normalized
             if s > best:
                 best = s
             if ok:

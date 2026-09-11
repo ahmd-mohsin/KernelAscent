@@ -35,8 +35,8 @@ def _score_lists(srcs, code_lists):
     for src, codes, res in zip(srcs, code_lists, grades):
         best = 0.0; n_ok = 0; best_c = 0.0
         for code, g in zip(codes, res):
-            ok, se, sc = (g + [0.0, 0.0, 0.0])[:3]
-            s = LK._score(ok, sc if use_compiled else se)
+            ok, se, sc, ceil = (list(g) + [0.0, 0.0, 0.0, 1.5])[:4]
+            s = LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))
             if s > best:
                 best = s
             if ok:
@@ -121,8 +121,8 @@ def self_refine(tok, mdl, held, iters, k):
         use_compiled = os.environ.get("KA_SCORE", "eager") == "compiled"
         for i, (codes_i, res_i) in enumerate(zip(codes, grades)):
             for code, g in zip(codes_i, res_i):
-                ok, se, sc = (g + [0.0, 0.0, 0.0])[:3]
-                sval = LK._score(ok, sc if use_compiled else se)
+                ok, se, sc, ceil = (list(g) + [0.0, 0.0, 0.0, 1.5])[:4]
+                sval = LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))
                 if sval > best_score[i]:
                     best_score[i] = sval
                     if ok:

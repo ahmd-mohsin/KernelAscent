@@ -37,6 +37,7 @@ def main():
     ap.add_argument("--k", type=int, default=8, help="frozen-base samples per task for the difficulty estimate")
     ap.add_argument("--keep-hi", type=float, default=0.75, help="drop tasks the base already scores above this (too easy/fast)")
     ap.add_argument("--learn-hi", type=float, default=1.01, help="drop tasks whose base correct_rate exceeds this (default off)")
+    ap.add_argument("--min-ceiling", type=float, default=1.3, help="drop tasks with < this roofline headroom over torch.compile (un-improvable = benchmark ceiling, not model)")
     args = ap.parse_args()
 
     bank = json.load(open(args.inp))
@@ -49,12 +50,16 @@ def main():
         src = t["source"]
         outs = W.generate(tok, mdl, src, args.k, adapter=False)
         codes = [c for c in (AB.extract_modelnew(o) for o in outs) if c]
-        res = W._grade_isolated(src, codes)                          # [ok, sp_eager, sp_compiled] per candidate
+        res = W._grade_isolated(src, codes)                          # [ok, sp_eager, sp_compiled, ceiling] per candidate
         n_correct = sum(1 for g in res if g and g[0])
         best = max([LK._score(g[0], g[1]) for g in res] + [0.0])     # difficulty on the eager ratio
+        ceil = max([(list(g) + [0, 0, 0, 1.0])[3] for g in res] + [1.0])  # per-task roofline headroom over compile
         cr = n_correct / max(1, args.k)
-        keep = (cr > 0.0) and (best <= args.keep_hi) and (cr <= args.learn_hi)
-        row = {"name": t["name"], "tier": t["tier"], "correct_rate": round(cr, 3), "best_score": round(best, 3), "keep": keep}
+        # ADMISSION: keep only tasks that are correct-but-slow AND have real headroom over torch.compile
+        # (ceiling >= min_ceiling). Excludes un-improvable tasks whose ceiling is the BENCHMARK, not the model.
+        keep = (cr > 0.0) and (best <= args.keep_hi) and (cr <= args.learn_hi) and (ceil >= args.min_ceiling)
+        row = {"name": t["name"], "tier": t["tier"], "correct_rate": round(cr, 3), "best_score": round(best, 3),
+               "ceiling": round(ceil, 2), "keep": keep}
         report.append(row)
         if keep:
             kept.append(t)

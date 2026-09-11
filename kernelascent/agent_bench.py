@@ -89,6 +89,40 @@ def extract_modelnew(text):
     return None
 
 
+_ROOF_PEAK = {"fp16": 312e12, "bf16": 312e12, "fp32": 19.5e12, "tf32": 156e12}
+_ROOF_BW = float(os.environ.get("KA_PEAK_HBM_GBPS", "1555")) * 1e9
+
+
+def _roofline_ceiling(ref, x, dt, tbase_compiled):
+    """Achievable speedup over the compiled baseline = tbase_compiled / roofline_time. Roofline_time =
+    max(FLOPs/peak, bytes/bandwidth). Clamped to [1.1, 50]: every task gets a REACHABLE 1.0 (capturing the
+    physically-available headroom), so the score ceiling is the model's skill, not a fixed 1.5x anchor."""
+    try:
+        key = {torch.float16: "fp16", torch.bfloat16: "bf16", torch.float32: "fp32"}.get(dt, "fp16")
+        flops = 0
+        try:
+            from torch.utils.flop_counter import FlopCounterMode
+            fc = FlopCounterMode(display=False)
+            with fc, torch.no_grad():
+                ref(x)
+            flops = fc.get_total_flops()
+        except Exception:
+            flops = 0
+        params = list(ref.parameters()) if hasattr(ref, "parameters") else []
+        with torch.no_grad():
+            out = ref(x)
+        seen = set(); bts = 0
+        for t in [x] + params + [out]:
+            if torch.is_tensor(t) and id(t) not in seen:
+                seen.add(id(t)); bts += t.numel() * t.element_size()
+        roof_s = max((flops / _ROOF_PEAK[key]) if flops else 0.0, (bts / _ROOF_BW) if bts else 0.0)
+        if roof_s <= 0:
+            return 3.0
+        return max(1.1, min(50.0, tbase_compiled / roof_s))
+    except Exception:
+        return 3.0
+
+
 def build_ref_c(task_source, n_inputs=3, compiled_cache=None):
     """Rigorous reference bundle. Builds the fp32 gold and the dtype reference on n_inputs FRESH inputs,
     and computes BOTH an eager baseline time and a torch.compile baseline time. The compiled time is cached
@@ -115,9 +149,10 @@ def build_ref_c(task_source, n_inputs=3, compiled_cache=None):
     tbase_compiled = None
     key = hashlib.sha1(task_source.encode()).hexdigest()
     cpath = _os.path.join(compiled_cache, key + ".json") if compiled_cache else None
+    ceiling = None
     if cpath and _os.path.exists(cpath):
         try:
-            tbase_compiled = _json.load(open(cpath)).get("tc")
+            _c = _json.load(open(cpath)); tbase_compiled = _c.get("tc"); ceiling = _c.get("ceil")
         except Exception:
             tbase_compiled = None
     if tbase_compiled is None:
@@ -129,12 +164,14 @@ def build_ref_c(task_source, n_inputs=3, compiled_cache=None):
             tbase_compiled = time_fn(lambda z: cref(z), (xs[0],))
         except Exception:
             tbase_compiled = tbase_eager      # fall back to eager if compile unavailable
+    if ceiling is None:
+        ceiling = _roofline_ceiling(ref, xs[0], DT, tbase_compiled)
         if cpath:
             try:
-                _os.makedirs(compiled_cache, exist_ok=True); _json.dump({"tc": tbase_compiled}, open(cpath, "w"))
+                _os.makedirs(compiled_cache, exist_ok=True); _json.dump({"tc": tbase_compiled, "ceil": ceiling}, open(cpath, "w"))
             except Exception:
                 pass
-    return ref, xs, golds, bound, tbase_eager, tbase_compiled
+    return ref, xs, golds, bound, tbase_eager, tbase_compiled, ceiling
 
 
 def grade_c(task_source, llm_code, ref, xs, golds, bound, tbase_eager, tbase_compiled):
