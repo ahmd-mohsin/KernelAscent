@@ -3,6 +3,25 @@
 Goal: convert strong prototype → award-level benchmark. Budget + 72-GPU fleet available.
 Status legend: [ ] todo · [~] in progress · [x] done
 
+## ★ PAPER BLOCKERS (must clear before submission) ★
+P1. DEFINITIVE RE-RUN — [~] multi-seed (>=3), headroom-normalized score, on the filtered SOTA banks, all tasks
+    T1/T2/T4 + T3. One sweep closes #0 (ceiling-free numbers), #2 (diversity/forgetting figure), #3 (CIs), #6 (cost).
+    Gated on the roofline-gated filters finishing (large now sharded 8x on node A; small/mid on node C).
+P2. LARGE TIER END-TO-END — [ ] StarCoder2-15B + Fable->14B died in C0. Diagnose (OOM during long-kernel gen /
+    compile-baseline grade timeout / 24h wall). Fix: KA_MAXMEM cap + expandable_segments + bf16 frozen-eval +
+    generous grade timeout + shard across GPUs. The size ladder must run 0.5B->14B without gaps.
+P3. STATISTICS — [ ] >=3 seeds per headline cell; bootstrap 95% CIs (ci_analysis.py ready); report per pre-reg rule.
+P4. MECHANISTIC FIGURE — [ ] populate diversity_self + retention (instrumented) via the re-run; plot diversity
+    collapse vs compounding and forgetting vs overfit. Turns H1 from hypothesis into a result.
+P5. FRONTIER MODELS — [ ] BLOCKED on keys: GPT-5 (OpenAI), Gemini (Google), Claude-Opus (Anthropic/Bedrock),
+    Kimi (Moonshot). Wire non-Bedrock adapter behind the researcher/model callable. Bedrock-side: add DeepSeek-R1
+    (parse tweak) + Nova-Premier now.
+P6. TASK-QUALITY AUDIT — [ ] human-audit a sample of the 1420 curated tasks (diversity, correctness, non-degenerate)
+    + contamination/decontamination check vs known KernelBench-style corpora.
+P7. PAPER DRAFT — [ ] write around the pre-registration; anchors = recursion-vs-sampling result + mechanistic figure;
+    flagship = closed->open harness RSI; framing = RSI early-warning eval.
+
+
 ## 0. NO BENCHMARK CEILING (core invariant) — [~]
 Every measured number must be the MODEL's ceiling, never the benchmark's.
 - [x] Headroom-normalized speed score: `_score(ok, sp, ceiling)` credits fraction of the PER-TASK roofline-achievable speedup captured (correct-at-parity=0.5, correct-at-hardware-limit=1.0) whether the limit is 1.1x or 40x. Replaces the fixed-1.5x anchor that capped compute-bound tasks below 1.0 and let memory-bound tasks saturate at a trivial 1.5x. Ceiling computed in build_ref_c (FLOPs+bytes roofline), cached, threaded through grade_batch -> eval_tasks / baselines / combined.
