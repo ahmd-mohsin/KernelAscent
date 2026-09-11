@@ -269,15 +269,16 @@ def _manifest(args, train, held):
 def run(args):
     random.seed(args.seed); torch.manual_seed(args.seed)
     sg = [int(x) for x in str(args.self_gpu).split(",")]
-    cg = [int(x) for x in str(args.ctrl_gpu).split(",")]
+    cg = [int(x) for x in str(args.ctrl_gpu).split(",")] if args.ctrl_gpu else None
     fg = [int(x) for x in str(args.fresh_gpu).split(",")] if args.fresh_gpu else None
     tok, mdl = build(args.model, sg)                        # SELF: producer = improving model, learner = itself
-    tok2, ctrl = build(args.model, cg)                      # ROUND0-REPLAY control: retrains on round-0 data only
+    tok2, ctrl = (build(args.model, cg) if cg else (None, None))  # ROUND0-REPLAY control (skipped if --ctrl-gpu empty)
     tok3, fr = (build(args.model, fg) if fg else (None, None))  # FRESH-FROZEN: producer = frozen base, fresh each round
     names = list(LK.TASKS); random.Random(1).shuffle(names)  # split seed fixed so train/held is stable across arms
     train, held = names[:args.n_train], names[args.n_train:]
     print("WEIGHT-RSI %s seed=%d train=%d held=%d k=%d arms=%s" %
-          (args.model, args.seed, len(train), len(held), args.k, "self,fresh,round0" if fg else "self,round0"), flush=True)
+          (args.model, args.seed, len(train), len(held), args.k,
+           ",".join(["self"] + (["fresh"] if fg else []) + (["round0"] if cg else []))), flush=True)
     os.makedirs(args.outdir, exist_ok=True)
     json.dump(_manifest(args, train, held), open(os.path.join(args.outdir, "manifest.json"), "w"), indent=2)
     C0, _, _, c0ci, st0 = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base held-out
@@ -298,25 +299,29 @@ def run(args):
         if ex0 is None:
             ex0 = pairs                                                                # freeze round-0 self data
         loss = _try_sft(tok, mdl, pairs)                                               # SELF learns on its own fresh data
-        _try_sft(tok2, ctrl, ex0)                                                      # ROUND0 control re-trains on ex0
+        if ctrl is not None:
+            _try_sft(tok2, ctrl, ex0)                                                  # ROUND0 control re-trains on ex0
         Cf = fci = None; stf = {"correct_rate": None, "compiled_sp": None}
         if fr is not None:
             _, frpairs, _, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=False)   # FROZEN base producer, fresh each round
             _try_sft(tok3, fr, frpairs)                                                # FRESH learner trains on frozen-base data
         Cs, _, _, sci, sts = eval_tasks(tok, mdl, held, args.k, adapter=True)
-        Cc, _, _, cci, _ = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
+        Cc = cci = None
+        if ctrl is not None:
+            Cc, _, _, cci, _ = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
         if fr is not None:
             Cf, _, _, fci, stf = eval_tasks(tok3, fr, held, args.k, adapter=True)
         row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
-               "C_self": round(Cs, 3), "C_self_ci": round(sci, 3), "C_ctrl": round(Cc, 3), "C_ctrl_ci": round(cci, 3),
+               "C_self": round(Cs, 3), "C_self_ci": round(sci, 3),
+               "C_ctrl": (round(Cc, 3) if Cc is not None else None), "C_ctrl_ci": (round(cci, 3) if cci is not None else None),
                "C_fresh": (round(Cf, 3) if Cf is not None else None), "C_fresh_ci": (round(fci, 3) if Cf is not None else None),
                "correct_rate_self": sts["correct_rate"], "compiled_sp_self": sts["compiled_sp"],
-               "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": round(Cs - Cc, 3),
+               "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": (round(Cs - Cc, 3) if Cc is not None else None),
                "delta_self_minus_fresh": (round(Cs - Cf, 3) if Cf is not None else None)}
         hist.append(row)
-        print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%.3f | dSelf=%+.3f self-fresh=%s self-ctrl=%+.3f corr=%.2f csp=%.2f (%.0fs)" %
-              (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), Cc, Cs - C0,
-               ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), Cs - Cc, sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
+        print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%s | dSelf=%+.3f self-fresh=%s self-ctrl=%s corr=%.2f csp=%.2f (%.0fs)" %
+              (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), ("%.3f" % Cc if Cc is not None else "-"), Cs - C0,
+               ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), ("%+.3f" % (Cs - Cc) if Cc is not None else "-"), sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
         json.dump({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
                    "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"], "history": hist},
                   open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)

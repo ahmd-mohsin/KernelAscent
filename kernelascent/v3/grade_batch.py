@@ -5,12 +5,14 @@ Input forms (argv[1] = json path):
   single : {"task": src, "codes": [..]}                   -> RESULT<json [[ok, sp_eager, sp_compiled], ...]>
   batch  : {"batch": [{"task": src, "codes": [..]}, ...]} -> RESULT<json [[[ok, se, sc], ...], ...]>
 """
-import sys, json
-sys.path.insert(0, "/tmp/instance_storage"); sys.path.insert(0, "/tmp/instance_storage/kernelascent")
+import sys, json, os
+_ROOT = os.environ.get("KA_ROOT", "/tmp/instance_storage")
+sys.path.insert(0, _ROOT); sys.path.insert(0, os.path.join(_ROOT, "kernelascent"))
 import torch  # noqa
 from kernelascent import agent_bench as AB
 
-CACHE = "/tmp/instance_storage/ka_data/compiled_cache"
+CACHE = os.environ.get("KA_COMPILED_CACHE") or os.path.join(
+    os.environ.get("KA_DATA_DIR", "/tmp/instance_storage/ka_data"), "compiled_cache")
 
 
 def grade_one(src, codes):

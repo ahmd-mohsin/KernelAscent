@@ -8,7 +8,8 @@ Reports pass@k (any correct) and fast_p over best-of-k speedups vs the eager bas
 import argparse, re, time, statistics, math, json, os, sys, uuid, importlib.util, torch
 import gen_source_tasks
 
-CAND_DIR = "/tmp/instance_storage/ka_data/cand_modules"
+CAND_DIR = os.environ.get("KA_CAND_DIR") or os.path.join(
+    os.environ.get("KA_DATA_DIR", "/tmp/instance_storage/ka_data"), "cand_modules")
 os.makedirs(CAND_DIR, exist_ok=True)
 
 
