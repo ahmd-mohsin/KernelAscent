@@ -1,0 +1,52 @@
+{
+  "trainee": "infly/OpenCoder-1.5B-Instruct",
+  "researcher": "us.anthropic.claude-fable-5-1",
+  "C0": 0.1472920609007258,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.411,
+      "C_frozen": 0.326,
+      "delta_improved_minus_frozen": 0.085,
+      "n_admitted": 6,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.384,
+      "C_frozen": 0.471,
+      "delta_improved_minus_frozen": -0.087,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Write a correct, self-contained kernel, then optimize for speed. Steps: (1) first produce a fused torch implementation a"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.447,
+      "C_frozen": 0.504,
+      "delta_improved_minus_frozen": -0.058,
+      "n_admitted": 3,
+      "min_sp": 1.0,
+      "strategy": "Goal: never ship anything slower than eager, and win by fusion, not by rewriting compute that cuBLAS/cuDNN already does "
+    },
+    {
+      "round": 3,
+      "C_improved": 0.147,
+      "C_frozen": 0.504,
+      "delta_improved_minus_frozen": -0.357,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Goal: never ship anything slower than eager (avg_sp=0.79 means we are currently shipping regressions \u2014 the gate must be "
+    },
+    {
+      "round": 4,
+      "C_improved": 0.235,
+      "C_frozen": 0.5,
+      "delta_improved_minus_frozen": -0.265,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Reality check: avg_sp went 0.79 -> 0.50 while the stated rule was 'never ship slower than eager'. The gate is not being "
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "trainee": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "researcher": "us.anthropic.claude-fable-5-1",
+  "C0": 0.23498604878499443,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.475,
+      "C_frozen": 0.473,
+      "delta_improved_minus_frozen": 0.003,
+      "n_admitted": 24,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.473,
+      "C_frozen": 0.503,
+      "delta_improved_minus_frozen": -0.03,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Write a correct, self-contained kernel, then optimize for measured speedup over the eager PyTorch baseline. Steps: (1) P"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.475,
+      "C_frozen": 0.509,
+      "delta_improved_minus_frozen": -0.033,
+      "n_admitted": 4,
+      "min_sp": 1.0,
+      "strategy": "Goal: never ship anything slower than eager; only claim speedup that survives measurement. Procedure: (1) Run the refere"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.477,
+      "C_frozen": 0.505,
+      "delta_improved_minus_frozen": -0.029,
+      "n_admitted": 2,
+      "min_sp": 1.0,
+      "strategy": "Goal: never ship anything slower than eager; a 0.73 avg_sp with a 1.0 floor means candidates are being shipped without a"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.473,
+      "C_frozen": 0.504,
+      "delta_improved_minus_frozen": -0.031,
+      "n_admitted": 3,
+      "min_sp": 1.0,
+      "strategy": "Root cause of avg_sp=0.67 with a 1.0 floor: candidates are shipped on belief, not measurement. Fix: the reference module"
+    }
+  ]
+}

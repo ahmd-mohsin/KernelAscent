@@ -1,32 +1,41 @@
 {
-  "updated": "2026-09-10",
-  "metric": "speed vs torch.compile, size-matched bank",
+  "updated": "2026-09-11",
+  "metric": "speed vs torch.compile, size-matched bank, self vs fresh-frozen producer",
   "models": [
     {
-      "model": "DeepSeek-Coder-1.3B",
+      "model": "deepseek-coder-1.3b-instruct",
       "tier": "small",
       "rounds": 5,
-      "C0": 0.008,
-      "C_self": 0.272,
-      "self_minus_fresh": 0.255,
-      "verdict": "compounds"
-    },
-    {
-      "model": "OpenCoder-1.5B",
-      "tier": "small",
-      "rounds": 5,
-      "C0": 0.047,
-      "C_self": 0.272,
-      "self_minus_fresh": 0.022,
+      "C0": 0.005,
+      "C_self": 0.106,
+      "self_minus_fresh": 0.095,
       "verdict": "gains"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "rounds": 5,
-      "C0": 0.056,
-      "C_self": 0.089,
-      "self_minus_fresh": 0.086,
+      "C0": 0.064,
+      "C_self": 0.237,
+      "self_minus_fresh": 0.085,
+      "verdict": "gains"
+    },
+    {
+      "model": "OpenCoder-1.5B",
+      "tier": "small",
+      "rounds": 5,
+      "C0": 0.096,
+      "C_self": 0.256,
+      "self_minus_fresh": 0.02,
+      "verdict": "gains"
+    },
+    {
+      "model": "starcoder2-3b",
+      "tier": "small",
+      "rounds": 5,
+      "C0": 0,
+      "C_self": 0.008,
+      "self_minus_fresh": 0.008,
       "verdict": "flat"
     }
   ]

@@ -1,0 +1,25 @@
+{
+  "trainee": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "researcher": "us.anthropic.claude-fable-5-1",
+  "C0": 0.08326745002696108,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.101,
+      "C_frozen": 0.117,
+      "delta_improved_minus_frozen": -0.016,
+      "n_admitted": 9,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.104,
+      "C_frozen": 0.064,
+      "delta_improved_minus_frozen": 0.041,
+      "n_admitted": 1,
+      "min_sp": 1.0,
+      "strategy": "Write a correct, self-contained kernel, then make it faster than the reference. Workflow: (1) Verify correctness first a"
+    }
+  ]
+}
