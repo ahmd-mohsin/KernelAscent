@@ -1,0 +1,1432 @@
+{
+  "updated": "2026-09-11",
+  "note": "A100 roofline grounding. ref_pct_of_peak = how close the fp32 reference runs to the hardware roofline; headroom_x = achievable speedup ceiling (roofline/ref). Scores are normalized by this per-task ceiling so 1.0 = capturing the physically-available speedup, not a fixed 1.5x.",
+  "summary": [
+    {
+      "tier": "small",
+      "n": 37,
+      "median_ref_pct_of_peak": 54.2,
+      "median_headroom_x": 1.8,
+      "compute_bound": 30,
+      "memory_bound": 7
+    },
+    {
+      "tier": "mid",
+      "n": 68,
+      "median_ref_pct_of_peak": 55.2,
+      "median_headroom_x": 1.8,
+      "compute_bound": 57,
+      "memory_bound": 11
+    },
+    {
+      "tier": "large",
+      "n": 70,
+      "median_ref_pct_of_peak": 55.3,
+      "median_headroom_x": 1.8,
+      "compute_bound": 58,
+      "memory_bound": 12
+    }
+  ],
+  "tasks": [
+    {
+      "tier": "small",
+      "name": "l1_1",
+      "bound": "memory",
+      "ref_pct_of_peak": 4.3,
+      "headroom_x": 23.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "l1_5",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.42,
+      "headroom_x": 41.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "l1_7",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.71,
+      "headroom_x": 36.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "l1_8",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.35,
+      "headroom_x": 42.6,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "l2_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.5,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "small",
+      "name": "l2_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.5,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "small",
+      "name": "l2_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.56,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "small",
+      "name": "l2_11",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.71,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "small",
+      "name": "l2_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.79,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "small",
+      "name": "l2_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.13,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "small",
+      "name": "l2_14",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.43,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "small",
+      "name": "l2_17",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.87,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "small",
+      "name": "l3_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 47.29,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 1890.28
+    },
+    {
+      "tier": "small",
+      "name": "l3_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 10.19,
+      "headroom_x": 9.8,
+      "arithmetic_intensity": 1024.0
+    },
+    {
+      "tier": "small",
+      "name": "l3_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.55,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "small",
+      "name": "l3_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 48.22,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 2136.93
+    },
+    {
+      "tier": "small",
+      "name": "l3_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 4.72,
+      "headroom_x": 21.2,
+      "arithmetic_intensity": 3640.49
+    },
+    {
+      "tier": "small",
+      "name": "l3_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 27.25,
+      "headroom_x": 3.7,
+      "arithmetic_intensity": 4411.08
+    },
+    {
+      "tier": "small",
+      "name": "l3_17",
+      "bound": "compute",
+      "ref_pct_of_peak": 5.65,
+      "headroom_x": 17.7,
+      "arithmetic_intensity": 1024.0
+    },
+    {
+      "tier": "small",
+      "name": "l3_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.52,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "small",
+      "name": "l3_20",
+      "bound": "compute",
+      "ref_pct_of_peak": 48.17,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 2136.93
+    },
+    {
+      "tier": "small",
+      "name": "l3_22",
+      "bound": "memory",
+      "ref_pct_of_peak": 3.56,
+      "headroom_x": 28.1,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "l3_24",
+      "bound": "memory",
+      "ref_pct_of_peak": 16.41,
+      "headroom_x": 6.1,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "small",
+      "name": "l3_26",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.73,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.16
+    },
+    {
+      "tier": "small",
+      "name": "l3_27",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.97,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 5475.48
+    },
+    {
+      "tier": "small",
+      "name": "l3_29",
+      "bound": "compute",
+      "ref_pct_of_peak": 3.94,
+      "headroom_x": 25.4,
+      "arithmetic_intensity": 4915.2
+    },
+    {
+      "tier": "small",
+      "name": "l3_30",
+      "bound": "memory",
+      "ref_pct_of_peak": 8.52,
+      "headroom_x": 11.7,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "small",
+      "name": "ultra_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.28,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "small",
+      "name": "ultra_6",
+      "bound": "compute",
+      "ref_pct_of_peak": 60.43,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "small",
+      "name": "ultra_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.24,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "small",
+      "name": "ultra_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 7.64,
+      "headroom_x": 13.1,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "small",
+      "name": "ultra_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.22,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "small",
+      "name": "ultra_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 61.19,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "small",
+      "name": "ultra_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 50.97,
+      "headroom_x": 2.0,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "small",
+      "name": "ultra_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 60.94,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "small",
+      "name": "ultra_28",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.66,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "small",
+      "name": "ultra_30",
+      "bound": "compute",
+      "ref_pct_of_peak": 68.68,
+      "headroom_x": 1.5,
+      "arithmetic_intensity": 2984.66
+    },
+    {
+      "tier": "mid",
+      "name": "l1_2",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.28,
+      "headroom_x": 43.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l1_3",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.71,
+      "headroom_x": 36.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l1_5",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.42,
+      "headroom_x": 41.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l1_6",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.88,
+      "headroom_x": 34.7,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l1_8",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.35,
+      "headroom_x": 42.6,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l2_1",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.28,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.22,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.82,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.21,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_5",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.06,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_6",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.1,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_7",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.23,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.03,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.88,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.27,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_11",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.19,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.28,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.85,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_14",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.28,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.89,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_16",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.29,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l2_17",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.89,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "mid",
+      "name": "l2_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.13,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "mid",
+      "name": "l3_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.14,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.16
+    },
+    {
+      "tier": "mid",
+      "name": "l3_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.24,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 3281.89
+    },
+    {
+      "tier": "mid",
+      "name": "l3_6",
+      "bound": "memory",
+      "ref_pct_of_peak": 23.63,
+      "headroom_x": 4.2,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l3_8",
+      "bound": "memory",
+      "ref_pct_of_peak": 25.49,
+      "headroom_x": 3.9,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "mid",
+      "name": "l3_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 10.23,
+      "headroom_x": 9.8,
+      "arithmetic_intensity": 1024.0
+    },
+    {
+      "tier": "mid",
+      "name": "l3_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.96,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "mid",
+      "name": "l3_11",
+      "bound": "compute",
+      "ref_pct_of_peak": 71.67,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 5475.48
+    },
+    {
+      "tier": "mid",
+      "name": "l3_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 4.73,
+      "headroom_x": 21.1,
+      "arithmetic_intensity": 3640.49
+    },
+    {
+      "tier": "mid",
+      "name": "l3_14",
+      "bound": "memory",
+      "ref_pct_of_peak": 23.58,
+      "headroom_x": 4.2,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l3_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 27.45,
+      "headroom_x": 3.6,
+      "arithmetic_intensity": 4411.08
+    },
+    {
+      "tier": "mid",
+      "name": "l3_16",
+      "bound": "memory",
+      "ref_pct_of_peak": 25.49,
+      "headroom_x": 3.9,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "mid",
+      "name": "l3_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.85,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "mid",
+      "name": "l3_19",
+      "bound": "compute",
+      "ref_pct_of_peak": 69.98,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 3281.89
+    },
+    {
+      "tier": "mid",
+      "name": "l3_20",
+      "bound": "compute",
+      "ref_pct_of_peak": 48.45,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 2136.93
+    },
+    {
+      "tier": "mid",
+      "name": "l3_21",
+      "bound": "compute",
+      "ref_pct_of_peak": 5.33,
+      "headroom_x": 18.8,
+      "arithmetic_intensity": 3640.89
+    },
+    {
+      "tier": "mid",
+      "name": "l3_22",
+      "bound": "memory",
+      "ref_pct_of_peak": 3.56,
+      "headroom_x": 28.1,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "mid",
+      "name": "l3_24",
+      "bound": "memory",
+      "ref_pct_of_peak": 16.43,
+      "headroom_x": 6.1,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "mid",
+      "name": "l3_26",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.09,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.16
+    },
+    {
+      "tier": "mid",
+      "name": "l3_27",
+      "bound": "compute",
+      "ref_pct_of_peak": 71.66,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 5475.48
+    },
+    {
+      "tier": "mid",
+      "name": "l3_28",
+      "bound": "compute",
+      "ref_pct_of_peak": 42.9,
+      "headroom_x": 2.3,
+      "arithmetic_intensity": 1795.02
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_1",
+      "bound": "compute",
+      "ref_pct_of_peak": 9.08,
+      "headroom_x": 11.0,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.2,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.54,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.89,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_5",
+      "bound": "compute",
+      "ref_pct_of_peak": 28.05,
+      "headroom_x": 3.6,
+      "arithmetic_intensity": 3086.75
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_6",
+      "bound": "compute",
+      "ref_pct_of_peak": 60.84,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_7",
+      "bound": "compute",
+      "ref_pct_of_peak": 52.2,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.61,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 7.64,
+      "headroom_x": 13.1,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.48,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 61.22,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 52.02,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_14",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.21,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.77,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_16",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.86,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 61.73,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_19",
+      "bound": "compute",
+      "ref_pct_of_peak": 52.09,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_20",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.86,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_21",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.61,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_22",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.85,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_24",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.41,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 2984.86
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_26",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.91,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_27",
+      "bound": "compute",
+      "ref_pct_of_peak": 7.3,
+      "headroom_x": 13.7,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_28",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.87,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "mid",
+      "name": "ultra_30",
+      "bound": "compute",
+      "ref_pct_of_peak": 69.2,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 2984.66
+    },
+    {
+      "tier": "large",
+      "name": "l1_1",
+      "bound": "memory",
+      "ref_pct_of_peak": 4.3,
+      "headroom_x": 23.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_2",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.28,
+      "headroom_x": 43.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_3",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.71,
+      "headroom_x": 36.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_5",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.42,
+      "headroom_x": 41.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_6",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.88,
+      "headroom_x": 34.7,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_7",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.71,
+      "headroom_x": 36.9,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l1_8",
+      "bound": "memory",
+      "ref_pct_of_peak": 2.35,
+      "headroom_x": 42.6,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l2_1",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.47,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.4,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.9,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.43,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_5",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.25,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_6",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.36,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_7",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.27,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.07,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_9",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.95,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.41,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_11",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.36,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.35,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.84,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_14",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.39,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.83,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_16",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.36,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l2_17",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.82,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1820.35
+    },
+    {
+      "tier": "large",
+      "name": "l2_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 55.34,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.24
+    },
+    {
+      "tier": "large",
+      "name": "l3_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.15,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.16
+    },
+    {
+      "tier": "large",
+      "name": "l3_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.19,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 3281.89
+    },
+    {
+      "tier": "large",
+      "name": "l3_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 47.73,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 1890.28
+    },
+    {
+      "tier": "large",
+      "name": "l3_6",
+      "bound": "memory",
+      "ref_pct_of_peak": 23.61,
+      "headroom_x": 4.2,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l3_7",
+      "bound": "compute",
+      "ref_pct_of_peak": 8.14,
+      "headroom_x": 12.3,
+      "arithmetic_intensity": 1638.4
+    },
+    {
+      "tier": "large",
+      "name": "l3_8",
+      "bound": "memory",
+      "ref_pct_of_peak": 25.44,
+      "headroom_x": 3.9,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "large",
+      "name": "l3_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.98,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "large",
+      "name": "l3_11",
+      "bound": "compute",
+      "ref_pct_of_peak": 71.58,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 5475.48
+    },
+    {
+      "tier": "large",
+      "name": "l3_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 48.64,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 2136.93
+    },
+    {
+      "tier": "large",
+      "name": "l3_14",
+      "bound": "memory",
+      "ref_pct_of_peak": 23.44,
+      "headroom_x": 4.3,
+      "arithmetic_intensity": 0.0
+    },
+    {
+      "tier": "large",
+      "name": "l3_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 27.44,
+      "headroom_x": 3.6,
+      "arithmetic_intensity": 4411.08
+    },
+    {
+      "tier": "large",
+      "name": "l3_16",
+      "bound": "memory",
+      "ref_pct_of_peak": 25.51,
+      "headroom_x": 3.9,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "large",
+      "name": "l3_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 57.83,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 1820.3
+    },
+    {
+      "tier": "large",
+      "name": "l3_19",
+      "bound": "compute",
+      "ref_pct_of_peak": 69.98,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 3281.89
+    },
+    {
+      "tier": "large",
+      "name": "l3_20",
+      "bound": "compute",
+      "ref_pct_of_peak": 48.54,
+      "headroom_x": 2.1,
+      "arithmetic_intensity": 2136.93
+    },
+    {
+      "tier": "large",
+      "name": "l3_21",
+      "bound": "compute",
+      "ref_pct_of_peak": 5.32,
+      "headroom_x": 18.8,
+      "arithmetic_intensity": 3640.89
+    },
+    {
+      "tier": "large",
+      "name": "l3_24",
+      "bound": "memory",
+      "ref_pct_of_peak": 16.46,
+      "headroom_x": 6.1,
+      "arithmetic_intensity": 59.8
+    },
+    {
+      "tier": "large",
+      "name": "l3_25",
+      "bound": "compute",
+      "ref_pct_of_peak": 6.41,
+      "headroom_x": 15.6,
+      "arithmetic_intensity": 1024.0
+    },
+    {
+      "tier": "large",
+      "name": "l3_26",
+      "bound": "compute",
+      "ref_pct_of_peak": 56.11,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 1638.16
+    },
+    {
+      "tier": "large",
+      "name": "l3_27",
+      "bound": "compute",
+      "ref_pct_of_peak": 71.6,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 5475.48
+    },
+    {
+      "tier": "large",
+      "name": "l3_28",
+      "bound": "compute",
+      "ref_pct_of_peak": 42.86,
+      "headroom_x": 2.3,
+      "arithmetic_intensity": 1795.02
+    },
+    {
+      "tier": "large",
+      "name": "ultra_1",
+      "bound": "compute",
+      "ref_pct_of_peak": 9.08,
+      "headroom_x": 11.0,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "large",
+      "name": "ultra_2",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.07,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "large",
+      "name": "ultra_3",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.57,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "large",
+      "name": "ultra_4",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.83,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "large",
+      "name": "ultra_5",
+      "bound": "compute",
+      "ref_pct_of_peak": 28.0,
+      "headroom_x": 3.6,
+      "arithmetic_intensity": 3086.75
+    },
+    {
+      "tier": "large",
+      "name": "ultra_6",
+      "bound": "compute",
+      "ref_pct_of_peak": 60.57,
+      "headroom_x": 1.7,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "large",
+      "name": "ultra_7",
+      "bound": "compute",
+      "ref_pct_of_peak": 52.07,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "large",
+      "name": "ultra_8",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.49,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "large",
+      "name": "ultra_10",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.54,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "large",
+      "name": "ultra_12",
+      "bound": "compute",
+      "ref_pct_of_peak": 61.59,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "large",
+      "name": "ultra_13",
+      "bound": "compute",
+      "ref_pct_of_peak": 51.77,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "large",
+      "name": "ultra_14",
+      "bound": "compute",
+      "ref_pct_of_peak": 53.11,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "large",
+      "name": "ultra_15",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.57,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "large",
+      "name": "ultra_16",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.75,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "large",
+      "name": "ultra_18",
+      "bound": "compute",
+      "ref_pct_of_peak": 61.69,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2984.76
+    },
+    {
+      "tier": "large",
+      "name": "ultra_19",
+      "bound": "compute",
+      "ref_pct_of_peak": 52.04,
+      "headroom_x": 1.9,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "large",
+      "name": "ultra_20",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.71,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "large",
+      "name": "ultra_21",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.59,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 4095.0
+    },
+    {
+      "tier": "large",
+      "name": "ultra_22",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.84,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "large",
+      "name": "ultra_24",
+      "bound": "compute",
+      "ref_pct_of_peak": 70.4,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 2984.86
+    },
+    {
+      "tier": "large",
+      "name": "ultra_25",
+      "bound": "compute",
+      "ref_pct_of_peak": 44.48,
+      "headroom_x": 2.2,
+      "arithmetic_intensity": 2456.88
+    },
+    {
+      "tier": "large",
+      "name": "ultra_26",
+      "bound": "compute",
+      "ref_pct_of_peak": 54.86,
+      "headroom_x": 1.8,
+      "arithmetic_intensity": 4158.89
+    },
+    {
+      "tier": "large",
+      "name": "ultra_28",
+      "bound": "compute",
+      "ref_pct_of_peak": 63.91,
+      "headroom_x": 1.6,
+      "arithmetic_intensity": 2730.22
+    },
+    {
+      "tier": "large",
+      "name": "ultra_30",
+      "bound": "compute",
+      "ref_pct_of_peak": 69.1,
+      "headroom_x": 1.4,
+      "arithmetic_intensity": 2984.66
+    }
+  ]
+}
