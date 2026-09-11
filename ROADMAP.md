@@ -19,11 +19,11 @@ Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL gene
 - [x] FORGETTING/retention logged per round.
 - [ ] Analysis script → figure: diversity collapse vs compounding; forgetting vs overfit.
 
-## 3. Rigor pass (non-negotiable) — [ ]
+## 3. Rigor pass (non-negotiable) — [~]
 - [ ] >=3-5 seeds per headline cell (weight-RSI + T4). Cross-seed already partial (seed0/1).
 - [ ] Bootstrap CIs + significance test on the primary metric.
-- [ ] Pre-register PRIMARY metric (proposal: T4 improved-vs-frozen-harness AUC over rounds; T2 self-vs-fresh-frozen final).
-- [ ] One-command Docker repro (`docker run ka --track {capability,rsi,procedure,combined}`).
+- [x] Pre-registration locked → docs/PREREGISTRATION.md (metrics, hypotheses H1-H3, admission, scoring, stats, controls).
+- [~] Docker image exists (docker/Dockerfile, entrypoint=kernelascent.evaluate); TODO: v3 dispatcher --track {capability,rsi,procedure,combined,baselines} -> v3 labs.
 
 ## 4. Safety framing (why the community must care) — [x]
 - [x] Position as EARLY-WARNING eval for recursive self-improvement (ties to eval-awareness / responsible scaling).
