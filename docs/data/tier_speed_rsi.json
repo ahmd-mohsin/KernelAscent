@@ -1,33 +1,33 @@
 {
-  "updated": "live",
-  "metric": "speed vs torch.compile; per-scale difficulty banks",
+  "updated": "2026-09-10",
+  "metric": "speed vs torch.compile, size-matched bank",
   "models": [
     {
       "model": "DeepSeek-Coder-1.3B",
       "tier": "small",
       "rounds": 5,
-      "C0": 0.00806861459743788,
+      "C0": 0.008,
       "C_self": 0.272,
-      "self_minus_fresh": 0.238,
+      "self_minus_fresh": 0.255,
       "verdict": "compounds"
-    },
-    {
-      "model": "Qwen2.5-Coder-1.5B",
-      "tier": "small",
-      "rounds": 5,
-      "C0": 0.055715164375865565,
-      "C_self": 0.089,
-      "self_minus_fresh": 0.05,
-      "verdict": "flat"
     },
     {
       "model": "OpenCoder-1.5B",
       "tier": "small",
       "rounds": 5,
-      "C0": 0.04692113054634176,
+      "C0": 0.047,
       "C_self": 0.272,
-      "self_minus_fresh": 0.011,
+      "self_minus_fresh": 0.022,
       "verdict": "gains"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "rounds": 5,
+      "C0": 0.056,
+      "C_self": 0.089,
+      "self_minus_fresh": 0.086,
+      "verdict": "flat"
     }
   ]
 }
