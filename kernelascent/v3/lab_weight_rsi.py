@@ -25,6 +25,22 @@ def _prompt(task_src):
     return LK.OPT.format(arch="", src=task_src)
 
 
+def _diversity(codes):
+    """Self-generated-data diversity (roadmap #2). Returns (n_unique, mean_pairwise_distinctness) where
+    distinctness = 1 - difflib similarity ratio, averaged over pairs (0=identical clones, 1=all different).
+    Diversity collapse of a model's own correct kernels is the proposed mechanism for large-model overfit."""
+    import difflib
+    uniq = list({c.strip() for c in codes if c and c.strip()})
+    if len(uniq) < 2:
+        return len(uniq), 0.0
+    sample = uniq[:12]                                          # cap pairs for speed
+    ds = []
+    for i in range(len(sample)):
+        for j in range(i + 1, len(sample)):
+            ds.append(1.0 - difflib.SequenceMatcher(None, sample[i], sample[j]).ratio())
+    return len(uniq), round(sum(ds) / len(ds), 3) if ds else 0.0
+
+
 def build(model_id, gpus=(0,)):
     """Load one arm sharded across the given GPU indices (fp32 7B needs >40GB during SFT, so 2 GPUs/arm).
     max_memory forces accelerate to place layers ONLY on `gpus` (others capped at 0), keeping the two arms
@@ -41,7 +57,8 @@ def build(model_id, gpus=(0,)):
         mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map=dm, trust_remote_code=True)
     else:
         n = torch.cuda.device_count()
-        mm = {i: ("40GiB" if i in gpus else "0GiB") for i in range(n)}
+        cap = os.environ.get("KA_MAXMEM_GIB", "20")            # per-GPU cap FORCES even sharding across the arm's GPUs
+        mm = {i: ("%sGiB" % cap if i in gpus else "0GiB") for i in range(n)}
         mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map="auto", max_memory=mm, trust_remote_code=True)
     try:                                                   # standard attention-proj names (Qwen/Llama/Mistral/Gemma/DeepSeek/StarCoder2)
         lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
@@ -138,9 +155,7 @@ def _grade_isolated(src, codes):
         return []
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     json.dump({"task": src, "codes": codes}, open(path, "w"))
-    env = dict(os.environ, PYTHONPATH="/tmp/instance_storage:/tmp/instance_storage/kernelascent",
-               HF_HOME="/tmp/instance_storage/ka_data/hf",
-               CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # grade on a spare GPU (arms hold 0,1)
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME; grade on a spare GPU
     try:
         r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
                            capture_output=True, text=True, timeout=900, env=env)   # compile baseline is slow
@@ -164,9 +179,7 @@ def _grade_isolated_batch(items, chunk=12):
         payload = {"batch": [{"task": s, "codes": c} for s, c in grp]}
         fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
         json.dump(payload, open(path, "w"))
-        env = dict(os.environ, PYTHONPATH="/tmp/instance_storage:/tmp/instance_storage/kernelascent",
-                   HF_HOME="/tmp/instance_storage/ka_data/hf",
-                   CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))
+        env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME
         res = None
         try:
             r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
@@ -292,6 +305,8 @@ def run(args):
             import gc; gc.collect(); torch.cuda.empty_cache()
             print("  [oom] skipped sft this round", flush=True); return float("nan")
 
+    n_gpus = len(sg) + (len(cg) if cg else 0) + (len(fg) if fg else 0)   # GPUs this run holds (arms)
+    cum_gpu_s = 0.0; round0_solved = None
     hist = []; ex0 = None
     for r in range(args.rounds):
         t0 = time.time()
@@ -305,19 +320,31 @@ def run(args):
         if fr is not None:
             _, frpairs, _, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=False)   # FROZEN base producer, fresh each round
             _try_sft(tok3, fr, frpairs)                                                # FRESH learner trains on frozen-base data
-        Cs, _, _, sci, sts = eval_tasks(tok, mdl, held, args.k, adapter=True)
+        Cs, _, held_scores, sci, sts = eval_tasks(tok, mdl, held, args.k, adapter=True)
+        # forgetting/retention (roadmap #2): fraction of round-0-solved held tasks still solved this round
+        solved = [1 if s > 0 else 0 for s in held_scores]
+        if round0_solved is None:
+            round0_solved = solved[:]
+        r0 = [i for i, v in enumerate(round0_solved) if v]
+        retention = round(sum(solved[i] for i in r0) / len(r0), 3) if r0 else None
+        n_uniq, diversity = _diversity([c for (_, c) in pairs])       # diversity of THIS round's self data
         Cc = cci = None
         if ctrl is not None:
             Cc, _, _, cci, _ = eval_tasks(tok2, ctrl, held, args.k, adapter=True)
         if fr is not None:
             Cf, _, _, fci, stf = eval_tasks(tok3, fr, held, args.k, adapter=True)
+        dt = time.time() - t0
+        cum_gpu_s += dt * max(n_gpus, 1)                              # cost (roadmap #6): GPU-seconds this run
+        n_gens = args.k * len(train) * (1 + (1 if fr is not None else 0) + (1 if ctrl is not None else 0))
         row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
                "C_self": round(Cs, 3), "C_self_ci": round(sci, 3),
                "C_ctrl": (round(Cc, 3) if Cc is not None else None), "C_ctrl_ci": (round(cci, 3) if cci is not None else None),
                "C_fresh": (round(Cf, 3) if Cf is not None else None), "C_fresh_ci": (round(fci, 3) if Cf is not None else None),
                "correct_rate_self": sts["correct_rate"], "compiled_sp_self": sts["compiled_sp"],
                "delta_self": round(Cs - C0, 3), "delta_self_minus_ctrl": (round(Cs - Cc, 3) if Cc is not None else None),
-               "delta_self_minus_fresh": (round(Cs - Cf, 3) if Cf is not None else None)}
+               "delta_self_minus_fresh": (round(Cs - Cf, 3) if Cf is not None else None),
+               "n_uniq_self": n_uniq, "diversity_self": diversity, "retention": retention,
+               "round_sec": round(dt, 1), "cum_gpu_hours": round(cum_gpu_s / 3600, 3), "n_gens": n_gens}
         hist.append(row)
         print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%s | dSelf=%+.3f self-fresh=%s self-ctrl=%s corr=%.2f csp=%.2f (%.0fs)" %
               (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), ("%.3f" % Cc if Cc is not None else "-"), Cs - C0,
@@ -332,6 +359,12 @@ def run(args):
     smf = [h["delta_self_minus_fresh"] for h in hist if h["delta_self_minus_fresh"] is not None]
     print("  producer-causal RSI (self beats fresh-frozen)?",
           "YES" if len(smf) >= 3 and statistics.mean(smf[-2:]) > 0.05 else "not resolved")
+    print("  diversity_self (1=all distinct):", [h["diversity_self"] for h in hist])
+    print("  retention (round-0 solved still solved):", [h["retention"] for h in hist])
+    gpu_h = hist[-1]["cum_gpu_hours"] if hist else 0.0
+    gain = (hist[-1]["C_self"] - C0) if hist else 0.0
+    print("  cost: %.3f GPU-hours total | final gain vs C0 = %+.3f | GPU-hours per +0.01 C = %s"
+          % (gpu_h, gain, ("%.3f" % (gpu_h / (gain * 100)) if gain > 0 else "n/a")))
 
 
 def main():

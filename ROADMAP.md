@@ -9,9 +9,9 @@ Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL gene
 - [ ] Run per tier on the same held splits + seeds as the RSI runs.
 - [ ] Board column: RSI C vs best-of-k vs self-refine vs retrieval at matched samples.
 
-## 2. Mechanistic finding (small-compounds / large-overfits) — [ ]
-- [ ] Instrument weight-RSI to log self-generated-data DIVERSITY per round (distinct-n / pairwise code edit-distance / #unique correct kernels).
-- [ ] Log FORGETTING: re-eval round-0 held tasks each round (retention curve).
+## 2. Mechanistic finding (small-compounds / large-overfits) — [~]
+- [x] Instrument weight-RSI: per-round self-data DIVERSITY (n_uniq + mean pairwise edit-distinctness) + RETENTION (round-0-solved still solved) logged in weight_rsi.json. Re-run to populate.
+- [x] FORGETTING/retention logged per round.
 - [ ] Analysis script → figure: diversity collapse vs compounding; forgetting vs overfit.
 
 ## 3. Rigor pass (non-negotiable) — [ ]
@@ -24,12 +24,12 @@ Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL gene
 - [x] Position as EARLY-WARNING eval for recursive self-improvement (ties to eval-awareness / responsible scaling).
 - [x] Doc: threat-model + what a rising self-vs-fresh / improved-vs-frozen slope would signal. → docs/SAFETY.md
 
-## 5. Absolute grounding — [ ]
+## 5. Absolute grounding — [~]
 - [ ] Expert-written CUDA/Triton reference per task (hand or Fable-max best-effort, human-audited).
-- [ ] Roofline / theoretical-peak ceiling per task; report speedup as % of achievable, not just vs torch.compile.
+- [x] lab_roofline.py: FLOP-counted roofline ceiling per task + ref %-of-peak; speedup expressible as % of A100 peak. Run over banks.
 
-## 6. Cost accounting — [ ]
-- [ ] Log GPU-hours, tokens, $ per point of C improvement per method/model. Decision-relevant table.
+## 6. Cost accounting — [~]
+- [x] weight-RSI logs cum_gpu_hours + n_gens + GPU-hours-per-+0.01-C per run. (tokens/$ next)
 
 ## 7. Frontier breadth (needs external keys) — [ ]
 - [ ] Bedrock (have): Fable, Nova-Pro, Llama-3.3-70B live. DeepSeek-R1 (parse tweak), Nova-Premier (probe).
