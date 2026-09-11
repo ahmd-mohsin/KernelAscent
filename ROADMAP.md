@@ -20,9 +20,9 @@ Show weight-RSI / procedure-RSI beat cheaper non-recursive methods at EQUAL gene
 - [ ] Pre-register PRIMARY metric (proposal: T4 improved-vs-frozen-harness AUC over rounds; T2 self-vs-fresh-frozen final).
 - [ ] One-command Docker repro (`docker run ka --track {capability,rsi,procedure,combined}`).
 
-## 4. Safety framing (why the community must care) — [ ]
-- [ ] Position as EARLY-WARNING eval for recursive self-improvement (ties to eval-awareness / responsible scaling).
-- [ ] Doc: threat-model + what a rising self-vs-fresh / improved-vs-frozen slope would signal.
+## 4. Safety framing (why the community must care) — [x]
+- [x] Position as EARLY-WARNING eval for recursive self-improvement (ties to eval-awareness / responsible scaling).
+- [x] Doc: threat-model + what a rising self-vs-fresh / improved-vs-frozen slope would signal. → docs/SAFETY.md
 
 ## 5. Absolute grounding — [ ]
 - [ ] Expert-written CUDA/Triton reference per task (hand or Fable-max best-effort, human-audited).
