@@ -136,6 +136,29 @@ fetch("data/combined_rsi.json").then(r => r.json()).then(d => {
     <td>${verdictPill(m.verdict==="harness helps"?"compounds":(m.verdict==="hurts"?"overfits":"flat"))}</td></tr>`).join("");
 }).catch(e => {});
 
+// Baselines board (recursion vs sampling)
+fetch("data/baselines.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("bl-updated"); if (up) up.textContent = (d.updated || "");
+  const tb = document.querySelector("#bl-lb tbody"); if (!tb) return;
+  const ms = [...(d.models || [])].sort((a, b) => (b.recursion_gain ?? -9) - (a.recursion_gain ?? -9));
+  tb.innerHTML = ms.map(m => `<tr>
+    <td><b>${m.model}</b></td><td class="num">${num(m.rsi_C)}</td><td class="num">${num(m.best_of_k)}</td>
+    <td class="num">${num(m.self_refine)}</td><td class="num">${num(m.retrieval)}</td>
+    <td class="num">${deltaBar(m.recursion_gain)}</td></tr>`).join("");
+}).catch(e => {});
+
+// Procedure RSI (Track C) board
+fetch("data/trackc.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("tc-updated"); if (up) up.textContent = (d.updated || "");
+  const tb = document.querySelector("#tc-lb tbody"); if (!tb) return;
+  const ms = [...(d.models || [])].sort((a, b) => (b.delta_vs_base ?? -9) - (a.delta_vs_base ?? -9));
+  tb.innerHTML = ms.map(m => `<tr>
+    <td><b>${m.model}</b></td><td><span class="pill kind">${m.mode}</span></td>
+    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.Q0)}</td><td class="num">${num(m.Qg)}</td>
+    <td class="num">${deltaBar(m.delta_vs_base)}</td>
+    <td>${verdictPill(m.verdict === "improves" ? "compounds" : (m.verdict === "degrades" ? "overfits" : "flat"))}</td></tr>`).join("");
+}).catch(e => {});
+
 // ---- sticky nav + scroll reveal ----
 (function(){
   const nav = document.querySelector(".nav");

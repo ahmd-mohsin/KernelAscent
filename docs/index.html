@@ -166,6 +166,30 @@
   <div class="note"><b>Why this matters.</b> A closed model cannot change its own weights, but it can improve the executable procedure that trains an open model. When improved vs frozen is positive, that is true recursive improvement with a downstream payoff, driven by a closed model. Fable-5.1 to Qwen-1.5B has run improved minus frozen positive and growing across rounds.</div>
 </section>
 
+<section id="baselines">
+  <div class="snum">03c / Baselines, is it really recursion</div>
+  <h2>Recursion vs just more sampling</h2>
+  <p class="small sub">Every gain is checked against non-recursive methods at the <b>same generation budget</b> (best-of-k sampling, in-context self-refine, archive retrieval), all frozen-weight and scored with the identical grader. <b>recursion gain</b> = weight-RSI final C minus the best non-recursive baseline. Positive means training on your own kernels beats simply sampling more. <span id="bl-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="bl-lb"><thead><tr>
+      <th>Model</th><th class="num">weight-RSI C</th><th class="num">best-of-k</th><th class="num">self-refine</th><th class="num">retrieval</th><th class="num">recursion gain</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+  <div class="note"><b>Why this matters.</b> A benchmark that only shows "the number went up" cannot tell training from extra sampling. At matched budget, Qwen-2.5-Coder-1.5B reaches 0.237 with weight-RSI versus 0.182 with best-of-20 sampling, a recursion gain near +0.055. Self-refine and retrieval arms fill in as they finish.</div>
+</section>
+
+<section id="trackc">
+  <div class="snum">03d / Procedure RSI board</div>
+  <h2>Task 3, a model improving its own procedure</h2>
+  <p class="small sub">A model with fixed weights rewrites its own executable research procedure each round (strategy library, solver prompt, verified-kernel archive). Q is held-out quality of the current procedure; the key column is <b>Q gain vs the frozen procedure</b> (self-modify arm). Open and closed models both compete. <span id="tc-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="tc-lb"><thead><tr>
+      <th>Model</th><th>Mode</th><th class="num">rounds</th><th class="num">Q0</th><th class="num">Q final</th><th class="num">Q gain vs frozen</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+  <div class="note"><b>How API models join the RSI axis.</b> A closed model cannot change its weights, but it can improve the procedure that drives its next attempts. Fable-5.1, Nova-Pro, and Llama-3.3-70B all run here; a positive Q gain is recursive self-improvement with weights fixed.</div>
+</section>
+
 <section id="data">
   <div class="snum">04 / Datasets</div>
   <h2>One dataset per task, each with a held out split</h2>
