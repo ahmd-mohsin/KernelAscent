@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-11",
-  "note": "procedure RSI: model rewrites its own executable research procedure; Qg vs frozen-procedure base.",
+  "updated": "2026-09-12",
+  "note": "procedure RSI: model rewrites its own executable procedure; Qg vs frozen procedure.",
   "models": [
     {
       "model": "Nova-Pro",
@@ -10,24 +10,6 @@
       "Qg": 0.49,
       "delta_vs_base": 0.089,
       "verdict": "improves"
-    },
-    {
-      "model": "Fable-5.1",
-      "mode": "archive-only",
-      "rounds": 1,
-      "Q0": 0.759,
-      "Qg": 0.78,
-      "delta_vs_base": 0.021,
-      "verdict": "flat"
-    },
-    {
-      "model": "Fable-5.1",
-      "mode": "self-modify",
-      "rounds": 1,
-      "Q0": 0.73,
-      "Qg": 0.745,
-      "delta_vs_base": 0.016,
-      "verdict": "flat"
     },
     {
       "model": "Fable-5.1",

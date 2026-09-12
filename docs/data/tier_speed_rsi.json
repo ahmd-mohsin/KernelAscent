@@ -1,104 +1,130 @@
 {
-  "updated": "2026-09-11",
-  "metric": "speed vs torch.compile, size-matched bank, self vs fresh-frozen producer",
+  "updated": "2026-09-12",
+  "metric": "speed vs torch.compile, size-matched SOTA bank, headroom-normalized, self vs fresh-frozen (multi-seed)",
   "models": [
-    {
-      "model": "deepseek-coder-1.3b-instruct",
-      "tier": "small",
-      "rounds": 5,
-      "C0": 0.005,
-      "C_self": 0.106,
-      "self_minus_fresh": 0.095,
-      "verdict": "gains"
-    },
-    {
-      "model": "Qwen2.5-Coder-1.5B",
-      "tier": "small",
-      "rounds": 5,
-      "C0": 0.064,
-      "C_self": 0.237,
-      "self_minus_fresh": 0.085,
-      "verdict": "gains"
-    },
     {
       "model": "OpenCoder-1.5B",
       "tier": "small",
-      "rounds": 5,
-      "C0": 0.096,
-      "C_self": 0.256,
-      "self_minus_fresh": 0.02,
-      "verdict": "gains"
+      "n_seeds": 2,
+      "C0": 0.063,
+      "C_self": 0.236,
+      "self_minus_fresh": 0.081,
+      "seeds": [
+        0.143,
+        0.02
+      ],
+      "sign_consistent": true,
+      "verdict": "compounds"
+    },
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.065,
+      "self_minus_fresh": 0.052,
+      "seeds": [
+        0.009,
+        0.095
+      ],
+      "sign_consistent": true,
+      "verdict": "flat"
     },
     {
       "model": "starcoder2-3b",
       "tier": "small",
-      "rounds": 5,
-      "C0": 0,
-      "C_self": 0.008,
-      "self_minus_fresh": 0.008,
+      "n_seeds": 2,
+      "C0": 0.002,
+      "C_self": 0.013,
+      "self_minus_fresh": 0.007,
+      "seeds": [
+        0.007,
+        0.008
+      ],
+      "sign_consistent": true,
       "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-3B",
       "tier": "small",
-      "rounds": 4,
-      "C0": 0.219,
-      "C_self": 0.311,
+      "n_seeds": 2,
+      "C0": 0.109,
+      "C_self": 0.155,
       "self_minus_fresh": 0,
+      "seeds": [
+        0,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "n_seeds": 3,
+      "C0": 0.07,
+      "C_self": 0.116,
+      "self_minus_fresh": -0.014,
+      "seeds": [
+        -0.099,
+        0.085,
+        -0.028
+      ],
+      "sign_consistent": false,
       "verdict": "flat"
     },
     {
       "model": "deepseek-coder-6.7b-instruct",
       "tier": "mid",
-      "rounds": 2,
-      "C0": 0.203,
-      "C_self": 0.318,
-      "self_minus_fresh": 0.02,
+      "n_seeds": 2,
+      "C0": 0.234,
+      "C_self": 0.309,
+      "self_minus_fresh": 0.013,
+      "seeds": [
+        0.005,
+        0.02
+      ],
+      "sign_consistent": true,
       "verdict": "gains"
-    },
-    {
-      "model": "Qwen2.5-Coder-7B (s1)",
-      "tier": "mid",
-      "rounds": 3,
-      "C0": 0.292,
-      "C_self": 0.316,
-      "self_minus_fresh": 0.008,
-      "verdict": "flat"
-    },
-    {
-      "model": "deepseek-coder-6.7b-instruct (s1)",
-      "tier": "mid",
-      "rounds": 2,
-      "C0": 0.265,
-      "C_self": 0.3,
-      "self_minus_fresh": 0.005,
-      "verdict": "flat"
     },
     {
       "model": "starcoder2-7b",
       "tier": "mid",
-      "rounds": 3,
+      "n_seeds": 1,
       "C0": 0.023,
       "C_self": 0.024,
       "self_minus_fresh": -0.002,
+      "seeds": [
+        -0.002
+      ],
+      "sign_consistent": true,
       "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-7B",
       "tier": "mid",
-      "rounds": 4,
-      "C0": 0.265,
-      "C_self": 0.293,
-      "self_minus_fresh": -0.027,
-      "verdict": "overfits"
+      "n_seeds": 2,
+      "C0": 0.279,
+      "C_self": 0.304,
+      "self_minus_fresh": -0.009,
+      "seeds": [
+        -0.027,
+        0.008
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-14B",
       "tier": "large",
-      "rounds": 2,
+      "n_seeds": 1,
       "C0": 0.291,
-      "C_self": 0.243,
-      "self_minus_fresh": -0.079,
+      "C_self": 0.225,
+      "self_minus_fresh": -0.099,
+      "seeds": [
+        -0.099
+      ],
+      "sign_consistent": true,
       "verdict": "overfits"
     }
   ]

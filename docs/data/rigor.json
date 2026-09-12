@@ -1,153 +1,131 @@
 {
-  "updated": "2026-09-11",
-  "note": "cross-seed self-vs-fresh-frozen (pre-registered primary). holds = mean(last-2) > 0.05 AND sign-consistent across seeds. >=3 seeds needed for reported bootstrap CI.",
+  "updated": "2026-09-12",
+  "note": "cross-seed self-vs-fresh; holds = mean(last2)>0.05 AND sign-consistent.",
   "models": [
     {
-      "model": "sm_deepseek1p3",
-      "n_seeds": 1,
-      "seeds_final": [
-        0.095
+      "model": "OpenCoder-1.5B",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.063,
+      "C_self": 0.236,
+      "self_minus_fresh": 0.081,
+      "seeds": [
+        0.143,
+        0.02
       ],
-      "mean_final_self_minus_fresh": 0.095,
-      "mean_last2": 0.051,
-      "half_range": null,
       "sign_consistent": true,
-      "holds": true,
-      "verdict": "compounds",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "compounds"
     },
     {
-      "model": "sm_qwen1p5",
+      "model": "deepseek-coder-1.3b-instruct",
+      "tier": "small",
       "n_seeds": 2,
-      "seeds_final": [
+      "C0": 0.016,
+      "C_self": 0.065,
+      "self_minus_fresh": 0.052,
+      "seeds": [
+        0.009,
+        0.095
+      ],
+      "sign_consistent": true,
+      "verdict": "flat"
+    },
+    {
+      "model": "starcoder2-3b",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.002,
+      "C_self": 0.013,
+      "self_minus_fresh": 0.007,
+      "seeds": [
+        0.007,
+        0.008
+      ],
+      "sign_consistent": true,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.109,
+      "C_self": 0.155,
+      "self_minus_fresh": 0,
+      "seeds": [
+        0,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "n_seeds": 3,
+      "C0": 0.07,
+      "C_self": 0.116,
+      "self_minus_fresh": -0.014,
+      "seeds": [
+        -0.099,
         0.085,
         -0.028
       ],
-      "mean_final_self_minus_fresh": 0.029,
-      "mean_last2": -0.028,
-      "half_range": 0.057,
       "sign_consistent": false,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": 0.0,
-      "mean_retention": 0.467,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "flat"
     },
     {
-      "model": "sm_opencoder1p5",
-      "n_seeds": 1,
-      "seeds_final": [
-        0.02
-      ],
-      "mean_final_self_minus_fresh": 0.02,
-      "mean_last2": 0.013,
-      "half_range": null,
-      "sign_consistent": true,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
-    },
-    {
-      "model": "mid_deepseek6p7",
+      "model": "deepseek-coder-6.7b-instruct",
+      "tier": "mid",
       "n_seeds": 2,
-      "seeds_final": [
+      "C0": 0.234,
+      "C_self": 0.309,
+      "self_minus_fresh": 0.013,
+      "seeds": [
         0.005,
         0.02
       ],
-      "mean_final_self_minus_fresh": 0.013,
-      "mean_last2": -0.002,
-      "half_range": 0.007,
       "sign_consistent": true,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "gains"
     },
     {
-      "model": "sm_starcoder3b",
+      "model": "starcoder2-7b",
+      "tier": "mid",
       "n_seeds": 1,
-      "seeds_final": [
-        0.008
-      ],
-      "mean_final_self_minus_fresh": 0.008,
-      "mean_last2": -0.003,
-      "half_range": null,
-      "sign_consistent": true,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
-    },
-    {
-      "model": "mid_qwen3b",
-      "n_seeds": 1,
-      "seeds_final": [
-        -0.0
-      ],
-      "mean_final_self_minus_fresh": 0.0,
-      "mean_last2": 0.0,
-      "half_range": null,
-      "sign_consistent": false,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
-    },
-    {
-      "model": "mid_starcoder7b",
-      "n_seeds": 1,
-      "seeds_final": [
+      "C0": 0.023,
+      "C_self": 0.024,
+      "self_minus_fresh": -0.002,
+      "seeds": [
         -0.002
       ],
-      "mean_final_self_minus_fresh": -0.002,
-      "mean_last2": -0.015,
-      "half_range": null,
       "sign_consistent": true,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "flat"
     },
     {
-      "model": "mid_qwen7b",
+      "model": "Qwen2.5-Coder-7B",
+      "tier": "mid",
       "n_seeds": 2,
-      "seeds_final": [
+      "C0": 0.279,
+      "C_self": 0.304,
+      "self_minus_fresh": -0.009,
+      "seeds": [
         -0.027,
         0.008
       ],
-      "mean_final_self_minus_fresh": -0.009,
-      "mean_last2": -0.003,
-      "half_range": 0.018,
       "sign_consistent": false,
-      "holds": false,
-      "verdict": "flat",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "flat"
     },
     {
-      "model": "lg_qwen14b",
+      "model": "Qwen2.5-Coder-14B",
+      "tier": "large",
       "n_seeds": 1,
-      "seeds_final": [
-        -0.079
+      "C0": 0.291,
+      "C_self": 0.225,
+      "self_minus_fresh": -0.099,
+      "seeds": [
+        -0.099
       ],
-      "mean_final_self_minus_fresh": -0.079,
-      "mean_last2": -0.068,
-      "half_range": null,
       "sign_consistent": true,
-      "holds": false,
-      "verdict": "overfits",
-      "mean_diversity": null,
-      "mean_retention": null,
-      "note": "single-seed: needs >=3 for CI"
+      "verdict": "overfits"
     }
   ]
 }

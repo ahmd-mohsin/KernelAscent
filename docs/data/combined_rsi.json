@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-11",
-  "note": "closed researcher rewrites the training harness; improved-vs-frozen-harness on the open trainee (final and peak over rounds), size-matched bank",
+  "updated": "2026-09-12",
+  "note": "closed researcher rewrites the training harness; improved-vs-frozen on the open trainee (headroom score, SOTA bank).",
   "models": [
     {
       "trainee": "Qwen2.5-Coder-1.5B",
@@ -11,7 +11,6 @@
       "C_frozen": 0.029,
       "impr_minus_frozen": 0.472,
       "peak": 0.472,
-      "auc": 0.307,
       "verdict": "harness helps"
     },
     {
@@ -23,7 +22,6 @@
       "C_frozen": 0.023,
       "impr_minus_frozen": 0.313,
       "peak": 0.372,
-      "auc": 0.198,
       "verdict": "harness helps"
     },
     {
@@ -35,7 +33,6 @@
       "C_frozen": 0.029,
       "impr_minus_frozen": 0.153,
       "peak": 0.365,
-      "auc": 0.249,
       "verdict": "harness helps"
     },
     {
@@ -47,7 +44,6 @@
       "C_frozen": 0,
       "impr_minus_frozen": 0.118,
       "peak": 0.118,
-      "auc": 0.05,
       "verdict": "harness helps"
     },
     {
@@ -59,7 +55,6 @@
       "C_frozen": 0.5,
       "impr_minus_frozen": -0.265,
       "peak": 0.085,
-      "auc": -0.136,
       "verdict": "hurts"
     },
     {
@@ -71,7 +66,6 @@
       "C_frozen": 0.444,
       "impr_minus_frozen": -0.444,
       "peak": 0.029,
-      "auc": -0.297,
       "verdict": "hurts"
     },
     {
@@ -83,7 +77,6 @@
       "C_frozen": 0.504,
       "impr_minus_frozen": -0.031,
       "peak": 0.003,
-      "auc": -0.024,
       "verdict": "flat"
     }
   ]
