@@ -1,0 +1,61 @@
+{
+  "model": "bigcode/starcoder2-7b",
+  "seed": 0,
+  "C0_frozen": 0.022912853226371415,
+  "C0_ci": 0.023103884824063784,
+  "C0_correct_rate": 0.062,
+  "C0_compiled_sp": 0.054,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.141,
+      "n_ex": 1,
+      "loss": 0.959,
+      "C_self": 0.04,
+      "C_self_ci": 0.031,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.03,
+      "C_fresh_ci": 0.026,
+      "correct_rate_self": 0.092,
+      "compiled_sp_self": 0.086,
+      "delta_self": 0.017,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.01
+    },
+    {
+      "round": 1,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.0,
+      "C_self_ci": 0.0,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.029,
+      "C_fresh_ci": 0.025,
+      "correct_rate_self": 0.031,
+      "compiled_sp_self": 0.004,
+      "delta_self": -0.023,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.029
+    },
+    {
+      "round": 2,
+      "trainC": 0.142,
+      "n_ex": 1,
+      "loss": 0.265,
+      "C_self": 0.024,
+      "C_self_ci": 0.023,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.025,
+      "C_fresh_ci": 0.025,
+      "correct_rate_self": 0.062,
+      "compiled_sp_self": 0.055,
+      "delta_self": 0.001,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.002
+    }
+  ]
+}

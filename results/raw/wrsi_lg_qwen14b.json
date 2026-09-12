@@ -1,0 +1,61 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "seed": 0,
+  "C0_frozen": 0.2910994429088274,
+  "C0_ci": 0.04741057105011659,
+  "C0_correct_rate": 1.0,
+  "C0_compiled_sp": 0.728,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.23,
+      "n_ex": 10,
+      "loss": 0.037,
+      "C_self": 0.269,
+      "C_self_ci": 0.043,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.324,
+      "C_fresh_ci": 0.041,
+      "correct_rate_self": 0.97,
+      "compiled_sp_self": 0.694,
+      "delta_self": -0.023,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.056
+    },
+    {
+      "round": 1,
+      "trainC": 0.23,
+      "n_ex": 10,
+      "loss": 0.029,
+      "C_self": 0.243,
+      "C_self_ci": 0.045,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.322,
+      "C_fresh_ci": 0.042,
+      "correct_rate_self": 0.91,
+      "compiled_sp_self": 0.641,
+      "delta_self": -0.048,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.079
+    },
+    {
+      "round": 2,
+      "trainC": 0.232,
+      "n_ex": 9,
+      "loss": 0.018,
+      "C_self": 0.225,
+      "C_self_ci": 0.044,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.324,
+      "C_fresh_ci": 0.042,
+      "correct_rate_self": 0.925,
+      "compiled_sp_self": 0.621,
+      "delta_self": -0.066,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.099
+    }
+  ]
+}

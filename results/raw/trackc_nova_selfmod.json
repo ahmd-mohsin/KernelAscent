@@ -1,0 +1,47 @@
+{
+  "model": "us.amazon.nova-pro-v1:0",
+  "mode": "self-modify",
+  "Q0": 0.4005105140557058,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.469,
+      "delta_vs_base": 0.068,
+      "F_g": null,
+      "n_strategies": 12,
+      "n_archive": 2
+    },
+    {
+      "round": 1,
+      "Qg": 0.471,
+      "delta_vs_base": 0.07,
+      "F_g": -0.012,
+      "n_strategies": 12,
+      "n_archive": 3
+    },
+    {
+      "round": 2,
+      "Qg": 0.474,
+      "delta_vs_base": 0.073,
+      "F_g": 0.007,
+      "n_strategies": 12,
+      "n_archive": 3
+    },
+    {
+      "round": 3,
+      "Qg": 0.49,
+      "delta_vs_base": 0.089,
+      "F_g": -0.004,
+      "n_strategies": 12,
+      "n_archive": 3
+    },
+    {
+      "round": 4,
+      "Qg": 0.49,
+      "delta_vs_base": 0.089,
+      "F_g": -0.004,
+      "n_strategies": 12,
+      "n_archive": 3
+    }
+  ]
+}

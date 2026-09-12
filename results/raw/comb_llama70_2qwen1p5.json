@@ -1,0 +1,52 @@
+{
+  "trainee": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "researcher": "us.meta.llama3-3-70b-instruct-v1:0",
+  "C0": 0.14720297954475586,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.27,
+      "C_frozen": 0.212,
+      "delta_improved_minus_frozen": 0.058,
+      "n_admitted": 8,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.505,
+      "C_frozen": 0.176,
+      "delta_improved_minus_frozen": 0.329,
+      "n_admitted": 35,
+      "min_sp": 0.5,
+      "strategy": "Leverage fused torch.ops and optimize memory access patterns for A100"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.453,
+      "C_frozen": 0.088,
+      "delta_improved_minus_frozen": 0.365,
+      "n_admitted": 37,
+      "min_sp": 0.6,
+      "strategy": "Leverage fused torch.ops, optimize memory access patterns for A100, utilize Tensor Cores, and apply mixed precision trai"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.397,
+      "C_frozen": 0.059,
+      "delta_improved_minus_frozen": 0.338,
+      "n_admitted": 24,
+      "min_sp": 0.65,
+      "strategy": "Leverage fused torch.ops for reduced overhead, optimize memory access patterns for A100's HBM2 memory, aggressively util"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.182,
+      "C_frozen": 0.029,
+      "delta_improved_minus_frozen": 0.153,
+      "n_admitted": 13,
+      "min_sp": 0.65,
+      "strategy": "Leverage fused torch.ops for reduced overhead, optimize memory access patterns for A100's HBM2 memory, aggressively util"
+    }
+  ]
+}

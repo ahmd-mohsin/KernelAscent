@@ -1,0 +1,52 @@
+{
+  "trainee": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "researcher": "us.anthropic.claude-fable-5-1",
+  "C0": 0.0,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.088,
+      "C_frozen": 0.059,
+      "delta_improved_minus_frozen": 0.029,
+      "n_admitted": 2,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.0,
+      "C_frozen": 0.204,
+      "delta_improved_minus_frozen": -0.204,
+      "n_admitted": 0,
+      "min_sp": 1.0,
+      "strategy": "Correctness first, then guaranteed non-regression, then speed. Workflow: (1) Read the reference module; identify the dom"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.0,
+      "C_frozen": 0.446,
+      "delta_improved_minus_frozen": -0.446,
+      "n_admitted": 0,
+      "min_sp": 1.0,
+      "strategy": "Correctness first, then measurable speed. The prior policy was correct (task_correct=1) but produced no gain (avg_sp=0.9"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.029,
+      "C_frozen": 0.449,
+      "delta_improved_minus_frozen": -0.42,
+      "n_admitted": 0,
+      "min_sp": 1.0,
+      "strategy": "Correctness is a hard gate, speed is the objective. History: policy v1 was correct but gave no speedup (avg_sp=0.98, pur"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.0,
+      "C_frozen": 0.444,
+      "delta_improved_minus_frozen": -0.444,
+      "n_admitted": 0,
+      "min_sp": 1.0,
+      "strategy": "Correctness is a hard gate, speed is the objective. History: v1 correct but no speedup (avg_sp=0.98); v2 chased fusion a"
+    }
+  ]
+}

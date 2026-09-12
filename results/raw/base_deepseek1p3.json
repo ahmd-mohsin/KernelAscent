@@ -1,0 +1,24 @@
+{
+  "model": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "seed": 0,
+  "held": 34,
+  "budget_per_task": 20,
+  "results": {
+    "best_of_k": {
+      "method": "best_of_k",
+      "budget_per_task": 20,
+      "C": 0.0995,
+      "ci": 0.06,
+      "correct_rate": 0.294,
+      "compiled_sp": 0.235
+    },
+    "self_refine": {
+      "method": "self_refine",
+      "iters": 5,
+      "k": 4,
+      "C": 0.0446,
+      "ci": 0.0433,
+      "correct_rate": 0.118
+    }
+  }
+}
