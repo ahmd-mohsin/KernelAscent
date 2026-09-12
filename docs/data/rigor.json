@@ -8,10 +8,10 @@
       "n_seeds": 3,
       "C0": 0.023,
       "C_self": 0.228,
-      "self_minus_fresh": 0.135,
+      "self_minus_fresh": 0.116,
       "seeds": [
         0.06,
-        0.249,
+        0.194,
         0.095
       ],
       "sign_consistent": true,
@@ -48,17 +48,16 @@
       "verdict": "gains"
     },
     {
-      "model": "stable-code-3b",
+      "model": "Qwen2.5-0.5B",
       "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.016,
-      "C_self": 0.035,
+      "n_seeds": 1,
+      "C0": 0.004,
+      "C_self": 0.005,
       "self_minus_fresh": 0.005,
       "seeds": [
-        -0.018,
-        0.027
+        0.005
       ],
-      "sign_consistent": false,
+      "sign_consistent": true,
       "verdict": "flat"
     },
     {
@@ -71,21 +70,6 @@
       "seeds": [
         0.003,
         0
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
-      "model": "starcoder2-3b",
-      "tier": "small",
-      "n_seeds": 3,
-      "C0": 0.008,
-      "C_self": 0.009,
-      "self_minus_fresh": 0.001,
-      "seeds": [
-        -0.01,
-        0.006,
-        0.008
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -118,14 +102,30 @@
       "verdict": "flat"
     },
     {
-      "model": "Qwen2.5-0.5B",
+      "model": "stable-code-3b",
       "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.004,
-      "C_self": 0,
-      "self_minus_fresh": 0,
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.04,
+      "self_minus_fresh": -0.003,
       "seeds": [
-        0
+        -0.018,
+        0.011
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "starcoder2-3b",
+      "tier": "small",
+      "n_seeds": 3,
+      "C0": 0.008,
+      "C_self": 0.004,
+      "self_minus_fresh": -0.004,
+      "seeds": [
+        -0.01,
+        -0.011,
+        0.008
       ],
       "sign_consistent": false,
       "verdict": "flat"
