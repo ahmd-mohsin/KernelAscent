@@ -135,11 +135,11 @@
       "tier": "large",
       "n_seeds": 2,
       "C0": 0.077,
-      "C_self": 0.085,
-      "self_minus_fresh": -0.016,
+      "C_self": 0.104,
+      "self_minus_fresh": -0.007,
       "seeds": [
         0.004,
-        -0.036
+        -0.019
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -149,11 +149,11 @@
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.37,
-      "C_self": 0.356,
-      "self_minus_fresh": -0.031,
+      "C_self": 0.358,
+      "self_minus_fresh": -0.032,
       "seeds": [
-        -0.009,
-        0.014,
+        0.004,
+        -0.001,
         -0.099
       ],
       "sign_consistent": false,
