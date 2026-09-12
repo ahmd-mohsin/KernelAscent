@@ -46,19 +46,6 @@
       "verdict": "gains"
     },
     {
-      "model": "Qwen2.5-Coder-0.5B",
-      "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.112,
-      "C_self": 0,
-      "self_minus_fresh": 0,
-      "seeds": [
-        0
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
       "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "n_seeds": 2,
@@ -67,6 +54,19 @@
       "self_minus_fresh": 0,
       "seeds": [
         0,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-Coder-0.5B",
+      "tier": "small",
+      "n_seeds": 1,
+      "C0": 0.112,
+      "C_self": 0,
+      "self_minus_fresh": 0,
+      "seeds": [
         0
       ],
       "sign_consistent": false,
