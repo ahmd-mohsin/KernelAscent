@@ -3,6 +3,21 @@
 Goal: convert strong prototype → award-level benchmark. Budget + 72-GPU fleet available.
 Status legend: [ ] todo · [~] in progress · [x] done
 
+## ★★ GPT-6 ASTRA REVIEW — award blockers (supersede; see docs/REVIEW_GPT6.md) ★★
+A1. RECURSION-INTERRUPTION FORK (decisive) — [ ] fork checkpoints into continued-self / checkpoint-frozen /
+    base-frozen producers; equal budget; subsequent learning curves on untouched families. small+large. T3: frozen
+    procedure + same archive. Proves "capacity to improve" not artifact accumulation.
+A2. ADVERSARIAL correctness/timing — [ ] hidden randomized tests (shapes/strides/dtypes/pathological), per-task
+    tolerances, race/sanitizer checks, adversarial audit, publish exploit tests + failure rates.
+A3. CAUSAL diversity/forgetting rescue — [ ] randomize diversity-preserving sampling/replay + quality-matched
+    controls; show they RESCUE the large model; collapse-precedes-deterioration timing.
+A4. SCORE decomposition/validation — [ ] split correctness-rate vs speedup (is T4 +0.472 just correctness?);
+    audit roofline vs strong measured impls; rankings under alt aggregates; per-resource-budget.
+A5. TRANSFER + REPRO moat — [ ] family-disjoint splits (seen-op vs unseen computation families); 2nd GPU arch
+    (H100); frozen final test set; release trajectories+rejected kernels+harness diffs; open-only track.
+A6. FRAMING — [ ] retitle "When Learning to Optimize Compounds and When It Collapses"; measurement+discovery+
+    mechanism; replicate small/large across families; T4 secondary; drop early-warning as headline.
+
 ## ★ PAPER BLOCKERS (must clear before submission) ★
 P1. DEFINITIVE RE-RUN — [~] multi-seed (>=3), headroom-normalized score, on the filtered SOTA banks, all tasks
     T1/T2/T4 + T3. One sweep closes #0 (ceiling-free numbers), #2 (diversity/forgetting figure), #3 (CIs), #6 (cost).
