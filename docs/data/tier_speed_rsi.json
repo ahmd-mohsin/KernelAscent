@@ -7,28 +7,15 @@
       "tier": "small",
       "n_seeds": 3,
       "C0": 0.023,
-      "C_self": 0.222,
-      "self_minus_fresh": 0.129,
+      "C_self": 0.228,
+      "self_minus_fresh": 0.135,
       "seeds": [
         0.06,
-        0.233,
+        0.249,
         0.095
       ],
       "sign_consistent": true,
       "verdict": "compounds"
-    },
-    {
-      "model": "stable-code-3b",
-      "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.01,
-      "C_self": 0.038,
-      "self_minus_fresh": 0.027,
-      "seeds": [
-        0.027
-      ],
-      "sign_consistent": true,
-      "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
@@ -59,6 +46,20 @@
       ],
       "sign_consistent": false,
       "verdict": "gains"
+    },
+    {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.035,
+      "self_minus_fresh": 0.005,
+      "seeds": [
+        -0.018,
+        0.027
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
     },
     {
       "model": "starcoder2-3b",

@@ -1,0 +1,33 @@
+{
+  "model": "stabilityai/stable-code-3b",
+  "seed": 1,
+  "C0_frozen": 0.02220049168552248,
+  "C0_ci": 0.019045567802670756,
+  "C0_correct_rate": 0.068,
+  "C0_compiled_sp": 0.037,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.031,
+      "C_self_ci": 0.024,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.049,
+      "C_fresh_ci": 0.027,
+      "correct_rate_self": 0.082,
+      "compiled_sp_self": 0.071,
+      "delta_self": 0.008,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.018,
+      "n_uniq_self": 0,
+      "diversity_self": 0.0,
+      "retention": 1.0,
+      "round_sec": 2618.5,
+      "cum_gpu_hours": 1.455,
+      "n_gens": 128
+    }
+  ]
+}
