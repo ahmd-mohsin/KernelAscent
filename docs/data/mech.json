@@ -103,6 +103,28 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "model": "starcoder2-15b",
+      "tier": "large",
+      "rounds": [
+        0
+      ],
+      "C_self": [
+        0.087
+      ],
+      "diversity": [
+        0.726
+      ],
+      "retention": [
+        1.0
+      ],
+      "self_minus_fresh": [
+        0.005
+      ],
+      "correct_rate": [
+        0.189
+      ]
     }
   ]
 }
