@@ -1,0 +1,28 @@
+{
+  "updated": "2026-09-12",
+  "note": "Mechanism: per-round trajectories over 12 rounds. Compounders sustain self-data DIVERSITY and RETENTION; overfitters show diversity collapse + retention decline as self-minus-fresh goes negative.",
+  "models": [
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_self": [
+        0.059
+      ],
+      "diversity": [
+        0.811
+      ],
+      "retention": [
+        1.0
+      ],
+      "self_minus_fresh": [
+        0.031
+      ],
+      "correct_rate": [
+        0.219
+      ]
+    }
+  ]
+}

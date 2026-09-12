@@ -1,0 +1,33 @@
+{
+  "model": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "seed": 0,
+  "C0_frozen": 0.03265010311788208,
+  "C0_ci": 0.022067444091352244,
+  "C0_correct_rate": 0.11,
+  "C0_compiled_sp": 0.022,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.033,
+      "n_ex": 4,
+      "loss": 0.074,
+      "C_self": 0.059,
+      "C_self_ci": 0.028,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.028,
+      "C_fresh_ci": 0.02,
+      "correct_rate_self": 0.219,
+      "compiled_sp_self": 0.062,
+      "delta_self": 0.026,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.031,
+      "n_uniq_self": 4,
+      "diversity_self": 0.811,
+      "retention": 1.0,
+      "round_sec": 1757.1,
+      "cum_gpu_hours": 0.976,
+      "n_gens": 128
+    }
+  ]
+}
