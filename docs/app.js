@@ -63,7 +63,7 @@ function deltaBar(v) {
   if (typeof v !== "number") return "—";
   const w = Math.min(100, Math.abs(v) * 100);
   const pos = v >= 0;
-  const bar = `<span style="display:inline-block;height:8px;width:${w}%;background:${pos ? "#151515" : "#c9c9c9"};border-radius:2px;vertical-align:middle"></span>`;
+  const bar = `<span style="display:inline-block;height:8px;width:${w}%;background:${pos ? "#8C1515" : "#d8bcbc"};border-radius:2px;vertical-align:middle"></span>`;
   return `<span class="mono ${pos ? "pos" : "neg"}">${pos ? "+" : ""}${v.toFixed(3)}</span> ${bar}`;
 }
 fetch("data/rsi_leaderboard.json").then(r => r.json()).then(d => {
@@ -96,7 +96,7 @@ function renderCapChart(models){
   const el = document.getElementById("cap-chart"); if (!el) return;
   const ms = [...models].filter(m=>typeof m.meanC==="number").sort((a,b)=>b.meanC-a.meanC).slice(0,14);
   el.innerHTML = ms.map(m=>chartRow(m.model, Math.round(m.meanC*100), (m.kind==="open"?"open":"closed"), m.meanC.toFixed(3))).join("")
-    + `<div class="chart-legend"><span><i class="fill open" style="background:linear-gradient(90deg,#151515,#444)"></i>open weight</span><span><i class="fill closed" style="background:repeating-linear-gradient(45deg,#151515,#151515 5px,#3d3d3d 5px,#3d3d3d 10px)"></i>closed / API</span><span>bar = mean C</span></div>`;
+    + `<div class="chart-legend"><span><i class="fill open" style="background:linear-gradient(90deg,#6f1010,#B1040E)"></i>open weight</span><span><i class="fill closed" style="background:repeating-linear-gradient(45deg,#8C1515,#8C1515 5px,#c0575f 5px,#c0575f 10px)"></i>closed / API</span><span>bar = mean C</span></div>`;
   animateFills(el);
 }
 function renderRsiChart(models){
@@ -109,7 +109,7 @@ function renderRsiChart(models){
     return chartRow(m.model, pct, verdictClass(m.verdict), (m.self_minus_fresh>=0?"+":"")+m.self_minus_fresh.toFixed(3), left);
   });
   el.innerHTML = rows.join("")
-    + `<div class="chart-legend"><span><i style="background:linear-gradient(90deg,#151515,#333)"></i>compounds</span><span><i style="background:linear-gradient(90deg,#5c5c5c,#8a8a8a)"></i>gains</span><span><i style="background:#d0d0d0"></i>flat</span><span>bar = self minus fresh-frozen producer, center = 0</span></div>`;
+    + `<div class="chart-legend"><span><i style="background:linear-gradient(90deg,#6f1010,#8C1515)"></i>compounds</span><span><i style="background:linear-gradient(90deg,#b8555b,#d98a90)"></i>gains</span><span><i style="background:#e0cccc"></i>flat</span><span>bar = self minus fresh-frozen producer, center = 0</span></div>`;
   animateFills(el);
 }
 

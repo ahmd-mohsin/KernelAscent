@@ -1,8 +1,10 @@
 /* KernelAscent — refined black & white (Lora) */
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root{
-  --ink:#151515; --sub:#5c5c5c; --mid:#9a9a9a; --hair:#ececec; --paper:#ffffff; --wash:#fafafa;
+  /* matches ahmd-mohsin.github.io: white + Stanford cardinal accent, Lora, neutral grey surfaces, sharp corners */
+  --ink:#262626; --sub:#4b5563; --mid:#9a9a9a; --hair:#d4d4d8; --paper:#ffffff; --wash:#f4f4f5;
+  --cardinal:#8C1515; --cardinal-dark:#6f1010; --cardinal-bright:#B1040E; --cardinal-wash:#f7ecec;
   --serif:"Lora",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --measure:70ch;
 }
@@ -138,3 +140,88 @@ figure svg{transition:filter .3s}
 .chart-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--sub);margin:10px 0 0}
 .chart-legend span{display:inline-flex;align-items:center;gap:6px}
 .chart-legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+
+/* ============================================================
+   STANFORD THEME — cardinal red & white, logo top-right
+   ============================================================ */
+/* thin cardinal band pinned to the very top */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--cardinal-dark),var(--cardinal) 45%,var(--cardinal-bright));z-index:100}
+::selection{background:var(--cardinal);color:#fff}
+a{text-decoration-color:#e2b8b8}
+a:hover{text-decoration-color:var(--cardinal)}
+
+/* Stanford logo, fixed top-right */
+.stanford-badge{position:fixed;top:14px;right:18px;z-index:101;display:block;line-height:0;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.18));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.stanford-badge img{height:52px;width:auto;display:block}
+.stanford-badge:hover{transform:translateY(2px) scale(1.04) rotate(-2deg)}
+@media(max-width:640px){.stanford-badge img{height:38px}}
+
+/* nav accents */
+.nav.scrolled{border-bottom-color:var(--cardinal);box-shadow:0 1px 16px rgba(140,21,21,.08)}
+.nav nav a::after{background:var(--cardinal)}
+.nav nav a:hover{color:var(--cardinal)}
+.brand a{color:var(--cardinal-dark)}
+
+/* headings + hero flourish in cardinal */
+.hero h1{background:linear-gradient(100deg,var(--cardinal-dark) 0%,var(--cardinal) 55%,var(--cardinal-bright) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi-n{background:linear-gradient(180deg,var(--cardinal),var(--cardinal-dark));-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{color:var(--cardinal)}
+.eyebrow::before{background:var(--cardinal)}
+h2{color:var(--cardinal-dark)}
+.snum{color:var(--cardinal);opacity:.85}
+.fnum{color:var(--cardinal-dark)}
+
+/* section top-border tint */
+section{border-top-color:var(--hair)}
+.note{border-left-color:var(--cardinal);background:var(--cardinal-wash)}
+
+/* tables */
+thead th{background:var(--cardinal);color:#fff;border-bottom:2px solid var(--cardinal-dark)}
+thead th:hover{background:var(--cardinal-dark)}
+tbody tr:hover{background:var(--cardinal-wash)}
+td.best{color:var(--cardinal-dark);font-weight:700}
+.pos{color:var(--cardinal-dark);font-weight:700} .neg{color:#b9a3a3}
+
+/* pills */
+.pill{border-color:#e2cfcf}
+.pill.good{background:var(--cardinal);color:#fff;border-color:var(--cardinal)}
+.pill.gain{background:#fff;color:var(--cardinal);border-color:var(--cardinal)}
+.pill.flat{background:#f2eaea;color:var(--sub)}
+.pill.bad{background:#fff;color:var(--sub);border-color:#e2cfcf}
+.pill.kind{background:#fff;color:var(--cardinal-dark);border-color:#e2cfcf}
+
+/* cards */
+.track{background:var(--cardinal-wash);border-color:#eddede}
+.track:hover{box-shadow:0 10px 34px rgba(140,21,21,.10);border-color:var(--cardinal)}
+.track .lab{color:var(--cardinal)}
+
+/* code blocks keep dark but cardinal frame */
+pre{border:1px solid var(--cardinal-dark);box-shadow:inset 3px 0 0 var(--cardinal)}
+
+/* ---- charts: red & white ---- */
+.chart .row .track2{background:#f3e9e9}
+.chart .row .lab{color:var(--ink)}
+.chart .fill.open{background:linear-gradient(90deg,var(--cardinal-dark),var(--cardinal-bright))}
+.chart .fill.closed{background:repeating-linear-gradient(45deg,var(--cardinal),var(--cardinal) 5px,#c0575f 5px,#c0575f 10px)}
+.chart .fill.good{background:linear-gradient(90deg,var(--cardinal-dark),var(--cardinal))}
+.chart .fill.gain{background:linear-gradient(90deg,#b8555b,#d98a90)}
+.chart .fill.flat{background:#e0cccc}
+.chart .fill.bad{background:repeating-linear-gradient(45deg,#e6cccc,#e6cccc 5px,#f3e6e6 5px,#f3e6e6 10px)}
+.chart .zero{background:var(--cardinal-dark)}
+.chart-legend i{border-radius:2px}
+
+/* ---- match reference exactly: sharp corners, neutral surfaces, font features ---- */
+body{font-feature-settings:"ss01","ss02"}
+.track,.tablewrap,.pill,pre,code,.chart .row .track2,.chart .row .fill,.note{border-radius:0}
+.note{border-radius:0}
+/* cards neutral grey (cardinal is accent-only, not a pink wash) */
+.track{background:var(--wash);border-color:var(--hair)}
+.track:hover{border-color:var(--cardinal);box-shadow:0 10px 34px rgba(140,21,21,.10)}
+.chart .row .track2{background:#ececed}
+.note{background:#faf6f6}
+/* KernelAscent brand text in cardinal, sharp underline reveal */
+.brand a{color:var(--cardinal-dark);font-weight:700;letter-spacing:-.01em}
+.dek b{color:var(--cardinal-dark)}
