@@ -25,7 +25,7 @@
       "self_minus_fresh": 0.05,
       "seeds": [
         0.06,
-        -0.005,
+        -0.004,
         0.095
       ],
       "sign_consistent": false,
