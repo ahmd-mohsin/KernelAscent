@@ -3,18 +3,18 @@
   "note": "cross-seed self-vs-fresh; holds = mean(last2)>0.05 AND sign-consistent.",
   "models": [
     {
-      "model": "OpenCoder-1.5B",
+      "model": "deepseek-coder-1.3b-instruct",
       "tier": "small",
       "n_seeds": 2,
-      "C0": 0.063,
-      "C_self": 0.27,
-      "self_minus_fresh": 0.08,
+      "C0": 0.019,
+      "C_self": 0.198,
+      "self_minus_fresh": 0.077,
       "seeds": [
-        0.141,
-        0.02
+        0.06,
+        0.095
       ],
       "sign_consistent": true,
-      "verdict": "compounds"
+      "verdict": "gains"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
@@ -32,15 +32,15 @@
       "verdict": "flat"
     },
     {
-      "model": "deepseek-coder-1.3b-instruct",
+      "model": "OpenCoder-1.5B",
       "tier": "small",
       "n_seeds": 2,
-      "C0": 0.019,
-      "C_self": 0.098,
-      "self_minus_fresh": 0.015,
+      "C0": 0.063,
+      "C_self": 0.272,
+      "self_minus_fresh": 0.01,
       "seeds": [
-        -0.064,
-        0.095
+        0,
+        0.02
       ],
       "sign_consistent": false,
       "verdict": "gains"
