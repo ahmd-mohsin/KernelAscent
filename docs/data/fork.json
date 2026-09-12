@@ -1,0 +1,27 @@
+{
+  "updated": "2026-09-12",
+  "note": "A1 recursion-interruption fork: continued-self vs checkpoint-frozen vs base-frozen producers at equal budget. self_minus_ckpt>0 sustained => genuine compounding, not a one-time producer upgrade.",
+  "models": [
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "fork_round": 4,
+      "rounds": [
+        0
+      ],
+      "C_self": [
+        0.066
+      ],
+      "C_ckpt_frozen": [
+        null
+      ],
+      "C_base_frozen": [
+        null
+      ],
+      "self_minus_ckpt": [
+        null
+      ],
+      "post_fork_mean_self_minus_ckpt": null,
+      "verdict": "one-time upgrade / iterative"
+    }
+  ]
+}

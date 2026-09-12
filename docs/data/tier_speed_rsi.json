@@ -120,11 +120,12 @@
     {
       "model": "Qwen2.5-Coder-7B",
       "tier": "mid",
-      "n_seeds": 3,
-      "C0": 0.186,
-      "C_self": 0.203,
-      "self_minus_fresh": -0.006,
+      "n_seeds": 4,
+      "C0": 0.233,
+      "C_self": 0.152,
+      "self_minus_fresh": -0.005,
       "seeds": [
+        0,
         0,
         -0.027,
         0.008

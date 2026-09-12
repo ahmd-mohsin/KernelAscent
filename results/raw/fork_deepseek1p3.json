@@ -1,0 +1,12 @@
+{
+  "model": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "seed": 0,
+  "fork_round": 4,
+  "C0": 0.03299030180799367,
+  "history": [
+    {
+      "round": 0,
+      "C_self": 0.066
+    }
+  ]
+}

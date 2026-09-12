@@ -45,6 +45,28 @@
       "correct_rate": [
         0.301
       ]
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "tier": "mid",
+      "rounds": [
+        0
+      ],
+      "C_self": [
+        0.0
+      ],
+      "diversity": [
+        0.798
+      ],
+      "retention": [
+        null
+      ],
+      "self_minus_fresh": [
+        0.0
+      ],
+      "correct_rate": [
+        0.0
+      ]
     }
   ]
 }
