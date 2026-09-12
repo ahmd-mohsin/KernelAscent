@@ -5,8 +5,11 @@ set -o pipefail
 REPO="/Users/cmohsinm/MATS/KernelAscent"; RAW="$REPO/results/raw"; KA=/tmp/ka
 mkdir -p "$RAW" "$KA/collect_tmp"
 SSHOPT='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=15 -p 2222'
-# node map: port -> "mainIP w1 w2"
-declare -A NODES=( [1051]="10.3.129.241 10.3.253.112 10.3.231.17" [1052]="10.3.171.65 10.3.90.181 10.3.193.178" [1053]="10.3.82.183 10.3.195.37 10.3.72.151" )
+# node map: port -> "mainIP w1 w2" (bash 3.2 compatible; no associative arrays)
+nodes_for(){ case "$1" in
+  1051) echo "10.3.129.241 10.3.253.112 10.3.231.17";;
+  1052) echo "10.3.171.65 10.3.90.181 10.3.193.178";;
+  1053) echo "10.3.82.183 10.3.195.37 10.3.72.151";; esac; }
 
 pull_node(){ # $1=port $2=ssh-prefix(local main = "" ; worker = ssh cmd)
   local tag="$1"; local runner="$2"
@@ -23,7 +26,7 @@ pull_node(){ # $1=port $2=ssh-prefix(local main = "" ; worker = ssh cmd)
 }
 
 for port in 1051 1052 1053; do
-  read -r main w1 w2 <<< "${NODES[$port]}"
+  read -r main w1 w2 <<< "$(nodes_for $port)"
   pull_node "n${port}m" "$KA/box_${port}.sh"
   for w in "$w1" "$w2"; do
     pull_node "n${port}_${w##*.}" "$KA/box_${port}.sh env SSH_ASKPASS_REQUIRE=force SSH_ASKPASS=/tmp/ap.sh DISPLAY=:0 ssh $SSHOPT greenland-user@$w"
