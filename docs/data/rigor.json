@@ -18,15 +18,28 @@
       "verdict": "compounds"
     },
     {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "n_seeds": 1,
+      "C0": 0.01,
+      "C_self": 0.038,
+      "self_minus_fresh": 0.027,
+      "seeds": [
+        0.027
+      ],
+      "sign_consistent": true,
+      "verdict": "flat"
+    },
+    {
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "n_seeds": 4,
       "C0": 0.066,
-      "C_self": 0.109,
-      "self_minus_fresh": 0.036,
+      "C_self": 0.087,
+      "self_minus_fresh": 0.014,
       "seeds": [
         0,
-        0.089,
+        0,
         0.085,
         -0.028
       ],
@@ -46,6 +59,21 @@
       ],
       "sign_consistent": false,
       "verdict": "gains"
+    },
+    {
+      "model": "starcoder2-3b",
+      "tier": "small",
+      "n_seeds": 3,
+      "C0": 0.008,
+      "C_self": 0.009,
+      "self_minus_fresh": 0.001,
+      "seeds": [
+        -0.01,
+        0.006,
+        0.008
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-3B",
@@ -75,15 +103,14 @@
       "verdict": "flat"
     },
     {
-      "model": "starcoder2-3b",
+      "model": "Qwen2.5-0.5B",
       "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.002,
-      "C_self": 0.004,
-      "self_minus_fresh": -0.001,
+      "n_seeds": 1,
+      "C0": 0.004,
+      "C_self": 0,
+      "self_minus_fresh": 0,
       "seeds": [
-        -0.01,
-        0.008
+        0
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -101,6 +128,20 @@
       ],
       "sign_consistent": false,
       "verdict": "flat"
+    },
+    {
+      "model": "SmolLM2-1.7B",
+      "tier": "mid",
+      "n_seeds": 2,
+      "C0": 0.12,
+      "C_self": 0.247,
+      "self_minus_fresh": 0.06,
+      "seeds": [
+        0.063,
+        0.057
+      ],
+      "sign_consistent": true,
+      "verdict": "compounds"
     },
     {
       "model": "deepseek-coder-6.7b-instruct",

@@ -34,22 +34,28 @@
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1
       ],
       "C_self": [
-        0.089
-      ],
-      "diversity": [
+        0.089,
         0.0
       ],
+      "diversity": [
+        0.0,
+        0.904
+      ],
       "retention": [
-        1.0
+        1.0,
+        0.0
       ],
       "self_minus_fresh": [
-        0.089
+        0.089,
+        0.0
       ],
       "correct_rate": [
-        0.301
+        0.301,
+        0.0
       ]
     },
     {

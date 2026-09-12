@@ -1,0 +1,33 @@
+{
+  "model": "bigcode/starcoder2-3b",
+  "seed": 3,
+  "C0_frozen": 0.020796129457283045,
+  "C0_ci": 0.01841960091928869,
+  "C0_correct_rate": 0.082,
+  "C0_compiled_sp": 0.038,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.018,
+      "C_self_ci": 0.017,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.012,
+      "C_fresh_ci": 0.014,
+      "correct_rate_self": 0.055,
+      "compiled_sp_self": 0.016,
+      "delta_self": -0.003,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.006,
+      "n_uniq_self": 0,
+      "diversity_self": 0.0,
+      "retention": 1.0,
+      "round_sec": 2178.7,
+      "cum_gpu_hours": 1.21,
+      "n_gens": 128
+    }
+  ]
+}

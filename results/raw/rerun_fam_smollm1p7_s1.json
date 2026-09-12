@@ -1,0 +1,33 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "seed": 1,
+  "C0_frozen": 0.13173094363142726,
+  "C0_ci": 0.03715449511194499,
+  "C0_correct_rate": 0.466,
+  "C0_compiled_sp": 0.131,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.15,
+      "n_ex": 12,
+      "loss": 0.036,
+      "C_self": 0.271,
+      "C_self_ci": 0.028,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.214,
+      "C_fresh_ci": 0.035,
+      "correct_rate_self": 0.932,
+      "compiled_sp_self": 0.361,
+      "delta_self": 0.14,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.057,
+      "n_uniq_self": 11,
+      "diversity_self": 0.784,
+      "retention": 1.0,
+      "round_sec": 1845.2,
+      "cum_gpu_hours": 1.025,
+      "n_gens": 128
+    }
+  ]
+}

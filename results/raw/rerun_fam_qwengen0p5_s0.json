@@ -1,0 +1,33 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "seed": 0,
+  "C0_frozen": 0.003510970825465533,
+  "C0_ci": 0.006834206705445754,
+  "C0_correct_rate": 0.027,
+  "C0_compiled_sp": 0.002,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.0,
+      "C_self_ci": 0.0,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.0,
+      "C_fresh_ci": 0.0,
+      "correct_rate_self": 0.0,
+      "compiled_sp_self": 0.0,
+      "delta_self": -0.004,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.0,
+      "n_uniq_self": 0,
+      "diversity_self": 0.0,
+      "retention": null,
+      "round_sec": 2048.8,
+      "cum_gpu_hours": 1.138,
+      "n_gens": 128
+    }
+  ]
+}

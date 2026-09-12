@@ -7,21 +7,26 @@
       "fork_round": 4,
       "rounds": [
         0,
-        1
+        1,
+        2
       ],
       "C_self": [
         0.066,
-        0.228
+        0.228,
+        0.286
       ],
       "C_ckpt_frozen": [
+        null,
         null,
         null
       ],
       "C_base_frozen": [
         null,
+        null,
         null
       ],
       "self_minus_ckpt": [
+        null,
         null,
         null
       ],
