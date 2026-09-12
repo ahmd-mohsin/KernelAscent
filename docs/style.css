@@ -225,3 +225,20 @@ body{font-feature-settings:"ss01","ss02"}
 /* KernelAscent brand text in cardinal, sharp underline reveal */
 .brand a{color:var(--cardinal-dark);font-weight:700;letter-spacing:-.01em}
 .dek b{color:var(--cardinal-dark)}
+
+/* ---- nav layout fix: Stanford logo in-flow at right (no overlap), mono uppercase links ---- */
+.stanford-badge{display:none!important}   /* retired the fixed overlay */
+.nav{padding:12px 30px}
+.nav-right{display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:flex-end;max-width:none!important}
+.nav-right nav{display:flex;gap:20px;flex-wrap:wrap}
+.brand a{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.02em;color:var(--cardinal-dark)}
+.logo{height:22px}
+.nav nav a{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:var(--sub)}
+.nav nav a:hover{color:var(--cardinal)}
+.nav nav a::after{background:var(--cardinal);bottom:-4px}
+/* Stanford logo, cleanly in the nav's right group */
+.stanford{line-height:0;display:inline-flex;align-items:center;padding-left:6px;border-left:1px solid var(--hair);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.stanford img{height:36px;width:auto;display:block;filter:drop-shadow(0 1px 4px rgba(0,0,0,.16))}
+.stanford:hover{transform:scale(1.05) rotate(-2deg)}
+@media(max-width:640px){.stanford img{height:30px}.nav{padding:10px 18px}.nav-right{gap:14px}}
