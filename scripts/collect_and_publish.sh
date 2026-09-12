@@ -24,7 +24,7 @@ pull_node(){ # $1=port $2=ssh-prefix(local main = "" ; worker = ssh cmd)
   for cj in "$d"/rerun_*/combined_rsi.json; do [ -e "$cj" ] || continue; local t=$(basename $(dirname "$cj")); cp "$cj" "$RAW/$t.json"; done
   for tj in "$d"/rerun_*/track_c.json; do [ -e "$tj" ] || continue; local t=$(basename $(dirname "$tj")); cp "$tj" "$RAW/$t.json"; done
   for mj in "$d"/mech_*/weight_rsi.json; do [ -e "$mj" ] || continue; local t=$(basename $(dirname "$mj")); cp "$mj" "$RAW/$t.json"; done
-  for fj in ""/fork_*/recursion_fork.json; do [ -e "" ] || continue; local t=$(basename $(dirname "")); cp "" "/.json"; done
+  for fj in "$d"/fork_*/recursion_fork.json; do [ -e "$fj" ] || continue; local t=$(basename $(dirname "$fj")); cp "$fj" "$RAW/$t.json"; done
 }
 
 for port in 1051 1052 1053; do
