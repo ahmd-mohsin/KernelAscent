@@ -19,6 +19,14 @@
     {
       "round": 3,
       "C_self": 0.282
+    },
+    {
+      "round": 4,
+      "C_self": 0.283,
+      "C_ckpt_frozen": 0.287,
+      "C_base_frozen": 0.041,
+      "self_minus_ckpt": -0.004,
+      "self_minus_base": 0.242
     }
   ]
 }

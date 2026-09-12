@@ -8,10 +8,10 @@
       "n_seeds": 3,
       "C0": 0.023,
       "C_self": 0.226,
-      "self_minus_fresh": 0.107,
+      "self_minus_fresh": 0.06,
       "seeds": [
         0.06,
-        0.166,
+        0.024,
         0.095
       ],
       "sign_consistent": true,
@@ -45,6 +45,19 @@
         -0.028
       ],
       "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-0.5B",
+      "tier": "small",
+      "n_seeds": 1,
+      "C0": 0.004,
+      "C_self": 0.011,
+      "self_minus_fresh": 0.011,
+      "seeds": [
+        0.011
+      ],
+      "sign_consistent": true,
       "verdict": "flat"
     },
     {
@@ -94,19 +107,6 @@
       "tier": "small",
       "n_seeds": 1,
       "C0": 0.112,
-      "C_self": 0,
-      "self_minus_fresh": 0,
-      "seeds": [
-        0
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
-      "model": "Qwen2.5-0.5B",
-      "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.004,
       "C_self": 0,
       "self_minus_fresh": 0,
       "seeds": [
