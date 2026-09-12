@@ -48,19 +48,6 @@
       "verdict": "gains"
     },
     {
-      "model": "Qwen2.5-0.5B",
-      "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.004,
-      "C_self": 0.005,
-      "self_minus_fresh": 0.005,
-      "seeds": [
-        0.005
-      ],
-      "sign_consistent": true,
-      "verdict": "flat"
-    },
-    {
       "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "n_seeds": 2,
@@ -79,6 +66,19 @@
       "tier": "small",
       "n_seeds": 1,
       "C0": 0.112,
+      "C_self": 0,
+      "self_minus_fresh": 0,
+      "seeds": [
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Qwen2.5-0.5B",
+      "tier": "small",
+      "n_seeds": 1,
+      "C0": 0.004,
       "C_self": 0,
       "self_minus_fresh": 0,
       "seeds": [
@@ -131,20 +131,6 @@
       "verdict": "flat"
     },
     {
-      "model": "SmolLM2-1.7B",
-      "tier": "mid",
-      "n_seeds": 2,
-      "C0": 0.12,
-      "C_self": 0.288,
-      "self_minus_fresh": 0.028,
-      "seeds": [
-        0.043,
-        0.013
-      ],
-      "sign_consistent": true,
-      "verdict": "gains"
-    },
-    {
       "model": "deepseek-coder-6.7b-instruct",
       "tier": "mid",
       "n_seeds": 3,
@@ -172,6 +158,20 @@
       ],
       "sign_consistent": false,
       "verdict": "flat"
+    },
+    {
+      "model": "SmolLM2-1.7B",
+      "tier": "mid",
+      "n_seeds": 2,
+      "C0": 0.12,
+      "C_self": 0.288,
+      "self_minus_fresh": -0.001,
+      "seeds": [
+        -0.001,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "gains"
     },
     {
       "model": "Qwen2.5-Coder-7B",
@@ -207,13 +207,14 @@
     {
       "model": "Qwen2.5-Coder-14B",
       "tier": "large",
-      "n_seeds": 3,
-      "C0": 0.37,
-      "C_self": 0.349,
-      "self_minus_fresh": -0.031,
+      "n_seeds": 4,
+      "C0": 0.378,
+      "C_self": 0.366,
+      "self_minus_fresh": -0.022,
       "seeds": [
         -0.022,
         0.027,
+        0.008,
         -0.099
       ],
       "sign_consistent": false,

@@ -81,25 +81,31 @@
       "tier": "mid",
       "rounds": [
         0,
-        1
+        1,
+        2
       ],
       "C_self": [
+        0.0,
         0.0,
         0.0
       ],
       "diversity": [
         0.798,
+        0.0,
         0.0
       ],
       "retention": [
+        null,
         null,
         null
       ],
       "self_minus_fresh": [
         0.0,
+        0.0,
         0.0
       ],
       "correct_rate": [
+        0.0,
         0.0,
         0.0
       ]
@@ -124,6 +130,28 @@
       ],
       "correct_rate": [
         0.189
+      ]
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "tier": "large",
+      "rounds": [
+        0
+      ],
+      "C_self": [
+        0.417
+      ],
+      "diversity": [
+        0.814
+      ],
+      "retention": [
+        1.0
+      ],
+      "self_minus_fresh": [
+        0.008
+      ],
+      "correct_rate": [
+        1.0
       ]
     }
   ]
