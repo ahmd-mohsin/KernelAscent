@@ -13,8 +13,13 @@ A3. CAUSAL diversity/forgetting rescue — [ ] randomize diversity-preserving sa
     controls; show they RESCUE the large model; collapse-precedes-deterioration timing.
 A4. SCORE decomposition/validation — [ ] split correctness-rate vs speedup (is T4 +0.472 just correctness?);
     audit roofline vs strong measured impls; rankings under alt aggregates; per-resource-budget.
-A5. TRANSFER + REPRO moat — [ ] family-disjoint splits (seen-op vs unseen computation families); 2nd GPU arch
-    (H100); frozen final test set; release trajectories+rejected kernels+harness diffs; open-only track.
+A5. TRANSFER + REPRO moat (A100-ONLY; no H100 available) — [ ] family-disjoint splits (seen-op shapes vs
+    genuinely UNSEEN computation families) = the real moat; frozen final test set never used for round-selection;
+    release full trajectories + rejected kernels + harness diffs; open-only reproducible track. HARDWARE angle
+    (H100 dropped): (a) headroom score is already hardware-RELATIVE (% of achievable roofline) -> portability by
+    design; (b) substitute cross-arch with measurement-robustness: N-trial locked-clock timing + cross-A100-node
+    consistency; (c) note cross-architecture generalization as explicit future work. Also: broad FAMILY REPLICATION
+    of small-compounds/large-overfits across many model families (have lots of A100).
 A6. FRAMING — [ ] retitle "When Learning to Optimize Compounds and When It Collapses"; measurement+discovery+
     mechanism; replicate small/large across families; T4 secondary; drop early-warning as headline.
 
