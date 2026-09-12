@@ -1,0 +1,33 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "seed": 0,
+  "C0_frozen": 0.05955100417223325,
+  "C0_ci": 0.029565527322689494,
+  "C0_correct_rate": 0.219,
+  "C0_compiled_sp": 0.083,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.016,
+      "n_ex": 1,
+      "loss": 0.045,
+      "C_self": 0.089,
+      "C_self_ci": 0.034,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.0,
+      "C_fresh_ci": 0.0,
+      "correct_rate_self": 0.301,
+      "compiled_sp_self": 0.104,
+      "delta_self": 0.03,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.089,
+      "n_uniq_self": 1,
+      "diversity_self": 0.0,
+      "retention": 1.0,
+      "round_sec": 2176.5,
+      "cum_gpu_hours": 1.209,
+      "n_gens": 128
+    }
+  ]
+}
