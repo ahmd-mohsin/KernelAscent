@@ -75,25 +75,25 @@
       "verdict": "gains"
     },
     {
-      "model": "Qwen2.5-Coder-3B",
+      "model": "Yi-Coder-1.5B-Chat",
       "tier": "small",
       "n_seeds": 2,
-      "C0": 0.109,
-      "C_self": 0.155,
-      "self_minus_fresh": 0,
+      "C0": 0,
+      "C_self": 0.002,
+      "self_minus_fresh": 0.002,
       "seeds": [
         0,
-        0
+        0.003
       ],
       "sign_consistent": false,
       "verdict": "flat"
     },
     {
-      "model": "Yi-Coder-1.5B-Chat",
+      "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "n_seeds": 2,
-      "C0": 0,
-      "C_self": 0,
+      "C0": 0.109,
+      "C_self": 0.155,
       "self_minus_fresh": 0,
       "seeds": [
         0,
@@ -121,10 +121,10 @@
       "n_seeds": 3,
       "C0": 0.008,
       "C_self": 0.003,
-      "self_minus_fresh": -0.006,
+      "self_minus_fresh": -0.003,
       "seeds": [
         -0.01,
-        -0.017,
+        -0.007,
         0.008
       ],
       "sign_consistent": false,
