@@ -20,25 +20,40 @@
       "model": "deepseek-coder-1.3b-instruct",
       "tier": "small",
       "n_seeds": 2,
-      "C0": 0.016,
-      "C_self": 0.065,
-      "self_minus_fresh": 0.052,
+      "C0": 0.019,
+      "C_self": 0.09,
+      "self_minus_fresh": 0.073,
       "seeds": [
-        0.009,
+        0.051,
         0.095
       ],
       "sign_consistent": true,
-      "verdict": "flat"
+      "verdict": "compounds"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "n_seeds": 3,
+      "C0": 0.069,
+      "C_self": 0.147,
+      "self_minus_fresh": 0.05,
+      "seeds": [
+        0.093,
+        0.085,
+        -0.028
+      ],
+      "sign_consistent": false,
+      "verdict": "gains"
     },
     {
       "model": "starcoder2-3b",
       "tier": "small",
       "n_seeds": 2,
       "C0": 0.002,
-      "C_self": 0.013,
+      "C_self": 0.011,
       "self_minus_fresh": 0.007,
       "seeds": [
-        0.007,
+        0.005,
         0.008
       ],
       "sign_consistent": true,
@@ -54,21 +69,6 @@
       "seeds": [
         0,
         0
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
-      "model": "Qwen2.5-Coder-1.5B",
-      "tier": "small",
-      "n_seeds": 3,
-      "C0": 0.07,
-      "C_self": 0.116,
-      "self_minus_fresh": -0.014,
-      "seeds": [
-        -0.099,
-        0.085,
-        -0.028
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -90,24 +90,26 @@
     {
       "model": "starcoder2-7b",
       "tier": "mid",
-      "n_seeds": 1,
-      "C0": 0.023,
-      "C_self": 0.024,
-      "self_minus_fresh": -0.002,
+      "n_seeds": 2,
+      "C0": 0.011,
+      "C_self": 0.012,
+      "self_minus_fresh": -0.001,
       "seeds": [
+        0,
         -0.002
       ],
-      "sign_consistent": true,
+      "sign_consistent": false,
       "verdict": "flat"
     },
     {
       "model": "Qwen2.5-Coder-7B",
       "tier": "mid",
-      "n_seeds": 2,
-      "C0": 0.279,
-      "C_self": 0.304,
-      "self_minus_fresh": -0.009,
+      "n_seeds": 3,
+      "C0": 0.186,
+      "C_self": 0.203,
+      "self_minus_fresh": -0.006,
       "seeds": [
+        0,
         -0.027,
         0.008
       ],
