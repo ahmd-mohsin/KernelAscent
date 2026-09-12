@@ -18,6 +18,20 @@
       "verdict": "compounds"
     },
     {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.078,
+      "self_minus_fresh": 0.024,
+      "seeds": [
+        0.001,
+        0.047
+      ],
+      "sign_consistent": true,
+      "verdict": "gains"
+    },
+    {
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "n_seeds": 4,
@@ -29,20 +43,6 @@
         0,
         0.085,
         -0.028
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
-      "model": "stable-code-3b",
-      "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.016,
-      "C_self": 0.062,
-      "self_minus_fresh": 0.01,
-      "seeds": [
-        -0.027,
-        0.047
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -67,6 +67,20 @@
       "n_seeds": 2,
       "C0": 0.109,
       "C_self": 0.155,
+      "self_minus_fresh": 0,
+      "seeds": [
+        0,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Yi-Coder-1.5B-Chat",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0,
+      "C_self": 0,
       "self_minus_fresh": 0,
       "seeds": [
         0,
@@ -102,20 +116,6 @@
       "verdict": "flat"
     },
     {
-      "model": "Yi-Coder-1.5B-Chat",
-      "tier": "small",
-      "n_seeds": 2,
-      "C0": 0,
-      "C_self": 0,
-      "self_minus_fresh": -0.005,
-      "seeds": [
-        -0.005,
-        -0.006
-      ],
-      "sign_consistent": true,
-      "verdict": "flat"
-    },
-    {
       "model": "starcoder2-3b",
       "tier": "small",
       "n_seeds": 3,
@@ -146,6 +146,20 @@
       "verdict": "gains"
     },
     {
+      "model": "SmolLM2-1.7B",
+      "tier": "mid",
+      "n_seeds": 2,
+      "C0": 0.12,
+      "C_self": 0.288,
+      "self_minus_fresh": 0,
+      "seeds": [
+        0,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "gains"
+    },
+    {
       "model": "starcoder2-7b",
       "tier": "mid",
       "n_seeds": 2,
@@ -158,20 +172,6 @@
       ],
       "sign_consistent": false,
       "verdict": "flat"
-    },
-    {
-      "model": "SmolLM2-1.7B",
-      "tier": "mid",
-      "n_seeds": 2,
-      "C0": 0.12,
-      "C_self": 0.288,
-      "self_minus_fresh": -0.001,
-      "seeds": [
-        -0.001,
-        0
-      ],
-      "sign_consistent": false,
-      "verdict": "gains"
     },
     {
       "model": "Qwen2.5-Coder-7B",
