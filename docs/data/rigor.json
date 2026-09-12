@@ -50,13 +50,13 @@
       "tier": "small",
       "n_seeds": 2,
       "C0": 0.002,
-      "C_self": 0.009,
-      "self_minus_fresh": 0.006,
+      "C_self": 0.006,
+      "self_minus_fresh": 0.002,
       "seeds": [
-        0.004,
+        -0.005,
         0.008
       ],
-      "sign_consistent": true,
+      "sign_consistent": false,
       "verdict": "flat"
     },
     {
@@ -131,16 +131,32 @@
       "verdict": "flat"
     },
     {
+      "model": "starcoder2-15b",
+      "tier": "large",
+      "n_seeds": 2,
+      "C0": 0.077,
+      "C_self": 0.088,
+      "self_minus_fresh": -0.008,
+      "seeds": [
+        0.019,
+        -0.036
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
       "model": "Qwen2.5-Coder-14B",
       "tier": "large",
-      "n_seeds": 1,
-      "C0": 0.291,
-      "C_self": 0.225,
-      "self_minus_fresh": -0.099,
+      "n_seeds": 3,
+      "C0": 0.37,
+      "C_self": 0.356,
+      "self_minus_fresh": -0.031,
       "seeds": [
+        -0.009,
+        0.014,
         -0.099
       ],
-      "sign_consistent": true,
+      "sign_consistent": false,
       "verdict": "overfits"
     }
   ]
