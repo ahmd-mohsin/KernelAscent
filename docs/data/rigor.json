@@ -3,30 +3,30 @@
   "note": "cross-seed self-vs-fresh; holds = mean(last2)>0.05 AND sign-consistent.",
   "models": [
     {
-      "model": "deepseek-coder-1.3b-instruct",
+      "model": "stable-code-3b",
       "tier": "small",
-      "n_seeds": 3,
-      "C0": 0.023,
-      "C_self": 0.226,
-      "self_minus_fresh": 0.06,
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.21,
+      "self_minus_fresh": 0.16,
       "seeds": [
-        0.06,
-        0.024,
-        0.095
+        0.187,
+        0.132
       ],
       "sign_consistent": true,
       "verdict": "compounds"
     },
     {
-      "model": "stable-code-3b",
+      "model": "deepseek-coder-1.3b-instruct",
       "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.016,
-      "C_self": 0.078,
-      "self_minus_fresh": 0.024,
+      "n_seeds": 3,
+      "C0": 0.023,
+      "C_self": 0.226,
+      "self_minus_fresh": 0.053,
       "seeds": [
-        0.001,
-        0.047
+        0.06,
+        0.004,
+        0.095
       ],
       "sign_consistent": true,
       "verdict": "gains"
