@@ -7,10 +7,10 @@
       "tier": "small",
       "n_seeds": 2,
       "C0": 0.063,
-      "C_self": 0.236,
-      "self_minus_fresh": 0.081,
+      "C_self": 0.271,
+      "self_minus_fresh": 0.115,
       "seeds": [
-        0.143,
+        0.21,
         0.02
       ],
       "sign_consistent": true,
@@ -76,15 +76,16 @@
     {
       "model": "deepseek-coder-6.7b-instruct",
       "tier": "mid",
-      "n_seeds": 2,
-      "C0": 0.234,
-      "C_self": 0.309,
-      "self_minus_fresh": 0.013,
+      "n_seeds": 3,
+      "C0": 0.156,
+      "C_self": 0.206,
+      "self_minus_fresh": 0.008,
       "seeds": [
+        0,
         0.005,
         0.02
       ],
-      "sign_consistent": true,
+      "sign_consistent": false,
       "verdict": "gains"
     },
     {
