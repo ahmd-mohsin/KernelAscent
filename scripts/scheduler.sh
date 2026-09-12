@@ -33,8 +33,10 @@ for port in 1051 1052 1053; do
       job=$(head -1 "$QUEUE"); IFS='|' read -r typ a b c d ng <<< "$job"
       ng=${ng:-1}; [ "$nfree" -lt "$ng" ] && break
       g0=${FREE[0]}; g1=${FREE[1]:-$g0}
+      # weight ng=1 -> pack self+fresh+grade on ONE gpu (bf16 small fits); ng>=2 -> self g0, fresh g1
+      wf=$g0; [ "$ng" -ge 2 ] && wf=$g1
       case "$typ" in
-        weight) $R "bash \$HOME/ka/krun_rerun.sh '$a' '$b' '$c' $g0 $g1 $g0 ${d:-0} 30 16" >/dev/null 2>&1;;
+        weight) $R "bash \$HOME/ka/krun_rerun.sh '$a' '$b' '$c' $g0 $wf $g0 ${d:-0} 30 16" >/dev/null 2>&1;;
         comb)   $R "bash \$HOME/ka/krun_comb.sh '$a' '$b' $g0 $g1 '$c' '${d:-sota_run_mid.json}'" >/dev/null 2>&1;;
         trackc) $R "bash \$HOME/ka/krun_trackc.sh '$c' '$b' $g0 '$a'" >/dev/null 2>&1;;
       esac
