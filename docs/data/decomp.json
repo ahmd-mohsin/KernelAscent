@@ -1,0 +1,105 @@
+{
+  "updated": "2026-09-12",
+  "note": "A4: C decomposed into correctness (solved more) vs speed (correct kernels faster). driver = which moved C more.",
+  "models": [
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "n": 1,
+      "d_correct": 0.89,
+      "d_speed": 0.379,
+      "C0": 0.033,
+      "C_final": 0.292,
+      "driver": "correctness"
+    },
+    {
+      "model": "OpenCoder-1.5B",
+      "n": 1,
+      "d_correct": 0.89,
+      "d_speed": 0.345,
+      "C0": 0.029,
+      "C_final": 0.288,
+      "driver": "correctness"
+    },
+    {
+      "model": "starcoder2-15b",
+      "n": 2,
+      "d_correct": 0.432,
+      "d_speed": 0.352,
+      "C0": 0.077,
+      "C_final": 0.261,
+      "driver": "correctness"
+    },
+    {
+      "model": "Qwen2.5-Coder-14B",
+      "n": 2,
+      "d_correct": 0.021,
+      "d_speed": -0.004,
+      "C0": 0.409,
+      "C_final": 0.411,
+      "driver": "correctness"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "n": 1,
+      "d_correct": 0,
+      "d_speed": 0,
+      "C0": 0,
+      "C_final": 0,
+      "driver": "speed"
+    },
+    {
+      "model": "deepseek-coder-6.7b-instruct",
+      "n": 1,
+      "d_correct": 0,
+      "d_speed": 0,
+      "C0": 0,
+      "C_final": 0,
+      "driver": "speed"
+    },
+    {
+      "model": "starcoder2-7b",
+      "n": 1,
+      "d_correct": 0,
+      "d_speed": 0,
+      "C0": 0,
+      "C_final": 0,
+      "driver": "speed"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "n": 1,
+      "d_correct": 0,
+      "d_speed": 0,
+      "C0": 0,
+      "C_final": 0,
+      "driver": "speed"
+    },
+    {
+      "model": "starcoder2-3b",
+      "n": 1,
+      "d_correct": -0.014,
+      "d_speed": -0.001,
+      "C0": 0.003,
+      "C_final": 0,
+      "driver": "correctness"
+    },
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "n": 1,
+      "d_correct": -0.219,
+      "d_speed": -0.083,
+      "C0": 0.059,
+      "C_final": 0,
+      "driver": "correctness"
+    },
+    {
+      "model": "Qwen2.5-Coder-0.5B",
+      "n": 1,
+      "d_correct": -0.384,
+      "d_speed": -0.152,
+      "C0": 0.112,
+      "C_final": 0,
+      "driver": "correctness"
+    }
+  ]
+}
