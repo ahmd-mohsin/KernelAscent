@@ -97,6 +97,29 @@
       "round_sec": 6738.2,
       "cum_gpu_hours": 11.962,
       "n_gens": 128
+    },
+    {
+      "round": 4,
+      "trainC": 0.099,
+      "n_ex": 4,
+      "loss": 0.195,
+      "C_self": 0.182,
+      "C_self_ci": 0.049,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.176,
+      "C_fresh_ci": 0.049,
+      "correct_rate_self": 0.432,
+      "compiled_sp_self": 0.363,
+      "delta_self": 0.093,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": 0.006,
+      "n_uniq_self": 4,
+      "diversity_self": 0.867,
+      "retention": 0.333,
+      "round_sec": 4603.5,
+      "cum_gpu_hours": 14.52,
+      "n_gens": 128
     }
   ]
 }
