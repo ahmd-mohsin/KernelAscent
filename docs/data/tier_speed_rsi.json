@@ -62,6 +62,20 @@
       "verdict": "flat"
     },
     {
+      "model": "Yi-Coder-1.5B-Chat",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0,
+      "C_self": 0.002,
+      "self_minus_fresh": 0.002,
+      "seeds": [
+        0.003,
+        0
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
       "model": "starcoder2-3b",
       "tier": "small",
       "n_seeds": 3,
@@ -117,32 +131,18 @@
       "verdict": "flat"
     },
     {
-      "model": "Yi-Coder-1.5B-Chat",
-      "tier": "small",
-      "n_seeds": 2,
-      "C0": 0,
-      "C_self": 0,
-      "self_minus_fresh": -0.003,
-      "seeds": [
-        -0.005,
-        0
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
       "model": "SmolLM2-1.7B",
       "tier": "mid",
       "n_seeds": 2,
       "C0": 0.12,
-      "C_self": 0.247,
-      "self_minus_fresh": 0.06,
+      "C_self": 0.288,
+      "self_minus_fresh": 0.028,
       "seeds": [
-        0.063,
-        0.057
+        0.043,
+        0.013
       ],
       "sign_consistent": true,
-      "verdict": "compounds"
+      "verdict": "gains"
     },
     {
       "model": "deepseek-coder-6.7b-instruct",

@@ -68,21 +68,27 @@
       "model": "Qwen2.5-Coder-7B",
       "tier": "mid",
       "rounds": [
-        0
+        0,
+        1
       ],
       "C_self": [
+        0.0,
         0.0
       ],
       "diversity": [
-        0.798
+        0.798,
+        0.0
       ],
       "retention": [
+        null,
         null
       ],
       "self_minus_fresh": [
+        0.0,
         0.0
       ],
       "correct_rate": [
+        0.0,
         0.0
       ]
     }
