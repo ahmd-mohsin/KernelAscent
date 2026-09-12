@@ -17,20 +17,6 @@
       "verdict": "compounds"
     },
     {
-      "model": "deepseek-coder-1.3b-instruct",
-      "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.019,
-      "C_self": 0.09,
-      "self_minus_fresh": 0.073,
-      "seeds": [
-        0.051,
-        0.095
-      ],
-      "sign_consistent": true,
-      "verdict": "compounds"
-    },
-    {
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "n_seeds": 3,
@@ -41,6 +27,20 @@
         0.093,
         0.085,
         -0.028
+      ],
+      "sign_consistent": false,
+      "verdict": "gains"
+    },
+    {
+      "model": "deepseek-coder-1.3b-instruct",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.019,
+      "C_self": 0.098,
+      "self_minus_fresh": 0.015,
+      "seeds": [
+        -0.064,
+        0.095
       ],
       "sign_consistent": false,
       "verdict": "gains"
