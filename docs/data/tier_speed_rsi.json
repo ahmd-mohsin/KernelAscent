@@ -135,25 +135,25 @@
       "tier": "large",
       "n_seeds": 2,
       "C0": 0.077,
-      "C_self": 0.113,
-      "self_minus_fresh": 0.003,
+      "C_self": 0.158,
+      "self_minus_fresh": 0.041,
       "seeds": [
         0.04,
-        -0.034
+        0.042
       ],
-      "sign_consistent": false,
-      "verdict": "flat"
+      "sign_consistent": true,
+      "verdict": "gains"
     },
     {
       "model": "Qwen2.5-Coder-14B",
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.37,
-      "C_self": 0.356,
-      "self_minus_fresh": -0.037,
+      "C_self": 0.349,
+      "self_minus_fresh": -0.032,
       "seeds": [
-        -0.012,
-        0,
+        -0.01,
+        0.014,
         -0.099
       ],
       "sign_consistent": false,
