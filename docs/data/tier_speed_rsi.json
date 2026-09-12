@@ -7,11 +7,11 @@
       "tier": "small",
       "n_seeds": 3,
       "C0": 0.023,
-      "C_self": 0.228,
-      "self_minus_fresh": 0.116,
+      "C_self": 0.226,
+      "self_minus_fresh": 0.107,
       "seeds": [
         0.06,
-        0.194,
+        0.166,
         0.095
       ],
       "sign_consistent": true,
@@ -29,6 +29,20 @@
         0,
         0.085,
         -0.028
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0.016,
+      "C_self": 0.062,
+      "self_minus_fresh": 0.01,
+      "seeds": [
+        -0.027,
+        0.047
       ],
       "sign_consistent": false,
       "verdict": "flat"
@@ -88,21 +102,6 @@
       "verdict": "flat"
     },
     {
-      "model": "starcoder2-3b",
-      "tier": "small",
-      "n_seeds": 3,
-      "C0": 0.008,
-      "C_self": 0.004,
-      "self_minus_fresh": -0.004,
-      "seeds": [
-        -0.01,
-        -0.011,
-        0.008
-      ],
-      "sign_consistent": false,
-      "verdict": "flat"
-    },
-    {
       "model": "Yi-Coder-1.5B-Chat",
       "tier": "small",
       "n_seeds": 2,
@@ -117,15 +116,16 @@
       "verdict": "flat"
     },
     {
-      "model": "stable-code-3b",
+      "model": "starcoder2-3b",
       "tier": "small",
-      "n_seeds": 2,
-      "C0": 0.016,
-      "C_self": 0.045,
-      "self_minus_fresh": -0.008,
+      "n_seeds": 3,
+      "C0": 0.008,
+      "C_self": 0.003,
+      "self_minus_fresh": -0.006,
       "seeds": [
-        -0.027,
-        0.011
+        -0.01,
+        -0.017,
+        0.008
       ],
       "sign_consistent": false,
       "verdict": "flat"
