@@ -37,7 +37,8 @@ def load(pat):
 # ---- T2 weight-RSI per-scale (prefer rerun_*, fall back to wrsi_*) ----
 def weight_rsi():
     groups = {}  # base model name -> list of (seed, history, C0)
-    for fn, d in load("rerun_small_*.json") + load("rerun_mid_*.json") + load("rerun_large_*.json") + load("wrsi_*.json"):
+    for fn, d in load("rerun_*.json") + load("mech_*.json") + load("wrsi_*.json"):
+        if "C0_frozen" not in d: continue          # weight-RSI only (excludes comb/trackc which are also rerun_*)
         h = d.get("history", [])
         if not h: continue
         m = d.get("model", fn); short = m.split("/")[-1].replace("-Instruct", "")
@@ -127,5 +128,22 @@ def mech():
                   open(os.path.join(OUT, "mech.json"), "w"), indent=2)
     return len(rows)
 
+def fork():
+    rows=[]
+    for fn,d in load("fork_*.json"):
+        h=d.get("history",[])
+        if not h: continue
+        m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
+        fr=d.get("fork_round",4)
+        smc=[r.get("self_minus_ckpt") for r in h if r.get("self_minus_ckpt") is not None]
+        rows.append(dict(model=m,fork_round=fr,rounds=[r["round"] for r in h],
+            C_self=[r.get("C_self") for r in h], C_ckpt_frozen=[r.get("C_ckpt_frozen") for r in h],
+            C_base_frozen=[r.get("C_base_frozen") for r in h], self_minus_ckpt=[r.get("self_minus_ckpt") for r in h],
+            post_fork_mean_self_minus_ckpt=round(statistics.mean(smc),3) if smc else None,
+            verdict=("genuine recursion" if (len(smc)>=2 and statistics.mean(smc[-2:])>0.03) else "one-time upgrade / iterative")))
+    if rows:
+        json.dump(dict(updated=today,note="A1 recursion-interruption fork: continued-self vs checkpoint-frozen vs base-frozen producers at equal budget. self_minus_ckpt>0 sustained => genuine compounding, not a one-time producer upgrade.",models=rows),open(os.path.join(OUT,"fork.json"),"w"),indent=2)
+    return len(rows)
+
 if __name__ == "__main__":
-    print("aggregated: tier=%d combined=%d trackc=%d mech=%d" % (weight_rsi(), combined(), trackc(), mech()))
+    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d" % (weight_rsi(), combined(), trackc(), mech(), fork()))
