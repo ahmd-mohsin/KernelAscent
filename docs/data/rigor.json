@@ -135,10 +135,10 @@
       "tier": "large",
       "n_seeds": 2,
       "C0": 0.077,
-      "C_self": 0.104,
-      "self_minus_fresh": -0.007,
+      "C_self": 0.107,
+      "self_minus_fresh": 0.011,
       "seeds": [
-        0.004,
+        0.04,
         -0.019
       ],
       "sign_consistent": false,
