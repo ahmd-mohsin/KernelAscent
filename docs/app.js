@@ -159,6 +159,41 @@ fetch("data/trackc.json").then(r => r.json()).then(d => {
     <td>${verdictPill(m.verdict === "improves" ? "compounds" : (m.verdict === "degrades" ? "overfits" : "flat"))}</td></tr>`).join("");
 }).catch(e => {});
 
+// Mechanism dense multi-curve panels
+const MECH_COLORS = ["#6f1010", "#B1040E", "#8C1515", "#c0575f", "#d98a90", "#e0b0b0", "#a33", "#7a2222"];
+function mechPanel(el, models, key, yminF, ymaxF) {
+  if (!el) return;
+  const W = 320, H = 180, pad = 28;
+  const allv = models.flatMap(m => (m[key] || []).filter(v => typeof v === "number"));
+  if (!allv.length) { el.innerHTML = ""; return; }
+  let ymin = yminF !== undefined ? yminF : Math.min(0, ...allv);
+  let ymax = ymaxF !== undefined ? ymaxF : Math.max(...allv);
+  if (ymax === ymin) ymax = ymin + 1;
+  const maxR = Math.max(...models.map(m => (m.rounds || []).length)) - 1 || 1;
+  const X = r => pad + r / maxR * (W - pad - 8);
+  const Y = v => H - pad - (v - ymin) / (ymax - ymin) * (H - pad - 10);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  svg += `<line class="axis" x1="${pad}" y1="${H-pad}" x2="${W-4}" y2="${H-pad}"/><line class="axis" x1="${pad}" y1="8" x2="${pad}" y2="${H-pad}"/>`;
+  if (ymin < 0) svg += `<line class="zero" x1="${pad}" y1="${Y(0)}" x2="${W-4}" y2="${Y(0)}"/>`;
+  svg += `<text x="2" y="12" font-size="9" fill="#9a9a9a">${ymax.toFixed(2)}</text><text x="2" y="${H-pad}" font-size="9" fill="#9a9a9a">${ymin.toFixed(2)}</text>`;
+  models.forEach((m, i) => {
+    const pts = (m[key] || []).map((v, r) => (typeof v === "number") ? `${X(r)},${Y(v)}` : null).filter(Boolean).join(" ");
+    if (pts) svg += `<polyline points="${pts}" stroke="${MECH_COLORS[i % MECH_COLORS.length]}"/>`;
+  });
+  svg += `</svg>`;
+  el.innerHTML = svg;
+}
+fetch("data/mech.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("mech-updated"); if (up) up.textContent = (d.updated || "");
+  const ms = d.models || [];
+  mechPanel(document.getElementById("mech-C_self"), ms, "C_self", 0);
+  mechPanel(document.getElementById("mech-diversity"), ms, "diversity", 0, 1);
+  mechPanel(document.getElementById("mech-retention"), ms, "retention", 0, 1);
+  mechPanel(document.getElementById("mech-self_minus_fresh"), ms, "self_minus_fresh");
+  const leg = document.getElementById("mech-legend");
+  if (leg) leg.innerHTML = ms.map((m, i) => `<span><i style="background:${MECH_COLORS[i % MECH_COLORS.length]}"></i>${m.model}</span>`).join("");
+}).catch(e => {});
+
 // ---- sticky nav + scroll reveal ----
 (function(){
   const nav = document.querySelector(".nav");

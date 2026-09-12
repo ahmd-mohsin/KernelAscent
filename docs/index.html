@@ -193,6 +193,20 @@
   <div class="note"><b>How API models join the RSI axis.</b> A closed model cannot change its weights, but it can improve the procedure that drives its next attempts. Fable-5.1, Nova-Pro, and Llama-3.3-70B all run here; a positive Q gain is recursive self-improvement with weights fixed.</div>
 </section>
 
+<section id="mech">
+  <div class="snum">03e / Mechanism</div>
+  <h2>Why small models compound and large models overfit</h2>
+  <p class="small sub">Twelve rounds of weight-RSI, logging the state of each model's own training signal every round. The story is in the curves: models that keep <b>self-data diversity</b> high and <b>retain</b> their round-0 solutions keep gaining, while models whose self-generated kernels collapse in diversity and forget prior solutions drive <b>self-minus-fresh</b> negative (overfit). Each line is a model. <span id="mech-updated" class="tiny"></span></p>
+  <div class="mechgrid">
+    <figure class="mechpanel"><figcaption><span class="fnum">Capability C (held-out)</span></figcaption><div id="mech-C_self" class="linechart"></div></figure>
+    <figure class="mechpanel"><figcaption><span class="fnum">Self-data diversity</span> (1 = all distinct)</figcaption><div id="mech-diversity" class="linechart"></div></figure>
+    <figure class="mechpanel"><figcaption><span class="fnum">Retention</span> (round-0 solved still solved)</figcaption><div id="mech-retention" class="linechart"></div></figure>
+    <figure class="mechpanel"><figcaption><span class="fnum">Self minus fresh-frozen</span> (causal RSI)</figcaption><div id="mech-self_minus_fresh" class="linechart"></div></figure>
+  </div>
+  <div id="mech-legend" class="chart-legend"></div>
+  <div class="note"><b>The mechanistic finding.</b> Compounding is not about scale per se — it tracks the health of the self-training signal. A model compounds only while its own correct kernels stay diverse and it does not forget; diversity collapse and forgetting are the failure mode behind large-model overfit.</div>
+</section>
+
 <section id="data">
   <div class="snum">04 / Datasets</div>
   <h2>One dataset per task, each with a held out split</h2>

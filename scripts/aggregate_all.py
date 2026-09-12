@@ -108,5 +108,24 @@ def trackc():
                   open(os.path.join(OUT, "trackc.json"), "w"), indent=2)
     return len(rows)
 
+# ---- mechanistic dense curves (mech_* 12-round runs) ----
+def mech():
+    rows = []
+    for fn, d in load("mech_*.json"):
+        h = d.get("history", [])
+        if not h: continue
+        m = d.get("model", fn); short = m.split("/")[-1].replace("-Instruct", "")
+        sf = [r.get("delta_self_minus_fresh") for r in h]
+        rows.append(dict(model=short, tier=tier_of(short), rounds=[r["round"] for r in h],
+            C_self=[r.get("C_self") for r in h], diversity=[r.get("diversity_self") for r in h],
+            retention=[r.get("retention") for r in h], self_minus_fresh=sf,
+            correct_rate=[r.get("correct_rate_self") for r in h]))
+    order = {"small": 0, "mid": 1, "large": 2}
+    rows.sort(key=lambda x: order[x["tier"]])
+    if rows:
+        json.dump(dict(updated=today, note="Mechanism: per-round trajectories over 12 rounds. Compounders sustain self-data DIVERSITY and RETENTION; overfitters show diversity collapse + retention decline as self-minus-fresh goes negative.", models=rows),
+                  open(os.path.join(OUT, "mech.json"), "w"), indent=2)
+    return len(rows)
+
 if __name__ == "__main__":
-    print("aggregated: tier=%d combined=%d trackc=%d" % (weight_rsi(), combined(), trackc()))
+    print("aggregated: tier=%d combined=%d trackc=%d mech=%d" % (weight_rsi(), combined(), trackc(), mech()))
