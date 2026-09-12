@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "seed": 0,
+  "fork_round": 4,
+  "C0": 0.37613388719193036,
+  "history": [
+    {
+      "round": 0,
+      "C_self": 0.0
+    }
+  ]
+}

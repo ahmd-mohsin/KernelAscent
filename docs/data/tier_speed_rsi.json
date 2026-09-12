@@ -7,15 +7,15 @@
       "tier": "small",
       "n_seeds": 3,
       "C0": 0.023,
-      "C_self": 0.152,
-      "self_minus_fresh": 0.062,
+      "C_self": 0.222,
+      "self_minus_fresh": 0.129,
       "seeds": [
         0.06,
-        0.031,
+        0.233,
         0.095
       ],
       "sign_consistent": true,
-      "verdict": "gains"
+      "verdict": "compounds"
     },
     {
       "model": "Qwen2.5-Coder-1.5B",
@@ -84,6 +84,20 @@
       "seeds": [
         -0.01,
         0.008
+      ],
+      "sign_consistent": false,
+      "verdict": "flat"
+    },
+    {
+      "model": "Yi-Coder-1.5B-Chat",
+      "tier": "small",
+      "n_seeds": 2,
+      "C0": 0,
+      "C_self": 0,
+      "self_minus_fresh": -0.003,
+      "seeds": [
+        -0.005,
+        0
       ],
       "sign_consistent": false,
       "verdict": "flat"

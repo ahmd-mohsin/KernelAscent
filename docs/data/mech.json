@@ -6,22 +6,28 @@
       "model": "deepseek-coder-1.3b-instruct",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1
       ],
       "C_self": [
-        0.059
+        0.059,
+        0.267
       ],
       "diversity": [
-        0.811
+        0.811,
+        0.677
       ],
       "retention": [
-        1.0
+        1.0,
+        0.867
       ],
       "self_minus_fresh": [
-        0.031
+        0.031,
+        0.233
       ],
       "correct_rate": [
-        0.219
+        0.219,
+        0.945
       ]
     },
     {

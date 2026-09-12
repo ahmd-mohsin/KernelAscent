@@ -1,0 +1,33 @@
+{
+  "model": "01-ai/Yi-Coder-1.5B-Chat",
+  "seed": 0,
+  "C0_frozen": 0.0,
+  "C0_ci": 0.0,
+  "C0_correct_rate": 0.0,
+  "C0_compiled_sp": 0.0,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.0,
+      "C_self_ci": 0.0,
+      "C_ctrl": null,
+      "C_ctrl_ci": null,
+      "C_fresh": 0.005,
+      "C_fresh_ci": 0.009,
+      "correct_rate_self": 0.0,
+      "compiled_sp_self": 0.0,
+      "delta_self": 0.0,
+      "delta_self_minus_ctrl": null,
+      "delta_self_minus_fresh": -0.005,
+      "n_uniq_self": 0,
+      "diversity_self": 0.0,
+      "retention": null,
+      "round_sec": 1849.9,
+      "cum_gpu_hours": 1.028,
+      "n_gens": 128
+    }
+  ]
+}

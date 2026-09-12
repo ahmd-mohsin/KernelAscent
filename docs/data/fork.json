@@ -6,10 +6,36 @@
       "model": "deepseek-coder-1.3b-instruct",
       "fork_round": 4,
       "rounds": [
+        0,
+        1
+      ],
+      "C_self": [
+        0.066,
+        0.228
+      ],
+      "C_ckpt_frozen": [
+        null,
+        null
+      ],
+      "C_base_frozen": [
+        null,
+        null
+      ],
+      "self_minus_ckpt": [
+        null,
+        null
+      ],
+      "post_fork_mean_self_minus_ckpt": null,
+      "verdict": "one-time upgrade / iterative"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "fork_round": 4,
+      "rounds": [
         0
       ],
       "C_self": [
-        0.066
+        0.0
       ],
       "C_ckpt_frozen": [
         null
