@@ -25,7 +25,9 @@ for port in 1051 1052 1053; do
     [ -s "$QUEUE" ] || break
     R=$(runner_for $port "$ip")
     FREE=($(free_idx "$R")); nfree=${#FREE[@]}
-    [ "$nfree" -lt 1 ] && continue
+    # SAFE: only schedule onto a FULLY IDLE node (all 8 GPUs free). Never pack onto a node with running
+    # jobs — free_idx is fooled by models still loading, which over-subscribes and OOMs live work.
+    [ "$nfree" -lt 8 ] && continue
     # try to launch as many queue jobs as fit on this node's free GPUs
     while [ -s "$QUEUE" ]; do
       job=$(head -1 "$QUEUE"); IFS='|' read -r typ a b c d ng <<< "$job"
