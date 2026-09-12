@@ -48,19 +48,6 @@
       "verdict": "flat"
     },
     {
-      "model": "Qwen2.5-0.5B",
-      "tier": "small",
-      "n_seeds": 1,
-      "C0": 0.004,
-      "C_self": 0.011,
-      "self_minus_fresh": 0.011,
-      "seeds": [
-        0.011
-      ],
-      "sign_consistent": true,
-      "verdict": "flat"
-    },
-    {
       "model": "OpenCoder-1.5B",
       "tier": "small",
       "n_seeds": 2,
@@ -73,6 +60,19 @@
       ],
       "sign_consistent": false,
       "verdict": "gains"
+    },
+    {
+      "model": "Qwen2.5-0.5B",
+      "tier": "small",
+      "n_seeds": 1,
+      "C0": 0.004,
+      "C_self": 0.003,
+      "self_minus_fresh": 0.003,
+      "seeds": [
+        0.003
+      ],
+      "sign_consistent": true,
+      "verdict": "flat"
     },
     {
       "model": "Yi-Coder-1.5B-Chat",
@@ -209,16 +209,16 @@
       "tier": "large",
       "n_seeds": 4,
       "C0": 0.378,
-      "C_self": 0.366,
-      "self_minus_fresh": -0.022,
+      "C_self": 0.363,
+      "self_minus_fresh": -0.016,
       "seeds": [
         -0.022,
         0.027,
-        0.008,
+        0.03,
         -0.099
       ],
       "sign_consistent": false,
-      "verdict": "overfits"
+      "verdict": "flat"
     }
   ]
 }
