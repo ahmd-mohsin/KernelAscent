@@ -1,0 +1,36 @@
+{
+  "model": "01-ai/Yi-Coder-1.5B",
+  "seed": 0,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.576,
+      "gen_dissim": 0.939,
+      "gen_entropy": 0.085,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.579,
+      "gen_dissim": 0.935,
+      "gen_entropy": 0.085,
+      "drift_total": 0.112,
+      "drift_early": 0.064,
+      "drift_mid": 0.0652,
+      "drift_late": 0.0648,
+      "sft_loss": 0.3512
+    }
+  ]
+}
