@@ -198,10 +198,10 @@ fetch("data/mech.json").then(r => r.json()).then(d => {
 fetch("data/open_rsi.json").then(r => r.json()).then(d => {
   const up = document.getElementById("open-updated"); if (up) up.textContent = (d.updated || "");
   const ms = d.models || [];
-  mechPanel(document.getElementById("open-C_frontier"), ms, "C_frontier", 0);
-  mechPanel(document.getElementById("open-frontier"), ms, "frontier", 0);
+  mechPanel(document.getElementById("open-C_frontier"), ms, "delta_open_minus_fixed");
+  mechPanel(document.getElementById("open-frontier"), ms, "base_correct_on_frontier", 0, 1);
   const leg = document.getElementById("open-legend");
-  if (leg) leg.innerHTML = ms.map((m, i) => `<span><i style="background:${MECH_COLORS[i % MECH_COLORS.length]}"></i>${m.model} (${m.sustained||""})</span>`).join("");
+  if (leg) leg.innerHTML = ms.map((m, i) => `<span><i style="background:${MECH_COLORS[i % MECH_COLORS.length]}"></i>${m.model} (${m.verdict||""})</span>`).join("");
 }).catch(e => {});
 
 // ---- sticky nav + scroll reveal ----

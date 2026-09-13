@@ -151,14 +151,17 @@ def open_rsi():
         h=d.get("history",[])
         if not h: continue
         m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
-        cf=[r.get("C_frontier") for r in h]
+        dl=[r.get("delta_open_minus_fixed") for r in h]
+        last2=statistics.mean([x for x in dl[-2:] if x is not None] or [0])
         rows.append(dict(model=m,tier=tier_of(m),rounds=[r["round"] for r in h],
-            C_frontier=cf, frontier=[r.get("frontier") for r in h], added=[r.get("added") for r in h],
-            frontier_growth=(h[-1].get("frontier",0)-h[0].get("frontier",0)),
-            sustained=("yes" if len(cf)>=4 and statistics.mean([x for x in cf[-2:] if x is not None] or [0])>=statistics.mean([x for x in cf[:2] if x is not None] or [0]) else "flat/declining")))
-    rows.sort(key=lambda x:{"small":0,"mid":1,"large":2}[x["tier"]])
+            C_held_open=[r.get("C_held_open") for r in h], C_held_fixed=[r.get("C_held_fixed") for r in h],
+            delta_open_minus_fixed=dl, frontier=[r.get("frontier") for r in h],
+            base_correct_on_frontier=[r.get("base_correct_on_frontier") for r in h],
+            final_delta=round(dl[-1] if dl and dl[-1] is not None else 0,3),
+            verdict=("compounds (open>fixed)" if (len(dl)>=4 and last2>0.05) else "one-time (open==fixed)")))
+    rows.sort(key=lambda x:-x["final_delta"])
     if rows:
-        json.dump(dict(updated=today,note="Task 5 open-ended RSI: proposer escalates task difficulty each round; C_frontier holding/rising on a GROWING frontier = genuine compounding (vs fixed-bank one-time upgrade).",models=rows),open(os.path.join(OUT,"open_rsi.json"),"w"),indent=2)
+        json.dump(dict(updated=today,note="Task 5 open-ended RSI (rigorous): OPEN(escalating frontier) vs FIXED(static) learners at equal budget, same held ladder. PRIMARY=delta_open_minus_fixed; sustained >0 = open-endedness causes compounding. base_correct_on_frontier declining verifies escalation is real.",models=rows),open(os.path.join(OUT,"open_rsi.json"),"w"),indent=2)
     return len(rows)
 
 if __name__ == "__main__":
