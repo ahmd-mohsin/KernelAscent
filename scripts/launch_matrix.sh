@@ -9,6 +9,7 @@ SEED="${2:-0}"
 export KA_DTYPE=bf16 KA_DATA_DIR="$HOME/ka/ka_data"     # collector reads from here
 mkdir -p "$KA_DATA_DIR" /tmp/ka_log
 cd "$(dirname "$0")/.." || exit 1
+export KA_ROOT="$PWD"                                   # repo root: the isolated grader imports from here, NOT /tmp/instance_storage
 export PYTHONPATH="$PWD:${PYTHONPATH:-}"
 
 # unique per-run --outdir ($KA_DATA_DIR/<tag>) so co-located models never collide; collector globs these dirs

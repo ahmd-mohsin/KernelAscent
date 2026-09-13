@@ -6,7 +6,7 @@ Input forms (argv[1] = json path):
   batch  : {"batch": [{"task": src, "codes": [..]}, ...]} -> RESULT<json [[[ok, se, sc], ...], ...]>
 """
 import sys, json, os
-_ROOT = os.environ.get("KA_ROOT", "/tmp/instance_storage")
+_ROOT = os.environ.get("KA_ROOT") or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, _ROOT); sys.path.insert(0, os.path.join(_ROOT, "kernelascent"))
 import torch  # noqa
 from kernelascent import agent_bench as AB
