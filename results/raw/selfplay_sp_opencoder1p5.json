@@ -1,0 +1,19 @@
+{
+  "model": "infly/OpenCoder-1.5B-Instruct",
+  "seed": 0,
+  "held": 30,
+  "history": [
+    {
+      "round": 0,
+      "C_held_selfplay": 0.066,
+      "C_held_static": 0.038,
+      "delta_selfplay_minus_static": 0.028,
+      "frontier": 17,
+      "added": 1,
+      "model_proposed": 0,
+      "backstop": 1,
+      "base_correct_on_new": 0
+    }
+  ],
+  "note": "SELF-PLAY: the improving model authors its own harder tasks; primary=delta_selfplay_minus_static"
+}
