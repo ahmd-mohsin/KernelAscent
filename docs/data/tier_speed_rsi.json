@@ -22,13 +22,13 @@
       "n_seeds": 3,
       "C0": 0.023,
       "C_self": 0.226,
-      "self_minus_fresh": 0.05,
+      "self_minus_fresh": 0.052,
       "seeds": [
         0.06,
-        -0.004,
+        0.001,
         0.095
       ],
-      "sign_consistent": false,
+      "sign_consistent": true,
       "verdict": "gains"
     },
     {
