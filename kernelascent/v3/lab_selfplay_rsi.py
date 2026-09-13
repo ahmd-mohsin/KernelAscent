@@ -110,7 +110,26 @@ def run(args):
     print("SELFPLAY-3ARM %s seed=%d seed_tasks=%d held=%d rounds=%d (S/F/L = static/frozen-author/live-author)" %
           (args.model, args.seed, len(seed_t), len(held), args.rounds), flush=True)
     os.makedirs(args.outdir, exist_ok=True); hist = []
-    for r in range(args.rounds):
+    from peft import get_peft_model_state_dict, set_peft_model_state_dict
+    ckptd = os.path.join(args.outdir, "ckpt"); os.makedirs(ckptd, exist_ok=True)
+    statef = os.path.join(args.outdir, "resume_state.json"); histf = os.path.join(args.outdir, "selfplay_rsi.json")
+    arms = [("S", mS), ("F", mF), ("L", mL)]
+    start = 0
+    if os.path.exists(statef) and os.path.exists(histf):                    # RESUME (state restored from S3 on a new node)
+        st = json.load(open(statef)); hist = json.load(open(histf)).get("history", [])
+        frS, frF, frL = st["frS"], st["frF"], st["frL"]; seen = set(st["seen"]); start = st["round"] + 1
+        for a, m in arms:
+            p = os.path.join(ckptd, "adapter_%s.pt" % a)
+            if os.path.exists(p):
+                try: set_peft_model_state_dict(m, torch.load(p, map_location=next(m.parameters()).device))
+                except Exception as e: print("resume load %s failed: %s" % (a, e), flush=True)
+        print("RESUMED %s from round %d (frontier_L=%d)" % (args.model, start, len(frL)), flush=True)
+    def _checkpoint(r):                                                     # persist adapters + frontier state for resume
+        for a, m in arms:
+            try: torch.save(get_peft_model_state_dict(m), os.path.join(ckptd, "adapter_%s.pt" % a))
+            except Exception: pass
+        json.dump({"round": r, "frS": frS, "frF": frF, "frL": frL, "seen": list(seen)}, open(statef, "w"))
+    for r in range(start, args.rounds):
         t0 = time.time()
         # STATIC
         _, _, pS = _score(tokS, mS, frS, args.k, adapter=True); W.sft(tokS, mS, pS, args.sft_steps)
@@ -144,6 +163,7 @@ def run(args):
         json.dump({"model": args.model, "seed": args.seed, "held": len(held), "history": hist,
                    "note": "3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author co-evolution). L-S=total curriculum, F-S=curriculum w/o author update."},
                   open(os.path.join(args.outdir, "selfplay_rsi.json"), "w"), indent=2)
+        _checkpoint(r)                                                      # save adapters + frontier for resume (mirror to S3 via sync)
     lf = [h["L_minus_F"] for h in hist]; mp = sum(h["live_model_proposed"] for h in hist)
     print("\n=== SELFPLAY-3ARM SUMMARY %s === L-F(co-evolution):" % args.model, lf, "| live model_proposed:", mp)
     print("AUTHOR CO-EVOLUTION COMPOUNDS?", "YES" if len(lf) >= 4 and statistics.mean(lf[-2:]) > 0.05 and mp > 0 else "NO")
