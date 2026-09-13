@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-12",
+  "updated": "2026-09-13",
   "note": "A1 recursion-interruption fork: continued-self vs checkpoint-frozen vs base-frozen producers at equal budget. self_minus_ckpt>0 sustained => genuine compounding, not a one-time producer upgrade.",
   "models": [
     {

@@ -13,6 +13,17 @@
       "model_proposed": 0,
       "backstop": 1,
       "base_correct_on_new": 0
+    },
+    {
+      "round": 1,
+      "C_held_selfplay": 0.208,
+      "C_held_static": 0.241,
+      "delta_selfplay_minus_static": -0.033,
+      "frontier": 23,
+      "added": 6,
+      "model_proposed": 4,
+      "backstop": 2,
+      "base_correct_on_new": 0
     }
   ],
   "note": "SELF-PLAY: the improving model authors its own harder tasks; primary=delta_selfplay_minus_static"

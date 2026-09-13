@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-12",
+  "updated": "2026-09-13",
   "metric": "speed vs torch.compile, size-matched SOTA bank, headroom-normalized, self vs fresh-frozen (multi-seed)",
   "models": [
     {
@@ -194,12 +194,12 @@
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.073,
-      "C_self": 0.297,
-      "self_minus_fresh": 0.083,
+      "C_self": 0.311,
+      "self_minus_fresh": 0.074,
       "seeds": [
         0.006,
         0.056,
-        0.188
+        0.16
       ],
       "sign_consistent": true,
       "verdict": "compounds"

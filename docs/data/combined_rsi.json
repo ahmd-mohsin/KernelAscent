@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-12",
+  "updated": "2026-09-13",
   "note": "closed researcher rewrites the training harness; improved-vs-frozen on the open trainee (headroom score, SOTA bank).",
   "models": [
     {
