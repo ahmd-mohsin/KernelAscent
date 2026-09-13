@@ -13,7 +13,7 @@ export KA_ROOT="$PWD"                                   # repo root: the isolate
 export PYTHONPATH="$PWD:${PYTHONPATH:-}"
 
 # unique per-run --outdir ($KA_DATA_DIR/<tag>) so co-located models never collide; collector globs these dirs
-go() { local tag="$1"; shift; echo "LAUNCH $tag :: $*"; setsid bash -c "$* --outdir $KA_DATA_DIR/$tag > /tmp/ka_log/$tag.log 2>&1" </dev/null & disown; }
+go() { local tag="$1"; shift; echo "LAUNCH $tag :: $*"; nohup bash -c "$* --outdir $KA_DATA_DIR/$tag > /tmp/ka_log/$tag.log 2>&1"</dev/null & disown; }
 
 case "$ROLE" in
   # WHY-RSI mechanism probes, 1 GPU each (small/mid bf16) — 8 models across the node
