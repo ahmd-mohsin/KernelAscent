@@ -7,6 +7,13 @@
 HF token muahmed7338 -> $HOME/.cache/huggingface/token (unlocks gated: starcoder2-15b etc). 40GB/GPU: 14/15B tight on 1 GPU (self-play large arms hit 37GB — OK but risky); 32B & mech_large use 2 GPU/arm via KA_MAXMEM_GIB=18-20.
 WORKER LAUNCH GOTCHA: launch_matrix go()/setsid + double-hop-stdin unreliable on workers. RELIABLE: stage script on main (box 'cat>/tmp/x' < f), then main pushes+runs (box 'cat /tmp/x | ssh worker "cat>/tmp/x && bash /tmp/x"'). See /tmp/ka/mlw.sh pattern.
 launch_matrix ROLE for tiny probes is `mech` NOT `rmech` (tags are rmech_*).
+
+## CRITICAL GOTCHAS (2026-09-13, cost hours):
+1. GRADER SILENT-FAIL: grade_batch.py `_ROOT` defaulted to /tmp/instance_storage (root-only) -> mis-import -> EVERY kernel graded False -> C=0 everywhere. FIXED (commit 19ad54e): self-locate repo via __file__. grade_batch.py is re-exec'd per grade, so fixing the FILE fixes RUNNING jobs (no restart). SANITY: copy-of-reference kernel must grade [True, sp~1.0]; if False the grader is broken.
+2. git pull FAILS on nodes (orchestrator auto-commits to origin diverge the clone; `git pull -q` silently no-ops). Use `git fetch -q origin && git reset --hard origin/main -q` to FORCE the fix. Verify: grep -c 'KA_ROOT.*or os.path' kernelascent/v3/grade_batch.py == 1.
+3. DETACH: setsid-launched jobs DIE when the ssh session closes; `nohup ... </dev/null & disown` (or plain nohup) SURVIVES. launch_matrix go() switched to nohup (3a5b894) but launch via /tmp/ka/runrole.sh (direct nohup, no launch_matrix, no git-pull dependence) is the RELIABLE path.
+4. Self-play grade GPU: set KA_GRADE_GPU=7 so grading doesn't collide with model arms on 0-5.
+Helpers on laptop: /tmp/ka/runrole.sh (all roles, direct nohup), audit_job.sh (fleet GPU-busy+proc audit), closed_launch.sh (5 API closed), mlw.sh (mech_large 4x2GPU). box_1051/1052/1053.sh.
 Reconnect: nohup bash /tmp/ka/tunnel_keeper.sh (NO setsid on macOS). box_1051.sh/box_1052.sh; workers via /tmp/ka/worker_deploy_and_run.sh <wip> <ROLE> <seed> (run FROM a main node, empty-pw SSH). No `timeout` on macOS.
 Deploy: HF_HOME=$HOME/hf (/tmp/instance_storage is root-only!), git clone github.com/ahmd-mohsin/KernelAscent -> $HOME/ka, pip transformers==4.46.3 peft==0.13.2 accelerate==1.1.1 sentencepiece. KA_DATA_DIR=$HOME/ka/ka_data. Jobs die ~24h (started 07:1x Z 2026-09-13 -> ~07Z 2026-09-14).
 
