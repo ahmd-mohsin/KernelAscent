@@ -64,16 +64,45 @@ def _score_set(tok, mdl, srcs, k, adapter):
     return (statistics.mean(sc) if sc else 0.0), (statistics.mean(corr) if corr else 0.0), pairs
 
 
-def escalate(prop, solved, want, seen):
+def _scale_shapes(src, factor=2):
+    """Programmatic difficulty bump: multiply the integer shape args inside get_inputs() torch.* calls by
+    `factor` (rounded to a multiple of 8), producing a genuinely harder (bigger) but VALID variant. Deterministic
+    and reproducible — a curriculum that does not depend on an LLM's output. Returns modified source or None."""
+    m = re.search(r"def get_inputs\(\).*?return\s*\[(.*?)\]", src, re.S)
+    if not m:
+        return None
+    seg = m.group(0)
+    def bump(mm):
+        n = int(mm.group(0))
+        if n < 8:
+            return mm.group(0)                       # leave tiny dims (heads, small consts)
+        return str(min(8192, max(8, (int(n * factor) // 8) * 8)))   # cap to avoid OOM; frontier still grows in COUNT
+    new_seg = re.sub(r"\b\d{2,}\b", bump, seg)        # only bump 2+ digit dims (real shapes)
+    if new_seg == seg:
+        return None
+    return src.replace(seg, new_seg)
+
+
+def escalate(prop, solved, want, seen, factor=2):
+    """Grow the frontier with STRICTLY-HARDER, GPU-validated variants of solved tasks. Programmatic shape-scaling
+    first (deterministic, always valid); Fable enrichment as a bonus. Guarantees escalation when possible."""
     out = []
     for s in solved:
-        if len(out) >= want: break
-        try: gen = prop.generate(HARDER.format(src=s)) or ""
-        except Exception: continue
-        m = re.search(r"```(?:python)?\s*(.*?)```", gen, re.S); code = (m.group(1) if m else gen).strip()
-        key = hashlib.sha1(re.sub(r"\s+", "", code).encode()).hexdigest()
-        if code and key not in seen and "class Model" in code and "get_inputs" in code and _valid(code):
-            seen.add(key); out.append(code)
+        if len(out) >= want:
+            break
+        cand = _scale_shapes(s, factor)               # deterministic harder variant
+        if cand:
+            key = hashlib.sha1(re.sub(r"\s+", "", cand).encode()).hexdigest()
+            if key not in seen and _valid(cand):
+                seen.add(key); out.append(cand); continue
+        try:                                          # fallback: LLM proposer
+            gen = prop.generate(HARDER.format(src=s)) or ""
+            mm = re.search(r"```(?:python)?\s*(.*?)```", gen, re.S); code = (mm.group(1) if mm else gen).strip()
+            key = hashlib.sha1(re.sub(r"\s+", "", code).encode()).hexdigest()
+            if code and key not in seen and "class Model" in code and "get_inputs" in code and _valid(code):
+                seen.add(key); out.append(code)
+        except Exception:
+            pass
     return out
 
 
