@@ -15,7 +15,7 @@ pull_node(){ # $1=port $2=ssh-prefix(local main = "" ; worker = ssh cmd)
   local tag="$1"; local runner="$2"
   # tar every result json under ka_data/rerun_*/ and emit base64
   local b64
-  b64=$($runner 'cd $HOME/ka/ka_data 2>/dev/null && tar cz rerun_*/weight_rsi.json rerun_*/combined_rsi.json rerun_*/track_c.json mech_*/weight_rsi.json fork_*/recursion_fork.json open_*/open_rsi.json 2>/dev/null | base64' 2>/dev/null | grep -v Warning)
+  b64=$($runner 'cd $HOME/ka/ka_data 2>/dev/null && tar cz rerun_*/weight_rsi.json rerun_*/combined_rsi.json rerun_*/track_c.json mech_*/weight_rsi.json fork_*/recursion_fork.json open_*/open_rsi.json selfplay_*/selfplay_rsi.json 2>/dev/null | base64' 2>/dev/null | grep -v Warning)
   [ -z "$b64" ] && return
   local d="$KA/collect_tmp/$tag"; rm -rf "$d"; mkdir -p "$d"
   echo "$b64" | base64 -d 2>/dev/null | tar xz -C "$d" 2>/dev/null
@@ -26,6 +26,7 @@ pull_node(){ # $1=port $2=ssh-prefix(local main = "" ; worker = ssh cmd)
   for mj in "$d"/mech_*/weight_rsi.json; do [ -e "$mj" ] || continue; local t=$(basename $(dirname "$mj")); cp "$mj" "$RAW/$t.json"; done
   for fj in "$d"/fork_*/recursion_fork.json; do [ -e "$fj" ] || continue; local t=$(basename $(dirname "$fj")); cp "$fj" "$RAW/$t.json"; done
   for oj in "$d"/open_*/open_rsi.json; do [ -e "$oj" ] || continue; local t=$(basename $(dirname "$oj")); cp "$oj" "$RAW/$t.json"; done
+  for sj in "$d"/selfplay_*/selfplay_rsi.json; do [ -e "$sj" ] || continue; local t=$(basename $(dirname "$sj")); cp "$sj" "$RAW/$t.json"; done
 }
 
 for port in 1051 1052 1053; do

@@ -19,3 +19,8 @@ Launchers on nodes: krun_rerun.sh (weight), krun_comb.sh (frontier T4), krun_tra
 
 ## Frontier model IDs (Bedrock, us. prefix): us.openai.gpt-5.6-sol, moonshotai.kimi-k2.5, us.anthropic.claude-opus-5, deepseek.v3.2. See memory kernelascent-bedrock-frontier.
 ## Blockers: ROADMAP.md PAPER BLOCKERS P1-P7. P1 re-run in flight; P5 frontier now running (minus Gemini).
+
+## Task 5 SELF-PLAY (true self-referential RSI) — launch on new nodes
+krun_selfplay.sh MODEL TAG BANK SPGPU STGPU GG (bf16, creds needed for nothing — model self-proposes):
+  python -m kernelascent.v3.lab_selfplay_rsi --model <hf> --selfplay-gpu <g> --static-gpu <g2> --rounds 10 --seed-tasks 16 --held 30 --propose 6
+Run on: DeepSeek-1.3B, Qwen-1.5B, Qwen-7B (sota_run_small/mid). PRIMARY=delta_selfplay_minus_static; watch model_proposed>0.

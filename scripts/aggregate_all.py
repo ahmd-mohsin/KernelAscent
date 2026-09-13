@@ -164,5 +164,23 @@ def open_rsi():
         json.dump(dict(updated=today,note="Task 5 open-ended RSI (rigorous): OPEN(escalating frontier) vs FIXED(static) learners at equal budget, same held ladder. PRIMARY=delta_open_minus_fixed; sustained >0 = open-endedness causes compounding. base_correct_on_frontier declining verifies escalation is real.",models=rows),open(os.path.join(OUT,"open_rsi.json"),"w"),indent=2)
     return len(rows)
 
+def selfplay():
+    rows=[]
+    for fn,d in load("selfplay_*.json"):
+        h=d.get("history",[])
+        if not h: continue
+        m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
+        dl=[r.get("delta_selfplay_minus_static") for r in h]; mp=sum(r.get("model_proposed",0) for r in h)
+        last2=statistics.mean([x for x in dl[-2:] if x is not None] or [0])
+        rows.append(dict(model=m,tier=tier_of(m),rounds=[r["round"] for r in h],
+            C_held_selfplay=[r.get("C_held_selfplay") for r in h], C_held_static=[r.get("C_held_static") for r in h],
+            delta=dl, frontier=[r.get("frontier") for r in h], model_proposed=[r.get("model_proposed") for r in h],
+            total_model_proposed=mp, final_delta=round(dl[-1] if dl and dl[-1] is not None else 0,3),
+            verdict=("self-referential RSI compounds" if (len(dl)>=4 and last2>0.05 and mp>0) else "no self-referential compounding")))
+    rows.sort(key=lambda x:-x["final_delta"])
+    if rows:
+        json.dump(dict(updated=today,note="Task 5 SELF-PLAY: the improving model authors its own harder tasks (model_proposed) and solves+trains. PRIMARY=delta_selfplay_minus_static on a fixed held ladder; sustained>0 with model_proposed>0 = genuine self-referential RSI.",models=rows),open(os.path.join(OUT,"selfplay.json"),"w"),indent=2)
+    return len(rows)
+
 if __name__ == "__main__":
-    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d open=%d" % (weight_rsi(), combined(), trackc(), mech(), fork(), open_rsi()))
+    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d open=%d selfplay=%d" % (weight_rsi(), combined(), trackc(), mech(), fork(), open_rsi(), selfplay()))
