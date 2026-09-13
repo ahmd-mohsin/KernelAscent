@@ -194,12 +194,12 @@
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.073,
-      "C_self": 0.198,
-      "self_minus_fresh": 0.019,
+      "C_self": 0.207,
+      "self_minus_fresh": 0.008,
       "seeds": [
         0.006,
         0.056,
-        -0.006
+        -0.037
       ],
       "sign_consistent": false,
       "verdict": "gains"
@@ -209,16 +209,16 @@
       "tier": "large",
       "n_seeds": 4,
       "C0": 0.378,
-      "C_self": 0.363,
-      "self_minus_fresh": -0.016,
+      "C_self": 0.36,
+      "self_minus_fresh": -0.027,
       "seeds": [
         -0.022,
         0.027,
-        0.03,
+        -0.012,
         -0.099
       ],
       "sign_consistent": false,
-      "verdict": "flat"
+      "verdict": "overfits"
     }
   ]
 }
