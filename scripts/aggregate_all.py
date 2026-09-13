@@ -145,5 +145,21 @@ def fork():
         json.dump(dict(updated=today,note="A1 recursion-interruption fork: continued-self vs checkpoint-frozen vs base-frozen producers at equal budget. self_minus_ckpt>0 sustained => genuine compounding, not a one-time producer upgrade.",models=rows),open(os.path.join(OUT,"fork.json"),"w"),indent=2)
     return len(rows)
 
+def open_rsi():
+    rows=[]
+    for fn,d in load("open_*.json"):
+        h=d.get("history",[])
+        if not h: continue
+        m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
+        cf=[r.get("C_frontier") for r in h]
+        rows.append(dict(model=m,tier=tier_of(m),rounds=[r["round"] for r in h],
+            C_frontier=cf, frontier=[r.get("frontier") for r in h], added=[r.get("added") for r in h],
+            frontier_growth=(h[-1].get("frontier",0)-h[0].get("frontier",0)),
+            sustained=("yes" if len(cf)>=4 and statistics.mean([x for x in cf[-2:] if x is not None] or [0])>=statistics.mean([x for x in cf[:2] if x is not None] or [0]) else "flat/declining")))
+    rows.sort(key=lambda x:{"small":0,"mid":1,"large":2}[x["tier"]])
+    if rows:
+        json.dump(dict(updated=today,note="Task 5 open-ended RSI: proposer escalates task difficulty each round; C_frontier holding/rising on a GROWING frontier = genuine compounding (vs fixed-bank one-time upgrade).",models=rows),open(os.path.join(OUT,"open_rsi.json"),"w"),indent=2)
+    return len(rows)
+
 if __name__ == "__main__":
-    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d" % (weight_rsi(), combined(), trackc(), mech(), fork()))
+    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d open=%d" % (weight_rsi(), combined(), trackc(), mech(), fork(), open_rsi()))
