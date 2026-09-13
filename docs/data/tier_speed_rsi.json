@@ -209,16 +209,16 @@
       "tier": "large",
       "n_seeds": 4,
       "C0": 0.378,
-      "C_self": 0.363,
-      "self_minus_fresh": -0.028,
+      "C_self": 0.368,
+      "self_minus_fresh": -0.015,
       "seeds": [
         -0.022,
         0.027,
-        -0.018,
+        0.034,
         -0.099
       ],
       "sign_consistent": false,
-      "verdict": "overfits"
+      "verdict": "flat"
     }
   ]
 }
