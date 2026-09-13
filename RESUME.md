@@ -24,3 +24,8 @@ Launchers on nodes: krun_rerun.sh (weight), krun_comb.sh (frontier T4), krun_tra
 krun_selfplay.sh MODEL TAG BANK SPGPU STGPU GG (bf16, creds needed for nothing — model self-proposes):
   python -m kernelascent.v3.lab_selfplay_rsi --model <hf> --selfplay-gpu <g> --static-gpu <g2> --rounds 10 --seed-tasks 16 --held 30 --propose 6
 Run on: DeepSeek-1.3B, Qwen-1.5B, Qwen-7B (sota_run_small/mid). PRIMARY=delta_selfplay_minus_static; watch model_proposed>0.
+
+## CLOSED self-play (Task 5 for API models, no weights): lab_selfplay_closed.py
+python -m kernelascent.v3.lab_selfplay_closed --model <api-id> --region us-east-2 --rounds 6 --grade-gpu <g> (creds needed)
+Models: us.openai.gpt-5.6-sol, us.anthropic.claude-opus-5, moonshotai.kimi-k2.5, deepseek.v3.2, us.anthropic.claude-fable-5-1.
+PRIMARY=delta_selfplay_minus_static (self-authored escalating frontier + procedure self-modify vs fixed frontier).
