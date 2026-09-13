@@ -100,10 +100,12 @@ def run(args):
         _, _, evS, verS = TC.develop(US, fS, tasks, gen, args.k, args.grade_gpu); US["archive"].update(verS); US = TC.improve(US, evS, gen)
         # FROZEN-AUTHOR: solver procedure improves; author proposes with EMPTY procedure
         _, _, evF, verF = TC.develop(UF, fF, tasks, gen, args.k, args.grade_gpu); UF["archive"].update(verF); UF = TC.improve(UF, evF, gen)
-        addF, stF = _author(gen, UF, list(verF), tasks, args.propose, seen, "F%d" % r, live=False); fF += addF
+        solvedF = [k[5:] for k in verF if k.startswith("fast_") and k[5:] in tasks] or fF   # verified keys are "fast_<taskname>"
+        addF, stF = _author(gen, UF, solvedF, tasks, args.propose, seen, "F%d" % r, live=False); fF += addF
         # LIVE-AUTHOR: solver procedure improves; author proposes conditioned on co-evolved procedure
         _, _, evL, verL = TC.develop(UL, fL, tasks, gen, args.k, args.grade_gpu); UL["archive"].update(verL); UL = TC.improve(UL, evL, gen)
-        addL, stL = _author(gen, UL, list(verL), tasks, args.propose, seen, "L%d" % r, live=True); fL += addL
+        solvedL = [k[5:] for k in verL if k.startswith("fast_") and k[5:] in tasks] or fL
+        addL, stL = _author(gen, UL, solvedL, tasks, args.propose, seen, "L%d" % r, live=True); fL += addL
         # held ladder for all three
         QS, _, _, _ = TC.develop(US, held, tasks, gen, args.k, args.grade_gpu)
         QF, _, _, _ = TC.develop(UF, held, tasks, gen, args.k, args.grade_gpu)
