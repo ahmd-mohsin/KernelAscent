@@ -191,43 +191,69 @@
       "model": "Qwen2.5-Coder-0.5B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1,
+        2
       ],
       "C_held": [
+        0.0,
+        0.0,
         0.0
       ],
       "C_train": [
-        0.031
+        0.031,
+        0.0,
+        0.0
       ],
       "transfer_gap": [
-        0.031
+        0.031,
+        0.0,
+        0.0
       ],
       "retention": [
+        0,
+        0,
         0
       ],
       "gen_distinct2": [
-        0.257
+        0.257,
+        1.0,
+        1.0
       ],
       "gen_dissim": [
-        0.889
+        0.889,
+        0.999,
+        0.999
       ],
       "gen_entropy": [
-        0.005
+        0.005,
+        -0.0,
+        -0.0
       ],
       "drift_total": [
+        null,
+        null,
         null
       ],
       "drift_early": [
+        null,
+        null,
         null
       ],
       "drift_mid": [
+        null,
+        null,
         null
       ],
       "drift_late": [
+        null,
+        null,
         null
       ],
       "sft_loss": [
-        0.0974
+        0.0974,
+        0.0,
+        0.0
       ],
       "compounded": null,
       "mechanisms": [],
@@ -237,42 +263,68 @@
       "model": "Qwen2.5-Coder-0.5B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1,
+        2
       ],
       "C_held": [
+        0.0,
+        0.0,
         0.0
       ],
       "C_train": [
+        0.0,
+        0.0,
         0.0
       ],
       "transfer_gap": [
+        0.0,
+        0.0,
         0.0
       ],
       "retention": [
+        0,
+        0,
         0
       ],
       "gen_distinct2": [
-        0.255
+        0.255,
+        0.26,
+        0.226
       ],
       "gen_dissim": [
-        0.835
+        0.835,
+        0.871,
+        0.846
       ],
       "gen_entropy": [
+        0.005,
+        0.005,
         0.005
       ],
       "drift_total": [
-        null
+        null,
+        0.0,
+        0.0
       ],
       "drift_early": [
-        null
+        null,
+        0.0,
+        0.0
       ],
       "drift_mid": [
-        null
+        null,
+        0.0,
+        0.0
       ],
       "drift_late": [
-        null
+        null,
+        0.0,
+        0.0
       ],
       "sft_loss": [
+        0.0,
+        0.0,
         0.0
       ],
       "compounded": null,
