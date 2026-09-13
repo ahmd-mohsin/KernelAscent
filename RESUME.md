@@ -8,6 +8,13 @@ HF token muahmed7338 -> $HOME/.cache/huggingface/token (unlocks gated: starcoder
 WORKER LAUNCH GOTCHA: launch_matrix go()/setsid + double-hop-stdin unreliable on workers. RELIABLE: stage script on main (box 'cat>/tmp/x' < f), then main pushes+runs (box 'cat /tmp/x | ssh worker "cat>/tmp/x && bash /tmp/x"'). See /tmp/ka/mlw.sh pattern.
 launch_matrix ROLE for tiny probes is `mech` NOT `rmech` (tags are rmech_*).
 
+## S3 PROGRESS STORE + RESUME (new-node handoff)
+Bucket: s3://greenland-intern-artifacts-703671891219-us-east-2-an/kernelascent/ (pre-provisioned intern bucket, acct 703671891219). Access via BOTO3/IRSA on the pod (the aws CLI FAILS cross-account; boto3 works, no keys). scripts/s3ckpt.py: `push` | `restore` | `daemon [secs]`, keyed by run-tag (ka_data subdir), skips cand_modules/compiled_cache.
+- Self-play saves per-round LoRA adapters (ckpt/adapter_{S,F,L}.pt) + resume_state.json (frontiers+seen+round); on start, if resume_state+history exist it RESUMES from the next round.
+- runrole.sh now runs `s3ckpt.py restore` before launch + starts the daemon, so NEW NODES auto-pull prior progress and continue. Runners started before this code have history in S3 but no adapters -> they restart fresh (history preserved).
+- Manual: `python3 scripts/s3ckpt.py push` (sync) / `restore`. Daemon on every node pushes every 300s.
+NEW-NODE FLOW: deploy (git clone) -> stage /tmp/runrole.sh -> bash runrole.sh <ROLE> <seed> (auto restore+daemon+resume). Refresh /tmp/ka/bedrock_creds for closed (they expire ~12h; expired creds -> closed Q=0).
+
 ## CRITICAL GOTCHAS (2026-09-13, cost hours):
 1. GRADER SILENT-FAIL: grade_batch.py `_ROOT` defaulted to /tmp/instance_storage (root-only) -> mis-import -> EVERY kernel graded False -> C=0 everywhere. FIXED (commit 19ad54e): self-locate repo via __file__. grade_batch.py is re-exec'd per grade, so fixing the FILE fixes RUNNING jobs (no restart). SANITY: copy-of-reference kernel must grade [True, sp~1.0]; if False the grader is broken.
 2. git pull FAILS on nodes (orchestrator auto-commits to origin diverge the clone; `git pull -q` silently no-ops). Use `git fetch -q origin && git reset --hard origin/main -q` to FORCE the fix. Verify: grep -c 'KA_ROOT.*or os.path' kernelascent/v3/grade_batch.py == 1.
