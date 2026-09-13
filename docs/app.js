@@ -194,6 +194,16 @@ fetch("data/mech.json").then(r => r.json()).then(d => {
   if (leg) leg.innerHTML = ms.map((m, i) => `<span><i style="background:${MECH_COLORS[i % MECH_COLORS.length]}"></i>${m.model}</span>`).join("");
 }).catch(e => {});
 
+// Task 5 open-ended RSI panels
+fetch("data/open_rsi.json").then(r => r.json()).then(d => {
+  const up = document.getElementById("open-updated"); if (up) up.textContent = (d.updated || "");
+  const ms = d.models || [];
+  mechPanel(document.getElementById("open-C_frontier"), ms, "C_frontier", 0);
+  mechPanel(document.getElementById("open-frontier"), ms, "frontier", 0);
+  const leg = document.getElementById("open-legend");
+  if (leg) leg.innerHTML = ms.map((m, i) => `<span><i style="background:${MECH_COLORS[i % MECH_COLORS.length]}"></i>${m.model} (${m.sustained||""})</span>`).join("");
+}).catch(e => {});
+
 // ---- sticky nav + scroll reveal ----
 (function(){
   const nav = document.querySelector(".nav");

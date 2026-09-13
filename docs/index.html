@@ -30,7 +30,7 @@
   <h1>KernelAscent</h1>
   <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1, Capability</b> measures raw skill in one shot. <b>Task 2, Weight RSI</b> measures recursive self improvement through weight training, for open weight models. <b>Task 3, Procedure RSI</b> lets open and closed models improve their own executable research procedure, weights fixed. Open and closed models both compete on Tasks 1 and 3. Task 2 needs weight access.</p>
   <div class="kpis">
-    <div><div class="kpi-n">3</div><div class="kpi-l">tasks, capability and two RSI tracks</div></div>
+    <div><div class="kpi-n">5</div><div class="kpi-l">tasks: capability + 4 RSI tracks incl. open-ended</div></div>
     <div><div class="kpi-n">19</div><div class="kpi-l">open models on RSI</div></div>
     <div><div class="kpi-n">9</div><div class="kpi-l">model families</div></div>
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
@@ -191,6 +191,18 @@
     </tr></thead><tbody></tbody></table>
   </div>
   <div class="note"><b>How API models join the RSI axis.</b> A closed model cannot change its weights, but it can improve the procedure that drives its next attempts. Fable-5.1, Nova-Pro, and Llama-3.3-70B all run here; a positive Q gain is recursive self-improvement with weights fixed.</div>
+</section>
+
+<section id="openrsi">
+  <div class="snum">03f / Task 5 — Open-ended RSI</div>
+  <h2>The aggressively-recursive task: a frontier that fights back</h2>
+  <p class="small sub">Fixed-task self-training can only deliver a one-time upgrade (our recursion-interruption control shows continued-self ≈ checkpoint-frozen once the bank is fit). Task 5 removes that ceiling: each round a proposer (Fable-5.1) mutates the kernels the model just solved into <b>strictly harder</b> variants, GPU-validates them, and grows the frontier — so difficulty co-evolves with the solver. <b>Holding or rising capability on a growing frontier is genuine compounding</b>, not fitting a fixed set. <span id="open-updated" class="tiny"></span></p>
+  <div class="mechgrid">
+    <figure class="mechpanel"><figcaption><span class="fnum">Capability on the escalating frontier</span></figcaption><div id="open-C_frontier" class="linechart"></div></figure>
+    <figure class="mechpanel"><figcaption><span class="fnum">Frontier size</span> (tasks; grows as the model keeps up)</figcaption><div id="open-frontier" class="linechart"></div></figure>
+  </div>
+  <div id="open-legend" class="chart-legend"></div>
+  <div class="note"><b>Why this is the real RSI test.</b> Levers 1–3 of compounding — an open-ended task frontier, improving the process not the solutions, and novelty pressure — are only exercised when the challenge escalates. Task 5 is where sustained self-improvement, if it exists, must show up.</div>
 </section>
 
 <section id="mech">
