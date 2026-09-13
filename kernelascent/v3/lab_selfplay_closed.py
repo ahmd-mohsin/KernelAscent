@@ -1,15 +1,19 @@
-"""Task 5 (self-play) for CLOSED / API models — self-referential RSI without weight access.
+"""Task 5b — CLOSED / API-model self-play RSI, HARDENED per GPT-6 Astra review (3-arm, anti-hack).
 
-A closed model can't train its weights, but it can do both halves of self-play through its PROCEDURE:
-  (1) AUTHOR its own strictly-harder tasks (API), and
-  (2) IMPROVE its own executable procedure (strategy library + verified archive) to solve them.
-So the same model recursively lifts capability AND difficulty — genuine self-referential RSI, no weights.
+A closed model can't train weights, so its co-evolution channel is its PROCEDURE (strategy library + verified
+archive). Three arms at EQUAL budget, one FIXED held ladder — mirrors the open (5a) 3-arm decomposition:
+  S  STATIC        : procedure self-modifies on a FIXED frontier.
+  F  FROZEN-AUTHOR : frontier ESCALATES, but the AUTHOR proposes with the START (empty) procedure — a frozen
+                     author — while the SOLVER procedure still evolves. (adaptive curriculum, non-evolving author)
+  L  LIVE-AUTHOR   : frontier escalates and the AUTHOR proposes WITH the co-evolved procedure (current strategies
+                     injected). Solver procedure evolves identically to F.
+Decomposition on the held ladder:
+  L-S = total curriculum benefit;  F-S = curriculum w/o author procedure update;  **L-F = author CO-EVOLUTION**
+(the closed self-referential-RSI signal). Only the AUTHOR's procedure differs between F and L.
 
-Reuses lab_track_c.{develop, improve} (procedure-RSI engine). Two arms at equal budget, one FIXED held ladder:
-  SELFPLAY : procedure self-modifies AND the train frontier ESCALATES (model authors harder tasks each round).
-  STATIC   : procedure self-modifies on a FIXED frontier (control).
-PRIMARY = Q_held(selfplay) - Q_held(static). Sustained >0 with model_proposed>0 = closed-model self-referential RSI.
-Escalation verified (frontier grows with validated, harder tasks); output selfplay_closed.json.
+Anti-reward-hacking acceptance for every authored task: valid AND MEANINGFUL (non-constant, non-identity, non-
+trivial runtime) AND novel (dedup). Attribution logged (model_proposed / rejected_degenerate / rejected_dup).
+Output selfplay_closed.json: per round Q_held for S/F/L, deltas L-S, F-S, L-F, frontier, acceptance stats.
 """
 import os, sys, json, argparse, random, statistics, time, re, hashlib
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
@@ -21,7 +25,7 @@ import torch
 PROPOSE = ("Write a NEW, STRICTLY HARDER PyTorch module optimization task in EXACTLY this format: define `DT`, "
            "`class Model(nn.Module)` (__init__, forward), and `def get_inputs()` returning [one DT tensor]. Make it "
            "harder than the example (bigger shapes and/or an extra fused stage). Deterministic, self-contained. "
-           "Return ONLY one python code block.\n\n```python\n{src}\n```")
+           "Return ONLY one python code block.{ctx}\n\n```python\n{src}\n```")
 
 
 def _extract(t):
@@ -29,66 +33,94 @@ def _extract(t):
     return c if ("class Model" in c and "get_inputs" in c and "DT" in c) else None
 
 
-def _valid(src):
+def _meaningful(src):
+    """valid AND non-degenerate: builds, finite gold, output not constant, not identity, non-trivial runtime."""
     try:
-        ref, x, g, e = AB.build_ref(src); return AB.time_fn(lambda z: ref(z), (x,)) > 0 and torch.isfinite(g).all().item()
+        ref, x, g, e = AB.build_ref(src)
+        t = AB.time_fn(lambda z: ref(z), (x,))
+        if not (t > 5e-5 and torch.isfinite(g).all().item()): return False
+        gf = g.float()
+        if gf.std().item() < 1e-6: return False
+        if torch.is_tensor(x) and x.shape == g.shape and torch.allclose(x.float(), gf, atol=1e-3): return False
+        return True
     except Exception:
         return False
 
 
+def _procctx(U):
+    """Compact co-evolved-procedure context the LIVE author is allowed to condition on (FROZEN author gets '')."""
+    ss = U.get("strategies", [])
+    if not ss: return ""
+    return "\n\nYou have learned these optimization strategies; propose a task that stresses them:\n- " + "\n- ".join(str(s)[:160] for s in ss[:6])
+
+
+def _author(gen, U_author, solved, tasks, want, seen, prefix, live):
+    """Propose harder tasks. live=True -> condition on co-evolved procedure; live=False -> frozen (empty) author."""
+    added = []; st = {"model_proposed": 0, "rejected_degenerate": 0, "rejected_dup": 0}
+    ctx = _procctx(U_author) if live else ""
+    for sn in (solved or list(tasks))[:max(want * 2, 8)]:
+        if len(added) >= want: break
+        code = _extract(gen(PROPOSE.format(ctx=ctx, src=tasks[sn]), ""))
+        if not code: continue
+        key = hashlib.sha1(re.sub(r"\s+", "", code).encode()).hexdigest()
+        if key in seen: st["rejected_dup"] += 1; continue
+        if not _meaningful(code): st["rejected_degenerate"] += 1; continue
+        seen.add(key); nn = "%s_%d" % (prefix, len(added)); tasks[nn] = code; added.append(nn); st["model_proposed"] += 1
+    return added, st
+
+
+def _mkgen(args):
+    import curate_bedrock as CB
+    _c = {}
+    def gen(user, system):
+        cur = CB.Curator(args.model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
+        if _c: cur.resolved = _c["r"]; cur.reasoning = _c["rc"]
+        else: cur.resolve(); cur.resolve_reasoning(); _c["r"] = cur.resolved; _c["rc"] = cur.reasoning
+        for _ in range(3):
+            o = cur.generate(user) or ""
+            if o.strip() and not o.startswith("BEDROCK_ERROR"): return o
+        return o
+    return gen
+
+
 def run(args):
     random.seed(args.seed)
-    gen = TC._make_gen(args) if hasattr(TC, "_make_gen") else None
-    if gen is None:
-        import curate_bedrock as CB
-        _c = {}
-        def gen(user, system):
-            cur = CB.Curator(args.model, args.region, os.environ.get("BEDROCK_PROFILE", "bedrock"))
-            if _c: cur.resolved = _c["r"]; cur.reasoning = _c["rc"]
-            else: cur.resolve(); cur.resolve_reasoning(); _c["r"] = cur.resolved; _c["rc"] = cur.reasoning
-            for _ in range(3):
-                o = cur.generate(user) or ""
-                if o.strip() and not o.startswith("BEDROCK_ERROR"): return o
-            return o
+    gen = _mkgen(args)
     tasks = dict(LK.TASKS); names = list(tasks); random.Random(1).shuffle(names)
-    seedn, held = names[:args.seed_tasks], names[args.seed_tasks:args.seed_tasks + args.held]
-    sp_names = list(seedn); st_names = list(seedn)
+    seedn = names[:args.seed_tasks]; held = names[args.seed_tasks:args.seed_tasks + args.held]
+    fS = list(seedn); fF = list(seedn); fL = list(seedn)
     seen = {hashlib.sha1(re.sub(r"\s+", "", tasks[n]).encode()).hexdigest() for n in names}
-    U_sp = {"strategies": [], "archive": {}}; U_st = {"strategies": [], "archive": {}}
-    print("SELFPLAY-CLOSED %s seed=%d seed_tasks=%d held=%d rounds=%d" % (args.model, args.seed, len(seedn), len(held), args.rounds), flush=True)
-    hist = []
+    US = {"strategies": [], "archive": {}}; UF = {"strategies": [], "archive": {}}; UL = {"strategies": [], "archive": {}}
+    print("SELFPLAY-CLOSED-3ARM %s seed=%d seed_tasks=%d held=%d rounds=%d (S/F/L)" %
+          (args.model, args.seed, len(seedn), len(held), args.rounds), flush=True)
+    os.makedirs(args.outdir, exist_ok=True); hist = []
     for r in range(args.rounds):
-        t0 = time.time(); nprop = 0
-        # SELFPLAY: develop on escalating frontier, self-modify procedure, then author harder tasks
-        _, _, ev_sp, ver_sp = TC.develop(U_sp, sp_names, tasks, gen, args.k, args.grade_gpu)
-        U_sp["archive"].update(ver_sp); U_sp = TC.improve(U_sp, ev_sp, gen)
-        solved = [n for n in ver_sp]
-        for sn in (solved or sp_names)[:args.propose * 2]:
-            if nprop >= args.propose: break
-            code = _extract(gen(PROPOSE.format(src=tasks[sn]), "") )
-            if not code: continue
-            key = hashlib.sha1(re.sub(r"\s+", "", code).encode()).hexdigest()
-            if key not in seen and _valid(code):
-                seen.add(key); nn = "sp_%d_%d" % (r, nprop); tasks[nn] = code; sp_names.append(nn); nprop += 1
-        # STATIC: develop on fixed frontier, self-modify procedure (equal budget)
-        _, _, ev_st, ver_st = TC.develop(U_st, st_names, tasks, gen, args.k, args.grade_gpu)
-        U_st["archive"].update(ver_st); U_st = TC.improve(U_st, ev_st, gen)
-        # measure BOTH on the fixed held ladder
-        Qsp, _, _, _ = TC.develop(U_sp, held, tasks, gen, args.k, args.grade_gpu)
-        Qst, _, _, _ = TC.develop(U_st, held, tasks, gen, args.k, args.grade_gpu)
-        row = {"round": r, "Q_held_selfplay": round(Qsp, 3), "Q_held_static": round(Qst, 3),
-               "delta_selfplay_minus_static": round(Qsp - Qst, 3), "frontier": len(sp_names),
-               "model_proposed": nprop, "n_strategies_sp": len(U_sp["strategies"])}
+        t0 = time.time()
+        # STATIC: procedure improves on fixed frontier
+        _, _, evS, verS = TC.develop(US, fS, tasks, gen, args.k, args.grade_gpu); US["archive"].update(verS); US = TC.improve(US, evS, gen)
+        # FROZEN-AUTHOR: solver procedure improves; author proposes with EMPTY procedure
+        _, _, evF, verF = TC.develop(UF, fF, tasks, gen, args.k, args.grade_gpu); UF["archive"].update(verF); UF = TC.improve(UF, evF, gen)
+        addF, stF = _author(gen, UF, list(verF), tasks, args.propose, seen, "F%d" % r, live=False); fF += addF
+        # LIVE-AUTHOR: solver procedure improves; author proposes conditioned on co-evolved procedure
+        _, _, evL, verL = TC.develop(UL, fL, tasks, gen, args.k, args.grade_gpu); UL["archive"].update(verL); UL = TC.improve(UL, evL, gen)
+        addL, stL = _author(gen, UL, list(verL), tasks, args.propose, seen, "L%d" % r, live=True); fL += addL
+        # held ladder for all three
+        QS, _, _, _ = TC.develop(US, held, tasks, gen, args.k, args.grade_gpu)
+        QF, _, _, _ = TC.develop(UF, held, tasks, gen, args.k, args.grade_gpu)
+        QL, _, _, _ = TC.develop(UL, held, tasks, gen, args.k, args.grade_gpu)
+        row = {"round": r, "Q_held_static": round(QS, 3), "Q_held_frozen_author": round(QF, 3), "Q_held_live": round(QL, 3),
+               "L_minus_S": round(QL - QS, 3), "F_minus_S": round(QF - QS, 3), "L_minus_F": round(QL - QF, 3),
+               "frontier_L": len(fL), "frontier_F": len(fF), "live_model_proposed": stL["model_proposed"],
+               "live_rejected_degenerate": stL["rejected_degenerate"], "n_strategies_L": len(UL["strategies"])}
         hist.append(row)
-        print("round %d Q_held sp=%.3f static=%.3f | sp-static=%+.3f frontier=%d(+%d) (%.0fs)" %
-              (r, Qsp, Qst, Qsp - Qst, len(sp_names), nprop, time.time() - t0), flush=True)
-        os.makedirs(args.outdir, exist_ok=True)
-        json.dump({"model": args.model, "seed": args.seed, "history": hist,
-                   "note": "CLOSED self-play: model authors own harder tasks + self-modifies procedure; primary=delta_selfplay_minus_static"},
+        print("round %d Q_held S=%.3f F=%.3f L=%.3f | L-S=%+.3f F-S=%+.3f L-F=%+.3f | live_prop=%d degen=%d (%.0fs)" %
+              (r, QS, QF, QL, QL - QS, QF - QS, QL - QF, stL["model_proposed"], stL["rejected_degenerate"], time.time() - t0), flush=True)
+        json.dump({"model": args.model, "seed": args.seed, "held": len(held), "history": hist,
+                   "note": "CLOSED 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author procedure co-evolution)."},
                   open(os.path.join(args.outdir, "selfplay_closed.json"), "w"), indent=2)
-    dl = [h["delta_selfplay_minus_static"] for h in hist]; mp = sum(h["model_proposed"] for h in hist)
-    print("\n=== SELFPLAY-CLOSED SUMMARY %s === delta:" % args.model, dl, "| model_proposed:", mp)
-    print("closed self-referential RSI?", "YES" if len(dl) >= 3 and statistics.mean(dl[-2:]) > 0.05 and mp > 0 else "NO")
+    lf = [h["L_minus_F"] for h in hist]; mp = sum(h["live_model_proposed"] for h in hist)
+    print("\n=== SELFPLAY-CLOSED-3ARM SUMMARY %s === L-F(co-evolution):" % args.model, lf, "| live model_proposed:", mp)
+    print("CLOSED AUTHOR CO-EVOLUTION COMPOUNDS?", "YES" if len(lf) >= 3 and statistics.mean(lf[-2:]) > 0.05 and mp > 0 else "NO")
 
 
 def main():

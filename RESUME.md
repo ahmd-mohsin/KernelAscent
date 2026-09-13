@@ -20,12 +20,19 @@ Launchers on nodes: krun_rerun.sh (weight), krun_comb.sh (frontier T4), krun_tra
 ## Frontier model IDs (Bedrock, us. prefix): us.openai.gpt-5.6-sol, moonshotai.kimi-k2.5, us.anthropic.claude-opus-5, deepseek.v3.2. See memory kernelascent-bedrock-frontier.
 ## Blockers: ROADMAP.md PAPER BLOCKERS P1-P7. P1 re-run in flight; P5 frontier now running (minus Gemini).
 
-## Task 5 SELF-PLAY (true self-referential RSI) — launch on new nodes
-krun_selfplay.sh MODEL TAG BANK SPGPU STGPU GG (bf16, creds needed for nothing — model self-proposes):
-  python -m kernelascent.v3.lab_selfplay_rsi --model <hf> --selfplay-gpu <g> --static-gpu <g2> --rounds 10 --seed-tasks 16 --held 30 --propose 6
-Run on: DeepSeek-1.3B, Qwen-1.5B, Qwen-7B (sota_run_small/mid). PRIMARY=delta_selfplay_minus_static; watch model_proposed>0.
+## ONE-COMMAND LAUNCH (new nodes): scripts/launch_matrix.sh <ROLE> [SEED]  — packs one 8xA100 node, detached, writes $HOME/ka/ka_data/<tag>/
+Roles: rmech (8 small/mid WHY-RSI probes) | mech_large (4 bigger, 2 GPU ea) | selfplay_small | selfplay_mid | selfplay_large | selfplay_xlarge (32B) | closed (5 API models).
+Suggested 9-node fleet: node1 rmech s0, node2 mech_large s0, node3 selfplay_small s0, node4 selfplay_mid s0, node5 selfplay_large s0, node6 selfplay_xlarge s0, node7 closed s0, node8 selfplay_small s1, node9 selfplay_mid s1.
 
-## CLOSED self-play (Task 5 for API models, no weights): lab_selfplay_closed.py
-python -m kernelascent.v3.lab_selfplay_closed --model <api-id> --region us-east-2 --rounds 6 --grade-gpu <g> (creds needed)
+## Task 5a OPEN self-play — 3-ARM (STATIC / FROZEN-AUTHOR / LIVE-AUTHOR). PRIMARY = L-F (author CO-EVOLUTION).
+  python -m kernelascent.v3.lab_selfplay_rsi --model <hf> --s-gpu <g> --f-gpu <g2> --l-gpu <g3> --rounds 12 --seed-tasks 16 --held 30 --propose 6
+Only the AUTHOR role differs S/F/L; solver learning identical. L-S=total curriculum, F-S=curriculum w/o author update, L-F=self-referential signal. Anti-hack: reject constant/identity/no-op tasks (_meaningful), dedup, attribution logged. bf16, no creds.
+
+## Task 5b CLOSED self-play (API, no weights) — 3-ARM, co-evolution channel = PROCEDURE. lab_selfplay_closed.py
+  python -m kernelascent.v3.lab_selfplay_closed --model <api-id> --region us-east-2 --rounds 6 --grade-gpu <g>  (creds needed)
+FROZEN-AUTHOR = author proposes with EMPTY procedure; LIVE-AUTHOR = proposes conditioned on co-evolved strategies. PRIMARY=L-F.
 Models: us.openai.gpt-5.6-sol, us.anthropic.claude-opus-5, moonshotai.kimi-k2.5, deepseek.v3.2, us.anthropic.claude-fable-5-1.
-PRIMARY=delta_selfplay_minus_static (self-authored escalating frontier + procedure self-modify vs fixed frontier).
+
+## WHY-RSI mechanism probe (fails/passes attribution): lab_rsi_mechanism.py
+  python -m kernelascent.v3.lab_rsi_mechanism --model <hf> --gpu <g> --rounds 8   (bf16, 1-2 GPU)
+Per round: gen_distinct2/gen_dissim (mode collapse), gen_entropy, drift_total + drift_early/mid/late (LoRA change per depth; ->0=ceiling), retention (forgetting), transfer_gap (memorization). VERDICT attributes outcome to {diversity_collapse|forgetting|drift_saturation|no_transfer|no_headroom} or PASS+carrying_depth.

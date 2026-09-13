@@ -164,23 +164,70 @@ def open_rsi():
         json.dump(dict(updated=today,note="Task 5 open-ended RSI (rigorous): OPEN(escalating frontier) vs FIXED(static) learners at equal budget, same held ladder. PRIMARY=delta_open_minus_fixed; sustained >0 = open-endedness causes compounding. base_correct_on_frontier declining verifies escalation is real.",models=rows),open(os.path.join(OUT,"open_rsi.json"),"w"),indent=2)
     return len(rows)
 
-def selfplay():
+def _selfplay_3arm(patterns, outname, note, propkey, primary="L_minus_F"):
+    """3-arm self-play (open sp_* or closed spc_*): PRIMARY = L-F (author co-evolution). Falls back to old 2-arm."""
     rows=[]
-    for fn,d in load("selfplay_*.json"):
-        h=d.get("history",[])
+    seen=set()
+    for pat in patterns:
+        for fn,d in load(pat):
+            h=d.get("history",[])
+            if not h: continue
+            m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
+            key=(m,fn)
+            if key in seen: continue
+            seen.add(key)
+            lf=[r.get(primary) for r in h]; ls=[r.get("L_minus_S") for r in h]; fs=[r.get("F_minus_S") for r in h]
+            mp=sum(r.get(propkey,0) or 0 for r in h)
+            if not any(x is not None for x in lf):        # legacy 2-arm fallback
+                lf=[r.get("delta_selfplay_minus_static") for r in h]; mp=sum(r.get("model_proposed",0) or 0 for r in h)
+            last2=statistics.mean([x for x in lf[-2:] if x is not None] or [0])
+            hi = "C_held_live" if any("C_held_live" in r for r in h) else "Q_held_live"
+            rows.append(dict(model=m,tier=tier_of(m),rounds=[r["round"] for r in h],
+                C_held_live=[r.get(hi) for r in h],
+                C_held_frozen_author=[r.get("C_held_frozen_author",r.get("Q_held_frozen_author")) for r in h],
+                C_held_static=[r.get("C_held_static",r.get("Q_held_static")) for r in h],
+                L_minus_F=lf, L_minus_S=ls, F_minus_S=fs,
+                frontier=[r.get("frontier_L",r.get("frontier")) for r in h],
+                model_proposed=[r.get(propkey,r.get("model_proposed")) for r in h], total_model_proposed=mp,
+                final_L_minus_F=round(lf[-1] if lf and lf[-1] is not None else 0,3),
+                verdict=("author CO-EVOLUTION compounds (L>F)" if (len(lf)>=3 and last2>0.05 and mp>0)
+                         else "adaptive-curriculum only (L==F)" if (len(lf)>=3 and mp>0)
+                         else "no self-referential compounding")))
+    rows.sort(key=lambda x:-x["final_L_minus_F"])
+    if rows:
+        json.dump(dict(updated=today,note=note,models=rows),open(os.path.join(OUT,outname),"w"),indent=2)
+    return len(rows)
+
+def selfplay():
+    return _selfplay_3arm(["selfplay_*.json","sp_*.json"],"selfplay.json",
+        "Task 5a OPEN self-play, 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L-F (author CO-EVOLUTION, the self-referential signal); L-S=total adaptive-curriculum benefit, F-S=benefit w/o updating the author. Sustained L-F>0 with model_proposed>0 = genuine recursive compounding, not just an adaptive curriculum.",
+        "live_model_proposed")
+
+def selfplay_closed():
+    return _selfplay_3arm(["spc_*.json"],"selfplay_closed.json",
+        "Task 5b CLOSED (API) self-play, 3-arm: co-evolution channel is the PROCEDURE. STATIC / FROZEN-AUTHOR (empty-procedure author) / LIVE-AUTHOR (co-evolved-procedure author). PRIMARY=L-F. Sustained L-F>0 with model_proposed>0 = closed-model self-referential RSI without weight access.",
+        "live_model_proposed")
+
+def rsi_mech():
+    """WHY-RSI mechanism probes: per-round diversity/drift/retention/transfer + attributed verdict."""
+    rows=[]
+    for fn,d in load("rmech_*.json"):
+        h=d.get("history",[]); v=d.get("verdict",{})
         if not h: continue
         m=d.get("model",fn).split("/")[-1].replace("-Instruct","").replace("-Chat","")
-        dl=[r.get("delta_selfplay_minus_static") for r in h]; mp=sum(r.get("model_proposed",0) for r in h)
-        last2=statistics.mean([x for x in dl[-2:] if x is not None] or [0])
         rows.append(dict(model=m,tier=tier_of(m),rounds=[r["round"] for r in h],
-            C_held_selfplay=[r.get("C_held_selfplay") for r in h], C_held_static=[r.get("C_held_static") for r in h],
-            delta=dl, frontier=[r.get("frontier") for r in h], model_proposed=[r.get("model_proposed") for r in h],
-            total_model_proposed=mp, final_delta=round(dl[-1] if dl and dl[-1] is not None else 0,3),
-            verdict=("self-referential RSI compounds" if (len(dl)>=4 and last2>0.05 and mp>0) else "no self-referential compounding")))
-    rows.sort(key=lambda x:-x["final_delta"])
+            C_held=[r.get("C_held") for r in h], C_train=[r.get("C_train") for r in h],
+            transfer_gap=[r.get("transfer_gap") for r in h], retention=[r.get("retention") for r in h],
+            gen_distinct2=[r.get("gen_distinct2") for r in h], gen_dissim=[r.get("gen_dissim") for r in h],
+            gen_entropy=[r.get("gen_entropy") for r in h], drift_total=[r.get("drift_total") for r in h],
+            drift_early=[r.get("drift_early") for r in h], drift_mid=[r.get("drift_mid") for r in h],
+            drift_late=[r.get("drift_late") for r in h], sft_loss=[r.get("sft_loss") for r in h],
+            compounded=v.get("compounded"), mechanisms=v.get("mechanisms",[]), carrying_depth=v.get("carrying_depth")))
+    rows.sort(key=lambda x:(not x.get("compounded"), x["model"]))
     if rows:
-        json.dump(dict(updated=today,note="Task 5 SELF-PLAY: the improving model authors its own harder tasks (model_proposed) and solves+trains. PRIMARY=delta_selfplay_minus_static on a fixed held ladder; sustained>0 with model_proposed>0 = genuine self-referential RSI.",models=rows),open(os.path.join(OUT,"selfplay.json"),"w"),indent=2)
+        json.dump(dict(updated=today,note="WHY RSI fails or HOW it passes. Per-round mechanism trajectories: gen_distinct2/gen_dissim (mode collapse), gen_entropy (over-confidence), drift_* (LoRA change per depth; ->0 = ceiling), retention (forgetting), transfer_gap (memorization). Verdict attributes each outcome to a mechanism {diversity_collapse|forgetting|drift_saturation|no_transfer|no_headroom} or PASS + carrying depth.",models=rows),open(os.path.join(OUT,"rsi_mech.json"),"w"),indent=2)
     return len(rows)
 
 if __name__ == "__main__":
-    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d open=%d selfplay=%d" % (weight_rsi(), combined(), trackc(), mech(), fork(), open_rsi(), selfplay()))
+    print("aggregated: tier=%d combined=%d trackc=%d mech=%d fork=%d open=%d selfplay=%d closed=%d rsimech=%d" % (
+        weight_rsi(), combined(), trackc(), mech(), fork(), open_rsi(), selfplay(), selfplay_closed(), rsi_mech()))
