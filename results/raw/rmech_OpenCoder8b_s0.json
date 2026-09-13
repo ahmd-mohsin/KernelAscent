@@ -76,6 +76,21 @@
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "sft_loss": 0.0
+    },
+    {
+      "round": 5,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.164,
+      "gen_dissim": 0.701,
+      "gen_entropy": 1.994,
+      "drift_total": 0.1845,
+      "drift_early": 0.1089,
+      "drift_mid": 0.1062,
+      "drift_late": 0.1048,
+      "sft_loss": 0.0993
     }
   ]
 }
