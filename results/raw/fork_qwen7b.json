@@ -51,6 +51,14 @@
       "C_base_frozen": 0.0,
       "self_minus_ckpt": -0.359,
       "self_minus_base": 0.0
+    },
+    {
+      "round": 8,
+      "C_self": 0.0,
+      "C_ckpt_frozen": 0.361,
+      "C_base_frozen": 0.0,
+      "self_minus_ckpt": -0.361,
+      "self_minus_base": 0.0
     }
   ]
 }

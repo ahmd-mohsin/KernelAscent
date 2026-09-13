@@ -79,9 +79,11 @@
         4,
         5,
         6,
-        7
+        7,
+        8
       ],
       "C_self": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -99,13 +101,15 @@
         0.374,
         0.388,
         0.363,
-        0.359
+        0.359,
+        0.361
       ],
       "C_base_frozen": [
         null,
         null,
         null,
         null,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -119,9 +123,10 @@
         -0.374,
         -0.388,
         -0.363,
-        -0.359
+        -0.359,
+        -0.361
       ],
-      "post_fork_mean_self_minus_ckpt": -0.371,
+      "post_fork_mean_self_minus_ckpt": -0.369,
       "verdict": "one-time upgrade / iterative"
     }
   ]
