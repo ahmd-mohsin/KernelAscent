@@ -3,6 +3,76 @@
   "note": "Task 5a OPEN self-play, 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L-F (author CO-EVOLUTION, the self-referential signal); L-S=total adaptive-curriculum benefit, F-S=benefit w/o updating the author. Sustained L-F>0 with model_proposed>0 = genuine recursive compounding, not just an adaptive curriculum.",
   "models": [
     {
+      "model": "starcoder2-15b",
+      "tier": "large",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "C_held_live": [
+        0.154,
+        0.076,
+        0.0,
+        0.167,
+        0.346
+      ],
+      "C_held_frozen_author": [
+        0.154,
+        0.154,
+        0.193,
+        0.302,
+        0.274
+      ],
+      "C_held_static": [
+        0.116,
+        0.121,
+        0.272,
+        0.038,
+        0.138
+      ],
+      "L_minus_F": [
+        0.0,
+        -0.077,
+        -0.193,
+        -0.135,
+        0.071
+      ],
+      "L_minus_S": [
+        0.038,
+        -0.044,
+        -0.272,
+        0.129,
+        0.208
+      ],
+      "F_minus_S": [
+        0.038,
+        0.033,
+        -0.079,
+        0.263,
+        0.136
+      ],
+      "frontier": [
+        16,
+        17,
+        17,
+        18,
+        18
+      ],
+      "model_proposed": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": 0.071,
+      "verdict": "no self-referential compounding"
+    },
+    {
       "model": "Qwen2.5-Coder-14B",
       "tier": "large",
       "rounds": [
@@ -74,11 +144,13 @@
         4,
         5,
         6,
-        7
+        7,
+        8
       ],
       "C_held_live": [
         0.075,
         0.07,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -94,6 +166,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "C_held_static": [
@@ -104,11 +177,13 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "L_minus_F": [
         0.035,
         -0.045,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -124,6 +199,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "F_minus_S": [
@@ -131,6 +207,7 @@
         0.077,
         0.0,
         -0.039,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -144,11 +221,13 @@
         22,
         23,
         24,
-        25
+        25,
+        26
       ],
       "model_proposed": [
         0,
         1,
+        0,
         0,
         0,
         0,
@@ -170,10 +249,12 @@
         3,
         4,
         5,
-        6
+        6,
+        7
       ],
       "C_held_live": [
         0.039,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -188,6 +269,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "C_held_static": [
@@ -197,9 +279,11 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "L_minus_F": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -215,10 +299,12 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "F_minus_S": [
         -0.0,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -233,12 +319,14 @@
         24,
         25,
         26,
-        27
+        27,
+        28
       ],
       "model_proposed": [
         2,
         1,
         4,
+        0,
         0,
         0,
         0,
@@ -502,67 +590,6 @@
       "total_model_proposed": 3,
       "final_L_minus_F": -0.077,
       "verdict": "adaptive-curriculum only (L==F)"
-    },
-    {
-      "model": "starcoder2-15b",
-      "tier": "large",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_live": [
-        0.154,
-        0.076,
-        0.0,
-        0.167
-      ],
-      "C_held_frozen_author": [
-        0.154,
-        0.154,
-        0.193,
-        0.302
-      ],
-      "C_held_static": [
-        0.116,
-        0.121,
-        0.272,
-        0.038
-      ],
-      "L_minus_F": [
-        0.0,
-        -0.077,
-        -0.193,
-        -0.135
-      ],
-      "L_minus_S": [
-        0.038,
-        -0.044,
-        -0.272,
-        0.129
-      ],
-      "F_minus_S": [
-        0.038,
-        0.033,
-        -0.079,
-        0.263
-      ],
-      "frontier": [
-        16,
-        17,
-        17,
-        18
-      ],
-      "model_proposed": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "total_model_proposed": 0,
-      "final_L_minus_F": -0.135,
-      "verdict": "no self-referential compounding"
     }
   ]
 }
