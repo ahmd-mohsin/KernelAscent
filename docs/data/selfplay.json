@@ -1,6 +1,6 @@
 {
   "updated": "2026-09-13",
-  "note": "Task 5 SELF-PLAY: the improving model authors its own harder tasks (model_proposed) and solves+trains. PRIMARY=delta_selfplay_minus_static on a fixed held ladder; sustained>0 with model_proposed>0 = genuine self-referential RSI.",
+  "note": "Task 5a OPEN self-play, 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L-F (author CO-EVOLUTION, the self-referential signal); L-S=total adaptive-curriculum benefit, F-S=benefit w/o updating the author. Sustained L-F>0 with model_proposed>0 = genuine recursive compounding, not just an adaptive curriculum.",
   "models": [
     {
       "model": "OpenCoder-1.5B",
@@ -9,17 +9,29 @@
         0,
         1
       ],
-      "C_held_selfplay": [
-        0.066,
-        0.208
+      "C_held_live": [
+        null,
+        null
+      ],
+      "C_held_frozen_author": [
+        null,
+        null
       ],
       "C_held_static": [
         0.038,
         0.241
       ],
-      "delta": [
+      "L_minus_F": [
         0.028,
         -0.033
+      ],
+      "L_minus_S": [
+        null,
+        null
+      ],
+      "F_minus_S": [
+        null,
+        null
       ],
       "frontier": [
         17,
@@ -30,7 +42,7 @@
         4
       ],
       "total_model_proposed": 4,
-      "final_delta": -0.033,
+      "final_L_minus_F": -0.033,
       "verdict": "no self-referential compounding"
     }
   ]
