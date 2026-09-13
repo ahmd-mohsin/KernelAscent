@@ -131,6 +131,14 @@ def run(args):
                "live_rejected_degenerate": stL["rejected_degenerate"], "live_backstop": stL["backstop"],
                "base_correct_on_live": round(base_corr, 3)}
         hist.append(row)
+        try:                                             # reasoning-chain trace for later qualitative analysis
+            tf = os.path.join(args.outdir, "selfplay_trace.jsonl")
+            json.dump({"round": r, "live_authored_task": (addL[0][:2000] if addL else None),
+                       "live_best_kernel": (pL[0][1][:2000] if pL else None),
+                       "L_minus_F": round(CL - CF, 3), "live_model_proposed": stL["model_proposed"]},
+                      open(tf, "a")); open(tf, "a").write("\n")
+        except Exception:
+            pass
         print("round %d C_held S=%.3f F=%.3f L=%.3f | L-S=%+.3f F-S=%+.3f L-F=%+.3f | live_prop=%d degen=%d back=%d base=%.2f (%.0fs)" %
               (r, CS, CF, CL, CL - CS, CF - CS, CL - CF, stL["model_proposed"], stL["rejected_degenerate"], stL["backstop"], base_corr, time.time() - t0), flush=True)
         json.dump({"model": args.model, "seed": args.seed, "held": len(held), "history": hist,

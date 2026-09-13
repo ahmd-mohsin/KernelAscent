@@ -107,10 +107,20 @@ def run(args):
             if bc: pairs.append((src, bc))
         return statistics.mean(sc), statistics.mean(corr), pairs, gl
 
+    tracef = os.path.join(args.outdir, "rsi_trace.jsonl")            # per-round reasoning chains for later qualitative analysis
     for r in range(args.rounds):
         t0 = time.time()
         Ctr, corr_tr, pairs, gens = score(train)
         flat = [t for g in gens for t in g]
+        # capture what the model actually produced this round: its raw generation (reasoning+approach) on a fixed
+        # probe task + the best correct kernel it found, so we can later read HOW its strategy evolves round to round.
+        try:
+            json.dump({"round": r, "C_train": round(Ctr, 3),
+                       "sample_generation": (gens[0][0][:2500] if gens and gens[0] else ""),
+                       "best_correct_kernel": (pairs[0][1][:2500] if pairs else None)},
+                      open(tracef, "a")); open(tracef, "a").write("\n")
+        except Exception:
+            pass
         div2 = _distinct2(flat); diss = statistics.mean([_dissim(g) for g in gens]) if gens else 0.0
         ent = _entropy(tok, mdl, probe_prompt, dev)
         loss = W.sft(tok, mdl, pairs, args.sft_steps)
