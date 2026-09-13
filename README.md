@@ -10,12 +10,31 @@ Site: https://ahmd-mohsin.github.io/KernelAscent/ · Full record and every numbe
 
 ---
 
-KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. The current grader times against eager. A unified `torch.compile` deployment baseline is being added and reported separately. The benchmark has two tasks today and a third in progress.
+KernelAscent asks whether models get better at writing GPU kernels — and, crucially, whether that improvement **compounds recursively**. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline (eager today; a unified `torch.compile` baseline is reported separately). Scores are headroom-normalized against a per-task roofline so the ceiling is the *model's* skill, never the benchmark's.
 
-- **Task 1, Capability.** Can a model write a correct, fast kernel in one shot. Open and closed models both compete.
-- **Task 2, RSI.** Does self improvement compound. An open weight model trains on its own correct kernels and we check whether its held out capability keeps rising. Only open weight models can run this, because self improvement here means changing the model's own weights.
+The benchmark is a ladder of five tasks. Tasks 1–4 are building blocks; **Task 5 (self-play) is the true recursive-self-improvement metric.**
 
-Capability is a snapshot of raw skill. RSI is the slope.
+- **Task 1 — Capability.** Can a model write a correct, fast kernel in one shot. Open and closed models compete.
+- **Task 2 — Weight-RSI.** An open-weight model LoRA-trains on its own correct kernels; does held-out capability keep rising? (weights are the improvement channel)
+- **Task 3 — Procedure-RSI.** A model rewrites its own executable strategy library + verified archive; improvement without touching weights (works for closed models).
+- **Task 4 — Closed→Open.** A closed frontier model rewrites the *training harness* of an open trainee; measures improvement transferred through tooling.
+- **Task 5 — Self-play (true RSI).** The model authors its own strictly-harder tasks **and** solves+improves on them, so difficulty and capability co-evolve. This is the airtight recursive-compounding test. Runs for both open-weight (weight channel) and closed (procedure channel) models.
+
+Capability is a snapshot of raw skill. Tasks 2–5 measure the *slope*, and Task 5 measures whether the slope feeds itself.
+
+## Task 5 — self-play, the 3-arm design
+
+Self-play conflates two effects: a harder curriculum, and an author that *co-evolves* with the solver. To separate them we run three arms from the same base at equal budget, scored each round on one fixed held-out ladder:
+
+- **S — STATIC.** Fixed seed frontier; solver improves normally.
+- **F — FROZEN-AUTHOR.** Frontier escalates, but the author is the frozen base — an adaptive curriculum from a non-evolving author. Solver still improves.
+- **L — LIVE-AUTHOR.** Frontier escalates and the author is the *current, evolving* model. Only the author role differs from F.
+
+The decomposition is the whole point: **L−S** = total curriculum benefit, **F−S** = benefit without updating the author, and **L−F = the benefit of author co-evolution** — the self-referential signal, and the primary metric. Every self-authored task passes an anti-reward-hacking gate (rejects constant-output, identity, no-op, or trivial-runtime tasks), is deduplicated, and its provenance is logged (model-proposed vs programmatic backstop). Sustained `L−F > 0` with `model_proposed > 0` is genuine recursive compounding; `L ≈ F` means "adaptive curriculum only."
+
+## Mechanism analysis — *why* RSI fails or *how* it passes
+
+A rising curve says *whether* a model compounds; the mechanism probe says *why*. Each round we log generation diversity (distinct-2, pairwise dissimilarity — mode collapse), predictive entropy, LoRA weight-drift split by transformer depth (→0 means the ceiling is reached), retention on already-solved tasks (catastrophic forgetting), and the train−held transfer gap (memorization vs generalization). A verdict attributes each outcome to a mechanism: `diversity_collapse | forgetting | drift_saturation | no_transfer | no_headroom`, or PASS plus the depth that carries the learning. This turns null results (e.g. sub-2B models that never emit a correct kernel) into findings rather than blanks.
 
 ## Grading
 
@@ -81,7 +100,11 @@ Then open a [model submission issue](https://github.com/ahmd-mohsin/KernelAscent
 
 | path | what |
 |---|---|
-| `kernelascent/v3/lab_weight_rsi.py` | the RSI loop. Writes kernels, LoRA trains on correct ones, re scores held out, batched generation and grading |
+| `kernelascent/v3/lab_weight_rsi.py` | Task 2 weight-RSI loop. Writes kernels, LoRA trains on correct ones, re scores held out |
+| `kernelascent/v3/lab_track_c.py` | Task 3 procedure-RSI: model rewrites its own strategy library + verified archive |
+| `kernelascent/v3/lab_selfplay_rsi.py` | Task 5a open self-play, 3-arm STATIC/FROZEN-AUTHOR/LIVE-AUTHOR, primary L−F |
+| `kernelascent/v3/lab_selfplay_closed.py` | Task 5b closed (API) self-play, 3-arm, co-evolution via procedure |
+| `kernelascent/v3/lab_rsi_mechanism.py` | why-RSI probe: diversity/entropy/drift-by-depth/retention/transfer + verdict |
 | `kernelascent/v3/difficulty_filter.py` | difficulty standardization. Keeps only hard but learnable tasks against the frozen base |
 | `kernelascent/v3/curate_kernel_tasks.py` | Fable 5.1 curator for the kernel banks, tiered L1 to L3, GPU validated |
 | `kernelascent/v3/grade_batch.py` | crash isolated GPU grader, single and batch modes |
