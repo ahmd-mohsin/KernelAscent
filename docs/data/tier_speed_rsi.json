@@ -209,12 +209,12 @@
       "tier": "large",
       "n_seeds": 4,
       "C0": 0.378,
-      "C_self": 0.365,
-      "self_minus_fresh": -0.023,
+      "C_self": 0.363,
+      "self_minus_fresh": -0.028,
       "seeds": [
         -0.022,
         0.027,
-        0.001,
+        -0.018,
         -0.099
       ],
       "sign_consistent": false,
