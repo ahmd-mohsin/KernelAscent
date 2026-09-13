@@ -194,12 +194,12 @@
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.073,
-      "C_self": 0.245,
-      "self_minus_fresh": 0.055,
+      "C_self": 0.297,
+      "self_minus_fresh": 0.083,
       "seeds": [
         0.006,
         0.056,
-        0.103
+        0.188
       ],
       "sign_consistent": true,
       "verdict": "compounds"
