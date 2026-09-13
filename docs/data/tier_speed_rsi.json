@@ -194,15 +194,15 @@
       "tier": "large",
       "n_seeds": 3,
       "C0": 0.073,
-      "C_self": 0.219,
-      "self_minus_fresh": 0.022,
+      "C_self": 0.245,
+      "self_minus_fresh": 0.055,
       "seeds": [
         0.006,
         0.056,
-        0.003
+        0.103
       ],
       "sign_consistent": true,
-      "verdict": "gains"
+      "verdict": "compounds"
     },
     {
       "model": "Qwen2.5-Coder-14B",
