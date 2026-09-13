@@ -113,11 +113,13 @@
         0,
         1,
         2,
-        3
+        3,
+        4
       ],
       "C_held_live": [
         0.0,
         0.038,
+        0.0,
         0.0,
         0.0
       ],
@@ -125,9 +127,11 @@
         0.115,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "C_held_static": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -137,16 +141,19 @@
         -0.115,
         0.038,
         0.0,
+        0.0,
         0.0
       ],
       "L_minus_S": [
         0.0,
         0.038,
         0.0,
+        0.0,
         0.0
       ],
       "F_minus_S": [
         0.115,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -155,74 +162,15 @@
         18,
         18,
         19,
+        19,
         19
       ],
       "model_proposed": [
         2,
         0,
         1,
+        0,
         0
-      ],
-      "total_model_proposed": 3,
-      "final_L_minus_F": 0.0,
-      "verdict": "adaptive-curriculum only (L==F)"
-    },
-    {
-      "model": "deepseek-coder-1.3b-base",
-      "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_live": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "C_held_frozen_author": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "C_held_static": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "L_minus_F": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "L_minus_S": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "F_minus_S": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "frontier": [
-        16,
-        17,
-        18,
-        19
-      ],
-      "model_proposed": [
-        0,
-        1,
-        1,
-        1
       ],
       "total_model_proposed": 3,
       "final_L_minus_F": 0.0,
@@ -304,47 +252,56 @@
       "rounds": [
         0,
         1,
-        2
+        2,
+        3
       ],
       "C_held_live": [
         0.038,
+        0.0,
         0.0,
         0.0
       ],
       "C_held_frozen_author": [
         0.039,
         0.0,
+        0.0,
         0.0
       ],
       "C_held_static": [
         0.038,
+        0.0,
         0.0,
         0.0
       ],
       "L_minus_F": [
         -0.001,
         0.0,
+        0.0,
         0.0
       ],
       "L_minus_S": [
         -0.0,
+        0.0,
         0.0,
         0.0
       ],
       "F_minus_S": [
         0.001,
         0.0,
+        0.0,
         0.0
       ],
       "frontier": [
         18,
         19,
-        23
+        23,
+        24
       ],
       "model_proposed": [
         2,
         1,
-        4
+        4,
+        0
       ],
       "total_model_proposed": 7,
       "final_L_minus_F": 0.0,
@@ -392,6 +349,76 @@
       "total_model_proposed": 4,
       "final_L_minus_F": -0.033,
       "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "deepseek-coder-1.3b-base",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "C_held_live": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_frozen_author": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.039
+      ],
+      "C_held_static": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_F": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.039
+      ],
+      "L_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.039
+      ],
+      "frontier": [
+        16,
+        17,
+        18,
+        19,
+        21
+      ],
+      "model_proposed": [
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "total_model_proposed": 4,
+      "final_L_minus_F": -0.039,
+      "verdict": "adaptive-curriculum only (L==F)"
     }
   ]
 }
