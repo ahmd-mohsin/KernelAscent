@@ -3,8 +3,20 @@
 Goal: convert strong prototype → award-level benchmark. Budget + 72-GPU fleet available.
 Status legend: [ ] todo · [~] in progress · [x] done
 
-## ★★ GPT-6 ASTRA REVIEW — award blockers (supersede; see docs/REVIEW_GPT6.md) ★★
-A1. RECURSION-INTERRUPTION FORK (decisive) — [ ] fork checkpoints into continued-self / checkpoint-frozen /
+## ★★ TRUE-RSI CORE (Task 5 self-play = the actual metric; T1-T4 are building blocks) — built 2026-09-13 ★★
+- [x] Task 5a OPEN self-play → 3-ARM (STATIC / FROZEN-AUTHOR / LIVE-AUTHOR). PRIMARY = L-F (author co-evolution).
+      Anti-reward-hacking _meaningful gate (reject constant/identity/no-op/tiny), dedup, attribution logging. lab_selfplay_rsi.py.
+- [x] Task 5b CLOSED (API) self-play → 3-ARM, co-evolution channel = PROCEDURE (empty vs co-evolved author). lab_selfplay_closed.py.
+- [x] WHY-RSI mechanism probe: per-round gen-diversity/entropy/LoRA-drift-by-depth/retention/transfer + attributed FAIL/PASS
+      verdict {diversity_collapse|forgetting|drift_saturation|no_transfer|no_headroom}. lab_rsi_mechanism.py. ("if they fail, why; if they pass, how")
+- [x] launch_matrix.sh: one-command 8xA100 packing incl BIGGER open models (14/15/32B bf16 sharded) + closed API. collector+aggregator wired.
+- [ ] LAUNCH on new nodes (fleet dead 2026-09-13, awaiting new SDB jobs): rmech + mech_large + selfplay_{small,mid,large,xlarge} + closed, x2 seeds.
+- [ ] Website sections for 3-arm self-play (L-F curves) + mechanism verdicts once data lands (aggregator emits selfplay/selfplay_closed/rsi_mech.json).
+- [ ] Future-learning-efficiency meta-metric M (disposable learning assay) per Astra §6 — add after 3-arm results confirm direction.
+
+## ★★ GPT-6 ASTRA REVIEW — award blockers (supersede; see docs/REVIEW_GPT6.md, docs/REVIEW_GPT6_selfplay.md) ★★
+A1. RECURSION-INTERRUPTION FORK (decisive) — [x] DONE: lab_recursion_fork.py; DeepSeek-1.3B self−ckpt=0.0 => fixed-bank self-SFT is a ONE-TIME upgrade, not compounding.
+    [ ] fork checkpoints into continued-self / checkpoint-frozen /
     base-frozen producers; equal budget; subsequent learning curves on untouched families. small+large. T3: frozen
     procedure + same archive. Proves "capacity to improve" not artifact accumulation.
 A2. ADVERSARIAL correctness/timing — [ ] hidden randomized tests (shapes/strides/dtypes/pathological), per-task
