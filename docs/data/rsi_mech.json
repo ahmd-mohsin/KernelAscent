@@ -1351,6 +1351,52 @@
       "carrying_depth": null
     },
     {
+      "model": "Qwen2.5-Coder-0.5B",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held": [
+        0.0
+      ],
+      "C_train": [
+        0.0
+      ],
+      "transfer_gap": [
+        0.0
+      ],
+      "retention": [
+        0
+      ],
+      "gen_distinct2": [
+        0.268
+      ],
+      "gen_dissim": [
+        0.898
+      ],
+      "gen_entropy": [
+        0.005
+      ],
+      "drift_total": [
+        null
+      ],
+      "drift_early": [
+        null
+      ],
+      "drift_mid": [
+        null
+      ],
+      "drift_late": [
+        null
+      ],
+      "sft_loss": [
+        0.0
+      ],
+      "compounded": null,
+      "mechanisms": [],
+      "carrying_depth": null
+    },
+    {
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "rounds": [
@@ -1719,6 +1765,52 @@
         "diversity_collapse"
       ],
       "carrying_depth": "late"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held": [
+        0.0
+      ],
+      "C_train": [
+        0.125
+      ],
+      "transfer_gap": [
+        0.125
+      ],
+      "retention": [
+        0
+      ],
+      "gen_distinct2": [
+        0.271
+      ],
+      "gen_dissim": [
+        0.528
+      ],
+      "gen_entropy": [
+        0.009
+      ],
+      "drift_total": [
+        null
+      ],
+      "drift_early": [
+        null
+      ],
+      "drift_mid": [
+        null
+      ],
+      "drift_late": [
+        null
+      ],
+      "sft_loss": [
+        0.0533
+      ],
+      "compounded": null,
+      "mechanisms": [],
+      "carrying_depth": null
     },
     {
       "model": "Qwen2.5-Coder-3B",
