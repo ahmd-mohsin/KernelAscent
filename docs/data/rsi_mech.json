@@ -1907,13 +1907,9 @@
         2,
         3,
         4,
-        5,
-        6,
-        7
+        5
       ],
       "C_held": [
-        0.0,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -1927,8 +1923,6 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
         0.0
       ],
       "transfer_gap": [
@@ -1937,13 +1931,9 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
         0.0
       ],
       "retention": [
-        0,
-        0,
         0,
         0,
         0,
@@ -1957,14 +1947,10 @@
         1.0,
         1.0,
         1.0,
-        1.0,
-        1.0,
         1.0
       ],
       "gen_dissim": [
         0.889,
-        0.999,
-        0.999,
         0.999,
         0.999,
         0.999,
@@ -1977,13 +1963,9 @@
         -0.0,
         -0.0,
         -0.0,
-        -0.0,
-        -0.0,
         -0.0
       ],
       "drift_total": [
-        null,
-        null,
         null,
         null,
         null,
@@ -1997,13 +1979,9 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "drift_mid": [
-        null,
-        null,
         null,
         null,
         null,
@@ -2017,8 +1995,6 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "sft_loss": [
@@ -2027,14 +2003,10 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
         0.0
       ],
-      "compounded": false,
-      "mechanisms": [
-        "no_headroom"
-      ],
+      "compounded": null,
+      "mechanisms": [],
       "carrying_depth": null
     },
     {
@@ -2180,42 +2152,81 @@
       "model": "Qwen2.5-Coder-0.5B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1,
+        2,
+        3
       ],
       "C_held": [
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "C_train": [
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "transfer_gap": [
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "retention": [
+        0,
+        0,
+        0,
         0
       ],
       "gen_distinct2": [
-        0.268
+        0.268,
+        0.219,
+        0.275,
+        0.267
       ],
       "gen_dissim": [
-        0.898
+        0.898,
+        0.898,
+        0.859,
+        0.877
       ],
       "gen_entropy": [
+        0.005,
+        0.005,
+        0.005,
         0.005
       ],
       "drift_total": [
-        null
+        null,
+        0.0,
+        0.0,
+        0.0
       ],
       "drift_early": [
-        null
+        null,
+        0.0,
+        0.0,
+        0.0
       ],
       "drift_mid": [
-        null
+        null,
+        0.0,
+        0.0,
+        0.0
       ],
       "drift_late": [
-        null
+        null,
+        0.0,
+        0.0,
+        0.0
       ],
       "sft_loss": [
+        0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "compounded": null,

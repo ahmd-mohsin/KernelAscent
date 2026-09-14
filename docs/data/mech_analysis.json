@@ -32,7 +32,7 @@
         "frac_rsi": 0.05,
         "mean_C_train": 0.02,
         "mean_drift": 0.028,
-        "mean_diversity": 0.524
+        "mean_diversity": 0.523
       },
       "2-8B": {
         "n": 17,
@@ -102,7 +102,7 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.268,
+      "mean_diversity": 0.257,
       "diversity_collapse": false,
       "mean_retention": 0,
       "mean_transfer_gap": 0.0
