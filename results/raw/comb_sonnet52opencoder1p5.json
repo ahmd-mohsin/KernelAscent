@@ -20,6 +20,42 @@
       "n_admitted": 0,
       "min_sp": 0.9,
       "strategy": "Prioritize correctness before any optimization. Steps: (1) Implement a straightforward, numerically faithful PyTorch ref"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.9,
+      "strategy": "Correctness-first, verify-before-optimize workflow for translating/optimizing the target PyTorch module: (1) Read the or"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.9,
+      "strategy": "Correctness-first, verify-before-optimize workflow for translating/optimizing the target PyTorch module. STOP condition:"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.056,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.056,
+      "n_admitted": 0,
+      "min_sp": 0.9,
+      "strategy": "Correctness-first, verify-before-optimize workflow for translating/optimizing the target PyTorch module. STOP condition:"
+    },
+    {
+      "round": 5,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.9,
+      "strategy": "Correctness-first, verify-before-optimize workflow for translating/optimizing the target PyTorch module. Never layer a n"
     }
   ]
 }

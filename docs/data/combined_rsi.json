@@ -58,6 +58,28 @@
       "verdict": "hurts"
     },
     {
+      "trainee": "OpenCoder-1.5B",
+      "researcher": "sonnet5",
+      "rounds": 6,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0.056,
+      "verdict": "flat"
+    },
+    {
+      "trainee": "DeepSeek-Coder-1.3B",
+      "researcher": "Claude-Opus-5",
+      "rounds": 3,
+      "C0": 0,
+      "C_improved": 0.056,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0.056,
+      "peak": 0.056,
+      "verdict": "flat"
+    },
+    {
       "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "Fable-5.1",
       "rounds": 5,
@@ -80,42 +102,20 @@
       "verdict": "flat"
     },
     {
+      "trainee": "Qwen2.5-Coder-0.5B",
+      "researcher": "gpt56sol",
+      "rounds": 2,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0,
+      "verdict": "flat"
+    },
+    {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "astra",
-      "rounds": 1,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "qwen14b",
-      "rounds": 2,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "OpenCoder-1.5B",
-      "researcher": "sonnet5",
-      "rounds": 2,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "Claude-Opus-5",
-      "rounds": 1,
+      "rounds": 3,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
@@ -126,13 +126,24 @@
     {
       "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "sc15b",
-      "rounds": 1,
+      "rounds": 3,
       "C0": 0,
       "C_improved": 0,
-      "C_frozen": 0.056,
-      "impr_minus_frozen": -0.056,
-      "peak": -0.056,
-      "verdict": "hurts"
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0,
+      "verdict": "flat"
+    },
+    {
+      "trainee": "Qwen2.5-Coder-1.5B",
+      "researcher": "qwen14b",
+      "rounds": 4,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0,
+      "verdict": "flat"
     }
   ]
 }

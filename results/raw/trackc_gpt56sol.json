@@ -1,0 +1,15 @@
+{
+  "model": "us.openai.gpt-5.6-sol",
+  "mode": "self-modify",
+  "Q0": 0.813419722386415,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.87,
+      "delta_vs_base": 0.057,
+      "F_g": null,
+      "n_strategies": 12,
+      "n_archive": 17
+    }
+  ]
+}
