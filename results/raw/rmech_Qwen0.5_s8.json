@@ -1,0 +1,21 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-0.5B",
+  "seed": 8,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.23,
+      "gen_dissim": 0.88,
+      "gen_entropy": 0.005,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    }
+  ]
+}
