@@ -1,0 +1,36 @@
+{
+  "model": "stabilityai/stable-code-3b",
+  "seed": 1,
+  "held_ladder": 13,
+  "base_held_C0": 0.077,
+  "history": [
+    {
+      "round": 0,
+      "C_held_open": 0.077,
+      "C_held_fixed": 0.077,
+      "delta_open_minus_fixed": 0.001,
+      "frontier": 16,
+      "added": 0,
+      "base_correct_on_frontier": 0.188
+    },
+    {
+      "round": 1,
+      "C_held_open": 0.077,
+      "C_held_fixed": 0.126,
+      "delta_open_minus_fixed": -0.049,
+      "frontier": 18,
+      "added": 2,
+      "base_correct_on_frontier": 0
+    },
+    {
+      "round": 2,
+      "C_held_open": 0.148,
+      "C_held_fixed": 0.119,
+      "delta_open_minus_fixed": 0.029,
+      "frontier": 20,
+      "added": 2,
+      "base_correct_on_frontier": 0
+    }
+  ],
+  "note": "OPEN(escalating) vs FIXED(static) learners, same held ladder; primary=delta_open_minus_fixed"
+}

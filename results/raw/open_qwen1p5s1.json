@@ -1,6 +1,6 @@
 {
-  "model": "01-ai/Yi-Coder-1.5B",
-  "seed": 0,
+  "model": "Qwen/Qwen2.5-Coder-1.5B",
+  "seed": 1,
   "held_ladder": 13,
   "base_held_C0": 0.0,
   "history": [
@@ -9,16 +9,16 @@
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 22,
-      "added": 6,
+      "frontier": 17,
+      "added": 1,
       "base_correct_on_frontier": 0
     },
     {
       "round": 1,
       "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 28,
+      "C_held_fixed": 0.039,
+      "delta_open_minus_fixed": -0.039,
+      "frontier": 23,
       "added": 6,
       "base_correct_on_frontier": 0
     },
@@ -28,7 +28,7 @@
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
       "frontier": 29,
-      "added": 1,
+      "added": 6,
       "base_correct_on_frontier": 0
     },
     {
@@ -37,24 +37,6 @@
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
       "frontier": 35,
-      "added": 6,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 4,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 37,
-      "added": 2,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 5,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 43,
       "added": 6,
       "base_correct_on_frontier": 0
     }

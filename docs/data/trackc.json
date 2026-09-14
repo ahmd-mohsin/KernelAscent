@@ -5,28 +5,28 @@
     {
       "model": "us.openai.gpt-6-astra",
       "mode": "self-modify",
-      "rounds": 1,
+      "rounds": 5,
       "Q0": 0.298,
-      "Qg": 0.8,
-      "delta_vs_base": 0.503,
-      "verdict": "improves"
-    },
-    {
-      "model": "mistral.mistral-large-3-675b-instruct",
-      "mode": "self-modify",
-      "rounds": 4,
-      "Q0": 0.359,
-      "Qg": 0.78,
-      "delta_vs_base": 0.422,
+      "Qg": 0.855,
+      "delta_vs_base": 0.557,
       "verdict": "improves"
     },
     {
       "model": "us.anthropic.claude-sonnet-5",
       "mode": "self-modify",
-      "rounds": 1,
+      "rounds": 6,
       "Q0": 0.493,
-      "Qg": 0.888,
-      "delta_vs_base": 0.394,
+      "Qg": 0.894,
+      "delta_vs_base": 0.401,
+      "verdict": "improves"
+    },
+    {
+      "model": "mistral.mistral-large-3-675b-instruct",
+      "mode": "self-modify",
+      "rounds": 6,
+      "Q0": 0.359,
+      "Qg": 0.669,
+      "delta_vs_base": 0.31,
       "verdict": "improves"
     },
     {
@@ -39,21 +39,21 @@
       "verdict": "improves"
     },
     {
-      "model": "Kimi-K2.5",
+      "model": "us.openai.gpt-5.6-sol",
       "mode": "self-modify",
-      "rounds": 1,
-      "Q0": 0.752,
-      "Qg": 0.825,
-      "delta_vs_base": 0.073,
+      "rounds": 6,
+      "Q0": 0.813,
+      "Qg": 0.889,
+      "delta_vs_base": 0.075,
       "verdict": "improves"
     },
     {
-      "model": "us.openai.gpt-5.6-sol",
+      "model": "Kimi-K2.5",
       "mode": "self-modify",
-      "rounds": 1,
-      "Q0": 0.813,
-      "Qg": 0.87,
-      "delta_vs_base": 0.057,
+      "rounds": 2,
+      "Q0": 0.752,
+      "Qg": 0.813,
+      "delta_vs_base": 0.062,
       "verdict": "improves"
     },
     {
@@ -77,10 +77,10 @@
     {
       "model": "us.openai.gpt-5.6-terra",
       "mode": "self-modify",
-      "rounds": 2,
+      "rounds": 6,
       "Q0": 0.851,
-      "Qg": 0.851,
-      "delta_vs_base": 0,
+      "Qg": 0.85,
+      "delta_vs_base": -0.001,
       "verdict": "flat"
     },
     {

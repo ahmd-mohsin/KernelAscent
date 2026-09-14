@@ -1,0 +1,36 @@
+{
+  "model": "bigcode/starcoder2-3b",
+  "seed": 1,
+  "held_ladder": 13,
+  "base_held_C0": 0.05,
+  "history": [
+    {
+      "round": 0,
+      "C_held_open": 0.0,
+      "C_held_fixed": 0.0,
+      "delta_open_minus_fixed": 0.0,
+      "frontier": 17,
+      "added": 1,
+      "base_correct_on_frontier": 0
+    },
+    {
+      "round": 1,
+      "C_held_open": 0.0,
+      "C_held_fixed": 0.0,
+      "delta_open_minus_fixed": 0.0,
+      "frontier": 23,
+      "added": 6,
+      "base_correct_on_frontier": 0
+    },
+    {
+      "round": 2,
+      "C_held_open": 0.039,
+      "C_held_fixed": 0.0,
+      "delta_open_minus_fixed": 0.039,
+      "frontier": 29,
+      "added": 6,
+      "base_correct_on_frontier": 0
+    }
+  ],
+  "note": "OPEN(escalating) vs FIXED(static) learners, same held ladder; primary=delta_open_minus_fixed"
+}

@@ -1,5 +1,5 @@
 {
-  "model": "infly/OpenCoder-1.5B-Base",
+  "model": "Qwen/Qwen2.5-Coder-1.5B",
   "seed": 0,
   "held_ladder": 13,
   "base_held_C0": 0.0,
@@ -16,8 +16,8 @@
     {
       "round": 1,
       "C_held_open": 0.0,
-      "C_held_fixed": 0.038,
-      "delta_open_minus_fixed": -0.038,
+      "C_held_fixed": 0.0,
+      "delta_open_minus_fixed": 0.0,
       "frontier": 28,
       "added": 6,
       "base_correct_on_frontier": 0
@@ -45,35 +45,8 @@
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 46,
-      "added": 6,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 5,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 52,
-      "added": 6,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 6,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 58,
-      "added": 6,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 7,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 64,
-      "added": 6,
+      "frontier": 43,
+      "added": 3,
       "base_correct_on_frontier": 0
     }
   ],

@@ -1,34 +1,34 @@
 {
-  "model": "01-ai/Yi-Coder-1.5B",
-  "seed": 0,
+  "model": "deepseek-ai/deepseek-coder-1.3b-base",
+  "seed": 1,
   "held_ladder": 13,
   "base_held_C0": 0.0,
   "history": [
     {
       "round": 0,
-      "C_held_open": 0.0,
+      "C_held_open": 0.077,
       "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
+      "delta_open_minus_fixed": 0.077,
       "frontier": 22,
       "added": 6,
       "base_correct_on_frontier": 0
     },
     {
       "round": 1,
-      "C_held_open": 0.0,
+      "C_held_open": 0.038,
       "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
+      "delta_open_minus_fixed": 0.038,
       "frontier": 28,
       "added": 6,
-      "base_correct_on_frontier": 0
+      "base_correct_on_frontier": 0.167
     },
     {
       "round": 2,
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 29,
-      "added": 1,
+      "frontier": 34,
+      "added": 6,
       "base_correct_on_frontier": 0
     },
     {
@@ -36,25 +36,7 @@
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 35,
-      "added": 6,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 4,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 37,
-      "added": 2,
-      "base_correct_on_frontier": 0
-    },
-    {
-      "round": 5,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 43,
+      "frontier": 40,
       "added": 6,
       "base_correct_on_frontier": 0
     }

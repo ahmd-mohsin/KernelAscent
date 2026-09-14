@@ -1,24 +1,24 @@
 {
   "model": "Qwen/Qwen2.5-Coder-3B",
-  "seed": 0,
+  "seed": 1,
   "held_ladder": 13,
-  "base_held_C0": 0.231,
+  "base_held_C0": 0.115,
   "history": [
     {
       "round": 0,
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 19,
-      "added": 3,
-      "base_correct_on_frontier": 0
+      "frontier": 20,
+      "added": 4,
+      "base_correct_on_frontier": 0.5
     },
     {
       "round": 1,
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 25,
+      "frontier": 26,
       "added": 6,
       "base_correct_on_frontier": 0.333
     },
@@ -27,7 +27,7 @@
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 31,
+      "frontier": 32,
       "added": 6,
       "base_correct_on_frontier": 0.167
     },
@@ -36,25 +36,7 @@
       "C_held_open": 0.0,
       "C_held_fixed": 0.0,
       "delta_open_minus_fixed": 0.0,
-      "frontier": 37,
-      "added": 6,
-      "base_correct_on_frontier": 0.333
-    },
-    {
-      "round": 4,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 43,
-      "added": 6,
-      "base_correct_on_frontier": 0.333
-    },
-    {
-      "round": 5,
-      "C_held_open": 0.0,
-      "C_held_fixed": 0.0,
-      "delta_open_minus_fixed": 0.0,
-      "frontier": 49,
+      "frontier": 38,
       "added": 6,
       "base_correct_on_frontier": 0.167
     }

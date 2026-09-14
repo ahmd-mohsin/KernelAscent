@@ -10,6 +10,38 @@
       "F_g": null,
       "n_strategies": 12,
       "n_archive": 11
+    },
+    {
+      "round": 1,
+      "Qg": 0.855,
+      "delta_vs_base": 0.557,
+      "F_g": 0.001,
+      "n_strategies": 12,
+      "n_archive": 17
+    },
+    {
+      "round": 2,
+      "Qg": 0.855,
+      "delta_vs_base": 0.557,
+      "F_g": 0.0,
+      "n_strategies": 12,
+      "n_archive": 17
+    },
+    {
+      "round": 3,
+      "Qg": 0.854,
+      "delta_vs_base": 0.556,
+      "F_g": 0.111,
+      "n_strategies": 12,
+      "n_archive": 18
+    },
+    {
+      "round": 4,
+      "Qg": 0.855,
+      "delta_vs_base": 0.557,
+      "F_g": 0.001,
+      "n_strategies": 12,
+      "n_archive": 18
     }
   ]
 }

@@ -1,0 +1,79 @@
+{
+  "trainee": "infly/OpenCoder-1.5B-Base",
+  "researcher": "deepseek-ai/deepseek-coder-6.7b-instruct",
+  "C0": 0.0,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 2,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. These are generally faster than custom ke"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. These are generally faster than custom ke"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. These are generally faster than custom ke"
+    },
+    {
+      "round": 5,
+      "C_improved": 0.0,
+      "C_frozen": 0.056,
+      "delta_improved_minus_frozen": -0.056,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. Also, optimize the memory usage and use f"
+    },
+    {
+      "round": 6,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. Also, optimize the memory usage by using "
+    },
+    {
+      "round": 7,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Use PyTorch's CUDA kernels for matrix multiplication and reduction operations. Also, optimize the memory usage by using "
+    }
+  ]
+}
