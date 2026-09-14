@@ -32,7 +32,7 @@
         "frac_rsi": 0.05,
         "mean_C_train": 0.02,
         "mean_drift": 0.028,
-        "mean_diversity": 0.523
+        "mean_diversity": 0.524
       },
       "2-8B": {
         "n": 17,
@@ -102,10 +102,10 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.252,
+      "mean_diversity": 0.268,
       "diversity_collapse": false,
       "mean_retention": 0,
-      "mean_transfer_gap": -0.01
+      "mean_transfer_gap": 0.0
     },
     {
       "model": "Qwen2.5-Coder-0.5B",
