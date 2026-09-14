@@ -8,39 +8,47 @@
       "rounds": [
         0,
         1,
-        2
+        2,
+        3
       ],
       "C_held_live": [
         0.313,
         0.528,
-        0.67
+        0.67,
+        0.651
       ],
       "C_held_frozen_author": [
         0.456,
         0.092,
-        0.328
+        0.328,
+        0.284
       ],
       "C_held_static": [
         0.417,
         0.796,
-        0.746
+        0.746,
+        0.869
       ],
       "L_minus_F": [
         -0.143,
         0.436,
-        0.342
+        0.342,
+        0.367
       ],
       "L_minus_S": [
         -0.104,
         -0.268,
-        -0.076
+        -0.076,
+        -0.218
       ],
       "F_minus_S": [
         0.039,
         -0.704,
-        -0.418
+        -0.418,
+        -0.585
       ],
       "frontier": [
+        16,
         16,
         16,
         16
@@ -48,10 +56,11 @@
       "model_proposed": [
         0,
         0,
+        0,
         0
       ],
       "total_model_proposed": 0,
-      "final_L_minus_F": 0.342,
+      "final_L_minus_F": 0.367,
       "verdict": "no self-referential compounding"
     },
     {
