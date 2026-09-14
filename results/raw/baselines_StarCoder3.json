@@ -1,0 +1,16 @@
+{
+  "model": "bigcode/starcoder2-3b",
+  "seed": 0,
+  "held": 26,
+  "budget_per_task": 20,
+  "results": {
+    "best_of_k": {
+      "method": "best_of_k",
+      "budget_per_task": 20,
+      "C": 0.0769,
+      "ci": 0.0693,
+      "correct_rate": 0.154,
+      "compiled_sp": 0.071
+    }
+  }
+}

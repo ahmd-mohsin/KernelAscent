@@ -19,6 +19,14 @@
       "retrieval": null,
       "recursion_gain": 0.006,
       "budget": 20
+    },
+    {
+      "model": "starcoder2-3b",
+      "rsi_C": 0.004,
+      "best_of_k": 0.0769,
+      "self_refine": null,
+      "retrieval": null,
+      "recursion_gain": -0.073
     }
   ]
 }
