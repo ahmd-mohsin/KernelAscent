@@ -138,7 +138,14 @@ def run(args):
     Q0, _, _, _ = develop(U0, held, tasks, gen, args.k, args.grade_gpu)
     print("Q0 base-procedure held-out = %.3f" % Q0, flush=True)
     U = {"strategies": [], "archive": {}}; hist = []; prevU = None
-    for r in range(args.rounds):
+    os.makedirs(args.outdir, exist_ok=True); statef = os.path.join(args.outdir, "resume_state.json"); start = 0
+    if os.path.exists(statef):                                   # RESUME (state restored from S3) — extend rounds w/o losing progress
+        try:
+            st = json.load(open(statef)); U = st["U"]; hist = st["hist"]; Q0 = st.get("Q0", Q0); start = st["round"] + 1
+            print("RESUMED track-c %s from round %d (done=%d, strat=%d, arch=%d)" % (args.model, start, len(hist), len(U["strategies"]), len(U["archive"])), flush=True)
+        except Exception as e:
+            print("track-c resume failed (%s); fresh" % e, flush=True)
+    for r in range(start, args.rounds):
         t0 = time.time()
         _, _, evidence, verified = develop(U, train, tasks, gen, args.k, args.grade_gpu)   # solve train -> evidence
         if args.mode in ("archive-only", "self-modify"):
@@ -159,6 +166,7 @@ def run(args):
         os.makedirs(args.outdir, exist_ok=True)
         json.dump({"model": args.model, "mode": args.mode, "Q0": Q0, "history": hist},
                   open(os.path.join(args.outdir, "track_c.json"), "w"), indent=2)
+        json.dump({"round": r, "U": U, "hist": hist, "Q0": Q0}, open(statef, "w"))   # resume ckpt (S3-synced) — lets rounds extend
     fs = [h["F_g"] for h in hist if h["F_g"] is not None]
     print("\n=== TRACK-C SUMMARY (%s, %s) ===" % (args.model, args.mode))
     print("  Q0=%.3f  Q by round:" % Q0, [h["Qg"] for h in hist])
