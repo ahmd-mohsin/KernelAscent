@@ -3,6 +3,15 @@
   "note": "procedure RSI: model rewrites its own executable procedure; Qg vs frozen procedure.",
   "models": [
     {
+      "model": "mistral.mistral-large-3-675b-instruct",
+      "mode": "self-modify",
+      "rounds": 1,
+      "Q0": 0.359,
+      "Qg": 0.494,
+      "delta_vs_base": 0.136,
+      "verdict": "improves"
+    },
+    {
       "model": "Nova-Pro",
       "mode": "self-modify",
       "rounds": 5,

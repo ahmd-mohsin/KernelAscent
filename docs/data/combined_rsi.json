@@ -78,6 +78,17 @@
       "impr_minus_frozen": -0.031,
       "peak": 0.003,
       "verdict": "flat"
+    },
+    {
+      "trainee": "OpenCoder-1.5B",
+      "researcher": "sonnet5",
+      "rounds": 2,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0,
+      "verdict": "flat"
     }
   ]
 }
