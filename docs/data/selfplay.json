@@ -910,6 +910,112 @@
       "verdict": "no self-referential compounding"
     },
     {
+      "model": "Qwen2.5-Coder-1.5B",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "C_held_live": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_frozen_author": [
+        0.0,
+        0.077,
+        0.0,
+        0.038,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_static": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_F": [
+        0.0,
+        -0.077,
+        0.0,
+        -0.038,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_minus_S": [
+        0.0,
+        0.077,
+        0.0,
+        0.038,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        21,
+        21,
+        23,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "model_proposed": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "total_model_proposed": 2,
+      "final_L_minus_F": 0.0,
+      "verdict": "adaptive-curriculum only (L==F)"
+    },
+    {
       "model": "OpenCoder-1.5B",
       "tier": "small",
       "rounds": [
@@ -956,78 +1062,62 @@
       "model": "deepseek-coder-6.7b-base",
       "tier": "mid",
       "rounds": [
-        0
+        0,
+        1,
+        2,
+        3
       ],
       "C_held_live": [
-        0.039
+        0.039,
+        0.077,
+        0.115,
+        0.192
       ],
       "C_held_frozen_author": [
-        0.115
+        0.115,
+        0.116,
+        0.225,
+        0.307
       ],
       "C_held_static": [
-        0.039
+        0.039,
+        0.193,
+        0.192,
+        0.461
       ],
       "L_minus_F": [
-        -0.077
+        -0.077,
+        -0.039,
+        -0.11,
+        -0.115
       ],
       "L_minus_S": [
-        -0.0
+        -0.0,
+        -0.115,
+        -0.077,
+        -0.269
       ],
       "F_minus_S": [
-        0.076
+        0.076,
+        -0.077,
+        0.033,
+        -0.154
       ],
       "frontier": [
-        16
+        16,
+        16,
+        16,
+        18
       ],
       "model_proposed": [
-        0
-      ],
-      "total_model_proposed": 0,
-      "final_L_minus_F": -0.077,
-      "verdict": "no self-referential compounding"
-    },
-    {
-      "model": "Qwen2.5-Coder-1.5B",
-      "tier": "small",
-      "rounds": [
+        0,
+        0,
         0,
         1
       ],
-      "C_held_live": [
-        0.0,
-        0.0
-      ],
-      "C_held_frozen_author": [
-        0.0,
-        0.077
-      ],
-      "C_held_static": [
-        0.0,
-        0.0
-      ],
-      "L_minus_F": [
-        0.0,
-        -0.077
-      ],
-      "L_minus_S": [
-        0.0,
-        0.0
-      ],
-      "F_minus_S": [
-        0.0,
-        0.077
-      ],
-      "frontier": [
-        21,
-        21
-      ],
-      "model_proposed": [
-        2,
-        0
-      ],
-      "total_model_proposed": 2,
-      "final_L_minus_F": -0.077,
-      "verdict": "no self-referential compounding"
+      "total_model_proposed": 1,
+      "final_L_minus_F": -0.115,
+      "verdict": "adaptive-curriculum only (L==F)"
     },
     {
       "model": "deepseek-coder-6.7b-base",
