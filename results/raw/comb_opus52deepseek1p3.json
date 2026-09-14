@@ -11,6 +11,24 @@
       "n_admitted": 0,
       "min_sp": 0.0,
       "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 1,
+      "C_improved": 0.055,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.055,
+      "n_admitted": 1,
+      "min_sp": 0.0,
+      "strategy": "CORRECTNESS FIRST, THEN SPEED. Prior attempts scored task_correct=0, so the current failure mode is broken/non-running c"
+    },
+    {
+      "round": 2,
+      "C_improved": 0.111,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.111,
+      "n_admitted": 0,
+      "min_sp": 1.05,
+      "strategy": "SPEED PHASE (correctness is already proven: task_correct=1, avg_sp=1.57, but min_sp=0.00 means at least one shape/dtype "
     }
   ]
 }

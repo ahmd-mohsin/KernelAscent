@@ -19,7 +19,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 0.0,
-      "strategy": "Prioritize correctness first: reproduce the reference module exactly using standard PyTorch operations, preserving shape"
+      "strategy": "Prioritize correctness first: reproduce the reference module exactly, including shapes, dtypes, broadcasting, reductions"
     },
     {
       "round": 2,
@@ -28,34 +28,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 0.0,
-      "strategy": "Correctness-only first. Inspect the reference implementation and reproduce its constructor, parameters/buffers, training"
-    },
-    {
-      "round": 3,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 0.0,
-      "strategy": "Correctness gate: first implement the module as a literal eager-PyTorch transcription of the reference, preserving the e"
-    },
-    {
-      "round": 4,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 0.0,
-      "strategy": "Prioritize correctness before optimization. Recreate the reference module as a literal eager-PyTorch transcription with "
-    },
-    {
-      "round": 5,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "First inspect the complete reference implementation and test harness. Reproduce the module exactly: class name, construc"
+      "strategy": "Implement the reference forward path verbatim in PyTorch eager mode before optimizing. Preserve the exact operator seque"
     }
   ]
 }
