@@ -168,12 +168,12 @@
 </section>
 
 <section id="closed">
-  <div class="snum">03b / Task 3 board, closed to open</div>
+  <div class="snum">03b / Task 4 board, closed → open</div>
   <h2>Closed models improving open models</h2>
-  <p class="small sub">A closed model (Fable-5.1, fixed weights) rewrites the training harness each round; the harness trains an open model. The key column is <b>improved vs frozen harness</b> on the open trainee. Positive means the closed model's procedure edits causally produced a better open model. <span id="c3-updated" class="tiny"></span></p>
+  <p class="small sub">A closed frontier <b>researcher</b> (fixed weights) rewrites the <b>training harness</b> — data selection, LoRA hyperparameters, curriculum — each round; the harness trains an open <b>trainee</b>. Primary column is <b>improved − frozen</b> harness on the trainee (positive = the closed model's edits causally produced a better open model); <b>peak</b> is the best round. One row per researcher × trainee pair, sorted by peak. <span id="c3-updated" class="tiny"></span></p>
   <div class="tablewrap">
     <table id="rsi3-lb"><thead><tr>
-      <th>Open trainee</th><th>Researcher</th><th class="num">rounds</th><th class="num">C0</th><th class="num">C improved</th><th class="num">C frozen</th><th class="num">improved vs frozen</th><th>verdict</th>
+      <th>Researcher</th><th>Open trainee</th><th class="num">rounds</th><th class="num">C0</th><th class="num">C improved</th><th class="num">C frozen</th><th class="num">improved − frozen</th><th class="num">peak</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
   <div class="note"><b>Why this matters.</b> A closed model cannot change its own weights, but it can improve the executable procedure that trains an open model. When improved vs frozen is positive, that is true recursive improvement with a downstream payoff, driven by a closed model. Fable-5.1 to Qwen-1.5B has run improved minus frozen positive and growing across rounds.</div>
@@ -214,6 +214,23 @@
   </div>
   <div id="open-legend" class="chart-legend"></div>
   <div class="note"><b>Why this is the real RSI test.</b> Compounding requires an open-ended frontier, an improving process, and novelty pressure — all exercised only when the challenge escalates <i>and</i> the escalation is driven by the improving model. The FROZEN-AUTHOR arm is what makes the claim airtight: it isolates co-evolution from "any harder curriculum."</div>
+
+  <h3 style="margin-top:34px">Task 5a — open-weight self-play (weight channel)</h3>
+  <p class="small sub">One row per open model / seed. <b>C live / frozen / static</b> are the final-round held-out scores for the LIVE-AUTHOR, FROZEN-AUTHOR and STATIC arms. Primary <b>L−F</b> = author co-evolution (final round); <b>F−S</b> = adaptive-curriculum benefit without updating the author; <b>authored</b> = total model-proposed tasks accepted through the anti-hack gate. Sorted by L−F. <span id="sp-open-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="sp-open-lb"><thead><tr>
+      <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C live</th><th class="num">C frozen-auth</th><th class="num">C static</th><th class="num">L − F</th><th class="num">F − S</th><th class="num">authored</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+
+  <h3 style="margin-top:30px">Task 5b — closed / API self-play (procedure channel)</h3>
+  <p class="small sub">Closed frontier models co-evolve the <b>procedure</b> (weights fixed): GPT-6 Astra, GPT-5.6, Claude Opus-5 / Sonnet-5, Nova, Kimi, DeepSeek, Mistral. Same columns and primary metric (L−F). Sorted by L−F. <span id="sp-closed-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="sp-closed-lb"><thead><tr>
+      <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C live</th><th class="num">C frozen-auth</th><th class="num">C static</th><th class="num">L − F</th><th class="num">F − S</th><th class="num">authored</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+  <div class="note"><b>Reading the self-play boards.</b> <b>L−F &gt; 0</b> with tasks authored is the true-RSI signal: an evolving author helps beyond any harder curriculum. <b>L ≈ F</b> is "adaptive curriculum only"; a large <b>F−S</b> with L−F ≈ 0 means the escalating frontier helps but author co-evolution does not — the pattern seen so far for open models ≤15B. Closed rows populate as the API self-play rounds land.</div>
 </section>
 
 <section id="mech">

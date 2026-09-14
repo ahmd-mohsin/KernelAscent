@@ -124,17 +124,44 @@ fetch("data/tier_speed_rsi.json").then(r => r.json()).then(d => {
     <td class="num">${deltaBar(m.self_minus_fresh)}</td><td>${verdictPill(m.verdict)}</td></tr>`).join("");
 }).catch(e => {});
 
-// Task 3 (closed->open) board
+// Task 4 (closed->open harness rewrite) board — sorted by peak desc
 fetch("data/combined_rsi.json").then(r => r.json()).then(d => {
   const up = document.getElementById("c3-updated"); if (up) up.textContent = (d.updated ? d.updated : "");
   const tb = document.querySelector("#rsi3-lb tbody"); if (!tb) return;
-  const ms = d.models || [];
+  const ms = [...(d.models || [])].sort((a, b) => (b.peak ?? -9) - (a.peak ?? -9));
   tb.innerHTML = ms.map(m => `<tr>
-    <td><b>${m.trainee}</b></td><td><span class="pill kind">${m.researcher}</span></td>
+    <td><b>${m.researcher}</b></td><td><span class="pill kind">${m.trainee}</span></td>
     <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_improved)}</td>
-    <td class="num">${num(m.C_frozen)}</td><td class="num">${deltaBar(m.impr_minus_frozen)}</td>
+    <td class="num">${num(m.C_frozen)}</td><td class="num">${deltaBar(m.impr_minus_frozen)}</td><td class="num mono">${num(m.peak)}</td>
     <td>${verdictPill(m.verdict==="harness helps"?"compounds":(m.verdict==="hurts"?"overfits":"flat"))}</td></tr>`).join("");
 }).catch(e => {});
+
+// Task 5 self-play dense boards (open weight + closed API), sorted by final L-F desc
+function selfplayVerdict(v){
+  v = (v || "").toLowerCase();
+  if (v.includes("co-evolution")) return `<span class="pill good">co-evolves</span>`;
+  if (v.includes("adaptive")) return `<span class="pill gain">curriculum only</span>`;
+  return `<span class="pill flat">no compounding</span>`;
+}
+function lastNum(a){ if(!Array.isArray(a)) return a; for(let i=a.length-1;i>=0;i--){ if(typeof a[i]==="number") return a[i]; } return null; }
+function selfplayBoard(file, tbSel, upId){
+  fetch(file).then(r => r.json()).then(d => {
+    const up = document.getElementById(upId); if (up) up.textContent = (d.updated || "");
+    const tb = document.querySelector(tbSel); if (!tb) return;
+    const ms = [...(d.models || [])].sort((a, b) => (b.final_L_minus_F ?? -9) - (a.final_L_minus_F ?? -9));
+    if (!ms.length){ tb.innerHTML = `<tr><td colspan="10" class="mid">Runs in progress — rows populate as rounds land.</td></tr>`; return; }
+    tb.innerHTML = ms.map(m => `<tr>
+      <td><b>${m.model}</b></td><td><span class="pill kind">${m.tier}</span></td>
+      <td class="num">${num((m.rounds||[]).length)}</td>
+      <td class="num">${num(lastNum(m.C_held_live))}</td><td class="num">${num(lastNum(m.C_held_frozen_author))}</td><td class="num">${num(lastNum(m.C_held_static))}</td>
+      <td class="num">${deltaBar(m.final_L_minus_F)}</td><td class="num mono">${num(lastNum(m.F_minus_S))}</td>
+      <td class="num mono">${num(m.total_model_proposed)}</td><td>${selfplayVerdict(m.verdict)}</td></tr>`).join("");
+  }).catch(e => {
+    const tb = document.querySelector(tbSel); if (tb) tb.innerHTML = `<tr><td colspan="10" class="mid">Serve over HTTP to load results.</td></tr>`;
+  });
+}
+selfplayBoard("data/selfplay.json", "#sp-open-lb tbody", "sp-open-updated");
+selfplayBoard("data/selfplay_closed.json", "#sp-closed-lb tbody", "sp-closed-updated");
 
 // Baselines board (recursion vs sampling)
 fetch("data/baselines.json").then(r => r.json()).then(d => {
