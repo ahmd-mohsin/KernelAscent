@@ -57,13 +57,39 @@ RSI is supported when `C_r` rises and the self trained arm beats both controls. 
 
 **Difficulty standardization.** The RSI bank is filtered against the frozen base. We keep only tasks the base can sometimes solve but does not already run fast. This gives a low starting score with real room to climb, so a flat result reflects the model and not a saturated bank.
 
-## Findings
+## Findings — when recursive advantage compounds, and when it collapses
 
-- **Capability is a clean gradient.** Closed frontier models top both walls. Small open models sit at the correctness wall with low fast rate.
-- **RSI is scale and family dependent.** On the standardized hard bank, small models start low and gain from self training. Several families keep pulling ahead of the fixed data control, which is genuine compounding. Very small models stay flat because they never produce a correct kernel to learn from. A strong 7B overfits, since it keeps solving the train tasks while its held out score falls.
-- **The RSI score is a thermometer, not a cheerleader.** It reads near zero or negative when a model does not compound, and positive when it does.
+The honest headline: **most open models ≤15B show `L−F ≈ 0`** on self-play — an adaptive curriculum, not a co-evolving author. But rigorous long-horizon (24-round) runs are surfacing the first real positives at the top, and the mechanism probe explains the failures. These are development-split numbers under active confirmation, not a solved-RSI claim.
 
-The live leaderboard covers 19 open models across 9 families, including Qwen, DeepSeek, Yi, Phi, SmolLM, OpenCoder, StableCode, Llama, and Gemma.
+**Task 3 — Procedure-RSI** (held-out `Q` gain vs the frozen procedure). Frontier closed models rewrite their own strategy library + archive and improve substantially; the gain **grows with rounds** for the strongest (GPT-6-Astra), the signature of genuine procedure-channel compounding. Small open models stay flat.
+
+| model | Q-gain vs frozen | verdict |
+|---|--:|---|
+| GPT-6-Astra | **+0.556** | improves (growing over rounds) |
+| Claude-Sonnet-5 | +0.401 | improves |
+| Mistral-Large-3 | +0.310 | improves |
+| Nova-Pro | +0.089 | improves |
+| GPT-5.6-sol | +0.075 | improves |
+| Kimi-K2.5 | +0.062 | improves |
+| Claude-Opus-5 | +0.032 | improves |
+
+**Task 5 — Self-play, primary metric `L−F`** (author co-evolution). Emerging positives, being confirmed at 24 rounds:
+
+| arm | model | L−F | verdict |
+|---|---|--:|---|
+| 5a open | StarCoder2-15B | **+0.232** | author co-evolution compounds (L>F) |
+| 5a open | DeepSeek-Coder-1.3B | +0.039 | adaptive-curriculum only |
+| 5b closed | Claude-Sonnet-5 | +0.045 | author co-evolution compounds (L>F) |
+| 5b closed | GPT-5.6-sol | +0.041 | (under confirmation) |
+| — | most open ≤15B | ≈0.000 | adaptive-curriculum only / no compounding |
+
+Task 5 open-ended (OPEN escalating frontier vs FIXED static, `open−fixed`): DeepSeek-1.3B +0.115, Yi-Coder-1.5B +0.039, SmolLM2-1.7B +0.038, rest ≈0 — a mostly one-time gain, not compounding, at these scales.
+
+**Task 4 — Closed→Open** (peak improved-vs-frozen trainee, harness rewritten by a closed researcher): Fable-5.1 +0.472, Llama-3.3-70B +0.365, Nova-Pro +0.118, Claude-Opus-5 +0.111 — tooling transfer clearly helps.
+
+**Task 2 — Weight-RSI** (self-trained minus fresh-frozen, matched budget): stable-code-3B +0.226 (compounds), DeepSeek-Coder-1.3B +0.050, most others flat. Sub-2B models hit the **correctness wall** — they never emit a correct kernel, so there is no gradient to learn from (a clean negative, not a blank).
+
+**Mechanism** (why): the probe attributes each outcome to `diversity_collapse | forgetting | drift_saturation | no_transfer | no_headroom`, or PASS. The recurring bottleneck is *verified innovation* — models that abundantly self-generate but collapse in diversity or can't author genuinely-harder valid tasks do not compound. The multi-round lineage-vs-reset compounding curve is the confirmation now in progress.
 
 ## Datasets
 
