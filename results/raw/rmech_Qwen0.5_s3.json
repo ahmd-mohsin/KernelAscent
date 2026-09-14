@@ -106,6 +106,28 @@
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "sft_loss": 0.0
+    },
+    {
+      "round": 7,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.259,
+      "gen_dissim": 0.801,
+      "gen_entropy": 0.005,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
     }
-  ]
+  ],
+  "verdict": {
+    "compounded": false,
+    "mechanisms": [
+      "drift_saturation"
+    ],
+    "carrying_depth": null
+  }
 }

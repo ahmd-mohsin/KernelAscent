@@ -76,6 +76,58 @@
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "sft_loss": 0.0
+    },
+    {
+      "round": 5,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.486,
+      "gen_dissim": 0.916,
+      "gen_entropy": 0.891,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 6,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.531,
+      "gen_dissim": 0.922,
+      "gen_entropy": 0.891,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 7,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.485,
+      "gen_dissim": 0.907,
+      "gen_entropy": 0.891,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
     }
-  ]
+  ],
+  "verdict": {
+    "compounded": false,
+    "mechanisms": [
+      "drift_saturation"
+    ],
+    "carrying_depth": null
+  }
 }
