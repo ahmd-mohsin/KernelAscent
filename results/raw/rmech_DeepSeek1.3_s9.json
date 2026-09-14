@@ -31,6 +31,36 @@
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "sft_loss": 0.0
+    },
+    {
+      "round": 2,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.559,
+      "gen_dissim": 0.922,
+      "gen_entropy": 0.891,
+      "drift_total": 0.1108,
+      "drift_early": 0.0643,
+      "drift_mid": 0.0641,
+      "drift_late": 0.0634,
+      "sft_loss": 0.0375
+    },
+    {
+      "round": 3,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.493,
+      "gen_dissim": 0.908,
+      "gen_entropy": 0.841,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
     }
   ]
 }
