@@ -7,42 +7,51 @@
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2
       ],
       "C_held_live": [
         0.313,
-        0.528
+        0.528,
+        0.67
       ],
       "C_held_frozen_author": [
         0.456,
-        0.092
+        0.092,
+        0.328
       ],
       "C_held_static": [
         0.417,
-        0.796
+        0.796,
+        0.746
       ],
       "L_minus_F": [
         -0.143,
-        0.436
+        0.436,
+        0.342
       ],
       "L_minus_S": [
         -0.104,
-        -0.268
+        -0.268,
+        -0.076
       ],
       "F_minus_S": [
         0.039,
-        -0.704
+        -0.704,
+        -0.418
       ],
       "frontier": [
+        16,
         16,
         16
       ],
       "model_proposed": [
         0,
+        0,
         0
       ],
       "total_model_proposed": 0,
-      "final_L_minus_F": 0.436,
+      "final_L_minus_F": 0.342,
       "verdict": "no self-referential compounding"
     },
     {
@@ -145,6 +154,164 @@
       ],
       "total_model_proposed": 6,
       "final_L_minus_F": 0.001,
+      "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "moonshotai.kimi-k2.5",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "C_held_live": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_frozen_author": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_static": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_F": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "model_proposed": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": 0.0,
+      "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "us.anthropic.claude-opus-5",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "C_held_live": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_frozen_author": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_static": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_F": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "L_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "F_minus_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "model_proposed": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": 0.0,
       "verdict": "no self-referential compounding"
     },
     {
