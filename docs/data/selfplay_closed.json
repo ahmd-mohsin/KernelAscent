@@ -396,6 +396,40 @@
       "total_model_proposed": 0,
       "final_L_minus_F": 0.0,
       "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "mistral.mistral-large-3-675b-instruct",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held_live": [
+        0.313
+      ],
+      "C_held_frozen_author": [
+        0.456
+      ],
+      "C_held_static": [
+        0.417
+      ],
+      "L_minus_F": [
+        -0.143
+      ],
+      "L_minus_S": [
+        -0.104
+      ],
+      "F_minus_S": [
+        0.039
+      ],
+      "frontier": [
+        16
+      ],
+      "model_proposed": [
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": -0.143,
+      "verdict": "no self-referential compounding"
     }
   ]
 }
