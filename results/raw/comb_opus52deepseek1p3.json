@@ -29,33 +29,6 @@
       "n_admitted": 1,
       "min_sp": 1.0,
       "strategy": "GOAL: produce a drop-in replacement module that is BIT-COMPATIBLE-ENOUGH to pass the correctness gate first, then faster"
-    },
-    {
-      "round": 3,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) passes the correctness gate exactly, and (b) is measurably FASTER than "
-    },
-    {
-      "round": 4,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.05,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) PASSES the correctness gate first, and only then (b) is measurably fast"
-    },
-    {
-      "round": 5,
-      "C_improved": 0.0,
-      "C_frozen": 0.056,
-      "delta_improved_minus_frozen": -0.056,
-      "n_admitted": 0,
-      "min_sp": 1.05,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) PASSES the correctness gate first, and only then (b) is measurably fast"
     }
   ]
 }

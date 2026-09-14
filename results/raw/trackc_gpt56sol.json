@@ -10,46 +10,6 @@
       "F_g": null,
       "n_strategies": 12,
       "n_archive": 17
-    },
-    {
-      "round": 1,
-      "Qg": 0.878,
-      "delta_vs_base": 0.065,
-      "F_g": 0.008,
-      "n_strategies": 12,
-      "n_archive": 19
-    },
-    {
-      "round": 2,
-      "Qg": 0.889,
-      "delta_vs_base": 0.075,
-      "F_g": 0.031,
-      "n_strategies": 11,
-      "n_archive": 20
-    },
-    {
-      "round": 3,
-      "Qg": 0.89,
-      "delta_vs_base": 0.077,
-      "F_g": 0.001,
-      "n_strategies": 12,
-      "n_archive": 20
-    },
-    {
-      "round": 4,
-      "Qg": 0.89,
-      "delta_vs_base": 0.076,
-      "F_g": 0.001,
-      "n_strategies": 11,
-      "n_archive": 20
-    },
-    {
-      "round": 5,
-      "Qg": 0.889,
-      "delta_vs_base": 0.075,
-      "F_g": -0.001,
-      "n_strategies": 11,
-      "n_archive": 20
     }
   ]
 }
