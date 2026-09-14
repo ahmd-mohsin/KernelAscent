@@ -13,7 +13,7 @@
       "frac_rsi": 0.3,
       "rsi_vs_flat_diversity": [
         0.441,
-        0.658
+        0.657
       ],
       "rsi_vs_flat_drift": [
         0.608,
@@ -32,7 +32,7 @@
         "frac_rsi": 0.05,
         "mean_C_train": 0.02,
         "mean_drift": 0.028,
-        "mean_diversity": 0.525
+        "mean_diversity": 0.523
       },
       "2-8B": {
         "n": 17,
@@ -66,10 +66,10 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.907,
+      "mean_diversity": 0.876,
       "diversity_collapse": false,
       "mean_retention": 0,
-      "mean_transfer_gap": 0.004
+      "mean_transfer_gap": 0.005
     },
     {
       "model": "Qwen2.5-Coder-0.5B",

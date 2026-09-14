@@ -25,7 +25,7 @@
       "rsi_C": 0.004,
       "best_of_k": 0.0769,
       "self_refine": 0.073,
-      "retrieval": null,
+      "retrieval": 0.0578,
       "recursion_gain": -0.073
     }
   ]

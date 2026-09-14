@@ -19,6 +19,15 @@
       "C": 0.073,
       "ci": 0.0973,
       "correct_rate": 0.077
+    },
+    "retrieval": {
+      "method": "retrieval",
+      "n_shot": 3,
+      "archive": 0,
+      "C": 0.0578,
+      "ci": 0.0615,
+      "correct_rate": 0.115,
+      "compiled_sp": 0.101
     }
   }
 }

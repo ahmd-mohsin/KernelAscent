@@ -91,43 +91,6 @@
       "drift_mid": null,
       "drift_late": null,
       "sft_loss": 0.0
-    },
-    {
-      "round": 6,
-      "C_train": 0.0,
-      "C_held": 0.0,
-      "transfer_gap": 0.0,
-      "retention": 0,
-      "gen_distinct2": 1.0,
-      "gen_dissim": 0.999,
-      "gen_entropy": -0.0,
-      "drift_total": null,
-      "drift_early": null,
-      "drift_mid": null,
-      "drift_late": null,
-      "sft_loss": 0.0
-    },
-    {
-      "round": 7,
-      "C_train": 0.0,
-      "C_held": 0.0,
-      "transfer_gap": 0.0,
-      "retention": 0,
-      "gen_distinct2": 1.0,
-      "gen_dissim": 0.999,
-      "gen_entropy": -0.0,
-      "drift_total": null,
-      "drift_early": null,
-      "drift_mid": null,
-      "drift_late": null,
-      "sft_loss": 0.0
     }
-  ],
-  "verdict": {
-    "compounded": false,
-    "mechanisms": [
-      "no_headroom"
-    ],
-    "carrying_depth": null
-  }
+  ]
 }
