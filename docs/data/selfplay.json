@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13",
+  "updated": "2026-09-14",
   "note": "Task 5a OPEN self-play, 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L-F (author CO-EVOLUTION, the self-referential signal); L-S=total adaptive-curriculum benefit, F-S=benefit w/o updating the author. Sustained L-F>0 with model_proposed>0 = genuine recursive compounding, not just an adaptive curriculum.",
   "models": [
     {

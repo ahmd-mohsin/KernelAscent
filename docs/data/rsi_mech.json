@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13",
+  "updated": "2026-09-14",
   "note": "WHY RSI fails or HOW it passes. Per-round mechanism trajectories: gen_distinct2/gen_dissim (mode collapse), gen_entropy (over-confidence), drift_* (LoRA change per depth; ->0 = ceiling), retention (forgetting), transfer_gap (memorization). Verdict attributes each outcome to a mechanism {diversity_collapse|forgetting|drift_saturation|no_transfer|no_headroom} or PASS + carrying depth.",
   "models": [
     {

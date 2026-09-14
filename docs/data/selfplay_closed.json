@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-13",
+  "updated": "2026-09-14",
   "note": "Task 5b CLOSED (API) self-play, 3-arm: co-evolution channel is the PROCEDURE. STATIC / FROZEN-AUTHOR (empty-procedure author) / LIVE-AUTHOR (co-evolved-procedure author). PRIMARY=L-F. Sustained L-F>0 with model_proposed>0 = closed-model self-referential RSI without weight access.",
   "models": [
     {
