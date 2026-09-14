@@ -91,6 +91,43 @@
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "sft_loss": 0.0
+    },
+    {
+      "round": 6,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.491,
+      "gen_dissim": 0.911,
+      "gen_entropy": 0.895,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 7,
+      "C_train": 0.006,
+      "C_held": 0.0,
+      "transfer_gap": 0.006,
+      "retention": 0,
+      "gen_distinct2": 0.539,
+      "gen_dissim": 0.907,
+      "gen_entropy": 0.895,
+      "drift_total": 0.1361,
+      "drift_early": 0.0775,
+      "drift_mid": 0.0792,
+      "drift_late": 0.0791,
+      "sft_loss": 0.2144
     }
-  ]
+  ],
+  "verdict": {
+    "compounded": false,
+    "mechanisms": [
+      "drift_saturation"
+    ],
+    "carrying_depth": "mid"
+  }
 }
