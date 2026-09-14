@@ -47,6 +47,15 @@
       "n_admitted": 0,
       "min_sp": 1.05,
       "strategy": "Reproduce the reference semantics exactly before optimizing. Build parity tests for empty and singleton dimensions, scal"
+    },
+    {
+      "round": 5,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.05,
+      "strategy": "First reproduce the reference implementation exactly and identify the tested input contract from the provided examples a"
     }
   ]
 }

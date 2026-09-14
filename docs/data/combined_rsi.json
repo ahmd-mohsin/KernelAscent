@@ -115,7 +115,7 @@
     {
       "trainee": "Qwen2.5-Coder-0.5B",
       "researcher": "gpt56sol",
-      "rounds": 5,
+      "rounds": 6,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
@@ -126,7 +126,7 @@
     {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "astra",
-      "rounds": 5,
+      "rounds": 6,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
