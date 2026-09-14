@@ -1,0 +1,51 @@
+{
+  "model": "stabilityai/stable-code-3b",
+  "seed": 5,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.571,
+      "gen_dissim": 0.91,
+      "gen_entropy": 0.992,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.0,
+      "C_held": 0.038,
+      "transfer_gap": -0.038,
+      "retention": 0,
+      "gen_distinct2": 0.547,
+      "gen_dissim": 0.926,
+      "gen_entropy": 0.992,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 2,
+      "C_train": 0.031,
+      "C_held": 0.077,
+      "transfer_gap": -0.045,
+      "retention": 0,
+      "gen_distinct2": 0.576,
+      "gen_dissim": 0.907,
+      "gen_entropy": 0.992,
+      "drift_total": 0.1435,
+      "drift_early": 0.0832,
+      "drift_mid": 0.0816,
+      "drift_late": 0.0841,
+      "sft_loss": 0.0511
+    }
+  ]
+}
