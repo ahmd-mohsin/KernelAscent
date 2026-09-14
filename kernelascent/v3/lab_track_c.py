@@ -78,7 +78,8 @@ def develop(U, names, tasks, gen, k, grade_gpu):
     """Best-of-k capability over `names`; returns mean C, and evidence + newly verified fast kernels."""
     scores = []; evidence = []; verified = {}
     for n in names:
-        src = tasks[n]
+        src = tasks.get(n)
+        if src is None: continue          # skip frontier keys with no task def (robust to resumed/authored state)
         codes = [c for c in (AB.extract_modelnew(gen(_solve_prompt(U, src), SOLVE_SYS) or "") for _ in range(k)) if c]
         res = _grade(src, codes, grade_gpu)
         best = 0.0; best_code = None; best_sp = 0.0
