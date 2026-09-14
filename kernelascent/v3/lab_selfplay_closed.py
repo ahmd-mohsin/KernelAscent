@@ -100,7 +100,8 @@ def run(args):
             st = json.load(open(statef))
             US, UF, UL = st["US"], st["UF"], st["UL"]; fS, fF, fL = st["fS"], st["fF"], st["fL"]
             seen = set(st["seen"]); hist = st["hist"]; start = st["round"] + 1
-            print("RESUMED closed %s from round %d (frontier_L=%d, done=%d)" % (args.model, start, len(fL), len(hist)), flush=True)
+            tasks.update(st.get("authored", {}))    # restore model-authored task defs so develop() can find F*/L* frontier keys
+            print("RESUMED closed %s from round %d (frontier_L=%d, done=%d, authored=%d)" % (args.model, start, len(fL), len(hist), len(st.get("authored", {}))), flush=True)
         except Exception as e:
             print("closed resume failed (%s); starting fresh" % e, flush=True)
     for r in range(start, args.rounds):
@@ -130,7 +131,9 @@ def run(args):
                    "note": "CLOSED 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author procedure co-evolution)."},
                   open(os.path.join(args.outdir, "selfplay_closed.json"), "w"), indent=2)
         json.dump({"round": r, "US": US, "UF": UF, "UL": UL, "fS": fS, "fF": fF, "fL": fL,
-                   "seen": list(seen), "hist": hist}, open(statef, "w"))   # full-state resume ckpt (S3-synced by daemon)
+                   "seen": list(seen), "hist": hist,
+                   "authored": {k: tasks[k] for k in tasks if k not in LK.TASKS}},  # persist authored task defs (F*/L*)
+                  open(statef, "w"))   # full-state resume ckpt (S3-synced by daemon)
     lf = [h["L_minus_F"] for h in hist]; mp = sum(h["live_model_proposed"] for h in hist)
     print("\n=== SELFPLAY-CLOSED-3ARM SUMMARY %s === L-F(co-evolution):" % args.model, lf, "| live model_proposed:", mp)
     print("CLOSED AUTHOR CO-EVOLUTION COMPOUNDS?", "YES" if len(lf) >= 3 and statistics.mean(lf[-2:]) > 0.05 and mp > 0 else "NO")
