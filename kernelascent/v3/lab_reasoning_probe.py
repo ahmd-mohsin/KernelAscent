@@ -73,7 +73,8 @@ def run(args):
     os.makedirs(args.outdir, exist_ok=True)
     chainf = os.path.join(args.outdir, "reasoning_chains.jsonl")
     print("REASONING-PROBE %s adapter=%s n=%d k=%d" % (args.model, args.adapter, len(srcs), args.k), flush=True)
-    gl = W.generate_batch(tok, mdl, srcs, args.k, max_new=1100, adapter=adapter)
+    bs = 1 if any(s in args.model for s in ("7b", "7B", "8B", "9B", "13b", "14B", "15b")) else 2  # cap gen batch: 7B+ KV-cache OOMs 40GB at higher bs
+    gl = W.generate_batch(tok, mdl, srcs, args.k, max_new=1100, adapter=adapter, bs=bs)
     codes = [[c for c in (AB.extract_modelnew(t) for t in g) if c] for g in gl]
     # grade one code per generation slot (align raw text <-> extracted code <-> grade)
     stage_hist = {}; strat_total = {k: [0, 0] for k in STRATS}   # [mentions, mention&correct]
