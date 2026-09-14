@@ -1869,9 +1869,11 @@
         3,
         4,
         5,
-        6
+        6,
+        7
       ],
       "C_held": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -1887,6 +1889,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "transfer_gap": [
@@ -1896,9 +1899,11 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "retention": [
+        0,
         0,
         0,
         0,
@@ -1914,6 +1919,7 @@
         1.0,
         1.0,
         1.0,
+        1.0,
         1.0
       ],
       "gen_dissim": [
@@ -1921,6 +1927,7 @@
         0.999,
         0.999,
         1.0,
+        0.999,
         0.999,
         0.999,
         0.999
@@ -1932,9 +1939,11 @@
         -0.0,
         -0.0,
         -0.0,
+        -0.0,
         -0.0
       ],
       "drift_total": [
+        null,
         null,
         null,
         null,
@@ -1950,9 +1959,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "drift_mid": [
+        null,
         null,
         null,
         null,
@@ -1968,6 +1979,7 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "sft_loss": [
@@ -1977,10 +1989,13 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
-      "compounded": null,
-      "mechanisms": [],
+      "compounded": false,
+      "mechanisms": [
+        "no_headroom"
+      ],
       "carrying_depth": null
     },
     {
