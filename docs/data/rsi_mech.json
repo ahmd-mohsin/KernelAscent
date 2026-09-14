@@ -1769,9 +1769,13 @@
       "rounds": [
         0,
         1,
-        2
+        2,
+        3,
+        4
       ],
       "C_held": [
+        0.0,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -1779,9 +1783,13 @@
       "C_train": [
         0.0,
         0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "transfer_gap": [
+        0.0,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -1789,19 +1797,27 @@
       "retention": [
         0,
         0,
+        0,
+        0,
         0
       ],
       "gen_distinct2": [
         0.23,
         0.254,
-        0.248
+        0.248,
+        0.234,
+        0.258
       ],
       "gen_dissim": [
         0.88,
         0.805,
-        0.822
+        0.822,
+        0.764,
+        0.854
       ],
       "gen_entropy": [
+        0.005,
+        0.005,
         0.005,
         0.005,
         0.005
@@ -1809,24 +1825,34 @@
       "drift_total": [
         null,
         0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "drift_early": [
         null,
+        0.0,
+        0.0,
         0.0,
         0.0
       ],
       "drift_mid": [
         null,
         0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "drift_late": [
         null,
         0.0,
+        0.0,
+        0.0,
         0.0
       ],
       "sft_loss": [
+        0.0,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -4399,6 +4425,52 @@
       ],
       "gen_entropy": [
         0.008
+      ],
+      "drift_total": [
+        null
+      ],
+      "drift_early": [
+        null
+      ],
+      "drift_mid": [
+        null
+      ],
+      "drift_late": [
+        null
+      ],
+      "sft_loss": [
+        0.0
+      ],
+      "compounded": null,
+      "mechanisms": [],
+      "carrying_depth": null
+    },
+    {
+      "model": "deepseek-coder-1.3b-base",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held": [
+        0.0
+      ],
+      "C_train": [
+        0.0
+      ],
+      "transfer_gap": [
+        0.0
+      ],
+      "retention": [
+        0
+      ],
+      "gen_distinct2": [
+        0.564
+      ],
+      "gen_dissim": [
+        0.918
+      ],
+      "gen_entropy": [
+        0.891
       ],
       "drift_total": [
         null
