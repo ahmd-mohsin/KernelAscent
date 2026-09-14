@@ -1771,9 +1771,11 @@
       "rounds": [
         0,
         1,
-        2
+        2,
+        3
       ],
       "C_held": [
+        0.0,
         0.0,
         0.0,
         0.0
@@ -1781,14 +1783,17 @@
       "C_train": [
         0.0,
         0.0,
-        0.031
+        0.031,
+        0.0
       ],
       "transfer_gap": [
         0.0,
         0.0,
-        0.031
+        0.031,
+        0.0
       ],
       "retention": [
+        0,
         0,
         0,
         0
@@ -1796,42 +1801,50 @@
       "gen_distinct2": [
         0.276,
         0.313,
-        0.294
+        0.294,
+        1.0
       ],
       "gen_dissim": [
         0.748,
         0.764,
-        0.781
+        0.781,
+        0.999
       ],
       "gen_entropy": [
         0.007,
         0.007,
-        0.007
+        0.007,
+        -0.0
       ],
       "drift_total": [
         null,
         0.0,
+        null,
         null
       ],
       "drift_early": [
         null,
         0.0,
+        null,
         null
       ],
       "drift_mid": [
         null,
         0.0,
+        null,
         null
       ],
       "drift_late": [
         null,
         0.0,
+        null,
         null
       ],
       "sft_loss": [
         0.0,
         0.0,
-        0.0662
+        0.0662,
+        0.0
       ],
       "compounded": null,
       "mechanisms": [],
