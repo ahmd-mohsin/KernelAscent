@@ -101,6 +101,7 @@ def run(args):
             US, UF, UL = st["US"], st["UF"], st["UL"]; fS, fF, fL = st["fS"], st["fF"], st["fL"]
             seen = set(st["seen"]); hist = st["hist"]; start = st["round"] + 1
             tasks.update(st.get("authored", {}))    # restore model-authored task defs so develop() can find F*/L* frontier keys
+            fS = [k for k in fS if k in tasks]; fF = [k for k in fF if k in tasks]; fL = [k for k in fL if k in tasks]  # drop keys whose def is missing (legacy/poisoned state) -> no KeyError
             print("RESUMED closed %s from round %d (frontier_L=%d, done=%d, authored=%d)" % (args.model, start, len(fL), len(hist), len(st.get("authored", {}))), flush=True)
         except Exception as e:
             print("closed resume failed (%s); starting fresh" % e, flush=True)
