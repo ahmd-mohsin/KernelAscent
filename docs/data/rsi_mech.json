@@ -1769,43 +1769,69 @@
       "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1,
+        2
       ],
       "C_held": [
+        0.0,
+        0.0,
         0.0
       ],
       "C_train": [
-        0.0
+        0.0,
+        0.0,
+        0.031
       ],
       "transfer_gap": [
-        0.0
+        0.0,
+        0.0,
+        0.031
       ],
       "retention": [
+        0,
+        0,
         0
       ],
       "gen_distinct2": [
-        0.276
+        0.276,
+        0.313,
+        0.294
       ],
       "gen_dissim": [
-        0.748
+        0.748,
+        0.764,
+        0.781
       ],
       "gen_entropy": [
+        0.007,
+        0.007,
         0.007
       ],
       "drift_total": [
+        null,
+        0.0,
         null
       ],
       "drift_early": [
+        null,
+        0.0,
         null
       ],
       "drift_mid": [
+        null,
+        0.0,
         null
       ],
       "drift_late": [
+        null,
+        0.0,
         null
       ],
       "sft_loss": [
-        0.0
+        0.0,
+        0.0,
+        0.0662
       ],
       "compounded": null,
       "mechanisms": [],
