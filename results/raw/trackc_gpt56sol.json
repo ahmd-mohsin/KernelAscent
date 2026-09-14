@@ -34,6 +34,14 @@
       "F_g": 0.001,
       "n_strategies": 12,
       "n_archive": 20
+    },
+    {
+      "round": 4,
+      "Qg": 0.89,
+      "delta_vs_base": 0.076,
+      "F_g": 0.001,
+      "n_strategies": 11,
+      "n_archive": 20
     }
   ]
 }

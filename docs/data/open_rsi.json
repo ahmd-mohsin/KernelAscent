@@ -6,6 +6,36 @@
       "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "rounds": [
+        0,
+        1
+      ],
+      "C_held_open": [
+        0.0,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.0
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        19,
+        25
+      ],
+      "base_correct_on_frontier": [
+        0,
+        0.333
+      ],
+      "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "Yi-Coder-1.5B",
+      "tier": "small",
+      "rounds": [
         0
       ],
       "C_held_open": [
@@ -18,7 +48,7 @@
         0.0
       ],
       "frontier": [
-        19
+        22
       ],
       "base_correct_on_frontier": [
         0
@@ -31,29 +61,35 @@
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2
       ],
       "C_held_open": [
+        0.0,
         0.0,
         0.0
       ],
       "C_held_fixed": [
         0.0,
-        0.038
+        0.038,
+        0.0
       ],
       "delta_open_minus_fixed": [
         0.0,
-        -0.038
+        -0.038,
+        0.0
       ],
       "frontier": [
         22,
-        28
+        28,
+        34
       ],
       "base_correct_on_frontier": [
         0,
+        0,
         0
       ],
-      "final_delta": -0.038,
+      "final_delta": 0.0,
       "verdict": "one-time (open==fixed)"
     }
   ]

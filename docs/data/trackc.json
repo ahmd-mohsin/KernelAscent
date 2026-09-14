@@ -14,10 +14,10 @@
     {
       "model": "us.anthropic.claude-sonnet-5",
       "mode": "self-modify",
-      "rounds": 3,
+      "rounds": 4,
       "Q0": 0.493,
-      "Qg": 0.888,
-      "delta_vs_base": 0.395,
+      "Qg": 0.856,
+      "delta_vs_base": 0.363,
       "verdict": "improves"
     },
     {
@@ -41,10 +41,10 @@
     {
       "model": "us.openai.gpt-5.6-sol",
       "mode": "self-modify",
-      "rounds": 4,
+      "rounds": 5,
       "Q0": 0.813,
       "Qg": 0.89,
-      "delta_vs_base": 0.077,
+      "delta_vs_base": 0.076,
       "verdict": "improves"
     },
     {
@@ -68,10 +68,10 @@
     {
       "model": "us.openai.gpt-5.6-terra",
       "mode": "self-modify",
-      "rounds": 5,
+      "rounds": 6,
       "Q0": 0.851,
-      "Qg": 0.851,
-      "delta_vs_base": 0,
+      "Qg": 0.85,
+      "delta_vs_base": -0.001,
       "verdict": "flat"
     },
     {
