@@ -11,51 +11,6 @@
       "n_admitted": 2,
       "min_sp": 0.0,
       "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
-    },
-    {
-      "round": 1,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Optimize for NVIDIA A100 latency while preserving numerical equivalence. First identify the dominant cost and benchmark "
-    },
-    {
-      "round": 2,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency with correctness as a hard gate. First inspect the module and reference behavior, including"
-    },
-    {
-      "round": 3,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency with correctness as a hard gate. First inspect the module, reference implementation, and te"
-    },
-    {
-      "round": 4,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency only after correctness passes. Inspect the module, reference implementation, and test contr"
-    },
-    {
-      "round": 5,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Gate all optimization on correctness. First inspect the module, reference, and test contract; enumerate supported shapes"
     }
   ]
 }
