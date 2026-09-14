@@ -94,7 +94,16 @@ def run(args):
     print("SELFPLAY-CLOSED-3ARM %s seed=%d seed_tasks=%d held=%d rounds=%d (S/F/L)" %
           (args.model, args.seed, len(seedn), len(held), args.rounds), flush=True)
     os.makedirs(args.outdir, exist_ok=True); hist = []
-    for r in range(args.rounds):
+    statef = os.path.join(args.outdir, "resume_state.json"); start = 0
+    if os.path.exists(statef):                                   # RESUME (state restored from S3 on a new node)
+        try:
+            st = json.load(open(statef))
+            US, UF, UL = st["US"], st["UF"], st["UL"]; fS, fF, fL = st["fS"], st["fF"], st["fL"]
+            seen = set(st["seen"]); hist = st["hist"]; start = st["round"] + 1
+            print("RESUMED closed %s from round %d (frontier_L=%d, done=%d)" % (args.model, start, len(fL), len(hist)), flush=True)
+        except Exception as e:
+            print("closed resume failed (%s); starting fresh" % e, flush=True)
+    for r in range(start, args.rounds):
         t0 = time.time()
         # STATIC: procedure improves on fixed frontier
         _, _, evS, verS = TC.develop(US, fS, tasks, gen, args.k, args.grade_gpu); US["archive"].update(verS); US = TC.improve(US, evS, gen)
@@ -120,6 +129,8 @@ def run(args):
         json.dump({"model": args.model, "seed": args.seed, "held": len(held), "history": hist,
                    "note": "CLOSED 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author procedure co-evolution)."},
                   open(os.path.join(args.outdir, "selfplay_closed.json"), "w"), indent=2)
+        json.dump({"round": r, "US": US, "UF": UF, "UL": UL, "fS": fS, "fF": fF, "fL": fL,
+                   "seen": list(seen), "hist": hist}, open(statef, "w"))   # full-state resume ckpt (S3-synced by daemon)
     lf = [h["L_minus_F"] for h in hist]; mp = sum(h["live_model_proposed"] for h in hist)
     print("\n=== SELFPLAY-CLOSED-3ARM SUMMARY %s === L-F(co-evolution):" % args.model, lf, "| live model_proposed:", mp)
     print("CLOSED AUTHOR CO-EVOLUTION COMPOUNDS?", "YES" if len(lf) >= 3 and statistics.mean(lf[-2:]) > 0.05 and mp > 0 else "NO")
