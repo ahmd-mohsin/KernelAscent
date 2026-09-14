@@ -71,24 +71,13 @@
     {
       "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "Claude-Opus-5",
-      "rounds": 3,
+      "rounds": 6,
       "C0": 0,
-      "C_improved": 0.056,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0.056,
+      "C_improved": 0,
+      "C_frozen": 0.056,
+      "impr_minus_frozen": -0.056,
       "peak": 0.056,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "sc15b",
-      "rounds": 8,
-      "C0": 0,
-      "C_improved": 0.055,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0.055,
-      "peak": 0.055,
-      "verdict": "flat"
+      "verdict": "hurts"
     },
     {
       "trainee": "DeepSeek-Coder-1.3B",
@@ -115,7 +104,7 @@
     {
       "trainee": "Qwen2.5-Coder-0.5B",
       "researcher": "gpt56sol",
-      "rounds": 2,
+      "rounds": 6,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
@@ -126,6 +115,17 @@
     {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "astra",
+      "rounds": 6,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0,
+      "peak": 0,
+      "verdict": "flat"
+    },
+    {
+      "trainee": "DeepSeek-Coder-1.3B",
+      "researcher": "sc15b",
       "rounds": 3,
       "C0": 0,
       "C_improved": 0,
@@ -137,7 +137,7 @@
     {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "qwen14b",
-      "rounds": 8,
+      "rounds": 4,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,

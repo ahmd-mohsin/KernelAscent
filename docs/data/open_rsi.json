@@ -3,7 +3,7 @@
   "note": "Task 5 open-ended RSI (rigorous): OPEN(escalating frontier) vs FIXED(static) learners at equal budget, same held ladder. PRIMARY=delta_open_minus_fixed; sustained >0 = open-endedness causes compounding. base_correct_on_frontier declining verifies escalation is real.",
   "models": [
     {
-      "model": "OpenCoder-1.5B-Base",
+      "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "rounds": [
         0
@@ -18,12 +18,42 @@
         0.0
       ],
       "frontier": [
-        22
+        19
       ],
       "base_correct_on_frontier": [
         0
       ],
       "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "OpenCoder-1.5B-Base",
+      "tier": "small",
+      "rounds": [
+        0,
+        1
+      ],
+      "C_held_open": [
+        0.0,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.038
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        -0.038
+      ],
+      "frontier": [
+        22,
+        28
+      ],
+      "base_correct_on_frontier": [
+        0,
+        0
+      ],
+      "final_delta": -0.038,
       "verdict": "one-time (open==fixed)"
     }
   ]
