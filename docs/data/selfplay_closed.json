@@ -64,40 +64,6 @@
       "verdict": "no self-referential compounding"
     },
     {
-      "model": "us.openai.gpt-6-astra",
-      "tier": "small",
-      "rounds": [
-        0
-      ],
-      "C_held_live": [
-        0.315
-      ],
-      "C_held_frozen_author": [
-        0.127
-      ],
-      "C_held_static": [
-        0.052
-      ],
-      "L_minus_F": [
-        0.188
-      ],
-      "L_minus_S": [
-        0.263
-      ],
-      "F_minus_S": [
-        0.075
-      ],
-      "frontier": [
-        17
-      ],
-      "model_proposed": [
-        1
-      ],
-      "total_model_proposed": 1,
-      "final_L_minus_F": 0.188,
-      "verdict": "no self-referential compounding"
-    },
-    {
       "model": "us.anthropic.claude-sonnet-5",
       "tier": "small",
       "rounds": [
@@ -168,40 +134,6 @@
       ],
       "model_proposed": [
         0,
-        6
-      ],
-      "total_model_proposed": 6,
-      "final_L_minus_F": 0.001,
-      "verdict": "no self-referential compounding"
-    },
-    {
-      "model": "us.openai.gpt-5.6-sol",
-      "tier": "small",
-      "rounds": [
-        0
-      ],
-      "C_held_live": [
-        0.87
-      ],
-      "C_held_frozen_author": [
-        0.869
-      ],
-      "C_held_static": [
-        0.817
-      ],
-      "L_minus_F": [
-        0.001
-      ],
-      "L_minus_S": [
-        0.052
-      ],
-      "F_minus_S": [
-        0.052
-      ],
-      "frontier": [
-        22
-      ],
-      "model_proposed": [
         6
       ],
       "total_model_proposed": 6,
@@ -600,6 +532,92 @@
         0
       ],
       "total_model_proposed": 0,
+      "final_L_minus_F": 0.0,
+      "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "us.openai.gpt-6-astra",
+      "tier": "small",
+      "rounds": [
+        0,
+        1
+      ],
+      "C_held_live": [
+        0.315,
+        0.0
+      ],
+      "C_held_frozen_author": [
+        0.127,
+        0.0
+      ],
+      "C_held_static": [
+        0.052,
+        0.0
+      ],
+      "L_minus_F": [
+        0.188,
+        0.0
+      ],
+      "L_minus_S": [
+        0.263,
+        0.0
+      ],
+      "F_minus_S": [
+        0.075,
+        0.0
+      ],
+      "frontier": [
+        17,
+        21
+      ],
+      "model_proposed": [
+        1,
+        4
+      ],
+      "total_model_proposed": 5,
+      "final_L_minus_F": 0.0,
+      "verdict": "no self-referential compounding"
+    },
+    {
+      "model": "us.openai.gpt-5.6-sol",
+      "tier": "small",
+      "rounds": [
+        0,
+        1
+      ],
+      "C_held_live": [
+        0.87,
+        0.87
+      ],
+      "C_held_frozen_author": [
+        0.869,
+        0.869
+      ],
+      "C_held_static": [
+        0.817,
+        0.823
+      ],
+      "L_minus_F": [
+        0.001,
+        0.0
+      ],
+      "L_minus_S": [
+        0.052,
+        0.047
+      ],
+      "F_minus_S": [
+        0.052,
+        0.047
+      ],
+      "frontier": [
+        22,
+        28
+      ],
+      "model_proposed": [
+        6,
+        6
+      ],
+      "total_model_proposed": 12,
       "final_L_minus_F": 0.0,
       "verdict": "no self-referential compounding"
     }
