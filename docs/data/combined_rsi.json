@@ -49,11 +49,11 @@
     {
       "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "Claude-Opus-5",
-      "rounds": 3,
+      "rounds": 6,
       "C0": 0,
-      "C_improved": 0.111,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0.111,
+      "C_improved": 0.056,
+      "C_frozen": 0.055,
+      "impr_minus_frozen": 0,
       "peak": 0.111,
       "verdict": "harness helps"
     },
@@ -115,7 +115,7 @@
     {
       "trainee": "Qwen2.5-Coder-0.5B",
       "researcher": "gpt56sol",
-      "rounds": 3,
+      "rounds": 5,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
@@ -126,7 +126,7 @@
     {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "astra",
-      "rounds": 3,
+      "rounds": 5,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,

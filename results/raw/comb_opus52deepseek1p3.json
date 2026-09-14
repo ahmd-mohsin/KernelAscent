@@ -29,6 +29,33 @@
       "n_admitted": 0,
       "min_sp": 1.05,
       "strategy": "SPEED PHASE (correctness is already proven: task_correct=1, avg_sp=1.57, but min_sp=0.00 means at least one shape/dtype "
+    },
+    {
+      "round": 3,
+      "C_improved": 0.056,
+      "C_frozen": 0.056,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.15,
+      "strategy": "SPEED PHASE (correctness is already proven: task_correct=1, avg_sp=1.57, but min_sp=0.00 means at least one shape/dtype "
+    },
+    {
+      "round": 4,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.15,
+      "strategy": "1. LOCK IN THE WORKING BASELINE. Start from the exact version that scored task_correct=1 / avg_sp=1.57. Do not restructu"
+    },
+    {
+      "round": 5,
+      "C_improved": 0.056,
+      "C_frozen": 0.055,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.15,
+      "strategy": "REVERT-THEN-RATCHET. The last edit regressed throughput (avg_sp 0.85 < min_sp 1.15) while staying correct, so the code i"
     }
   ]
 }

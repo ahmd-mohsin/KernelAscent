@@ -29,6 +29,24 @@
       "n_admitted": 0,
       "min_sp": 0.0,
       "strategy": "Implement the reference forward path verbatim in PyTorch eager mode before optimizing. Preserve the exact operator seque"
+    },
+    {
+      "round": 3,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.05,
+      "strategy": "First reproduce the reference exactly and build adversarial parity tests covering empty, singleton, non-contiguous, mixe"
+    },
+    {
+      "round": 4,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 1.05,
+      "strategy": "Reproduce the reference semantics exactly before optimizing. Build parity tests for empty and singleton dimensions, scal"
     }
   ]
 }
