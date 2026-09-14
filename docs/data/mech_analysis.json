@@ -95,17 +95,17 @@
       "tier": "small",
       "wall_crossed": false,
       "max_C_train": 0.0,
-      "C_held_gain": 0.0,
+      "C_held_gain": 0.038,
       "rsi": false,
       "drift_early": 0.0,
       "drift_mid": 0.0,
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.257,
-      "diversity_collapse": false,
+      "mean_diversity": 0.253,
+      "diversity_collapse": true,
       "mean_retention": 0,
-      "mean_transfer_gap": 0.0
+      "mean_transfer_gap": -0.008
     },
     {
       "model": "Qwen2.5-Coder-0.5B",
