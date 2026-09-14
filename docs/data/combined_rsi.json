@@ -126,7 +126,7 @@
     {
       "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "sc15b",
-      "rounds": 3,
+      "rounds": 7,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
@@ -137,7 +137,7 @@
     {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "qwen14b",
-      "rounds": 4,
+      "rounds": 7,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,

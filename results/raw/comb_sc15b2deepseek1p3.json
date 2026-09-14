@@ -29,6 +29,42 @@
       "n_admitted": 0,
       "min_sp": 0.0,
       "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 3,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 2,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 4,
+      "C_improved": 0.0,
+      "C_frozen": 0.055,
+      "delta_improved_minus_frozen": -0.055,
+      "n_admitted": 1,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 5,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 2,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    },
+    {
+      "round": 6,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 2,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
     }
   ]
 }
