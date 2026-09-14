@@ -40,6 +40,7 @@ echo "results/raw now holds $n publishable runs"
 # 3) aggregate + publish
 cd "$REPO"
 python3 scripts/aggregate_all.py
+python3 scripts/mech_analysis.py 2>/dev/null | tail -4   # re-derive scale->mechanism->RSI findings each cycle
 git add results/raw docs/data 2>/dev/null
 git commit -q -m "site: refresh boards from S3 ($(date -u +%H:%MZ)) — $n runs" 2>/dev/null \
   && git push -q 2>&1 | tail -1 && echo "pushed" || echo "no changes to commit"
