@@ -1,0 +1,16 @@
+{
+  "trainee": "deepseek-ai/deepseek-coder-1.3b-base",
+  "researcher": "us.anthropic.claude-opus-5",
+  "C0": 0.0,
+  "history": [
+    {
+      "round": 0,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.0,
+      "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
+    }
+  ]
+}
