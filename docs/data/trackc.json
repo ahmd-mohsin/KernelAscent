@@ -5,10 +5,10 @@
     {
       "model": "us.openai.gpt-6-astra",
       "mode": "self-modify",
-      "rounds": 5,
+      "rounds": 6,
       "Q0": 0.298,
-      "Qg": 0.855,
-      "delta_vs_base": 0.557,
+      "Qg": 0.854,
+      "delta_vs_base": 0.556,
       "verdict": "improves"
     },
     {
@@ -91,6 +91,15 @@
       "Qg": 0.455,
       "delta_vs_base": -0.004,
       "verdict": "flat"
+    },
+    {
+      "model": "deepseek.v3.2",
+      "mode": "self-modify",
+      "rounds": 1,
+      "Q0": 0.847,
+      "Qg": 0.614,
+      "delta_vs_base": -0.234,
+      "verdict": "degrades"
     }
   ]
 }

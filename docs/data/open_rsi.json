@@ -3,61 +3,100 @@
   "note": "Task 5 open-ended RSI (rigorous): OPEN(escalating frontier) vs FIXED(static) learners at equal budget, same held ladder. PRIMARY=delta_open_minus_fixed; sustained >0 = open-endedness causes compounding. base_correct_on_frontier declining verifies escalation is real.",
   "models": [
     {
-      "model": "stable-code-3b",
+      "model": "deepseek-coder-1.3b-base",
       "tier": "small",
       "rounds": [
         0,
         1,
         2,
-        3
+        3,
+        4,
+        5,
+        6,
+        7
       ],
       "C_held_open": [
-        0.039,
+        0.0,
         0.038,
-        0.077,
-        0.204
+        0.0,
+        0.001,
+        0.0,
+        0.038,
+        0.0,
+        0.115
       ],
       "C_held_fixed": [
-        0.115,
-        0.154,
-        0.161,
-        0.151
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.077,
+        0.038,
+        0.0
       ],
       "delta_open_minus_fixed": [
-        -0.076,
-        -0.116,
-        -0.085,
-        0.053
+        0.0,
+        0.038,
+        0.0,
+        0.001,
+        0.0,
+        -0.039,
+        -0.038,
+        0.115
       ],
       "frontier": [
         22,
         23,
         29,
-        32
+        35,
+        36,
+        37,
+        38,
+        44
       ],
       "base_correct_on_frontier": [
         0,
         0,
         0,
+        0,
+        0,
+        0,
+        0,
         0
       ],
-      "final_delta": 0.053,
+      "final_delta": 0.115,
       "verdict": "one-time (open==fixed)"
     },
     {
-      "model": "starcoder2-3b",
+      "model": "Yi-Coder-1.5B",
       "tier": "small",
       "rounds": [
         0,
         1,
-        2
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
       ],
       "C_held_open": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
         0.0,
         0.0,
         0.039
       ],
       "C_held_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
         0.0,
         0.0,
         0.0
@@ -65,14 +104,29 @@
       "delta_open_minus_fixed": [
         0.0,
         0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
         0.039
       ],
       "frontier": [
-        17,
-        23,
-        29
+        22,
+        28,
+        29,
+        35,
+        37,
+        43,
+        44,
+        45
       ],
       "base_correct_on_frontier": [
+        0,
+        0,
+        0,
+        0,
+        0,
         0,
         0,
         0
@@ -81,86 +135,8 @@
       "verdict": "one-time (open==fixed)"
     },
     {
-      "model": "stable-code-3b",
-      "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2
-      ],
-      "C_held_open": [
-        0.077,
-        0.077,
-        0.148
-      ],
-      "C_held_fixed": [
-        0.077,
-        0.126,
-        0.119
-      ],
-      "delta_open_minus_fixed": [
-        0.001,
-        -0.049,
-        0.029
-      ],
-      "frontier": [
-        16,
-        18,
-        20
-      ],
-      "base_correct_on_frontier": [
-        0.188,
-        0,
-        0
-      ],
-      "final_delta": 0.029,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "deepseek-coder-1.3b-base",
-      "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_open": [
-        0.077,
-        0.038,
-        0.0,
-        0.0
-      ],
-      "C_held_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "delta_open_minus_fixed": [
-        0.077,
-        0.038,
-        0.0,
-        0.0
-      ],
-      "frontier": [
-        22,
-        28,
-        34,
-        40
-      ],
-      "base_correct_on_frontier": [
-        0,
-        0.167,
-        0,
-        0
-      ],
-      "final_delta": 0.0,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "Qwen2.5-Coder-1.5B",
-      "tier": "small",
+      "model": "SmolLM2-1.7B",
+      "tier": "mid",
       "rounds": [
         0,
         1,
@@ -169,11 +145,11 @@
         4
       ],
       "C_held_open": [
+        0.077,
+        0.036,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0
+        0.038
       ],
       "C_held_fixed": [
         0.0,
@@ -183,18 +159,18 @@
         0.0
       ],
       "delta_open_minus_fixed": [
+        0.077,
+        0.036,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0
+        0.038
       ],
       "frontier": [
-        22,
-        28,
-        34,
-        40,
-        43
+        17,
+        23,
+        29,
+        30,
+        36
       ],
       "base_correct_on_frontier": [
         0,
@@ -203,53 +179,11 @@
         0,
         0
       ],
-      "final_delta": 0.0,
+      "final_delta": 0.038,
       "verdict": "one-time (open==fixed)"
     },
     {
-      "model": "Qwen2.5-Coder-3B",
-      "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_open": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "C_held_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "delta_open_minus_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "frontier": [
-        20,
-        26,
-        32,
-        38
-      ],
-      "base_correct_on_frontier": [
-        0.5,
-        0.333,
-        0.167,
-        0.167
-      ],
-      "final_delta": 0.0,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "Qwen2.5-Coder-3B",
+      "model": "Qwen2.5-Coder-1.5B",
       "tier": "small",
       "rounds": [
         0,
@@ -284,12 +218,119 @@
         0.0
       ],
       "frontier": [
+        22,
+        28,
+        34,
+        40,
+        43,
+        49
+      ],
+      "base_correct_on_frontier": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "C_held_open": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        20,
+        26,
+        32,
+        38,
+        44
+      ],
+      "base_correct_on_frontier": [
+        0.5,
+        0.333,
+        0.167,
+        0.167,
+        0.333
+      ],
+      "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "C_held_open": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frontier": [
         19,
         25,
         31,
         37,
         43,
-        49
+        49,
+        55
       ],
       "base_correct_on_frontier": [
         0,
@@ -297,6 +338,7 @@
         0.167,
         0.333,
         0.333,
+        0.167,
         0.167
       ],
       "final_delta": 0.0,
@@ -309,9 +351,11 @@
         0,
         1,
         2,
-        3
+        3,
+        4
       ],
       "C_held_open": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -321,11 +365,13 @@
         0.0,
         0.039,
         0.0,
+        0.0,
         0.0
       ],
       "delta_open_minus_fixed": [
         0.0,
         -0.039,
+        0.0,
         0.0,
         0.0
       ],
@@ -333,9 +379,11 @@
         17,
         23,
         29,
-        35
+        35,
+        41
       ],
       "base_correct_on_frontier": [
+        0,
         0,
         0,
         0,
@@ -347,90 +395,6 @@
     {
       "model": "Qwen2.5-Coder-0.5B",
       "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_open": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "C_held_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "delta_open_minus_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "frontier": [
-        22,
-        28,
-        34,
-        40
-      ],
-      "base_correct_on_frontier": [
-        0,
-        0,
-        0,
-        0
-      ],
-      "final_delta": 0.0,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "starcoder2-3b",
-      "tier": "small",
-      "rounds": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "C_held_open": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "C_held_fixed": [
-        0.0,
-        0.0,
-        0.038,
-        0.0
-      ],
-      "delta_open_minus_fixed": [
-        0.0,
-        0.0,
-        -0.038,
-        0.0
-      ],
-      "frontier": [
-        22,
-        28,
-        29,
-        35
-      ],
-      "base_correct_on_frontier": [
-        0,
-        0,
-        0,
-        0.167
-      ],
-      "final_delta": 0.0,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "Qwen2.5-Coder-7B",
-      "tier": "mid",
       "rounds": [
         0,
         1,
@@ -472,50 +436,8 @@
         52
       ],
       "base_correct_on_frontier": [
-        0.333,
-        0.167,
-        0.5,
-        0.167,
-        0.333,
-        0.333
-      ],
-      "final_delta": 0.0,
-      "verdict": "one-time (open==fixed)"
-    },
-    {
-      "model": "SmolLM2-1.7B",
-      "tier": "mid",
-      "rounds": [
         0,
-        1,
-        2,
-        3
-      ],
-      "C_held_open": [
-        0.077,
-        0.036,
-        0.0,
-        0.0
-      ],
-      "C_held_fixed": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "delta_open_minus_fixed": [
-        0.077,
-        0.036,
-        0.0,
-        0.0
-      ],
-      "frontier": [
-        17,
-        23,
-        29,
-        30
-      ],
-      "base_correct_on_frontier": [
+        0,
         0,
         0,
         0,
@@ -525,17 +447,67 @@
       "verdict": "one-time (open==fixed)"
     },
     {
-      "model": "Yi-Coder-1.5B",
+      "model": "starcoder2-3b",
       "tier": "small",
       "rounds": [
         0,
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
       "C_held_open": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.0,
+        0.038,
+        0.0,
+        0.0
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        0.0,
+        -0.038,
+        0.0,
+        0.0
+      ],
+      "frontier": [
+        22,
+        28,
+        29,
+        35,
+        41
+      ],
+      "base_correct_on_frontier": [
+        0,
+        0,
+        0,
+        0.167,
+        0
+      ],
+      "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B",
+      "tier": "mid",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "C_held_open": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -549,9 +521,11 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "delta_open_minus_fixed": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -562,13 +536,63 @@
       "frontier": [
         22,
         28,
-        29,
-        35,
-        37,
-        43
+        34,
+        40,
+        46,
+        52,
+        58
       ],
       "base_correct_on_frontier": [
+        0.333,
+        0.167,
+        0.5,
+        0.167,
+        0.333,
+        0.333,
+        0.333
+      ],
+      "final_delta": 0.0,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "starcoder2-3b",
+      "tier": "small",
+      "rounds": [
         0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "C_held_open": [
+        0.0,
+        0.0,
+        0.039,
+        0.038,
+        0.0
+      ],
+      "C_held_fixed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_open_minus_fixed": [
+        0.0,
+        0.0,
+        0.039,
+        0.038,
+        0.0
+      ],
+      "frontier": [
+        17,
+        23,
+        29,
+        35,
+        36
+      ],
+      "base_correct_on_frontier": [
         0,
         0,
         0,
@@ -589,9 +613,11 @@
         4,
         5,
         6,
-        7
+        7,
+        8
       ],
       "C_held_open": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -604,6 +630,7 @@
       "C_held_fixed": [
         0.0,
         0.038,
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -619,6 +646,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "frontier": [
@@ -629,9 +657,11 @@
         46,
         52,
         58,
-        64
+        64,
+        65
       ],
       "base_correct_on_frontier": [
+        0,
         0,
         0,
         0,
@@ -645,6 +675,48 @@
       "verdict": "one-time (open==fixed)"
     },
     {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "C_held_open": [
+        0.077,
+        0.077,
+        0.148,
+        0.348
+      ],
+      "C_held_fixed": [
+        0.077,
+        0.126,
+        0.119,
+        0.418
+      ],
+      "delta_open_minus_fixed": [
+        0.001,
+        -0.049,
+        0.029,
+        -0.07
+      ],
+      "frontier": [
+        16,
+        18,
+        20,
+        23
+      ],
+      "base_correct_on_frontier": [
+        0.188,
+        0,
+        0,
+        0
+      ],
+      "final_delta": -0.07,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
       "model": "deepseek-coder-1.3b-base",
       "tier": "small",
       "rounds": [
@@ -652,19 +724,16 @@
         1,
         2,
         3,
-        4,
-        5
+        4
       ],
       "C_held_open": [
-        0.0,
+        0.077,
         0.038,
         0.0,
-        0.001,
         0.0,
-        0.038
+        0.0
       ],
       "C_held_fixed": [
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -672,19 +741,65 @@
         0.077
       ],
       "delta_open_minus_fixed": [
-        0.0,
+        0.077,
         0.038,
         0.0,
-        0.001,
         0.0,
-        -0.039
+        -0.077
+      ],
+      "frontier": [
+        22,
+        28,
+        34,
+        40,
+        41
+      ],
+      "base_correct_on_frontier": [
+        0,
+        0.167,
+        0,
+        0,
+        0
+      ],
+      "final_delta": -0.077,
+      "verdict": "one-time (open==fixed)"
+    },
+    {
+      "model": "stable-code-3b",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "C_held_open": [
+        0.039,
+        0.038,
+        0.077,
+        0.204,
+        0.34
+      ],
+      "C_held_fixed": [
+        0.115,
+        0.154,
+        0.161,
+        0.151,
+        0.515
+      ],
+      "delta_open_minus_fixed": [
+        -0.076,
+        -0.116,
+        -0.085,
+        0.053,
+        -0.174
       ],
       "frontier": [
         22,
         23,
         29,
-        35,
-        36,
+        32,
         37
       ],
       "base_correct_on_frontier": [
@@ -692,10 +807,9 @@
         0,
         0,
         0,
-        0,
         0
       ],
-      "final_delta": -0.039,
+      "final_delta": -0.174,
       "verdict": "one-time (open==fixed)"
     }
   ]

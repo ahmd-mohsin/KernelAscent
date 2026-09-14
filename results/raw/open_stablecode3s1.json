@@ -30,6 +30,15 @@
       "frontier": 20,
       "added": 2,
       "base_correct_on_frontier": 0
+    },
+    {
+      "round": 3,
+      "C_held_open": 0.348,
+      "C_held_fixed": 0.418,
+      "delta_open_minus_fixed": -0.07,
+      "frontier": 23,
+      "added": 3,
+      "base_correct_on_frontier": 0
     }
   ],
   "note": "OPEN(escalating) vs FIXED(static) learners, same held ladder; primary=delta_open_minus_fixed"
