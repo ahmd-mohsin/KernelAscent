@@ -1,0 +1,21 @@
+{
+  "model": "stabilityai/stable-code-3b",
+  "seed": 7,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.026,
+      "C_held": 0.032,
+      "transfer_gap": -0.006,
+      "retention": 0.125,
+      "gen_distinct2": 0.574,
+      "gen_dissim": 0.914,
+      "gen_entropy": 0.992,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.5221
+    }
+  ]
+}
