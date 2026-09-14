@@ -65,6 +65,15 @@
       "n_admitted": 0,
       "min_sp": 0.7,
       "strategy": "Simplify the kernel writer to generate only plain PyTorch kernels that are numerically correct, focusing on maximizing t"
+    },
+    {
+      "round": 7,
+      "C_improved": 0.0,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.0,
+      "n_admitted": 0,
+      "min_sp": 0.8,
+      "strategy": "Simplify the kernel writer to generate only plain PyTorch kernels that are numerically correct, focusing on maximizing t"
     }
   ]
 }

@@ -10,6 +10,14 @@
       "F_g": null,
       "n_strategies": 12,
       "n_archive": 11
+    },
+    {
+      "round": 1,
+      "Qg": 0.864,
+      "delta_vs_base": 0.371,
+      "F_g": -0.019,
+      "n_strategies": 12,
+      "n_archive": 20
     }
   ]
 }

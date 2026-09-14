@@ -81,6 +81,17 @@
     },
     {
       "trainee": "DeepSeek-Coder-1.3B",
+      "researcher": "sc15b",
+      "rounds": 8,
+      "C0": 0,
+      "C_improved": 0.055,
+      "C_frozen": 0,
+      "impr_minus_frozen": 0.055,
+      "peak": 0.055,
+      "verdict": "flat"
+    },
+    {
+      "trainee": "DeepSeek-Coder-1.3B",
       "researcher": "Fable-5.1",
       "rounds": 5,
       "C0": 0,
@@ -124,20 +135,9 @@
       "verdict": "flat"
     },
     {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "sc15b",
-      "rounds": 7,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
       "trainee": "Qwen2.5-Coder-1.5B",
       "researcher": "qwen14b",
-      "rounds": 7,
+      "rounds": 8,
       "C0": 0,
       "C_improved": 0,
       "C_frozen": 0,
