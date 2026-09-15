@@ -174,4 +174,43 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \caption{Every open-weight weight-RSI run positioned by model size ($x$) and held-out C gain ($y$); marker area $\propto$ sustained LoRA drift; color = outcome. The 2B correctness wall and the mid-scale compounding band are visible at a glance.}
 \label{fig:flow_all_runs}
 \end{figure}
+% >>> CAUSALITY (auto)
+\clearpage
+\section{Large causality \& internal-failure graphs}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_interp_heatmap.pdf}
+\caption{Per-layer linear decodability of kernel correctness (AUC of a correct-vs-incorrect probe) across relative transformer depth, one row per model sorted by scale; $\star$ marks the peak layer. Correctness becomes cleanly decodable in mid-to-late layers -- the model internally represents which kernels are correct. Rows populate as GPU interp probes land.}
+\label{fig:cz_interp_heatmap}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_internal_dag.pdf}
+\caption{Every open-weight run traced through the causal chain from scale to RSI outcome, in lanes with translucent curved edges (marker area and edge width $\propto$ sustained LoRA drift, color = outcome). Compounders (green) form a bright high-drift/high-retention bundle; models stuck at the correctness wall (orange) die at the second lane with near-zero drift downstream.}
+\label{fig:cz_internal_dag}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_causal_flow.pdf}
+\caption{Causal attrition of 50 open-weight runs: most are lost at Gate~1 (the correctness wall -- no verified kernel, no gradient); among wall-crossers only a minority compound, the rest going flat via drift-saturation and forgetting (Gate~2).}
+\label{fig:cz_causal_flow}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_knows_vs_gen.pdf}
+\caption{Internal correctness knowledge (best-layer probe AUC) vs.\ actual generation success. Points far above the diagonal are \emph{generation-limited} -- the model represents correctness internally (AUC$\approx$0.98) yet emits a correct kernel only a small fraction of the time; models at the wall cannot be probed at all.}
+\label{fig:cz_knows_vs_gen}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_layer_curves.pdf}
+\caption{Layer-wise correctness decodability vs.\ depth: the correct-vs-incorrect signal is weak at the embedding and sharpens through mid/late layers, indicating correctness is a computed, decodable feature rather than a surface one.}
+\label{fig:cz_layer_curves}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_all_runs_dag.pdf}
+\caption{Dense view of every open-weight run: horizontal position = scale, vertical = RSI outcome, marker area and the base$\to$self connector width $\propto$ sustained LoRA drift. The sub-2B correctness wall (shaded) and the mid-scale high-drift compounding band emerge from the raw point cloud.}
+\label{fig:cz_all_runs_dag}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_failure_funnel.pdf}
+\caption{Attrition funnel across open-weight models: the dominant drop is at emitting any verified-correct kernel (the correctness wall); a further drop separates one-shot correctness from sustained held-out compounding.}
+\label{fig:cz_failure_funnel}
+\end{figure}
+% <<< CAUSALITY (auto)
 \end{document}
