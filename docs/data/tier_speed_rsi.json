@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "metric": "speed vs torch.compile, size-matched SOTA bank, headroom-normalized, self vs fresh-frozen (multi-seed)",
   "models": [
     {

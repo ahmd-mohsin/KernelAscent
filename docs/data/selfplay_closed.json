@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "note": "Task 5b CLOSED (API) self-play, 3-arm: co-evolution channel is the PROCEDURE. STATIC / FROZEN-AUTHOR (empty-procedure author) / LIVE-AUTHOR (co-evolved-procedure author). PRIMARY=L-F. Sustained L-F>0 with model_proposed>0 = closed-model self-referential RSI without weight access.",
   "models": [
     {
@@ -713,7 +713,8 @@
         13,
         14,
         15,
-        16
+        16,
+        17
       ],
       "C_held_live": [
         0.314,
@@ -732,7 +733,8 @@
         0.349,
         0.233,
         0.376,
-        0.139
+        0.139,
+        0.037
       ],
       "C_held_frozen_author": [
         0.247,
@@ -751,7 +753,8 @@
         0.606,
         0.654,
         0.642,
-        0.794
+        0.794,
+        0.717
       ],
       "C_held_static": [
         0.0,
@@ -770,7 +773,8 @@
         0.038,
         0.0,
         0.0,
-        0.0
+        0.0,
+        0.193
       ],
       "L_minus_F": [
         0.067,
@@ -789,7 +793,8 @@
         -0.257,
         -0.42,
         -0.266,
-        -0.655
+        -0.655,
+        -0.68
       ],
       "L_minus_S": [
         0.314,
@@ -808,7 +813,8 @@
         0.311,
         0.233,
         0.376,
-        0.139
+        0.139,
+        -0.156
       ],
       "F_minus_S": [
         0.247,
@@ -827,7 +833,8 @@
         0.568,
         0.654,
         0.642,
-        0.794
+        0.794,
+        0.524
       ],
       "frontier": [
         16,
@@ -838,6 +845,7 @@
         16,
         16,
         17,
+        18,
         18,
         18,
         18,
@@ -865,10 +873,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "total_model_proposed": 2,
-      "final_L_minus_F": -0.655,
+      "final_L_minus_F": -0.68,
       "verdict": "adaptive-curriculum only (L==F)"
     }
   ]
