@@ -350,6 +350,50 @@
       ]
     },
     {
+      "model": "Qwen2.5-Coder-3B-Instruct",
+      "size_b": 3,
+      "K": 32,
+      "auc": 0.817,
+      "layer_frac": 0.94,
+      "random_rate": 0.401,
+      "probe_rate": 0.417,
+      "oracle_rate": 1,
+      "lift": 0.016,
+      "probe_pick_speedup": 0.944,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.417,
+          "rand_anycorrect": 0.401
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.667,
+          "rand_anycorrect": 0.638
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.861
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 0.973
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 0.999
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 1.0
+        }
+      ]
+    },
+    {
       "model": "Qwen2.5-Coder-3B",
       "size_b": 3,
       "K": 16,
