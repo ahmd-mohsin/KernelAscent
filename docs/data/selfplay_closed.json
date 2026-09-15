@@ -3,7 +3,104 @@
   "note": "Task 5b CLOSED (API) self-play, 3-arm: co-evolution channel is the PROCEDURE. STATIC / FROZEN-AUTHOR (empty-procedure author) / LIVE-AUTHOR (co-evolved-procedure author). PRIMARY=L-F. Sustained L-F>0 with model_proposed>0 = closed-model self-referential RSI without weight access.",
   "models": [
     {
-      "model": "mistral.mistral-large-3-675b-instruct",
+      "model": "us.openai.gpt-5.6-terra",
+      "tier": "small",
+      "rounds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "C_held_live": [
+        0.772,
+        0.822,
+        0.822,
+        0.823,
+        0.816,
+        0.822,
+        0.84,
+        0.823
+      ],
+      "C_held_frozen_author": [
+        0.773,
+        0.812,
+        0.809,
+        0.811,
+        0.819,
+        0.811,
+        0.814,
+        0.736
+      ],
+      "C_held_static": [
+        0.772,
+        0.802,
+        0.802,
+        0.803,
+        0.787,
+        0.831,
+        0.832,
+        0.803
+      ],
+      "L_minus_F": [
+        -0.002,
+        0.01,
+        0.013,
+        0.011,
+        -0.002,
+        0.011,
+        0.026,
+        0.087
+      ],
+      "L_minus_S": [
+        -0.001,
+        0.02,
+        0.02,
+        0.02,
+        0.029,
+        -0.01,
+        0.008,
+        0.02
+      ],
+      "F_minus_S": [
+        0.001,
+        0.01,
+        0.007,
+        0.008,
+        0.032,
+        -0.021,
+        -0.018,
+        -0.066
+      ],
+      "frontier": [
+        18,
+        22,
+        28,
+        28,
+        28,
+        30,
+        31,
+        32
+      ],
+      "model_proposed": [
+        2,
+        4,
+        6,
+        0,
+        0,
+        2,
+        1,
+        1
+      ],
+      "total_model_proposed": 16,
+      "final_L_minus_F": 0.087,
+      "verdict": "author CO-EVOLUTION compounds (L>F)"
+    },
+    {
+      "model": "us.anthropic.claude-sonnet-5",
       "tier": "small",
       "rounds": [
         0,
@@ -13,110 +110,180 @@
         4
       ],
       "C_held_live": [
-        0.313,
-        0.528,
-        0.67,
-        0.651,
-        0.658
+        0.867,
+        0.866,
+        0.849,
+        0.836,
+        0.839
       ],
       "C_held_frozen_author": [
-        0.456,
-        0.092,
-        0.328,
-        0.284,
-        0.111
+        0.725,
+        0.804,
+        0.803,
+        0.802,
+        0.753
       ],
       "C_held_static": [
-        0.417,
-        0.796,
-        0.746,
-        0.869,
-        0.794
+        0.798,
+        0.802,
+        0.716,
+        0.802,
+        0.765
       ],
       "L_minus_F": [
-        -0.143,
-        0.436,
-        0.342,
-        0.367,
-        0.547
+        0.142,
+        0.062,
+        0.045,
+        0.034,
+        0.086
       ],
       "L_minus_S": [
-        -0.104,
-        -0.268,
-        -0.076,
-        -0.218,
-        -0.137
+        0.069,
+        0.063,
+        0.133,
+        0.034,
+        0.075
       ],
       "F_minus_S": [
-        0.039,
-        -0.704,
-        -0.418,
-        -0.585,
-        -0.684
+        -0.073,
+        0.001,
+        0.087,
+        0.0,
+        -0.011
       ],
       "frontier": [
-        16,
-        16,
-        16,
-        16,
-        16
+        22,
+        28,
+        34,
+        40,
+        46
       ],
       "model_proposed": [
-        0,
-        0,
-        0,
-        0,
-        0
+        6,
+        6,
+        6,
+        6,
+        6
       ],
-      "total_model_proposed": 0,
-      "final_L_minus_F": 0.547,
-      "verdict": "no self-referential compounding"
+      "total_model_proposed": 30,
+      "final_L_minus_F": 0.086,
+      "verdict": "author CO-EVOLUTION compounds (L>F)"
     },
     {
-      "model": "us.anthropic.claude-sonnet-5",
+      "model": "us.openai.gpt-5.6-sol",
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "C_held_live": [
-        0.879,
-        0.879
+        0.867,
+        0.885,
+        0.87,
+        0.866,
+        0.866,
+        0.906
       ],
       "C_held_frozen_author": [
-        0.858,
-        0.864
+        0.74,
+        0.843,
+        0.819,
+        0.852,
+        0.832,
+        0.832
       ],
       "C_held_static": [
-        0.83,
-        0.84
+        0.535,
+        0.709,
+        0.709,
+        0.748,
+        0.696,
+        0.723
       ],
       "L_minus_F": [
-        0.02,
-        0.015
+        0.127,
+        0.041,
+        0.05,
+        0.014,
+        0.035,
+        0.074
       ],
       "L_minus_S": [
-        0.048,
-        0.039
+        0.332,
+        0.176,
+        0.16,
+        0.118,
+        0.17,
+        0.184
       ],
       "F_minus_S": [
-        0.028,
-        0.024
+        0.206,
+        0.135,
+        0.11,
+        0.104,
+        0.136,
+        0.11
       ],
       "frontier": [
         16,
-        17
+        17,
+        17,
+        23,
+        29,
+        35
       ],
       "model_proposed": [
         0,
-        1
+        1,
+        0,
+        6,
+        6,
+        6
       ],
-      "total_model_proposed": 1,
-      "final_L_minus_F": 0.015,
+      "total_model_proposed": 19,
+      "final_L_minus_F": 0.074,
+      "verdict": "author CO-EVOLUTION compounds (L>F)"
+    },
+    {
+      "model": "us.anthropic.claude-opus-5",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held_live": [
+        0.868
+      ],
+      "C_held_frozen_author": [
+        0.843
+      ],
+      "C_held_static": [
+        0.881
+      ],
+      "L_minus_F": [
+        0.026
+      ],
+      "L_minus_S": [
+        -0.013
+      ],
+      "F_minus_S": [
+        -0.039
+      ],
+      "frontier": [
+        16
+      ],
+      "model_proposed": [
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": 0.026,
       "verdict": "no self-referential compounding"
     },
     {
-      "model": "us.openai.gpt-5.6-terra",
+      "model": "moonshotai.kimi-k2.5",
       "tier": "small",
       "rounds": [
         0,
@@ -124,48 +291,48 @@
         2
       ],
       "C_held_live": [
-        0.822,
-        0.823,
-        0.823
+        0.777,
+        0.806,
+        0.779
       ],
       "C_held_frozen_author": [
-        0.822,
-        0.822,
-        0.823
+        0.781,
+        0.767,
+        0.777
       ],
       "C_held_static": [
-        0.808,
-        0.821,
-        0.822
+        0.703,
+        0.701,
+        0.69
       ],
       "L_minus_F": [
-        -0.0,
-        0.001,
-        -0.0
+        -0.005,
+        0.039,
+        0.002
       ],
       "L_minus_S": [
-        0.014,
-        0.002,
-        0.0
+        0.074,
+        0.105,
+        0.089
       ],
       "F_minus_S": [
-        0.014,
-        0.001,
-        0.001
+        0.079,
+        0.066,
+        0.087
       ],
       "frontier": [
         16,
-        22,
-        28
+        16,
+        16
       ],
       "model_proposed": [
         0,
-        6,
-        6
+        0,
+        0
       ],
-      "total_model_proposed": 12,
-      "final_L_minus_F": -0.0,
-      "verdict": "adaptive-curriculum only (L==F)"
+      "total_model_proposed": 0,
+      "final_L_minus_F": 0.002,
+      "verdict": "no self-referential compounding"
     },
     {
       "model": "us.anthropic.claude-fable-5-1",
@@ -409,86 +576,282 @@
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "C_held_live": [
-        0.315,
-        0.0
+        0.79,
+        0.828,
+        0.75,
+        0.752,
+        0.751,
+        0.752
       ],
       "C_held_frozen_author": [
-        0.127,
-        0.0
+        0.489,
+        0.853,
+        0.826,
+        0.814,
+        0.829,
+        0.813
       ],
       "C_held_static": [
-        0.052,
-        0.0
+        0.155,
+        0.788,
+        0.75,
+        0.813,
+        0.75,
+        0.789
       ],
       "L_minus_F": [
-        0.188,
-        0.0
+        0.301,
+        -0.025,
+        -0.076,
+        -0.062,
+        -0.077,
+        -0.061
       ],
       "L_minus_S": [
-        0.263,
-        0.0
+        0.635,
+        0.04,
+        0.0,
+        -0.061,
+        0.002,
+        -0.037
       ],
       "F_minus_S": [
-        0.075,
-        0.0
+        0.334,
+        0.065,
+        0.076,
+        0.0,
+        0.079,
+        0.025
       ],
       "frontier": [
-        17,
-        21
+        18,
+        24,
+        30,
+        30,
+        30,
+        30
       ],
       "model_proposed": [
-        1,
-        4
+        2,
+        6,
+        6,
+        0,
+        0,
+        0
       ],
-      "total_model_proposed": 5,
-      "final_L_minus_F": 0.0,
+      "total_model_proposed": 14,
+      "final_L_minus_F": -0.061,
+      "verdict": "adaptive-curriculum only (L==F)"
+    },
+    {
+      "model": "deepseek.v3.2",
+      "tier": "small",
+      "rounds": [
+        0
+      ],
+      "C_held_live": [
+        0.636
+      ],
+      "C_held_frozen_author": [
+        0.75
+      ],
+      "C_held_static": [
+        0.799
+      ],
+      "L_minus_F": [
+        -0.114
+      ],
+      "L_minus_S": [
+        -0.163
+      ],
+      "F_minus_S": [
+        -0.049
+      ],
+      "frontier": [
+        16
+      ],
+      "model_proposed": [
+        0
+      ],
+      "total_model_proposed": 0,
+      "final_L_minus_F": -0.114,
       "verdict": "no self-referential compounding"
     },
     {
-      "model": "us.openai.gpt-5.6-sol",
+      "model": "mistral.mistral-large-3-675b-instruct",
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
       ],
       "C_held_live": [
-        0.87,
-        0.87
+        0.314,
+        0.222,
+        0.43,
+        0.314,
+        0.267,
+        0.282,
+        0.327,
+        0.359,
+        0.304,
+        0.293,
+        0.297,
+        0.256,
+        0.239,
+        0.349,
+        0.233,
+        0.376
       ],
       "C_held_frozen_author": [
-        0.869,
-        0.869
+        0.247,
+        0.468,
+        0.681,
+        0.507,
+        0.461,
+        0.654,
+        0.604,
+        0.711,
+        0.599,
+        0.655,
+        0.655,
+        0.654,
+        0.716,
+        0.606,
+        0.654,
+        0.642
       ],
       "C_held_static": [
-        0.817,
-        0.823
-      ],
-      "L_minus_F": [
-        0.001,
+        0.0,
+        0.0,
+        0.068,
+        0.0,
+        0.0,
+        0.0,
+        0.035,
+        0.0,
+        0.053,
+        0.0,
+        0.0,
+        0.077,
+        0.0,
+        0.038,
+        0.0,
         0.0
       ],
+      "L_minus_F": [
+        0.067,
+        -0.247,
+        -0.251,
+        -0.193,
+        -0.194,
+        -0.373,
+        -0.277,
+        -0.352,
+        -0.296,
+        -0.361,
+        -0.358,
+        -0.398,
+        -0.477,
+        -0.257,
+        -0.42,
+        -0.266
+      ],
       "L_minus_S": [
-        0.052,
-        0.047
+        0.314,
+        0.222,
+        0.361,
+        0.314,
+        0.267,
+        0.282,
+        0.292,
+        0.359,
+        0.251,
+        0.293,
+        0.297,
+        0.179,
+        0.239,
+        0.311,
+        0.233,
+        0.376
       ],
       "F_minus_S": [
-        0.052,
-        0.047
+        0.247,
+        0.468,
+        0.612,
+        0.507,
+        0.461,
+        0.654,
+        0.569,
+        0.711,
+        0.547,
+        0.655,
+        0.655,
+        0.577,
+        0.716,
+        0.568,
+        0.654,
+        0.642
       ],
       "frontier": [
-        22,
-        28
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18
       ],
       "model_proposed": [
-        6,
-        6
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ],
-      "total_model_proposed": 12,
-      "final_L_minus_F": 0.0,
-      "verdict": "no self-referential compounding"
+      "total_model_proposed": 2,
+      "final_L_minus_F": -0.266,
+      "verdict": "adaptive-curriculum only (L==F)"
     }
   ]
 }
