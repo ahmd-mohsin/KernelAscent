@@ -1,5 +1,32 @@
 {
   "updated": "2026-09-14",
   "note": "Interpretability: WHERE a model internally encodes kernel correctness. best_auc = linear separability of correct-vs-incorrect kernels at the best transformer layer (best_layer_frac = its relative depth); correctness_rate = how often the model actually GENERATES a correct kernel. High best_auc with low correctness_rate => the model represents correctness internally far better than it can decode it (generation-limited, not knowledge-limited). Not probed => correctness wall (no correct kernels to separate).",
-  "models": []
+  "models": [
+    {
+      "model": "Qwen2.5-Coder-1.5B",
+      "size_b": 1.5,
+      "correctness_rate": 0.0,
+      "n_labeled": 28,
+      "best_auc": null,
+      "best_layer": null,
+      "best_layer_frac": null,
+      "n_layers": null,
+      "mean_auc": null,
+      "probed": false,
+      "note": "insufficient correct/incorrect kernels to probe (correctness wall)"
+    },
+    {
+      "model": "Qwen2.5-Coder-3B",
+      "size_b": 3,
+      "correctness_rate": 0.105,
+      "n_labeled": 38,
+      "best_auc": 0.985,
+      "best_layer": 31,
+      "best_layer_frac": 0.86,
+      "n_layers": 37,
+      "mean_auc": 0.834,
+      "probed": true,
+      "note": null
+    }
+  ]
 }
