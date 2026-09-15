@@ -47,17 +47,6 @@
       "verdict": "harness helps"
     },
     {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "Claude-Opus-5",
-      "rounds": 6,
-      "C0": 0,
-      "C_improved": 0.056,
-      "C_frozen": 0.055,
-      "impr_minus_frozen": 0,
-      "peak": 0.111,
-      "verdict": "harness helps"
-    },
-    {
       "trainee": "OpenCoder-1.5B",
       "researcher": "Fable-5.1",
       "rounds": 5,
@@ -89,6 +78,17 @@
       "impr_minus_frozen": 0,
       "peak": 0.056,
       "verdict": "flat"
+    },
+    {
+      "trainee": "DeepSeek-Coder-1.3B",
+      "researcher": "Claude-Opus-5",
+      "rounds": 6,
+      "C0": 0,
+      "C_improved": 0,
+      "C_frozen": 0.056,
+      "impr_minus_frozen": -0.056,
+      "peak": 0.056,
+      "verdict": "hurts"
     },
     {
       "trainee": "DeepSeek-Coder-1.3B",
