@@ -726,6 +726,50 @@
       ]
     },
     {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "size_b": 7,
+      "K": 32,
+      "auc": 0.824,
+      "layer_frac": 0.0,
+      "random_rate": 0.531,
+      "probe_rate": 0.667,
+      "oracle_rate": 0.75,
+      "lift": 0.136,
+      "probe_pick_speedup": 0.823,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.667,
+          "rand_anycorrect": 0.531
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.68
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.741
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.75
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.75
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.75
+        }
+      ]
+    },
+    {
       "model": "Qwen2.5-Coder-14B-Instruct",
       "size_b": 14,
       "K": 16,

@@ -1,0 +1,47 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "K": 32,
+  "train_correct": 302,
+  "train_incorrect": 202,
+  "layer": 0,
+  "layer_frac": 0.0,
+  "auc": 0.824,
+  "n_test": 12,
+  "random_correct_rate": 0.531,
+  "probe_top1_correct_rate": 0.667,
+  "oracle_bestofK_rate": 0.75,
+  "lift": 0.136,
+  "probe_pick_speedup": 0.823,
+  "k_sweep": [
+    {
+      "n": 1,
+      "probe_anycorrect": 0.667,
+      "rand_anycorrect": 0.531
+    },
+    {
+      "n": 2,
+      "probe_anycorrect": 0.75,
+      "rand_anycorrect": 0.68
+    },
+    {
+      "n": 4,
+      "probe_anycorrect": 0.75,
+      "rand_anycorrect": 0.741
+    },
+    {
+      "n": 8,
+      "probe_anycorrect": 0.75,
+      "rand_anycorrect": 0.75
+    },
+    {
+      "n": 16,
+      "probe_anycorrect": 0.75,
+      "rand_anycorrect": 0.75
+    },
+    {
+      "n": 32,
+      "probe_anycorrect": 0.75,
+      "rand_anycorrect": 0.75
+    }
+  ]
+}
