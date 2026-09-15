@@ -7,10 +7,14 @@
 \caption{Probe-as-intervention: reranking $K$ decoded kernels by a linear correctness probe.
 \texttt{random}$\to$\texttt{probe}$\to$\texttt{oracle} correct-rate and lift $=$\texttt{probe}$-$\texttt{random}.
 Lift is large only when the oracle ceiling leaves headroom \emph{and} the probe fit (AUC) is strong;
-weak-AUC draws on the small task bank collapse the lift. 19 models.}
+weak-AUC draws on the small task bank collapse the lift. \textbf{19 runs} (repeated probe-training/test draws)
+across \textbf{13 distinct base checkpoints}; rows sharing a base are independent draws, not distinct models.
+\emph{Caveat:} pooled correctness AUC can separate easy from hard tasks without ranking candidates
+\emph{within} a task; a within-task ranking metric is needed to establish the mechanism (the AUC$\approx$0.9
+threshold is exploratory).}
 \begin{tabular}{lrrrrrrr}
 \toprule
-model & size(B) & $K$ & AUC & random & probe & oracle & lift \\
+model / run & size(B) & $K$ & AUC & random & probe & oracle & lift \\
 \midrule
 Qwen2.5-Coder-0.5B-Instruct & 0.500 & 32 & 0.789 & 0.086 & 0.000 & 0.200 & -0.086 \\
 Qwen2.5-Coder-0.5B-Instruct & 0.500 & 32 & 0.878 & 0.247 & 0.667 & 0.917 & +0.420 \\
@@ -43,14 +47,27 @@ the title-claim test is parked pending a harness fix. We do \emph{not} interpret
 
 
 \subsection{Mechanism and self-play}
-\paragraph{Mechanism (50 WHY-RSI probes, 0.5--15B).} Two internal gates. (1) \textbf{Correctness wall:}
-sub-2B models almost never emit a correct kernel ($\Rightarrow$ empty SFT set $\Rightarrow$ no weight drift $\Rightarrow$
-RSI impossible); 35/50 models cross the wall. (2) Among wall-crossers, compounders (10/50) differ from flat runs by
-sustained LoRA drift and retention; peak compounding at mid-scale 2--8B, while the largest models drift most yet
-saturate against the task roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz_internal_dag}).
+\paragraph{Mechanism (50 WHY-RSI probes, 0.5--15B).} Two internal gates, reported as \emph{associations}
+(not yet causal). (1) \textbf{Correctness wall:} small ($<$2B) models cross \emph{less frequently} than $\geq$2B models
+--- overall 35/50 runs (70\%) emit at least one correct kernel; below the wall the SFT set is empty so weight drift
+$\to 0$. (2) Among wall-crossers, compounders (10/50) are associated with higher sustained LoRA drift and retention;
+apparent compounding peaks at mid-scale 2--8B, while the largest models drift most yet saturate against the task
+roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz_internal_dag}).
 
 \paragraph{T5 self-play (true-RSI, 3-arm S/F/L).} Primary metric $L-F$ (author co-evolution).
 Open-weight arm: 23 models; closed/API arm: 11 models. Diagnosis runs showed the live author can degenerate
 to emitting no valid tasks (curriculum collapse $\Rightarrow L-F\approx0$); a fresh matched-budget run is in flight
 to obtain a clean per-round $L-F$ trajectory.
 
+
+\subsection{Honest framing and next steps (frontier-panel guidance)}
+\textbf{Strongest supported headline:} \emph{KernelAscent separates the bottlenecks of kernel-code
+self-improvement --- generation, selection, weight-update, and curriculum --- and shows that an internal
+correctness probe can unlock substantial candidate-\emph{selection} gains in some small-model settings,
+while sustained recursive gains remain unestablished.} The contribution is a benchmark that
+\emph{distinguishes} these failure modes, with one rigorously-validated positive channel (probe-guided
+selection), an honest decode-limited correctness wall, and a parked (harness-artifact) compounding test.
+Prioritized next runs: (1) a leakage-resistant probe replication on a larger, family-split task bank with a
+\emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
+compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
+self-play with author validity + learnability gates before extending trajectories.

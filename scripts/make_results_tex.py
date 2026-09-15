@@ -21,6 +21,9 @@ def n(v):
 def probe_table():
     ms = sorted(load("probe_intervene.json").get("models", []), key=lambda m: (m.get("size_b") or 0))
     if not ms: return "% no probe data\n"
+    # distinct base checkpoints (strip our replication suffixes) vs total runs (Astra credibility fix)
+    import re
+    bases = set(re.sub(r"[-_]?(nt\d+|k\d+|[abc])$", "", (m.get("model") or "").split("/")[-1], flags=re.I) for m in ms)
     rows = ""
     for m in ms:
         rows += (f"{esc(m.get('model'))} & {n(m.get('size_b'))} & {m.get('K','--')} & {n(m.get('auc'))} & "
@@ -29,14 +32,18 @@ def probe_table():
 \caption{Probe-as-intervention: reranking $K$ decoded kernels by a linear correctness probe.
 \texttt{random}$\to$\texttt{probe}$\to$\texttt{oracle} correct-rate and lift $=$\texttt{probe}$-$\texttt{random}.
 Lift is large only when the oracle ceiling leaves headroom \emph{and} the probe fit (AUC) is strong;
-weak-AUC draws on the small task bank collapse the lift. %d models.}
+weak-AUC draws on the small task bank collapse the lift. \textbf{%d runs} (repeated probe-training/test draws)
+across \textbf{%d distinct base checkpoints}; rows sharing a base are independent draws, not distinct models.
+\emph{Caveat:} pooled correctness AUC can separate easy from hard tasks without ranking candidates
+\emph{within} a task; a within-task ranking metric is needed to establish the mechanism (the AUC$\approx$0.9
+threshold is exploratory).}
 \begin{tabular}{lrrrrrrr}
 \toprule
-model & size(B) & $K$ & AUC & random & probe & oracle & lift \\
+model / run & size(B) & $K$ & AUC & random & probe & oracle & lift \\
 \midrule
 %s\bottomrule
 \end{tabular}\end{table}
-""" % (len(ms), rows))
+""" % (len(ms), len(bases), rows))
 
 def compounding_note():
     cm = load("compounding.json").get("models", [])
@@ -51,12 +58,14 @@ the title-claim test is parked pending a harness fix. We do \emph{not} interpret
 def mech_note():
     mf = load("mech_analysis.json"); rows = mf.get("models", [])
     ncross = sum(1 for m in rows if m.get("wall_crossed")); nrsi = sum(1 for m in rows if m.get("rsi"))
-    return (r"""\paragraph{Mechanism (%d WHY-RSI probes, 0.5--15B).} Two internal gates. (1) \textbf{Correctness wall:}
-sub-2B models almost never emit a correct kernel ($\Rightarrow$ empty SFT set $\Rightarrow$ no weight drift $\Rightarrow$
-RSI impossible); %d/%d models cross the wall. (2) Among wall-crossers, compounders (%d/%d) differ from flat runs by
-sustained LoRA drift and retention; peak compounding at mid-scale 2--8B, while the largest models drift most yet
-saturate against the task roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz_internal_dag}).
-""" % (len(rows), ncross, len(rows), nrsi, len(rows)))
+    pct = (100.0 * ncross / len(rows)) if rows else 0
+    return (r"""\paragraph{Mechanism (%d WHY-RSI probes, 0.5--15B).} Two internal gates, reported as \emph{associations}
+(not yet causal). (1) \textbf{Correctness wall:} small ($<$2B) models cross \emph{less frequently} than $\geq$2B models
+--- overall %d/%d runs (%.0f\%%) emit at least one correct kernel; below the wall the SFT set is empty so weight drift
+$\to 0$. (2) Among wall-crossers, compounders (%d/%d) are associated with higher sustained LoRA drift and retention;
+apparent compounding peaks at mid-scale 2--8B, while the largest models drift most yet saturate against the task
+roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz_internal_dag}).
+""" % (len(rows), ncross, len(rows), pct, nrsi, len(rows)))
 
 def selfplay_note():
     op = load("selfplay.json").get("models", []); cl = load("selfplay_closed.json").get("models", [])
@@ -78,6 +87,18 @@ def build():
 \subsection{Mechanism and self-play}
 %s
 %s
+
+\subsection{Honest framing and next steps (frontier-panel guidance)}
+\textbf{Strongest supported headline:} \emph{KernelAscent separates the bottlenecks of kernel-code
+self-improvement --- generation, selection, weight-update, and curriculum --- and shows that an internal
+correctness probe can unlock substantial candidate-\emph{selection} gains in some small-model settings,
+while sustained recursive gains remain unestablished.} The contribution is a benchmark that
+\emph{distinguishes} these failure modes, with one rigorously-validated positive channel (probe-guided
+selection), an honest decode-limited correctness wall, and a parked (harness-artifact) compounding test.
+Prioritized next runs: (1) a leakage-resistant probe replication on a larger, family-split task bank with a
+\emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
+compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
+self-play with author validity + learnability gates before extending trajectories.
 """ % (datetime.date.today().isoformat(), probe_table(), compounding_note(), mech_note(), selfplay_note()))
     open(OUT, "w").write(body)
     print("wrote", OUT, "(%d bytes)" % len(body))
