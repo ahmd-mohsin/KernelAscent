@@ -1,0 +1,47 @@
+{
+  "model": "deepseek-ai/deepseek-coder-1.3b-instruct",
+  "K": 32,
+  "train_correct": 5,
+  "train_incorrect": 17,
+  "layer": 0,
+  "layer_frac": 0.0,
+  "auc": 1.0,
+  "n_test": 9,
+  "random_correct_rate": 0.178,
+  "probe_top1_correct_rate": 0.222,
+  "oracle_bestofK_rate": 0.333,
+  "lift": 0.044,
+  "probe_pick_speedup": 0.879,
+  "k_sweep": [
+    {
+      "n": 1,
+      "probe_anycorrect": 0.222,
+      "rand_anycorrect": 0.178
+    },
+    {
+      "n": 2,
+      "probe_anycorrect": 0.333,
+      "rand_anycorrect": 0.304
+    },
+    {
+      "n": 4,
+      "probe_anycorrect": 0.333,
+      "rand_anycorrect": 0.333
+    },
+    {
+      "n": 8,
+      "probe_anycorrect": 0.333,
+      "rand_anycorrect": 0.333
+    },
+    {
+      "n": 16,
+      "probe_anycorrect": 0.333,
+      "rand_anycorrect": 0.333
+    },
+    {
+      "n": 32,
+      "probe_anycorrect": 0.333,
+      "rand_anycorrect": 0.333
+    }
+  ]
+}

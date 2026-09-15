@@ -740,37 +740,46 @@
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2
       ],
       "C_held_live": [
+        null,
         null,
         null
       ],
       "C_held_frozen_author": [
         null,
+        null,
         null
       ],
       "C_held_static": [
+        null,
         null,
         null
       ],
       "L_minus_F": [
         null,
+        null,
         null
       ],
       "L_minus_S": [
+        null,
         null,
         null
       ],
       "F_minus_S": [
         null,
+        null,
         null
       ],
       "frontier": [
         null,
+        null,
         null
       ],
       "model_proposed": [
+        0,
         0,
         0
       ],

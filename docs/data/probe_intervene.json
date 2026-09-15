@@ -47,6 +47,50 @@
       ]
     },
     {
+      "model": "deepseek-coder-1.3b-instruct",
+      "size_b": 1.3,
+      "K": 32,
+      "auc": 1.0,
+      "layer_frac": 0.0,
+      "random_rate": 0.178,
+      "probe_rate": 0.222,
+      "oracle_rate": 0.333,
+      "lift": 0.044,
+      "probe_pick_speedup": 0.879,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.222,
+          "rand_anycorrect": 0.178
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.304
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        }
+      ]
+    },
+    {
       "model": "Qwen2.5-Coder-1.5B",
       "size_b": 1.5,
       "K": 32,
