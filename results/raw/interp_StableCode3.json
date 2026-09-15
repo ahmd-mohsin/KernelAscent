@@ -1,0 +1,7 @@
+{
+  "model": "stabilityai/stable-code-3b",
+  "n_correct": 1,
+  "n_incorrect": 12,
+  "correctness_rate": 0.077,
+  "note": "insufficient correct/incorrect kernels to probe (correctness wall)"
+}

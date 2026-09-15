@@ -1,0 +1,7 @@
+{
+  "model": "bigcode/starcoder2-3b",
+  "n_correct": 2,
+  "n_incorrect": 9,
+  "correctness_rate": 0.182,
+  "note": "insufficient correct/incorrect kernels to probe (correctness wall)"
+}

@@ -1,0 +1,7 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B",
+  "n_correct": 0,
+  "n_incorrect": 7,
+  "correctness_rate": 0.0,
+  "note": "insufficient correct/incorrect kernels to probe (correctness wall)"
+}

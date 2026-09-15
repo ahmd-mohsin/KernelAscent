@@ -1,0 +1,7 @@
+{
+  "model": "01-ai/Yi-Coder-1.5B",
+  "n_correct": 0,
+  "n_incorrect": 3,
+  "correctness_rate": 0.0,
+  "note": "insufficient correct/incorrect kernels to probe (correctness wall)"
+}
