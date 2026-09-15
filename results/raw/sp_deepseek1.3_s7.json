@@ -227,6 +227,21 @@
       "live_rejected_degenerate": 4,
       "live_backstop": 0,
       "base_correct_on_live": 0
+    },
+    {
+      "round": 15,
+      "C_held_static": 0.463,
+      "C_held_frozen_author": 0.077,
+      "C_held_live": 0.0,
+      "L_minus_S": -0.463,
+      "F_minus_S": -0.386,
+      "L_minus_F": -0.077,
+      "frontier_L": 16,
+      "frontier_F": 16,
+      "live_model_proposed": 0,
+      "live_rejected_degenerate": 4,
+      "live_backstop": 0,
+      "base_correct_on_live": 0
     }
   ],
   "note": "3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author co-evolution). L-S=total curriculum, F-S=curriculum w/o author update."
