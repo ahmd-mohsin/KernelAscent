@@ -521,6 +521,50 @@
       ]
     },
     {
+      "model": "Qwen2.5-Coder-3B-Instruct",
+      "size_b": 3,
+      "K": 32,
+      "auc": 0.713,
+      "layer_frac": 0.69,
+      "random_rate": 0.044,
+      "probe_rate": 0.2,
+      "oracle_rate": 0.2,
+      "lift": 0.156,
+      "probe_pick_speedup": 0.848,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.044
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.08
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.132
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.182
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.2
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.2,
+          "rand_anycorrect": 0.2
+        }
+      ]
+    },
+    {
       "model": "starcoder2-3b",
       "size_b": 3,
       "K": 16,
