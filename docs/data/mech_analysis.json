@@ -13,7 +13,7 @@
       "frac_rsi": 0.29,
       "rsi_vs_flat_diversity": [
         0.441,
-        0.64
+        0.641
       ],
       "rsi_vs_flat_drift": [
         0.608,
@@ -32,7 +32,7 @@
         "frac_rsi": 0.04,
         "mean_C_train": 0.02,
         "mean_drift": 0.027,
-        "mean_diversity": 0.511
+        "mean_diversity": 0.514
       },
       "2-8B": {
         "n": 17,
@@ -66,10 +66,10 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.876,
+      "mean_diversity": 0.907,
       "diversity_collapse": false,
       "mean_retention": 0,
-      "mean_transfer_gap": 0.005
+      "mean_transfer_gap": 0.004
     },
     {
       "model": "Qwen2.5-Coder-0.5B",
@@ -102,10 +102,10 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.252,
+      "mean_diversity": 0.268,
       "diversity_collapse": false,
       "mean_retention": 0,
-      "mean_transfer_gap": -0.009
+      "mean_transfer_gap": 0.0
     },
     {
       "model": "Qwen2.5-Coder-0.5B",
