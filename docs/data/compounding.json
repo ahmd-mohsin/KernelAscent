@@ -82,28 +82,31 @@
     },
     {
       "model": "Qwen2.5-Coder-7B-Instruct",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.6999016063955856,
       "C_lineage_final": 0.0,
-      "C_reset_final": 0.6,
-      "C_bestofN_final": 0.696,
+      "C_reset_final": 0.689,
+      "C_bestofN_final": 0.801,
       "transfer_C_final": 0.0,
       "lineage_minus_reset": [
         0.0,
         -0.606,
-        -0.6
+        -0.6,
+        -0.689
       ],
       "lineage_minus_bestofN": [
         -0.8,
         -0.642,
-        -0.696
+        -0.696,
+        -0.801
       ],
       "marginal_gain_lineage": [
         -0.7,
         0.0,
+        0.0,
         0.0
       ],
-      "mean_lineage_minus_reset": -0.402,
+      "mean_lineage_minus_reset": -0.474,
       "held_family": "l3",
       "verdict": "search-only"
     },
