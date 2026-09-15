@@ -739,30 +739,39 @@
       "model": "Qwen2.5-Coder-3B",
       "tier": "small",
       "rounds": [
-        0
+        0,
+        1
       ],
       "C_held_live": [
+        null,
         null
       ],
       "C_held_frozen_author": [
+        null,
         null
       ],
       "C_held_static": [
+        null,
         null
       ],
       "L_minus_F": [
+        null,
         null
       ],
       "L_minus_S": [
+        null,
         null
       ],
       "F_minus_S": [
+        null,
         null
       ],
       "frontier": [
+        null,
         null
       ],
       "model_proposed": [
+        0,
         0
       ],
       "total_model_proposed": 0,
