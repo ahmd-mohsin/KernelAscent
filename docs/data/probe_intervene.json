@@ -465,6 +465,45 @@
           "rand_anycorrect": 1.0
         }
       ]
+    },
+    {
+      "model": "Qwen2.5-Coder-14B-Instruct",
+      "size_b": 14,
+      "K": 16,
+      "auc": 0.872,
+      "layer_frac": 0.85,
+      "random_rate": 0.698,
+      "probe_rate": 0.75,
+      "oracle_rate": 1,
+      "lift": 0.052,
+      "probe_pick_speedup": 0.863,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.698
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.917
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 0.996
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 1.0
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 1.0
+        }
+      ]
     }
   ]
 }
