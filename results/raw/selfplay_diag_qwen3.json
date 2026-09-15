@@ -1,0 +1,27 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B",
+  "seed": 0,
+  "band": [
+    0.3,
+    0.7
+  ],
+  "history": [
+    {
+      "round": 0,
+      "authored_solve_rate": null,
+      "authored_headroom": null,
+      "frac_trivial": null,
+      "frac_unsolvable": null,
+      "n_authored_L": 0,
+      "n_kept_goldilocks": 0,
+      "C_F": 0.0,
+      "C_L": 0.0,
+      "C_Lg": 0.0,
+      "L_minus_F_unconstrained": 0.0,
+      "L_minus_F_goldilocks": 0.0,
+      "live_model_proposed": 0,
+      "round_sec": 5576.9
+    }
+  ],
+  "note": "Curriculum-collapse diagnosis + Goldilocks rescue. L-F_unconstrained vs L-F_goldilocks."
+}

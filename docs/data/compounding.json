@@ -4,25 +4,28 @@
   "models": [
     {
       "model": "Qwen2.5-Coder-3B",
-      "rounds": 2,
+      "rounds": 3,
       "C0": 0.20031549111337515,
       "C_lineage_final": 0.0,
-      "C_reset_final": 0.208,
+      "C_reset_final": 0.1,
       "C_bestofN_final": 0.1,
       "transfer_C_final": 0.0,
       "lineage_minus_reset": [
         0.0,
-        -0.208
+        -0.208,
+        -0.1
       ],
       "lineage_minus_bestofN": [
         -0.3,
+        -0.1,
         -0.1
       ],
       "marginal_gain_lineage": [
         -0.2,
+        0.0,
         0.0
       ],
-      "mean_lineage_minus_reset": -0.104,
+      "mean_lineage_minus_reset": -0.103,
       "held_family": "l3",
       "verdict": "search-only"
     }
