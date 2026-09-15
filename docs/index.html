@@ -42,68 +42,12 @@
   <h2>What each task measures</h2>
   <p class="sub">All five tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference; speed is scored against an eager baseline (a unified <code>torch.compile</code> baseline is reported separately), headroom-normalized against a per-task roofline. Task 1 is a single solve. Task 2 improves the weights across rounds. Task 3 improves the executable procedure with weights fixed. Task 4 has a closed model rewrite an open trainee's harness. Task 5 — the true-RSI metric — has the model author its own strictly-harder tasks and improve on them, with a 3-arm design that isolates author co-evolution.</p>
 
-  <figure class="vizfig">
-    <div id="viz-flow" class="vizbox"></div>
+  <figure class="vizfig fullbleed">
+    <div id="viz-flow" class="vizbox flowbox"></div>
     <div id="viz-flow-notes" class="flownotes"></div>
     <figcaption><span class="fnum">The five tasks as agent loops.</span> Each panel shows what the agent actually does — a one-shot solve (T1), a weight-training loop (T2), an edit to its own frozen-weight procedure (T3), a closed model rewriting the harness that trains an open one (T4), and a self-play arena where the model authors the frontier it must then beat (T5). Left to right is increasing recursion depth; only T5 lets difficulty and capability co-evolve.</figcaption>
   </figure>
 
-  <figure>
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 460' role='img' font-family='Georgia, serif'>
-      <line x1='450' y1='44' x2='450' y2='440' stroke='#ececec' stroke-width='1'/>
-      <defs><marker id='ar' markerWidth='9' markerHeight='9' refX='7' refY='3' orient='auto'><path d='M0,0 L7,3 L0,6 Z' fill='#151515'/></marker></defs>
-
-      <text x='40' y='30' font-size='12' font-weight='700' fill='#9a9a9a' letter-spacing='1.5'>TASK 1</text>
-      <text x='40' y='52' font-size='18' font-weight='700' fill='#151515'>Capability, one solve</text>
-      <rect x='40' y='84' width='150' height='50' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='115' y='106' text-anchor='middle' font-size='13.5' font-weight='700' fill='#151515'>model</text>
-      <text x='115' y='123' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>open or closed</text>
-      <rect x='250' y='84' width='160' height='50' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='330' y='106' text-anchor='middle' font-size='13.5' font-weight='700' fill='#151515'>GPU kernel</text>
-      <text x='330' y='123' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>ModelNew module</text>
-      <line x1='190' y1='109' x2='250' y2='109' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <text x='220' y='101' text-anchor='middle' font-size='10' fill='#9a9a9a'>writes</text>
-      <rect x='150' y='196' width='190' height='54' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='245' y='218' text-anchor='middle' font-size='13.5' font-weight='700' fill='#151515'>GPU grader</text>
-      <text x='245' y='236' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>correct vs fp32, then fast</text>
-      <line x1='330' y1='134' x2='270' y2='196' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <rect x='150' y='304' width='190' height='54' rx='9' stroke='#151515' stroke-width='1.6' fill='#fafafa'/>
-      <text x='245' y='326' text-anchor='middle' font-size='14' font-weight='700' fill='#151515'>score C</text>
-      <text x='245' y='344' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>0 wrong, 0.5 parity, 1.0 fast</text>
-      <line x1='245' y1='250' x2='245' y2='304' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <text x='60' y='400' font-size='11.5' fill='#9a9a9a'>Reports correct rate, fast rate,</text>
-      <text x='60' y='418' font-size='11.5' fill='#9a9a9a'>and mean C. A snapshot of raw skill.</text>
-
-      <text x='490' y='30' font-size='12' font-weight='700' fill='#9a9a9a' letter-spacing='1.5'>TASK 2</text>
-      <text x='490' y='52' font-size='18' font-weight='700' fill='#151515'>RSI, improvement over rounds</text>
-      <rect x='490' y='84' width='170' height='54' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='575' y='106' text-anchor='middle' font-size='13.5' font-weight='700' fill='#151515'>open model</text>
-      <text x='575' y='124' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>trainable weights</text>
-      <rect x='720' y='84' width='150' height='54' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='795' y='106' text-anchor='middle' font-size='12.5' font-weight='700' fill='#151515'>own correct</text>
-      <text x='795' y='122' text-anchor='middle' font-size='12.5' font-weight='700' fill='#151515'>kernels</text>
-      <line x1='660' y1='111' x2='720' y2='111' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <text x='690' y='103' text-anchor='middle' font-size='10' fill='#9a9a9a'>writes</text>
-      <rect x='720' y='206' width='150' height='54' rx='9' stroke='#151515' stroke-width='1.2' fill='#fff'/>
-      <text x='795' y='228' text-anchor='middle' font-size='12.5' font-weight='700' fill='#151515'>LoRA training</text>
-      <text x='795' y='246' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>on the correct ones</text>
-      <line x1='795' y1='138' x2='795' y2='206' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <rect x='490' y='206' width='170' height='54' rx='9' stroke='#151515' stroke-width='1.6' fill='#fafafa'/>
-      <text x='575' y='228' text-anchor='middle' font-size='13.5' font-weight='700' fill='#151515'>stronger model</text>
-      <text x='575' y='246' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>weights improved</text>
-      <line x1='720' y1='233' x2='660' y2='233' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <path d='M575 206 C 575 176, 575 156, 575 140' stroke='#151515' stroke-width='1.2' fill='none' marker-end='url(#ar)'/>
-      <text x='548' y='176' text-anchor='end' font-size='10' fill='#9a9a9a'>next round</text>
-      <rect x='490' y='320' width='380' height='52' rx='9' stroke='#151515' stroke-width='1.6' fill='#fff'/>
-      <text x='680' y='342' text-anchor='middle' font-size='13' font-weight='700' fill='#151515'>held out capability each round</text>
-      <text x='680' y='360' text-anchor='middle' font-size='10.5' fill='#9a9a9a'>compared to a frozen base and a fixed data control</text>
-      <line x1='575' y1='260' x2='620' y2='320' stroke='#151515' stroke-width='1.2' marker-end='url(#ar)'/>
-      <text x='490' y='400' font-size='11.5' fill='#9a9a9a'>RSI holds when held out capability rises</text>
-      <text x='490' y='418' font-size='11.5' fill='#9a9a9a'>and beats both controls. The weights change,</text>
-      <text x='490' y='436' font-size='11.5' fill='#9a9a9a'>so the model itself gets better.</text>
-    </svg>
-    <figcaption><span class="fnum">Capability vs RSI.</span> On the left a model writes one kernel and the grader scores it (Task 1). On the right an open model writes kernels, trains on the ones that graded correct, and gets re-measured each round (Task 2). Capability is a snapshot; RSI is the slope. Tasks 3–5 extend the slope to procedure edits, closed→open harness rewriting, and self-authored escalating frontiers.</figcaption>
-  </figure>
 
   <div class="tracks">
     <div class="track">
