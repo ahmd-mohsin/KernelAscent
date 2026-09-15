@@ -42,6 +42,12 @@
   <h2>What each task measures</h2>
   <p class="sub">All five tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference; speed is scored against an eager baseline (a unified <code>torch.compile</code> baseline is reported separately), headroom-normalized against a per-task roofline. Task 1 is a single solve. Task 2 improves the weights across rounds. Task 3 improves the executable procedure with weights fixed. Task 4 has a closed model rewrite an open trainee's harness. Task 5 — the true-RSI metric — has the model author its own strictly-harder tasks and improve on them, with a 3-arm design that isolates author co-evolution.</p>
 
+  <figure class="vizfig">
+    <div id="viz-flow" class="vizbox"></div>
+    <div id="viz-flow-notes" class="flownotes"></div>
+    <figcaption><span class="fnum">The five tasks as agent loops.</span> Each panel shows what the agent actually does — a one-shot solve (T1), a weight-training loop (T2), an edit to its own frozen-weight procedure (T3), a closed model rewriting the harness that trains an open one (T4), and a self-play arena where the model authors the frontier it must then beat (T5). Left to right is increasing recursion depth; only T5 lets difficulty and capability co-evolve.</figcaption>
+  </figure>
+
   <figure>
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 460' role='img' font-family='Georgia, serif'>
       <line x1='450' y1='44' x2='450' y2='440' stroke='#ececec' stroke-width='1'/>
@@ -237,6 +243,16 @@
   <div class="snum">03e / Mechanism</div>
   <h2>Why RSI fails, or how it passes</h2>
   <p class="small sub">A rising curve says <i>whether</i> a model compounds; this probe says <i>why</i>. Every round we log generation <b>diversity</b> (mode collapse), predictive entropy, LoRA <b>weight-drift by transformer depth</b> (→0 = ceiling reached), <b>retention</b> on already-solved tasks (forgetting), and the train−held <b>transfer gap</b> (memorization). A verdict attributes each outcome to a mechanism — <code>diversity_collapse</code>, <code>forgetting</code>, <code>drift_saturation</code>, <code>no_transfer</code>, <code>no_headroom</code> — or PASS plus the depth that carries the learning. Each line is a model, across families and sizes 0.5B→32B. <span id="mech-updated" class="tiny"></span></p>
+
+  <figure class="vizfig">
+    <div id="viz-dag" class="vizbox wide"></div>
+    <figcaption><span class="fnum">Internal-failure causality DAG.</span> Every model traces one translucent ribbon left to right through the five internal gates it must clear — <b>scale</b>, the <b>correctness wall</b> (does it ever emit a correct kernel), <b>gradient</b> (is there a non-empty SFT signal), <b>drift</b> (do the weights actually move), <b>retention</b> (does it keep what it learned) and <b>diversity</b> — ending in the <b>outcome</b>. Marker area and ribbon width scale with LoRA drift; color is the outcome class. Sub-2B models bend down early and orange at the wall; mid-scale models thread all gates and finish green; the largest drift most but still fall short of the roofline. <span id="viz-updated" class="tiny"></span></figcaption>
+  </figure>
+
+  <figure class="vizfig">
+    <div id="viz-scatter" class="vizbox"></div>
+    <figcaption><span class="fnum">Scale vs. RSI gain.</span> Held-out capability gain over rounds against model size, bubble area ∝ LoRA drift, with marginal histograms. The shaded band is the sub-2B correctness wall where gain is pinned at zero; positive gain is concentrated at mid-scale (2–8B), and the very largest models drift hardest yet gain little — headroom saturation near the task roofline.</figcaption>
+  </figure>
   <div class="mechgrid">
     <figure class="mechpanel"><figcaption><span class="fnum">Capability C (held-out)</span></figcaption><div id="mech-C_self" class="linechart"></div></figure>
     <figure class="mechpanel"><figcaption><span class="fnum">Self-data diversity</span> (1 = all distinct)</figcaption><div id="mech-diversity" class="linechart"></div></figure>
@@ -287,5 +303,6 @@ docker run --rm --gpus all -v $PWD/out:/out ka \
 </footer>
 
 <script src="app.js"></script>
+<script src="viz.js"></script>
 </body>
 </html>

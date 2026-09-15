@@ -255,3 +255,14 @@ body{font-feature-settings:"ss01","ss02"}
 .linechart .grid{stroke:#f0eaea;stroke-width:1}
 .linechart polyline{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}
 .linechart .dot{stroke:#fff;stroke-width:.6}
+
+/* ---- live mechanistic visuals (viz.js): task-flow, causality DAG, scale scatter ---- */
+.vizfig{margin:26px 0}
+.vizbox{width:100%;background:#fff;border:1px solid var(--hair);border-radius:10px;overflow:hidden}
+.vizbox svg{width:100%;height:auto;display:block}
+.vizbox.wide{background:linear-gradient(180deg,#fff,#fcfcfc)}
+.flownotes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:10px 0 0}
+@media(max-width:860px){.flownotes{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.flownotes{grid-template-columns:1fr}}
+.flownote{font-size:11.5px;line-height:1.4;color:#5a5a5a}
+.flownote b{color:#151515}

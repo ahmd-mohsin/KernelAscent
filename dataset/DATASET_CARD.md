@@ -24,6 +24,14 @@ self-benchmarking and research; the leaderboard is scored on a private held-out 
 - Project & code: https://github.com/ahmd-mohsin/KernelAscent
 - Leaderboard & docs: https://ahmd-mohsin.github.io/KernelAscent/
 
+![Internal-failure causality DAG](https://raw.githubusercontent.com/ahmd-mohsin/KernelAscent/main/docs/figures/cz_internal_dag.png)
+
+*Mechanistic interpretability of RSI: every model traces one path through the internal gates it must clear — scale → correctness-wall → gradient → drift → retention → diversity → outcome (green = RSI compounds, blue = crossed the wall but flat, orange = stuck at the wall). Sub-2B models stall at the correctness wall; mid-scale (2–8B) threads every gate and compounds; the largest drift most yet saturate at the roofline.*
+
+![Scale vs RSI gain with marginals](https://raw.githubusercontent.com/ahmd-mohsin/KernelAscent/main/docs/figures/gz_bubble.png)
+
+*Held-out capability gain vs model size, bubble area ∝ LoRA drift. Shaded = sub-2B correctness wall; positive gain concentrates at mid-scale. Interactive versions on the [project site](https://ahmd-mohsin.github.io/KernelAscent/).*
+
 ## What is in a task
 
 Each task is a self-contained, seeded PyTorch `Model` whose `forward` is a fused op-graph;

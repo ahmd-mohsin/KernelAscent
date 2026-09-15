@@ -36,6 +36,16 @@ The decomposition is the whole point: **L−S** = total curriculum benefit, **F�
 
 A rising curve says *whether* a model compounds; the mechanism probe says *why*. Each round we log generation diversity (distinct-2, pairwise dissimilarity — mode collapse), predictive entropy, LoRA weight-drift split by transformer depth (→0 means the ceiling is reached), retention on already-solved tasks (catastrophic forgetting), and the train−held transfer gap (memorization vs generalization). A verdict attributes each outcome to a mechanism: `diversity_collapse | forgetting | drift_saturation | no_transfer | no_headroom`, or PASS plus the depth that carries the learning. This turns null results (e.g. sub-2B models that never emit a correct kernel) into findings rather than blanks.
 
+<p align="center"><img src="docs/figures/cz_internal_dag.png" alt="Internal-failure causality DAG" width="92%"/></p>
+
+*Every model traces one path through the internal gates it must clear — **scale → correctness-wall → gradient → drift → retention → diversity → outcome**. Marker area and ribbon width scale with LoRA drift; color is the outcome (green = RSI compounds, blue = crossed the wall but flat, orange = stuck at the correctness wall). Sub-2B models bend down and orange at the wall; mid-scale models thread every gate and finish green; the largest drift most yet stall at the roofline.*
+
+<p align="center"><img src="docs/figures/gz_bubble.png" alt="Scale vs RSI gain, bubble area proportional to LoRA drift, with marginals" width="78%"/></p>
+
+*Held-out capability gain vs model size, bubble area ∝ sustained LoRA drift, with marginal densities. The shaded band is the sub-2B correctness wall (gain pinned at zero); positive gain concentrates in the mid-scale 2–8B band; the largest models drift hardest but gain little (headroom saturation).*
+
+An interactive, always-current version of both figures — plus a five-task agent-flow diagram — is on the [project site](https://ahmd-mohsin.github.io/KernelAscent/).
+
 ## Grading
 
 A candidate kernel is a `class ModelNew` module. The grader runs in a crash isolated subprocess, so a kernel that triggers a CUDA device assert cannot poison the harness.
