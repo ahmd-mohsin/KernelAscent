@@ -5,34 +5,34 @@
     "n_models": 50,
     "correctness_wall": {
       "frac_cross_if_ge2B": 0.88,
-      "frac_cross_if_lt2B": 0.5,
+      "frac_cross_if_lt2B": 0.54,
       "claim": "Sub-2B almost never cross the correctness wall (C_train=0) -> zero SFT gradient -> drift=0 -> RSI impossible. This is the primary gate."
     },
     "among_wall_crossers": {
-      "n": 34,
+      "n": 35,
       "frac_rsi": 0.29,
       "rsi_vs_flat_diversity": [
         0.441,
-        0.64
+        0.637
       ],
       "rsi_vs_flat_drift": [
         0.608,
-        0.101
+        0.097
       ],
       "rsi_vs_flat_retention": [
         0.242,
-        0.042
+        0.04
       ],
       "claim": "Among models that DO produce correct kernels, compounders sustain higher generation diversity and larger sustained drift; flat ones show diversity collapse + drift saturation."
     },
     "scale_trend": {
       "<2B": {
         "n": 26,
-        "frac_cross_wall": 0.5,
+        "frac_cross_wall": 0.54,
         "frac_rsi": 0.04,
-        "mean_C_train": 0.018,
+        "mean_C_train": 0.019,
         "mean_drift": 0.024,
-        "mean_diversity": 0.481
+        "mean_diversity": 0.493
       },
       "2-8B": {
         "n": 17,
@@ -66,9 +66,9 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.286,
-      "diversity_collapse": false,
-      "mean_retention": 0,
+      "mean_diversity": 0.248,
+      "diversity_collapse": true,
+      "mean_retention": 0.036,
       "mean_transfer_gap": 0.0
     },
     {
@@ -84,8 +84,8 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.254,
-      "diversity_collapse": false,
+      "mean_diversity": 0.246,
+      "diversity_collapse": true,
       "mean_retention": 0,
       "mean_transfer_gap": 0.0
     },
@@ -147,8 +147,8 @@
       "model": "Qwen2.5-Coder-0.5B",
       "size_b": 0.5,
       "tier": "small",
-      "wall_crossed": false,
-      "max_C_train": 0.0,
+      "wall_crossed": true,
+      "max_C_train": 0.031,
       "C_held_gain": 0.0,
       "rsi": false,
       "drift_early": 0.0,
@@ -156,10 +156,10 @@
       "drift_late": 0.0,
       "drift_total": 0.0,
       "drift_locus": "none",
-      "mean_diversity": 0.215,
+      "mean_diversity": 0.565,
       "diversity_collapse": false,
       "mean_retention": 0,
-      "mean_transfer_gap": 0.0
+      "mean_transfer_gap": 0.004
     },
     {
       "model": "Qwen2.5-Coder-0.5B",
