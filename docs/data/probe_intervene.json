@@ -91,6 +91,50 @@
       ]
     },
     {
+      "model": "SmolLM2-1.7B",
+      "size_b": 1.7,
+      "K": 32,
+      "auc": 1.0,
+      "layer_frac": 0.67,
+      "random_rate": 0.083,
+      "probe_rate": 0.333,
+      "oracle_rate": 0.333,
+      "lift": 0.25,
+      "probe_pick_speedup": 1.025,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.083
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.165
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.275
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.333,
+          "rand_anycorrect": 0.333
+        }
+      ]
+    },
+    {
       "model": "starcoder2-3b",
       "size_b": 3,
       "K": 16,
