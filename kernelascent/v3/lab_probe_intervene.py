@@ -102,6 +102,7 @@ def run(args):
     # ---- 2) TEST: generate K, score with probe, compare selection strategies ----
     te = _gen_grade(tok, mdl, [LK.TASKS[n] for n in test_names], args.K, args.model)
     rand_rate, probe_ok, oracle_ok, probe_sp = [], [], [], []
+    within_auc = []            # per-task probe AUC among THAT task's candidates (Astra: separate from pooled AUC)
     Ns = [n for n in (1, 2, 4, 8, 16, 32, 64) if n <= args.K]
     sweep = {n: {"probe": [], "rand": []} for n in Ns}
     for rows in te:
@@ -115,6 +116,10 @@ def run(args):
                 try: s = float(_layer_feats(tok, mdl, code, dev)[layer] @ w)
                 except Exception: s = float("-inf")
                 scored.append((s, ok, sp))
+            # WITHIN-TASK ranking quality: does the probe rank THIS task's correct candidates above its incorrect ones?
+            if 0 < nc < K:
+                wa = _auc([s for s, _, _ in scored], [1 if ok else 0 for _, ok, _ in scored])
+                if wa is not None: within_auc.append(wa)
             scored.sort(key=lambda t: -t[0])                      # high probe score first
             probe_ok.append(1 if scored[0][1] else 0)
             if scored[0][1]: probe_sp.append(scored[0][2])
@@ -130,8 +135,12 @@ def run(args):
         oracle_bestofK_rate=_m(oracle_ok),
         lift=(round(_m(probe_ok) - _m(rand_rate), 3) if (probe_ok and rand_rate) else None),
         probe_pick_speedup=_m(probe_sp),
+        within_task_auc=_m(within_auc),          # mean per-task ranking AUC (>0.5 = real within-task signal)
+        n_within_task=len(within_auc),           # tasks with both correct & incorrect candidates
         k_sweep=[{"n": n, "probe_anycorrect": _m(sweep[n]["probe"]), "rand_anycorrect": _m(sweep[n]["rand"])} for n in Ns],
     )
+    if within_auc:
+        print("within-task AUC=%.3f over %d tasks (pooled AUC=%s)" % (_m(within_auc), len(within_auc), auc), flush=True)
     json.dump(result, open(outf, "w"), indent=2)
     print("RESULT random=%s probe_top1=%s oracle=%s lift=%s" %
           (result["random_correct_rate"], result["probe_top1_correct_rate"], result["oracle_bestofK_rate"], result["lift"]), flush=True)
