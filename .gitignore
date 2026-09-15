@@ -38,3 +38,6 @@ dataset/heldout/
 dataset/**/_raw/
 
 hf_token
+paper/*.aux
+paper/*.log
+paper/*.out
