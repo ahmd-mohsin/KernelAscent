@@ -109,6 +109,49 @@
       "verdict": "author CO-EVOLUTION compounds (L>F)"
     },
     {
+      "model": "deepseek.v3.2",
+      "tier": "small",
+      "rounds": [
+        0,
+        1
+      ],
+      "C_held_live": [
+        0.636,
+        0.634
+      ],
+      "C_held_frozen_author": [
+        0.75,
+        0.551
+      ],
+      "C_held_static": [
+        0.799,
+        0.758
+      ],
+      "L_minus_F": [
+        -0.114,
+        0.082
+      ],
+      "L_minus_S": [
+        -0.163,
+        -0.124
+      ],
+      "F_minus_S": [
+        -0.049,
+        -0.206
+      ],
+      "frontier": [
+        16,
+        17
+      ],
+      "model_proposed": [
+        0,
+        1
+      ],
+      "total_model_proposed": 1,
+      "final_L_minus_F": 0.082,
+      "verdict": "no self-referential compounding"
+    },
+    {
       "model": "us.anthropic.claude-opus-5",
       "tier": "small",
       "rounds": [
@@ -766,40 +809,6 @@
       "total_model_proposed": 26,
       "final_L_minus_F": -0.037,
       "verdict": "adaptive-curriculum only (L==F)"
-    },
-    {
-      "model": "deepseek.v3.2",
-      "tier": "small",
-      "rounds": [
-        0
-      ],
-      "C_held_live": [
-        0.636
-      ],
-      "C_held_frozen_author": [
-        0.75
-      ],
-      "C_held_static": [
-        0.799
-      ],
-      "L_minus_F": [
-        -0.114
-      ],
-      "L_minus_S": [
-        -0.163
-      ],
-      "F_minus_S": [
-        -0.049
-      ],
-      "frontier": [
-        16
-      ],
-      "model_proposed": [
-        0
-      ],
-      "total_model_proposed": 0,
-      "final_L_minus_F": -0.114,
-      "verdict": "no self-referential compounding"
     },
     {
       "model": "mistral.mistral-large-3-675b-instruct",
