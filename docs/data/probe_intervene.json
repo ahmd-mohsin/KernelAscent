@@ -345,6 +345,45 @@
       ]
     },
     {
+      "model": "starcoder2-3b",
+      "size_b": 3,
+      "K": 16,
+      "auc": null,
+      "layer_frac": null,
+      "random_rate": 0.083,
+      "probe_rate": null,
+      "oracle_rate": 0.167,
+      "lift": null,
+      "probe_pick_speedup": null,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        }
+      ]
+    },
+    {
       "model": "deepseek-coder-6.7b-base",
       "size_b": 6.7,
       "K": 16,

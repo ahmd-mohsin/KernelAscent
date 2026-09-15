@@ -1,0 +1,40 @@
+{
+  "model": "bigcode/starcoder2-3b",
+  "K": 16,
+  "train_correct": 1,
+  "train_incorrect": 27,
+  "note": "insufficient train labels to fit probe (wall); reporting random vs oracle only",
+  "n_test": 12,
+  "random_correct_rate": 0.083,
+  "probe_top1_correct_rate": null,
+  "oracle_bestofK_rate": 0.167,
+  "lift": null,
+  "probe_pick_speedup": null,
+  "k_sweep": [
+    {
+      "n": 1,
+      "probe_anycorrect": null,
+      "rand_anycorrect": null
+    },
+    {
+      "n": 2,
+      "probe_anycorrect": null,
+      "rand_anycorrect": null
+    },
+    {
+      "n": 4,
+      "probe_anycorrect": null,
+      "rand_anycorrect": null
+    },
+    {
+      "n": 8,
+      "probe_anycorrect": null,
+      "rand_anycorrect": null
+    },
+    {
+      "n": 16,
+      "probe_anycorrect": null,
+      "rand_anycorrect": null
+    }
+  ]
+}
