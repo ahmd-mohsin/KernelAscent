@@ -2319,55 +2319,81 @@
       "tier": "small",
       "rounds": [
         0,
-        1
+        1,
+        2,
+        3
       ],
       "C_held": [
+        0.0,
+        0.0,
         0.0,
         0.0
       ],
       "C_train": [
         0.0,
-        0.0
+        0.0,
+        0.0,
+        0.031
       ],
       "transfer_gap": [
         0.0,
-        0.0
+        0.0,
+        0.0,
+        0.031
       ],
       "retention": [
+        0,
+        0,
         0,
         0
       ],
       "gen_distinct2": [
         0.215,
-        0.262
+        0.262,
+        0.22,
+        0.255
       ],
       "gen_dissim": [
         0.862,
-        0.862
+        0.862,
+        0.882,
+        0.881
       ],
       "gen_entropy": [
+        0.005,
+        0.005,
         0.005,
         0.005
       ],
       "drift_total": [
         null,
-        0.0
+        0.0,
+        0.0,
+        null
       ],
       "drift_early": [
         null,
-        0.0
+        0.0,
+        0.0,
+        null
       ],
       "drift_mid": [
         null,
-        0.0
+        0.0,
+        0.0,
+        null
       ],
       "drift_late": [
         null,
-        0.0
+        0.0,
+        0.0,
+        null
       ],
       "sft_loss": [
         0.0,
-        0.0
+        0.0,
+        0.0,
+        0.0762
       ],
       "compounded": null,
       "mechanisms": [],
