@@ -744,9 +744,11 @@
         2,
         3,
         4,
-        5
+        5,
+        6
       ],
       "C_held_live": [
+        null,
         null,
         null,
         null,
@@ -760,9 +762,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "C_held_static": [
+        null,
         null,
         null,
         null,
@@ -776,9 +780,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "L_minus_S": [
+        null,
         null,
         null,
         null,
@@ -792,6 +798,7 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "frontier": [
@@ -800,9 +807,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "model_proposed": [
+        0,
         0,
         0,
         0,

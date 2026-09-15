@@ -4,12 +4,13 @@
   "models": [
     {
       "model": "Qwen2.5-Coder-3B",
-      "rounds": 6,
+      "rounds": 7,
       "band": [
         0.3,
         0.7
       ],
       "authored_solve_rate": [
+        null,
         null,
         null,
         null,
@@ -23,9 +24,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "frac_unsolvable": [
+        null,
         null,
         null,
         null,
@@ -39,6 +42,7 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "L_minus_F_unconstrained": [
@@ -47,9 +51,11 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "L_minus_F_goldilocks": [
+        0.0,
         0.0,
         0.0,
         0.0,

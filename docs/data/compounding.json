@@ -40,28 +40,52 @@
     },
     {
       "model": "Qwen2.5-Coder-7B-Instruct",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.7001256848473584,
       "C_lineage_final": 0.0,
-      "C_reset_final": 0.7,
-      "C_bestofN_final": 0.701,
+      "C_reset_final": 0.801,
+      "C_bestofN_final": 0.801,
       "transfer_C_final": 0.0,
       "lineage_minus_reset": [
         0.0,
         -0.675,
-        -0.7
+        -0.7,
+        -0.801
       ],
       "lineage_minus_bestofN": [
         -0.495,
         -0.8,
-        -0.701
+        -0.701,
+        -0.801
       ],
       "marginal_gain_lineage": [
         -0.7,
         0.0,
+        0.0,
         0.0
       ],
-      "mean_lineage_minus_reset": -0.458,
+      "mean_lineage_minus_reset": -0.544,
+      "held_family": "l3",
+      "verdict": "search-only"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "rounds": 1,
+      "C0": 0.6988537575403628,
+      "C_lineage_final": 0.0,
+      "C_reset_final": 0.0,
+      "C_bestofN_final": 0.596,
+      "transfer_C_final": 0.0,
+      "lineage_minus_reset": [
+        0.0
+      ],
+      "lineage_minus_bestofN": [
+        -0.596
+      ],
+      "marginal_gain_lineage": [
+        -0.699
+      ],
+      "mean_lineage_minus_reset": 0.0,
       "held_family": "l3",
       "verdict": "search-only"
     }
