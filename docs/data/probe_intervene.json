@@ -6,6 +6,50 @@
       "model": "Qwen2.5-Coder-0.5B-Instruct",
       "size_b": 0.5,
       "K": 32,
+      "auc": 0.878,
+      "layer_frac": 1.0,
+      "random_rate": 0.247,
+      "probe_rate": 0.667,
+      "oracle_rate": 0.917,
+      "lift": 0.42,
+      "probe_pick_speedup": 0.917,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.667,
+          "rand_anycorrect": 0.247
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.667,
+          "rand_anycorrect": 0.428
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.666
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.872
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.917
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.917,
+          "rand_anycorrect": 0.917
+        }
+      ]
+    },
+    {
+      "model": "Qwen2.5-Coder-0.5B-Instruct",
+      "size_b": 0.5,
+      "K": 32,
       "auc": 0.831,
       "layer_frac": 0.04,
       "random_rate": 0.218,

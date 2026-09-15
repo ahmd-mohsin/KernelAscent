@@ -117,6 +117,22 @@
       "L_minus_F_goldilocks": 0.0,
       "live_model_proposed": 0,
       "round_sec": 2232.6
+    },
+    {
+      "round": 7,
+      "authored_solve_rate": null,
+      "authored_headroom": null,
+      "frac_trivial": null,
+      "frac_unsolvable": null,
+      "n_authored_L": 0,
+      "n_kept_goldilocks": 0,
+      "C_F": 0.0,
+      "C_L": 0.0,
+      "C_Lg": 0.0,
+      "L_minus_F_unconstrained": 0.0,
+      "L_minus_F_goldilocks": 0.0,
+      "live_model_proposed": 0,
+      "round_sec": 2185.7
     }
   ],
   "note": "Curriculum-collapse diagnosis + Goldilocks rescue. L-F_unconstrained vs L-F_goldilocks."
