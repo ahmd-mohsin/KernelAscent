@@ -47,12 +47,16 @@ model / run & size(B) & $K$ & AUC & random & probe & oracle & lift \\
 
 def compounding_note():
     cm = load("compounding.json").get("models", [])
-    return (r"""\paragraph{Compounding (lineage vs.\ matched reset).} \emph{Currently not measurable:}
-the adapter-on held-out evaluation in \texttt{lab\_compounding} returns exactly $0$ after \emph{any}
-LoRA-SFT step (even 3 steps at lr $2\times10^{-5}$), while the frozen-base best-of-$N$ control retains
-$0.33$--$0.60$. This is an evaluation/generation artifact (the same \texttt{eval\_tasks}/\texttt{sft} work
-in \texttt{lab\_weight\_rsi}), not a real RSI-failure mechanism, so the %d compounding runs are all null and
-the title-claim test is parked pending a harness fix. We do \emph{not} interpret this negative as evidence.
+    return (r"""\paragraph{Compounding (lineage vs.\ matched reset) --- parked pending a confirmed harness fix.}
+A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
+null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
+LoRA generates normally (train $C=0.259$, held $C=0.388$); but after a single SFT step \textbf{both} train and
+held-out $C$ drop to exactly $0.000$. Because a zero-step adapter evaluates correctly and the collapse hits the
+\emph{training} tasks too (not just held-out), this is a \textbf{generation-after-SFT bug} (candidate causes:
+bf16 LoRA/optimizer instability, generation-config or pad/eos handling post-training), not catastrophic
+forgetting or overfitting. The %d compounding runs are therefore \emph{uninterpretable, not nulls}; the
+lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experiment) are blocked on this fix
+and we do not report their numbers as evidence.
 """ % len(cm))
 
 def mech_note():

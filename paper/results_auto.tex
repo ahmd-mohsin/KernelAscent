@@ -7,7 +7,7 @@
 \caption{Probe-as-intervention: reranking $K$ decoded kernels by a linear correctness probe.
 \texttt{random}$\to$\texttt{probe}$\to$\texttt{oracle} correct-rate and lift $=$\texttt{probe}$-$\texttt{random}.
 Lift is large only when the oracle ceiling leaves headroom \emph{and} the probe fit (AUC) is strong;
-weak-AUC draws on the small task bank collapse the lift. \textbf{19 runs} (repeated probe-training/test draws)
+weak-AUC draws on the small task bank collapse the lift. \textbf{21 runs} (repeated probe-training/test draws)
 across \textbf{13 distinct base checkpoints}; rows sharing a base are independent draws, not distinct models.
 \emph{Caveat:} pooled correctness AUC can separate easy from hard tasks without ranking candidates
 \emph{within} a task; a within-task ranking metric is needed to establish the mechanism (the AUC$\approx$0.9
@@ -29,21 +29,27 @@ starcoder2-3b & 3.000 & 16 & -- & 0.000 & -- & 0.000 & -- \\
 Qwen2.5-Coder-3B-Instruct & 3.000 & 32 & 0.817 & 0.401 & 0.417 & 1.000 & +0.016 \\
 Qwen2.5-Coder-3B & 3.000 & 16 & 0.958 & 0.266 & 0.667 & 0.917 & +0.401 \\
 Qwen2.5-Coder-3B-Instruct & 3.000 & 32 & 0.713 & 0.044 & 0.200 & 0.200 & +0.156 \\
+Qwen2.5-Coder-3B-Instruct & 3.000 & 32 & 0.797 & -- & -- & -- & -- \\
 starcoder2-3b & 3.000 & 16 & -- & 0.083 & -- & 0.167 & -- \\
 deepseek-coder-6.7b-base & 6.700 & 16 & 0.986 & 0.121 & 0.182 & 0.273 & +0.061 \\
 deepseek-coder-6.7b-instruct & 6.700 & 16 & 0.826 & 0.502 & 0.417 & 1.000 & -0.085 \\
+Qwen2.5-Coder-7B-Instruct & 7.000 & 32 & 0.819 & 0.379 & 0.111 & 0.556 & -0.268 \\
 Qwen2.5-Coder-7B-Instruct & 7.000 & 32 & 0.877 & 0.652 & 0.750 & 1.000 & +0.098 \\
 Qwen2.5-Coder-7B-Instruct & 7.000 & 32 & 0.824 & 0.531 & 0.667 & 0.750 & +0.136 \\
 Qwen2.5-Coder-14B-Instruct & 14.000 & 16 & 0.872 & 0.698 & 0.750 & 1.000 & +0.052 \\
 \bottomrule
 \end{tabular}\end{table}
 
-\paragraph{Compounding (lineage vs.\ matched reset).} \emph{Currently not measurable:}
-the adapter-on held-out evaluation in \texttt{lab\_compounding} returns exactly $0$ after \emph{any}
-LoRA-SFT step (even 3 steps at lr $2\times10^{-5}$), while the frozen-base best-of-$N$ control retains
-$0.33$--$0.60$. This is an evaluation/generation artifact (the same \texttt{eval\_tasks}/\texttt{sft} work
-in \texttt{lab\_weight\_rsi}), not a real RSI-failure mechanism, so the 5 compounding runs are all null and
-the title-claim test is parked pending a harness fix. We do \emph{not} interpret this negative as evidence.
+\paragraph{Compounding (lineage vs.\ matched reset) --- parked pending a confirmed harness fix.}
+A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
+null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
+LoRA generates normally (train $C=0.259$, held $C=0.388$); but after a single SFT step \textbf{both} train and
+held-out $C$ drop to exactly $0.000$. Because a zero-step adapter evaluates correctly and the collapse hits the
+\emph{training} tasks too (not just held-out), this is a \textbf{generation-after-SFT bug} (candidate causes:
+bf16 LoRA/optimizer instability, generation-config or pad/eos handling post-training), not catastrophic
+forgetting or overfitting. The 5 compounding runs are therefore \emph{uninterpretable, not nulls}; the
+lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experiment) are blocked on this fix
+and we do not report their numbers as evidence.
 
 
 \subsection{Mechanism and self-play}
