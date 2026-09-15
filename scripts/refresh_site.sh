@@ -8,7 +8,7 @@ mkdir -p "$RAW"
 # 1) node: restore latest S3 -> ka_data, then tar every board-relevant result json as base64
 $BOX 'cd $HOME/ka && python3 scripts/s3ckpt.py restore >/dev/null 2>&1; cd $HOME/ka/ka_data && tar cz \
   sp_*/selfplay_rsi.json spc_*/selfplay_closed.json rmech_*/rsi_mechanism.json \
-  trackc_*/track_c.json comb_*/combined_rsi.json open_*/open_rsi.json baselines_*/baselines.json 2>/dev/null | base64' 2>/dev/null \
+  trackc_*/track_c.json comb_*/combined_rsi.json open_*/open_rsi.json baselines_*/baselines.json interp_*/interp_probe.json 2>/dev/null | base64' 2>/dev/null \
   | grep -vE "Warning|Permanently|Pseudo" > /tmp/ka_site.b64
 [ -s /tmp/ka_site.b64 ] || { echo "no data pulled"; exit 1; }
 rm -rf /tmp/ka_site && mkdir -p /tmp/ka_site
