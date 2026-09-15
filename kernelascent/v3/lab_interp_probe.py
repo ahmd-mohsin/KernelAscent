@@ -32,18 +32,14 @@ def _auc(scores, labels):
 @torch.no_grad()
 def _layer_feats(tok, mdl, code, dev, max_len=1024):
     ids = tok(code, return_tensors="pt", truncation=True, max_length=max_len).to(dev)
-    out = mdl(**ids, output_hidden_states=True)
+    with mdl.disable_adapter():                  # base-model reps (untrained LoRA would be identity anyway)
+        out = mdl(**ids, output_hidden_states=True)
     hs = out.hidden_states                       # tuple (L+1) of [1, seq, H]
     return [h[0].float().mean(0).cpu() for h in hs]   # mean-pool tokens -> [H] per layer
 
 def run(args):
-    dev = "cuda:0"
-    tok = W.__dict__.get("_tok")  # not used; build fresh base model (no LoRA) with hidden states
-    from transformers import AutoTokenizer, AutoModelForCausalLM
-    tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
-    if tok.pad_token_id is None: tok.pad_token = tok.eos_token
-    dt = torch.bfloat16 if os.environ.get("KA_DTYPE", "bf16") == "bf16" else torch.float32
-    mdl = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dt, device_map={"": dev}, trust_remote_code=True).eval()
+    tok, mdl = W.build(args.model, gpus=(0,))   # PEFT-wrapped (untrained LoRA=identity); gives disable_adapter for generate_batch
+    mdl.eval(); dev = next(mdl.parameters()).device
     names = list(LK.TASKS)[: args.n_tasks]
     print("INTERP-PROBE %s tasks=%d k=%d" % (args.model, len(names), args.k), flush=True)
     # 1) generate + grade -> labeled kernels
