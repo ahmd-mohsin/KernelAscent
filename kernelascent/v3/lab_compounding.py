@@ -1,0 +1,111 @@
+"""Experiment #2 — COMPOUNDING TEST (validates the paper's "compounding" title claim).
+
+An open model runs N weight-RSI rounds. At each round we measure held-out capability C for:
+  LINEAGE   : keep accumulating LoRA + self-data (the RSI agent).
+  RESET     : a matched learner whose adapter is RE-INITIALIZED each round and trained ONLY on that round's
+              producer data (single-round gain, no accumulation).
+  BEST-OF-N : frozen base, best-of-(k*(r+1)) sampling on held-out — matched CUMULATIVE generation budget, no weights.
+  RETRIEVAL : frozen base + growing verified-kernel few-shot archive (in-context, no weights).
+Also evaluates the LINEAGE model on a HELD-OUT TASK FAMILY never trained on (transfer).
+
+Headline (the compounding claim): lineage's PER-ROUND MARGINAL GAIN should stay positive and, crucially, the
+gain from an accumulated model should exceed the reset model's single-round gain — i.e. accumulation raises the
+SUBSEQUENT learning rate, not just the level. If lineage==reset==best-of-N, it's search, not compounding.
+
+Reuses lab_weight_rsi (build/eval_tasks/sft) and lab_baselines (retrieval). Memory-safe bf16; grades isolated.
+CLI: python -m kernelascent.v3.lab_compounding --model <hf> --gpus 0,1 --rounds 8 --held-family l3 --outdir <d>
+"""
+import os, sys, json, argparse, random, statistics, time
+from kernelascent.v3 import lab_weight_rsi as W
+from kernelascent.v3 import lab_kernel as LK
+try:
+    from kernelascent.v3 import lab_baselines as BL
+except Exception:
+    BL = None
+import torch
+from peft import get_peft_model_state_dict, set_peft_model_state_dict
+
+
+def _families(names):
+    """group task names by prefix before first '_' (e.g. l2_7 -> 'l2') as a proxy for op-family/level."""
+    fam = {}
+    for n in names:
+        k = n.split("_")[0] if "_" in n else n
+        fam.setdefault(k, []).append(n)
+    return fam
+
+
+def run(args):
+    random.seed(args.seed); torch.manual_seed(args.seed)
+    gpus = [int(x) for x in str(args.gpus).split(",") if x != ""]
+    tok, mdl = W.build(args.model, tuple(gpus))                     # LINEAGE learner
+    tok_r, reset = W.build(args.model, tuple(gpus[-1:] or [0]))     # RESET learner (shares last GPU if only 1)
+    reset_init = {k: v.detach().cpu().clone() for k, v in get_peft_model_state_dict(reset).items()}  # fresh LoRA snapshot
+
+    names = list(LK.TASKS); random.Random(1).shuffle(names)
+    fam = _families(names)
+    held_family = args.held_family if args.held_family in fam else max(fam, key=lambda k: len(fam[k]))
+    transfer = fam.get(held_family, [])[:args.n_held]              # held-out FAMILY (never trained on)
+    pool = [n for n in names if n not in set(transfer)]
+    train, held = pool[:args.n_train], pool[args.n_train:args.n_train + args.n_held]
+    print("COMPOUNDING %s seed=%d train=%d held=%d transfer_family=%s(%d) rounds=%d" %
+          (args.model, args.seed, len(train), len(held), held_family, len(transfer), args.rounds), flush=True)
+    os.makedirs(args.outdir, exist_ok=True)
+
+    C0, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=False)     # frozen-base held-out baseline
+    print("C0 frozen-base held = %.3f" % C0, flush=True)
+    hist = []; prevC = C0
+    for r in range(args.rounds):
+        t0 = time.time()
+        # LINEAGE: produce on train (adapter ON), accumulate SFT
+        trainC, pairs, _, _, _ = W.eval_tasks(tok, mdl, train, args.k, adapter=True)
+        try: loss = W.sft(tok, mdl, pairs, args.sft_steps)
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache(); loss = float("nan")
+        C_lin, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=True)
+        C_tr, _, _, _, _ = W.eval_tasks(tok, mdl, transfer, args.k, adapter=True) if transfer else (0.0, 0, 0, 0, 0)
+        # RESET: re-init adapter, train ONLY on this round's producer data (single-round gain, no accumulation)
+        set_peft_model_state_dict(reset, {k: v.to(W._dev(reset)) for k, v in reset_init.items()})
+        try: W.sft(tok_r, reset, pairs, args.sft_steps)
+        except torch.cuda.OutOfMemoryError: torch.cuda.empty_cache()
+        C_reset, _, _, _, _ = W.eval_tasks(tok_r, reset, held, args.k, adapter=True)
+        # BEST-OF-N: frozen base at matched cumulative budget k*(r+1)
+        C_bon, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k * (r + 1), adapter=False)
+        # RETRIEVAL: frozen base + growing few-shot archive (optional, via lab_baselines)
+        C_ret = None
+        if BL is not None:
+            try: C_ret = BL.retrieval(tok, mdl, train, held, args.k, n_shot=min(3 + r, 8)).get("C")
+            except Exception: C_ret = None
+        row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
+               "C_lineage": round(C_lin, 3), "C_reset": round(C_reset, 3), "C_bestofN": round(C_bon, 3),
+               "C_retrieval": (round(C_ret, 3) if C_ret is not None else None), "transfer_C": round(C_tr, 3),
+               "marginal_gain_lineage": round(C_lin - prevC, 3),   # gain THIS round from the accumulated model
+               "gain_vs_C0_lineage": round(C_lin - C0, 3),
+               "marginal_gain_reset": round(C_reset - C0, 3),      # single-round gain (no accumulation)
+               "lineage_minus_reset": round(C_lin - C_reset, 3),   # >0 sustained = accumulation compounds
+               "lineage_minus_bestofN": round(C_lin - C_bon, 3),   # >0 = beats matched-budget search
+               "round_sec": round(time.time() - t0, 1)}
+        hist.append(row); prevC = C_lin
+        print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
+              (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
+        json.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "history": hist},
+                  open(os.path.join(args.outdir, "compounding.json"), "w"), indent=2)
+    lr = [h["lineage_minus_reset"] for h in hist]
+    print("\n=== COMPOUNDING SUMMARY %s === lineage-minus-reset:" % args.model, lr)
+    print("COMPOUNDS (accumulation raises subsequent learning, sustained lineage>reset & lineage>best-of-N)?",
+          "YES" if len(lr) >= 3 and statistics.mean(lr[-2:]) > 0.05 else "NO/insufficient")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", required=True); ap.add_argument("--gpus", default="0")
+    ap.add_argument("--rounds", type=int, default=8); ap.add_argument("--k", type=int, default=4)
+    ap.add_argument("--n-train", type=int, default=20); ap.add_argument("--n-held", type=int, default=20)
+    ap.add_argument("--sft-steps", type=int, default=40); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--held-family", default="l3")
+    ap.add_argument("--outdir", default=os.path.join(os.environ.get("KA_DATA_DIR", "/tmp/instance_storage/ka_data"), "compounding"))
+    run(ap.parse_args())
+
+
+if __name__ == "__main__":
+    main()

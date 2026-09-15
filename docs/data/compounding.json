@@ -1,0 +1,5 @@
+{
+  "updated": "2026-09-15",
+  "note": "Compounding test: LINEAGE (accumulating weight-RSI) vs RESET (single-round, adapter re-init) vs BEST-OF-N (frozen, matched cumulative budget). lineage_minus_reset>0 sustained = accumulation raises subsequent learning (true compounding); lineage_minus_bestofN>0 = beats search. transfer_C = held-out task FAMILY never trained on.",
+  "models": []
+}
