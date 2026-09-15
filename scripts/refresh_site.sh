@@ -8,7 +8,7 @@ mkdir -p "$RAW"
 # 1) node: restore latest S3 -> ka_data, then tar every board-relevant result json as base64
 $BOX 'cd $HOME/ka && python3 scripts/s3ckpt.py restore >/dev/null 2>&1; cd $HOME/ka/ka_data && tar cz \
   sp_*/selfplay_rsi.json spc_*/selfplay_closed.json rmech_*/rsi_mechanism.json \
-  trackc_*/track_c.json comb_*/combined_rsi.json open_*/open_rsi.json baselines_*/baselines.json interp_*/interp_probe.json probe_intervene_*/probe_intervene.json 2>/dev/null | base64' 2>/dev/null \
+  trackc_*/track_c.json comb_*/combined_rsi.json open_*/open_rsi.json baselines_*/baselines.json interp_*/interp_probe.json probe_intervene_*/probe_intervene.json compounding_*/compounding.json selfplay_diag_*/selfplay_diag.json 2>/dev/null | base64' 2>/dev/null \
   | grep -vE "Warning|Permanently|Pseudo" > /tmp/ka_site.b64
 [ -s /tmp/ka_site.b64 ] || { echo "no data pulled"; exit 1; }
 rm -rf /tmp/ka_site && mkdir -p /tmp/ka_site
@@ -44,6 +44,8 @@ python3 scripts/mech_analysis.py 2>/dev/null | tail -4   # re-derive scale->mech
 python3 scripts/build_baselines.py 2>/dev/null           # rebuild 03c recursion-gain board from baseline runs
 python3 scripts/build_interp.py 2>/dev/null              # interp board: where correctness is internally encoded
 python3 scripts/build_probe_intervene.py 2>/dev/null     # probe-as-intervention board (self-verification / wall-crossing)
+python3 scripts/build_compounding.py 2>/dev/null         # #2 compounding (lineage-vs-reset + transfer)
+python3 scripts/build_selfplay_diag.py 2>/dev/null       # #3 T5 self-play diagnosis (curriculum collapse + Goldilocks)
 git add results/raw docs/data 2>/dev/null
 git commit -q -m "site: refresh boards from S3 ($(date -u +%H:%MZ)) — $n runs" 2>/dev/null \
   && git push -q 2>&1 | tail -1 && echo "pushed" || echo "no changes to commit"
