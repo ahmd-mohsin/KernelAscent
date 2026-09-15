@@ -19,7 +19,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 1.0,
-      "strategy": "Optimize for NVIDIA A100 latency while preserving numerical equivalence. First identify the dominant cost and benchmark "
+      "strategy": "Optimize for measured end-to-end speedup on NVIDIA A100. Preserve optimized PyTorch/cuBLAS/cuDNN paths for GEMMs, convol"
     },
     {
       "round": 2,
@@ -28,7 +28,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency with correctness as a hard gate. First inspect the module and reference behavior, including"
+      "strategy": "Prioritize correctness before optimization: task_correct=0 invalidates current speedup measurements. Reproduce the failu"
     },
     {
       "round": 3,
@@ -37,7 +37,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency with correctness as a hard gate. First inspect the module, reference implementation, and te"
+      "strategy": "Restore correctness before optimizing; task_correct=0 makes current speedup measurements invalid. Compare the candidate "
     },
     {
       "round": 4,
@@ -46,7 +46,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 1.0,
-      "strategy": "Optimize NVIDIA A100 latency only after correctness passes. Inspect the module, reference implementation, and test contr"
+      "strategy": "Gate performance tuning on correctness. Restore the original PyTorch implementation as a passing baseline, then compare "
     },
     {
       "round": 5,
@@ -55,7 +55,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 1.0,
-      "strategy": "Gate all optimization on correctness. First inspect the module, reference, and test contract; enumerate supported shapes"
+      "strategy": "Restore the original PyTorch implementation and verify task_correct=1 before optimizing. Compare every candidate directl"
     }
   ]
 }

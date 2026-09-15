@@ -6,38 +6,38 @@
     {
       "round": 0,
       "C_improved": 0.0,
-      "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.0,
+      "C_frozen": 0.056,
+      "delta_improved_minus_frozen": -0.056,
       "n_admitted": 0,
       "min_sp": 0.0,
       "strategy": "Write a correct, self-contained kernel. Prefer fused torch ops; use Triton only if it clearly helps."
     },
     {
       "round": 1,
-      "C_improved": 0.0,
-      "C_frozen": 0.052,
-      "delta_improved_minus_frozen": -0.052,
-      "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "Correctness-first, then speed. Follow this exact procedure:\n\n1) COPY THE REFERENCE. Start from the given module's forwar"
+      "C_improved": 0.055,
+      "C_frozen": 0.0,
+      "delta_improved_minus_frozen": 0.055,
+      "n_admitted": 1,
+      "min_sp": 0.0,
+      "strategy": "CORRECTNESS FIRST, THEN SPEED. Prior attempts scored task_correct=0, so the current failure mode is broken/non-running c"
     },
     {
       "round": 2,
-      "C_improved": 0.056,
+      "C_improved": 0.111,
       "C_frozen": 0.0,
-      "delta_improved_minus_frozen": 0.056,
-      "n_admitted": 1,
-      "min_sp": 1.0,
-      "strategy": "GOAL: produce a drop-in replacement module that is BIT-COMPATIBLE-ENOUGH to pass the correctness gate first, then faster"
+      "delta_improved_minus_frozen": 0.111,
+      "n_admitted": 0,
+      "min_sp": 1.05,
+      "strategy": "SPEED PHASE (correctness is already proven: task_correct=1, avg_sp=1.57, but min_sp=0.00 means at least one shape/dtype "
     },
     {
       "round": 3,
-      "C_improved": 0.0,
-      "C_frozen": 0.0,
+      "C_improved": 0.056,
+      "C_frozen": 0.056,
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) passes the correctness gate exactly, and (b) is measurably FASTER than "
+      "min_sp": 1.15,
+      "strategy": "SPEED PHASE (correctness is already proven: task_correct=1, avg_sp=1.57, but min_sp=0.00 means at least one shape/dtype "
     },
     {
       "round": 4,
@@ -45,17 +45,17 @@
       "C_frozen": 0.0,
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 1.05,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) PASSES the correctness gate first, and only then (b) is measurably fast"
+      "min_sp": 1.15,
+      "strategy": "1. LOCK IN THE WORKING BASELINE. Start from the exact version that scored task_correct=1 / avg_sp=1.57. Do not restructu"
     },
     {
       "round": 5,
-      "C_improved": 0.0,
-      "C_frozen": 0.056,
-      "delta_improved_minus_frozen": -0.056,
+      "C_improved": 0.056,
+      "C_frozen": 0.055,
+      "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 1.05,
-      "strategy": "GOAL: emit a drop-in replacement module that (a) PASSES the correctness gate first, and only then (b) is measurably fast"
+      "min_sp": 1.15,
+      "strategy": "REVERT-THEN-RATCHET. The last edit regressed throughput (avg_sp 0.85 < min_sp 1.15) while staying correct, so the code i"
     }
   ]
 }

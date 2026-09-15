@@ -19,7 +19,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 0.0,
-      "strategy": "Prioritize correctness first: reproduce the reference module exactly using standard PyTorch operations, preserving shape"
+      "strategy": "Prioritize correctness first: reproduce the reference module exactly, including shapes, dtypes, broadcasting, reductions"
     },
     {
       "round": 2,
@@ -28,7 +28,7 @@
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
       "min_sp": 0.0,
-      "strategy": "Correctness-only first. Inspect the reference implementation and reproduce its constructor, parameters/buffers, training"
+      "strategy": "Implement the reference forward path verbatim in PyTorch eager mode before optimizing. Preserve the exact operator seque"
     },
     {
       "round": 3,
@@ -36,8 +36,8 @@
       "C_frozen": 0.0,
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 0.0,
-      "strategy": "Correctness gate: first implement the module as a literal eager-PyTorch transcription of the reference, preserving the e"
+      "min_sp": 1.05,
+      "strategy": "First reproduce the reference exactly and build adversarial parity tests covering empty, singleton, non-contiguous, mixe"
     },
     {
       "round": 4,
@@ -45,8 +45,8 @@
       "C_frozen": 0.0,
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 0.0,
-      "strategy": "Prioritize correctness before optimization. Recreate the reference module as a literal eager-PyTorch transcription with "
+      "min_sp": 1.05,
+      "strategy": "Reproduce the reference semantics exactly before optimizing. Build parity tests for empty and singleton dimensions, scal"
     },
     {
       "round": 5,
@@ -54,8 +54,8 @@
       "C_frozen": 0.0,
       "delta_improved_minus_frozen": 0.0,
       "n_admitted": 0,
-      "min_sp": 1.0,
-      "strategy": "First inspect the complete reference implementation and test harness. Reproduce the module exactly: class name, construc"
+      "min_sp": 1.05,
+      "strategy": "First reproduce the reference implementation exactly and identify the tested input contract from the provided examples a"
     }
   ]
 }
