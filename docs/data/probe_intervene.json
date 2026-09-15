@@ -1,0 +1,5 @@
+{
+  "updated": "2026-09-15",
+  "note": "Probe-as-intervention (self-verification): at equal budget K, RANDOM=natural single-draw success, PROBE=pick highest correctness-probe score, ORACLE=any-correct-in-K. lift=PROBE-RANDOM. Probe lifting yield above random (esp. lifting sub-2B off the correctness wall) = the wall is partly a DECODE artifact and self-verification is a missing RSI primitive (causal counterpart to the interp AUC finding).",
+  "models": []
+}
