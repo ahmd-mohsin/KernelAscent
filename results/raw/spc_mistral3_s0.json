@@ -170,6 +170,20 @@
       "live_model_proposed": 0,
       "live_rejected_degenerate": 12,
       "n_strategies_L": 12
+    },
+    {
+      "round": 12,
+      "Q_held_static": 0.0,
+      "Q_held_frozen_author": 0.716,
+      "Q_held_live": 0.239,
+      "L_minus_S": 0.239,
+      "F_minus_S": 0.716,
+      "L_minus_F": -0.477,
+      "frontier_L": 18,
+      "frontier_F": 22,
+      "live_model_proposed": 0,
+      "live_rejected_degenerate": 12,
+      "n_strategies_L": 12
     }
   ],
   "note": "CLOSED 3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author procedure co-evolution)."
