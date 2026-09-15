@@ -20,7 +20,7 @@ def build():
         rows.append(dict(model=short, size_b=size_of(short), correctness_rate=d.get("correctness_rate"),
             n_labeled=(d.get("n_correct",0)+d.get("n_incorrect",0)),
             best_auc=d.get("best_auc"), best_layer=d.get("best_layer"), best_layer_frac=d.get("best_layer_frac"),
-            n_layers=d.get("n_layers"), mean_auc=d.get("mean_auc"),
+            n_layers=d.get("n_layers"), mean_auc=d.get("mean_auc"), per_layer_auc=d.get("per_layer_auc"),
             probed=bool(d.get("best_auc") is not None),
             note=d.get("note")))
     rows.sort(key=lambda r:r["size_b"])
