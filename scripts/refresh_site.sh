@@ -42,6 +42,7 @@ cd "$REPO"
 python3 scripts/aggregate_all.py
 python3 scripts/mech_analysis.py 2>/dev/null | tail -4   # re-derive scale->mechanism->RSI findings each cycle
 python3 scripts/build_baselines.py 2>/dev/null           # rebuild 03c recursion-gain board from baseline runs
+python3 scripts/build_interp.py 2>/dev/null              # interp board: where correctness is internally encoded
 git add results/raw docs/data 2>/dev/null
 git commit -q -m "site: refresh boards from S3 ($(date -u +%H:%MZ)) — $n runs" 2>/dev/null \
   && git push -q 2>&1 | tail -1 && echo "pushed" || echo "no changes to commit"

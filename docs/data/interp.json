@@ -1,0 +1,5 @@
+{
+  "updated": "2026-09-14",
+  "note": "Interpretability: WHERE a model internally encodes kernel correctness. best_auc = linear separability of correct-vs-incorrect kernels at the best transformer layer (best_layer_frac = its relative depth); correctness_rate = how often the model actually GENERATES a correct kernel. High best_auc with low correctness_rate => the model represents correctness internally far better than it can decode it (generation-limited, not knowledge-limited). Not probed => correctness wall (no correct kernels to separate).",
+  "models": []
+}
