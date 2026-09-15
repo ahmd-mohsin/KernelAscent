@@ -22,13 +22,13 @@ deepseek-coder-6.7b-base & mid & 3 & 0.154 \\
 starcoder2-15b & large & 5 & 0.071 \\
 deepseek-coder-1.3b-base & small & 12 & 0.039 \\
 deepseek-coder-1.3b-base & small & 8 & 0.038 \\
-Qwen2.5-Coder-1.5B & small & 2 & 0.038 \\
+deepseek-coder-1.3b-base & small & 4 & 0.038 \\
+deepseek-coder-1.3b-base & small & 24 & 0.001 \\
 Qwen2.5-Coder-14B & large & 4 & -0.000 \\
-Qwen2.5-Coder-1.5B & small & 2 & 0.000 \\
+Qwen2.5-Coder-1.5B & small & 3 & 0.000 \\
+Qwen2.5-Coder-1.5B & small & 3 & 0.000 \\
 Qwen2.5-Coder-1.5B & small & 12 & 0.000 \\
 Qwen2.5-Coder-7B & mid & 8 & 0.000 \\
-Qwen2.5-Coder-7B & mid & 10 & 0.000 \\
-deepseek-coder-1.3b-base & small & 3 & 0.000 \\
 \bottomrule
 \end{tabular}
 \caption{Task 5 open self-play: author co-evolution $L-F$ leaderboard.}
@@ -93,11 +93,6 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \includegraphics[width=0.86\linewidth]{interp_knows_vs_generates.pdf}
 \caption{Internal correctness decodability (best-layer linear-probe AUC) vs.\ how often the model actually generates a correct kernel. Points far above $y=x$ mean the model \emph{represents} correctness internally far better than it can \emph{decode} it into a correct kernel: the RSI bottleneck is generation, not knowledge.}
 \label{fig:interp_knows_vs_generates}
-\end{figure}
-\begin{figure}[H]\centering
-\includegraphics[width=0.86\linewidth]{interp_auc_vs_size.pdf}
-\caption{Best-layer correctness-decodability AUC vs.\ model scale. (Populated as more interpretability probes land.)}
-\label{fig:interp_auc_vs_size}
 \end{figure}
 \section{Task 5: self-play}
 \begin{figure}[H]\centering
@@ -282,4 +277,18 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \label{fig:gz_poster}
 \end{figure}
 % <<< GALLERY (auto)
+% >>> INTERVENE (auto)
+\clearpage
+\section{Probe-as-intervention (self-verification)}
+\begin{figure}[H]\centering
+\includegraphics[width=0.9\linewidth]{iv_bars.pdf}
+\caption{Self-verification (probe-guided selection) vs.\ the model's natural single-draw success (RANDOM) and the ORACLE best-of-$K$ upper bound, at equal generation budget $K$, on held-out tasks. Annotated $+$lift $=$ PROBE-TOP1 $-$ RANDOM. Probe selection recovering much of the oracle gap turns the correlational correctness-AUC into a causal decode-time intervention.}
+\label{fig:iv_bars}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.9\linewidth]{iv_ksweep.pdf}
+\caption{For each model, probability of obtaining $\geq1$ correct kernel when keeping the top-$n$ of $K$ candidates by probe score (solid) vs.\ a random $n$ (dashed). A probe curve rising above random — especially lifting a sub-2B model from $\approx0$ — is direct evidence that the correctness wall is partly a decode/selection artifact.}
+\label{fig:iv_ksweep}
+\end{figure}
+% <<< INTERVENE (auto)
 \end{document}
