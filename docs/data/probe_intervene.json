@@ -384,6 +384,45 @@
       ]
     },
     {
+      "model": "deepseek-coder-6.7b-instruct",
+      "size_b": 6.7,
+      "K": 16,
+      "auc": 0.826,
+      "layer_frac": 0.0,
+      "random_rate": 0.502,
+      "probe_rate": 0.417,
+      "oracle_rate": 1,
+      "lift": -0.085,
+      "probe_pick_speedup": 0.974,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.417,
+          "rand_anycorrect": 0.502
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.583,
+          "rand_anycorrect": 0.743
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.833,
+          "rand_anycorrect": 0.925
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 0.995
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 1,
+          "rand_anycorrect": 1.0
+        }
+      ]
+    },
+    {
       "model": "Qwen2.5-Coder-7B-Instruct",
       "size_b": 7,
       "K": 32,
