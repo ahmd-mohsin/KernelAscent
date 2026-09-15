@@ -40,58 +40,64 @@
     },
     {
       "model": "Qwen2.5-Coder-3B-Instruct",
-      "rounds": 4,
+      "rounds": 5,
       "C0": 0.40815783373490744,
       "C_lineage_final": 0.0,
-      "C_reset_final": 0.514,
-      "C_bestofN_final": 0.522,
+      "C_reset_final": 0.282,
+      "C_bestofN_final": 0.617,
       "transfer_C_final": 0.0,
       "lineage_minus_reset": [
         0.0,
         -0.3,
         -0.2,
-        -0.514
+        -0.514,
+        -0.282
       ],
       "lineage_minus_bestofN": [
         -0.334,
         -0.596,
         -0.509,
-        -0.522
+        -0.522,
+        -0.617
       ],
       "marginal_gain_lineage": [
         -0.408,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
-      "mean_lineage_minus_reset": -0.254,
+      "mean_lineage_minus_reset": -0.259,
       "held_family": "l3",
       "verdict": "search-only"
     },
     {
       "model": "Qwen2.5-Coder-7B-Instruct",
-      "rounds": 3,
+      "rounds": 4,
       "C0": 0.6988537575403628,
       "C_lineage_final": 0.0,
-      "C_reset_final": 0.599,
-      "C_bestofN_final": 0.801,
+      "C_reset_final": 0.601,
+      "C_bestofN_final": 0.702,
       "transfer_C_final": 0.0,
       "lineage_minus_reset": [
         0.0,
         -0.7,
-        -0.599
+        -0.599,
+        -0.601
       ],
       "lineage_minus_bestofN": [
         -0.596,
         -0.64,
-        -0.801
+        -0.801,
+        -0.702
       ],
       "marginal_gain_lineage": [
         -0.699,
         0.0,
+        0.0,
         0.0
       ],
-      "mean_lineage_minus_reset": -0.433,
+      "mean_lineage_minus_reset": -0.475,
       "held_family": "l3",
       "verdict": "search-only"
     },
@@ -131,6 +137,27 @@
         0.0
       ],
       "mean_lineage_minus_reset": -0.594,
+      "held_family": "l3",
+      "verdict": "search-only"
+    },
+    {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "rounds": 1,
+      "C0": 0.6999016063955856,
+      "C_lineage_final": 0.0,
+      "C_reset_final": 0.0,
+      "C_bestofN_final": 0.8,
+      "transfer_C_final": 0.0,
+      "lineage_minus_reset": [
+        0.0
+      ],
+      "lineage_minus_bestofN": [
+        -0.8
+      ],
+      "marginal_gain_lineage": [
+        -0.7
+      ],
+      "mean_lineage_minus_reset": 0.0,
       "held_family": "l3",
       "verdict": "search-only"
     }
