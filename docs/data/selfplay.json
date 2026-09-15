@@ -741,9 +741,11 @@
       "rounds": [
         0,
         1,
-        2
+        2,
+        3
       ],
       "C_held_live": [
+        null,
         null,
         null,
         null
@@ -751,9 +753,11 @@
       "C_held_frozen_author": [
         null,
         null,
+        null,
         null
       ],
       "C_held_static": [
+        null,
         null,
         null,
         null
@@ -761,9 +765,11 @@
       "L_minus_F": [
         null,
         null,
+        null,
         null
       ],
       "L_minus_S": [
+        null,
         null,
         null,
         null
@@ -771,14 +777,17 @@
       "F_minus_S": [
         null,
         null,
+        null,
         null
       ],
       "frontier": [
         null,
         null,
+        null,
         null
       ],
       "model_proposed": [
+        0,
         0,
         0,
         0

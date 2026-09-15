@@ -179,6 +179,50 @@
       ]
     },
     {
+      "model": "Qwen2.5-Coder-1.5B-Instruct",
+      "size_b": 1.5,
+      "K": 32,
+      "auc": 0.961,
+      "layer_frac": 0.96,
+      "random_rate": 0.337,
+      "probe_rate": 0.545,
+      "oracle_rate": 0.818,
+      "lift": 0.208,
+      "probe_pick_speedup": 0.959,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.545,
+          "rand_anycorrect": 0.337
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.818,
+          "rand_anycorrect": 0.546
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.818,
+          "rand_anycorrect": 0.73
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.818,
+          "rand_anycorrect": 0.818
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.818,
+          "rand_anycorrect": 0.818
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.818,
+          "rand_anycorrect": 0.818
+        }
+      ]
+    },
+    {
       "model": "SmolLM2-1.7B",
       "size_b": 1.7,
       "K": 32,
