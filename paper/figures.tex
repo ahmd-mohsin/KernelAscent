@@ -179,4 +179,107 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \caption{Every open-weight weight-RSI run positioned by model size ($x$) and held-out C gain ($y$); marker area $\propto$ sustained LoRA drift; color = outcome. The 2B correctness wall and the mid-scale compounding band are visible at a glance.}
 \label{fig:flow_all_runs}
 \end{figure}
+% >>> CAUSALITY (auto)
+\clearpage
+\section{Large causality \& internal-failure graphs}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_interp_heatmap.pdf}
+\caption{Per-layer linear decodability of kernel correctness (AUC of a correct-vs-incorrect probe) across relative transformer depth, one row per model sorted by scale; $\star$ marks the peak layer. Correctness becomes cleanly decodable in mid-to-late layers -- the model internally represents which kernels are correct. Rows populate as GPU interp probes land.}
+\label{fig:cz_interp_heatmap}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_internal_dag.pdf}
+\caption{Every open-weight run traced through the causal chain from scale to RSI outcome, in lanes with translucent curved edges (marker area and edge width $\propto$ sustained LoRA drift, color = outcome). Compounders (green) form a bright high-drift/high-retention bundle; models stuck at the correctness wall (orange) die at the second lane with near-zero drift downstream.}
+\label{fig:cz_internal_dag}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_causal_flow.pdf}
+\caption{Causal attrition of 50 open-weight runs: most are lost at Gate~1 (the correctness wall -- no verified kernel, no gradient); among wall-crossers only a minority compound, the rest going flat via drift-saturation and forgetting (Gate~2).}
+\label{fig:cz_causal_flow}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_knows_vs_gen.pdf}
+\caption{Internal correctness knowledge (best-layer probe AUC) vs.\ actual generation success. Points far above the diagonal are \emph{generation-limited} -- the model represents correctness internally (AUC$\approx$0.98) yet emits a correct kernel only a small fraction of the time; models at the wall cannot be probed at all.}
+\label{fig:cz_knows_vs_gen}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_layer_curves.pdf}
+\caption{Layer-wise correctness decodability vs.\ depth: the correct-vs-incorrect signal is weak at the embedding and sharpens through mid/late layers, indicating correctness is a computed, decodable feature rather than a surface one.}
+\label{fig:cz_layer_curves}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_all_runs_dag.pdf}
+\caption{Dense view of every open-weight run: horizontal position = scale, vertical = RSI outcome, marker area and the base$\to$self connector width $\propto$ sustained LoRA drift. The sub-2B correctness wall (shaded) and the mid-scale high-drift compounding band emerge from the raw point cloud.}
+\label{fig:cz_all_runs_dag}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{cz_failure_funnel.pdf}
+\caption{Attrition funnel across open-weight models: the dominant drop is at emitting any verified-correct kernel (the correctness wall); a further drop separates one-shot correctness from sustained held-out compounding.}
+\label{fig:cz_failure_funnel}
+\end{figure}
+% <<< CAUSALITY (auto)
+% >>> GALLERY (auto)
+\clearpage
+\section{Gallery --- dense graphs}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_layer_heat.pdf}
+\caption{Full-resolution model$\times$layer heatmap of how linearly decodable kernel-correctness is at each transformer depth (interpolated to a common grid, sorted by scale). The decodable-correctness signal concentrates in mid/late layers; it fills in as more interp probes land.}
+\label{fig:gz_layer_heat}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_ridge.pdf}
+\caption{Ridgeline of per-layer correctness AUC (each curve a model, stacked by scale). Shows the internal correctness ``wave'' and at what depth it crests as models grow.}
+\label{fig:gz_ridge}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_layer_nodelink.pdf}
+\caption{Node-link view of the correctness signal: one node per (model, layer), area and colour $\propto$ decodability AUC, translucent edges tracing depth. Dense bright bands mark the depth range where correctness becomes linearly readable.}
+\label{fig:gz_layer_nodelink}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_chord.pdf}
+\caption{Circular correlation graph of mechanism metrics across all open-weight runs. Sustained drift and retention co-vary with held-out gain (green chords); transfer-gap and diversity relate oppositely -- the internal fingerprint of compounding.}
+\label{fig:gz_chord}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_spaghetti.pdf}
+\caption{Every weight-RSI run's held-out capability over rounds, coloured by outcome. Compounders separate upward; wall-stuck runs stay pinned at zero -- the dynamics behind the static leaderboard.}
+\label{fig:gz_spaghetti}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_bubble.pdf}
+\caption{Every run positioned by scale (x) and held-out gain (y), bubble area $\propto$ sustained drift, colour = outcome, with marginal histograms. The sub-2B wall and the mid-scale compounding band are visible in the joint and marginal densities.}
+\label{fig:gz_bubble}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_driftdepth.pdf}
+\caption{LoRA weight drift by transformer block (early/mid/late) for every run, sorted by scale -- where in the network self-training actually moves weights, and how that shifts with size.}
+\label{fig:gz_driftdepth}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_corr.pdf}
+\caption{Correlation matrix of mechanism metrics and RSI outcome across all runs -- drift and retention are the strongest positive correlates of held-out gain; the correctness-rate gate dominates.}
+\label{fig:gz_corr}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_phase.pdf}
+\caption{Phase plane of the second gate: compounders occupy the high-drift/high-retention corner; flat runs cluster at low drift (saturation) or low retention (forgetting). Marker area $\propto$ held-out gain.}
+\label{fig:gz_phase}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_lf_grid.pdf}
+\caption{Per-round $L-F$ (live- minus frozen-author) for every open and closed self-play run. Most hover at zero (adaptive-curriculum only); a few sustain $>0$ (genuine author co-evolution) -- the headline metric, run by run.}
+\label{fig:gz_lf_grid}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_parallel.pdf}
+\caption{Parallel-coordinates fingerprint of every run across the mechanism axes, coloured by outcome -- compounders share a high-correct/high-drift/high-retention profile that the flat and wall runs lack.}
+\label{fig:gz_parallel}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=0.98\linewidth]{gz_poster.pdf}
+\caption{Single-figure synthesis: (A) the two scale gates, (B) the drift$\times$retention second gate, (C) where correctness is internally encoded by depth, (D) scale vs.\ held-out gain. The full mechanistic story of the benchmark in one poster.}
+\label{fig:gz_poster}
+\end{figure}
+% <<< GALLERY (auto)
 \end{document}
