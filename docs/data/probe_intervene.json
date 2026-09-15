@@ -565,6 +565,50 @@
       ]
     },
     {
+      "model": "Qwen2.5-Coder-3B-Instruct",
+      "size_b": 3,
+      "K": 32,
+      "auc": 0.797,
+      "layer_frac": 0.0,
+      "random_rate": null,
+      "probe_rate": null,
+      "oracle_rate": null,
+      "lift": null,
+      "probe_pick_speedup": null,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": null,
+          "rand_anycorrect": null
+        }
+      ]
+    },
+    {
       "model": "starcoder2-3b",
       "size_b": 3,
       "K": 16,
@@ -678,6 +722,50 @@
           "n": 16,
           "probe_anycorrect": 1,
           "rand_anycorrect": 1.0
+        }
+      ]
+    },
+    {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "size_b": 7,
+      "K": 32,
+      "auc": 0.819,
+      "layer_frac": 0.0,
+      "random_rate": 0.379,
+      "probe_rate": 0.111,
+      "oracle_rate": 0.556,
+      "lift": -0.268,
+      "probe_pick_speedup": 0.798,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.111,
+          "rand_anycorrect": 0.379
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.556,
+          "rand_anycorrect": 0.496
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.556,
+          "rand_anycorrect": 0.548
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.556,
+          "rand_anycorrect": 0.555
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.556,
+          "rand_anycorrect": 0.556
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.556,
+          "rand_anycorrect": 0.556
         }
       ]
     },
