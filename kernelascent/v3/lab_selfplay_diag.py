@@ -108,6 +108,7 @@ def main():
     ap.add_argument("--rounds", type=int, default=8); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--seed-tasks", type=int, default=16); ap.add_argument("--held", type=int, default=24)
     ap.add_argument("--propose", type=int, default=8); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--sft-steps", type=int, default=40)
     ap.add_argument("--band-lo", type=float, default=0.3); ap.add_argument("--band-hi", type=float, default=0.7)
     ap.add_argument("--outdir", default=os.path.join(os.environ.get("KA_DATA_DIR", "/tmp/instance_storage/ka_data"), "selfplay_diag"))
     run(ap.parse_args())
