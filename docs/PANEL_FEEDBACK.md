@@ -393,3 +393,270 @@ Two figures: within-task vs pooled AUC (a methodological warning the field needs
 - **Positive control also fails:** the harness is still broken. Do not publish.
 
 You have the compute and the domain to answer a question the field is actively arguing about with a level of control no one else has shown. The probe detour was worth it because it killed a tempting shortcut cleanly. Now put all 72 GPUs on P1 and P2.
+
+---
+# Panel round 3 — post-results (2026-09-16)
+
+## GPT-6 Astra
+
+**My blunt read:** the current results support a paper about **verification-guided search and the limits of converting verified experience into persistent improvement**—not yet a paper demonstrating compounding self-improvement. The moving “wall” is useful evidence. The lineage collapse is presently a validity blocker, not an algorithmic finding.
+
+I would not keep all 72 A100s on self-play until you verify that its LIVE arm actually generates with the intended, numerically healthy adapter.
+
+## (a) Lineage collapse: first suspect the adapter lifecycle, not intrinsic LoRA instability
+
+Repeated fine-tuning of a LoRA adapter is ordinary continued training. It can overfit, forget, or become unstable, but **an exact-zero cliff confined to the continued-adapter arm is not enough to establish a known “accumulated LoRA self-SFT fails” phenomenon.** Nor is fp32 master weights a universal fix.
+
+### Most likely root cause
+
+My leading hypothesis is **incorrect adapter state handling across rounds**, followed by **cumulative update magnitude or pathological training targets**.
+
+The highest-priority possibilities are:
+
+| Suspect | Why it fits | Decisive check / fix |
+|---|---|---|
+| **Adapter merged into the base and then applied again** | Only lineage carries this state across rounds; the effective update can be counted twice | Keep the base immutable and unmerged throughout training. Save/load only the adapter onto a pristine base. Audit every merge/unmerge call. |
+| **Training and generation use different adapter states** | A persistent inference worker, stale cache, wrong adapter ID, or incorrect hot reload can selectively break LIVE/lineage | Evaluate the same checkpoint in a fresh, plain inference process. Compare fixed-prefix logits with the training model in eval mode. |
+| **Reload/cast changes trainable parameters or optimizer bindings** | Reinitializing the optimizer does not help if later operations replace the parameters it owns | After all loading/casting/wrapping, construct the optimizer. Confirm its parameter objects are the active trainable adapter parameters. Assert dtypes after every round transition. |
+| **Cumulative overtraining or malformed self-SFT targets** | A reset arm takes one update trajectory; lineage accumulates all prior updates, potentially toward EOS, boilerplate, or a narrowed output distribution | Replay identical, known-good data for two stages; inspect target masking, EOS/padding handling, losses, gradient norms, and actual adapter-induced weight changes. |
+
+**LoRA alpha does not normally “drift.”** It is configuration. An accidental configuration change is possible, but checking alpha alone is insufficient: factor norms and their product can grow even with constant alpha.
+
+Also, distinguish these immediately:
+
+- zero nonempty outputs;
+- zero parseable kernels;
+- zero correct kernels;
+- zero on whatever \(C\) measures.
+
+Those are different failures. If generation itself remains fluent but kernels fail verification, the diagnosis changes substantially.
+
+### The concrete fix I would try first
+
+**Maintain one immutable base plus one unmerged adapter. At every round boundary, save the adapter and reload it onto a pristine base in a fresh process; then construct a fresh optimizer after all model modifications. Use a fresh evaluator as the reference.**
+
+This is a diagnostic normalization, not a claim that disk reload cures numerical instability. It removes a large class of state-management faults. **Do not re-merge every round as a generic fix**—that is an excellent way to introduce double application.
+
+Then run this tiny checkpoint ladder before another matrix:
+
+1. Fresh adapter, one SFT stage → checkpoint A.
+2. Evaluate A immediately.
+3. Save/reload A, **no training**, evaluate again.
+4. Pass A through the full next-round setup with **no optimizer step**, evaluate again.
+5. Take **one optimizer step** on known-good data, evaluate.
+6. Complete the second SFT stage, evaluating at several intermediate points.
+
+For each point, retain raw generations, fixed-prefix logits, adapter configuration, parameter/gradient norms, and nonfinite checks.
+
+This localizes the cliff to:
+
+- serialization/inference;
+- round-transition code;
+- the update implementation;
+- or cumulative learning dynamics.
+
+**One especially important consistency check:** if “exactly zero every round” includes the *first* SFT round, lineage and reset should be equivalent there, given identical initialization, data, and seeds. A round-one discrepancy would argue strongly against repeated SFT as the explanation.
+
+If the lifecycle checks pass and performance degrades smoothly with additional steps, then test lower cumulative learning-rate exposure, gradient clipping, and replay of a small stable reference corpus. Do not change all of these simultaneously.
+
+### Is the collapse reportable?
+
+Currently: **reportable as a limitation that prevents measurement**, not as evidence against compounding.
+
+It becomes an empirical finding about cumulative self-SFT only after it:
+
+- survives an independent, minimal implementation;
+- occurs with validated checkpoints and labels;
+- replicates across seeds;
+- is separated from simple training-dose effects and ordinary overfitting.
+
+Until then, call it **“lineage-arm failure; compounding not identifiable.”** And audit the LIVE arm separately rather than assuming it is either broken or healthy.
+
+---
+
+## (b) A moving wall improves the explanation—and weakens the original ceiling claim
+
+**It weakens “sub-2B models lack the requisite support/coverage.” It strengthens “apparent capability depends strongly on inference-time search and verification.”**
+
+For a task solved by a valid sample at budget 16, the model demonstrably has some probability mass on a solution. Its failure at budget 4 was not an absolute impossibility.
+
+But this does **not** establish that all remaining failures are search failures. Nor does it distinguish low-probability correct solutions from verifier failures or other bottlenecks on unsolved tasks.
+
+### Be careful with “4× search gives 6× solve rate”
+
+That is a descriptive ratio, not yet a scaling law.
+
+If 8.3% and 50.0% mean **1/12 versus 6/12**, the denominator is very small. Report counts, paired outcomes, and uncertainty.
+
+For intuition, under independent identically distributed draws, a task with success probability \(p\) has:
+
+\[
+P(\text{at least one success by }k)=1-(1-p)^k.
+\]
+
+A homogeneous model calibrated to 8.3% at four samples predicts about 29% at sixteen, not 50%. Task heterogeneity does not generally justify extrapolating that ratio upward. Your observation may simply be small-sample variability, or budgets may differ in more than sample count.
+
+**Best measurement:** generate one candidate stream per task/seed and evaluate nested prefixes at budgets 1, 2, 4, 8, and 16. Repeat streams where affordable. Keep decoding and per-candidate verifier behavior fixed, and count actual generation and verification costs.
+
+### The probe result is complementary, not contradictory
+
+Search and reranking act on different parts of the pipeline:
+
+1. **Candidate availability:** did the pool contain a valid solution?
+2. **Selection efficiency:** did the procedure identify or allocate verification to it?
+
+More samples can improve availability. A probe cannot select a correct solution absent from its pool.
+
+But the strongest probe comparison is not merely fixed-pool ranking. It is:
+
+> At the same total cost, does probe-guided generation/verification harvest more verified solutions than a simple baseline?
+
+You already report no such advantage. The appropriate conclusion is:
+
+> “The probe exhibits modest within-task discrimination, but this does not translate into useful matched-budget harvesting.”
+
+AUC 0.67 is not itself operational value. Top-of-ranking precision, calibration, overhead, and verifier cost determine that value.
+
+**The coherent joint result:** *additional search finds more solutions; the tested probe does not make that search economically better.* That is informative, but narrower than a general negative result about learned verification allocation.
+
+---
+
+## (c) Tightest story and most important remaining run
+
+### The strongest defensible story today
+
+**“Search-accessible solutions are not yet evidence of persistent self-improvement.”**
+
+The paper would distinguish three claims:
+
+| Claim | Current evidence |
+|---|---|
+| Additional verified search accesses more solutions | Promising preliminary positive |
+| A learned probe improves harvesting at equal cost | Negative for the tested probe |
+| Verified solutions produce persistent, compounding weight-level gains | Not measurable because lineage fails |
+
+That is intellectually clean. **It is not currently award-grade evidence.** The positive is expected in broad outline, the probe negative is limited, and the central compounding result is missing.
+
+I would also avoid leading with “roofline-grounded” unless roofline analysis materially explains the results. Compute accounting is necessary; it is not automatically the scientific contribution.
+
+### Single most important scientific run
+
+**After the lifecycle gate passes: complete the compute-accounted, self-versus-external verified-teacher transfer experiment, with frozen-model search as the anchor.**
+
+The decisive question is:
+
+> Can verified successes be converted into reliable held-out performance more efficiently than continuing to search with unchanged weights—and does the source of those successes matter?
+
+Essential comparisons:
+
+- **Frozen base + search/verification.**
+- **Self-generated verified data → SFT.**
+- **External-teacher verified data → SFT.**
+
+Use the same validated training pipeline and final evaluation procedure. Measure both:
+
+- held-out performance at a common inference budget;
+- end-to-end cost, including data acquisition, verification, and training.
+
+Separate two estimands rather than pretending one match answers both:
+
+- **Equal verified-data/training exposure:** isolates differences in the usefulness of the datasets.
+- **Equal total acquisition-and-training cost:** measures practical efficiency.
+
+For an amortization claim, state the number of downstream evaluations over which training cost is spread. Otherwise frozen search and trained models are not economically comparable.
+
+External-teacher success would establish that the training pipeline and tasks permit learning. It is **not automatically a positive control for multi-round compounding**; that requires a longitudinal control.
+
+This run offers interpretable outcomes:
+
+- **Both learn:** verified experience can be consolidated; compounding remains to be tested.
+- **External learns, self does not:** a source-dependent learning gap under the tested collection protocol—not a universal causal wall.
+- **Neither learns:** training/data suitability remains unresolved.
+- **Self learns but loses to frozen search on total cost:** real weight-level improvement without demonstrated economic advantage.
+
+### Ranked by impact per GPU-day
+
+| Rank | Next step | Why |
+|---|---|---|
+| **1** | Minimal lineage checkpoint ladder plus LIVE-arm audit | Cheap relative to the campaign; determines whether expensive results are interpretable. |
+| **2** | Finish validated self/external/frozen-search comparison | Highest scientific discrimination among the remaining hypotheses. |
+| **3** | Reuse or extend nested search-budget streams, with replication | Makes the moving-wall claim credible; often inexpensive if candidates are retained. |
+| **4** | A short longitudinal test with an explicit learning-positive control | Only after rank 1 passes; test persistence and reset-versus-lineage before scaling rounds. |
+| **5** | Expand self-play or revisit probe modeling | Low priority without a healthy weight channel or demonstrated allocation benefit. |
+
+**Operationally, freeze the broad campaign, not necessarily every job.** Preserve useful frozen-baseline and candidate-generation runs; pause lineage-dependent runs whose validity is unknown.
+
+The potential award-level result is not “our wall moved” or “LoRA collapsed.” It is a convincing separation of **finding solutions, consolidating them, and compounding that consolidation under honest resource accounting**. Right now you have preliminary evidence for the first, a useful negative on one selection mechanism, and no valid measurement of the third. The next work should close that gap—not make the existing matrix larger.
+
+
+## Fable-5.1
+
+Short version up front: the exact-zero in the lineage arm is almost certainly a plumbing bug, not a learning-dynamics finding; the verify-budget result is good news if you reframe around it; and nothing you have yet clears an award bar. Details:
+
+---
+
+## (a) Lineage collapse: root cause and fix
+
+**"EXACTLY 0.000 every round" is the tell.** Genuine instability (model collapse, entropy collapse, LoRA drift) degrades noisily — you'd see 0.02, then 0.008, then 0.0. A flat exact zero across rounds and 72 GPUs' worth of samples means one of two deterministic things, and you need to check which:
+
+**Branch 1 — the metric is a delta and the weights aren't changing.** If C is defined as improvement over the previous round, exactly 0.000 means the adapter is bit-identical (or ulp-identical) before and after SFT. Known causes, in order of likelihood:
+- `PeftModel.from_pretrained(...)` defaults to `is_trainable=False`. Loaded adapter params have `requires_grad=False`; loss is computed, the optimizer is built over an empty or wrong param group, nothing moves. Extremely common when the round-0 path builds the adapter with `get_peft_model` (trainable) and rounds ≥1 reload from disk. This asymmetry matches "reset fine, lineage broken" perfectly.
+- Your fp32-master-weight recipe: if the fp32 copy is created once in round 0 and the round-r reload rebuilds bf16 params without re-pointing the master copy, you train a stale fp32 tensor and downcast it over the live weights → no change, or revert.
+- If you merge-and-reinit each round: merging a LoRA delta into bf16 base weights zeroes any per-element update smaller than the bf16 ulp (~0.4% relative). Early-round LoRA deltas are mostly below that. Net effect: merge is a no-op.
+
+**Branch 2 — the metric is raw solve rate and generation is broken.** Then dump 20 raw completions per round. You'll see one of: empty strings (EOS/pad misconfigured — training data lacked EOS or used a different chat template than inference), infinite repetition (adapter applied twice: `merge_and_unload` then re-wrapping with a new adapter that also gets the old scaling, or `alpha/r` applied at both save and load), or valid-looking code that all fails (verifier path/timeout bug in the lineage branch only).
+
+**Diagnostic ladder (zero GPU-days, ~2 hours):**
+1. Checksum every adapter tensor before and after round-2 SFT in the lineage arm. Count `requires_grad=True` params. Log grad norm per step.
+2. Dump raw generations for the lineage adapter at each round.
+3. Decisive control: run the lineage arm's round-2 *procedure* (load-from-disk → SFT → generate) on the *same data* the reset arm used at round 1. It must statistically match reset round 1. If it doesn't, the load/save path is the bug, full stop.
+
+**Concrete fix:** `is_trainable=True` on load; keep the adapter on disk in fp32 (safetensors), never round-trip through bf16 between rounds; do not merge — keep one adapter and continue training it, or if you must merge, merge into an fp32 copy of the base and re-quantize. Re-verify with step 3 above.
+
+**Is "accumulated LoRA self-SFT is unstable" reportable?** Not as you have it. Once the bug is gone, if lineage degrades *gracefully* relative to reset, that's a minor confirmation of what ReST-EM (Singh et al. 2023) already reported: re-initializing from base each iteration and training on the accumulated verified data beats continuing to fine-tune. It's a paragraph, not a result.
+
+**The important reframe:** your reset arm *is already a lineage* — through the data channel. Fresh adapter each round trained on verified kernels generated by the previous round's model is exactly the ReST-EM / STaR recipe, and it's the more defensible definition of "verified self-improvement" anyway (weights are an implementation detail; the recursion is data → model → data). Compounding is therefore *not* parked. The question becomes: does C_reset grow, stay flat, or shrink across rounds? If it's 0.1–0.2 every round with no trend, you may already have your answer (one-step gain, no compounding) and just haven't looked at it that way.
+
+**Self-play live arm:** treat it as compromised until the checksum test passes on it too. If it shares the reload path, you are currently burning most of 72 A100s on an arm whose weights may not be updating. Pause or convert it to reset-style today.
+
+---
+
+## (b) Verify-budget result: strengthens, if you own it
+
+**First, the n.** 8.3% and 50.0% look like 1/12 and 6/12. Twelve wall tasks is not a sweep; it's an anecdote. Enlarge the wall set (or at minimum bootstrap CIs) and stop doing "best-of-k reruns" — sample n≥64 per task once and compute unbiased pass@k (Chen et al. estimator) for all k simultaneously. Cheaper and gives you the whole curve.
+
+**Interpretation.** 8%→50% from k=4→16 implies per-sample success p≈3–5% on those tasks — they are not zero-coverage, they are low-p. That means "the sub-2B wall" was never a wall; it's a point on a pass@k curve at whichever k you happened to choose. This *strengthens* the paper in three ways:
+
+1. It kills the naive story ("small models can't do these kernels") in favor of a quantitative one ("the effective budget currency is verified samples, and verification throughput is the bottleneck"). That is a claim reviewers can't dismiss.
+2. It gives you the right measurement for self-improvement: **does SFT on verified kernels shift the pass@k curve left** (raise p per task), and on *which* tasks — already-solvable ones or wall ones? "Sharpens but doesn't extend" (p rises on solved tasks, stays ~0 on true-zero-coverage tasks) is a crisp, falsifiable, mechanistic result and would be the paper's spine.
+3. It recasts the probe correctly. A reranker with AUC 0.67 doesn't add search; its only value is saving *verification* compute. Frame it as: "cheap surrogates don't substitute for verification at this AUC; verified-solves-per-verification-second is the metric, and the probe doesn't move it." That's a clean secondary negative consistent with point 1.
+
+It *weakens* any claim that prior compounding numbers measured at fixed k were "improvement" rather than budget reallocation — so your compute-matching must now include verification cost explicitly, and every round must report the curve, not a point.
+
+For the causal-wall test: at matched verified-example count, teacher solves vs self solves is now a clean test of whether the *content* of verified kernels matters beyond their count. Keep it, but it's secondary to the compounding-vs-search control below.
+
+---
+
+## (c) Tightest story, ranking, and whether it clears the bar
+
+**Does it clear the bar now?** No. You have: a harness bug, an unmeasured headline, a 12-task sweep, and a modest probe negative. A brutal reviewer writes "engineering report" in one line.
+
+**What would.** The claim within reach:
+
+> *Verified self-improvement on kernels produces a real one-step gain equivalent to ~X× sample budget, does not compound beyond round 2 at matched (generation + verification) compute, and works by raising p on already-solvable tasks rather than extending coverage to wall tasks. The apparent sub-2B "wall" is a pass@k artifact.*
+
+That is a publishable, possibly strong-negative paper *if* the controls are airtight. Award-grade only if either compounding actually shows up (unlikely given C_reset flat at 0.1–0.2) or the mechanistic decomposition is unusually clean and generalizes across model sizes.
+
+**Single most important run — the compounding-vs-search control:**
+Reset-style lineage (ReST-EM) for ≥4 rounds, fresh adapter each round on accumulated verified data, reporting full pass@k per round on solved and held-out wall sets. Against it, the one control that matters: **the round-0 model given the same total sample + verification budget in a single large-k harvest.** If iterated self-training doesn't beat single-shot big-k at equal compute, there is no compounding, period — and you'll have shown it properly. This is also the positive-control slot: you can inject a fraction of teacher solutions to confirm the pipeline *can* register compounding when it's present.
+
+**Ranking by impact per GPU-day:**
+
+1. **Bug diagnosis + checksum control** (0 GPU-days). Do first; everything downstream depends on it, and it de-risks the self-play arm.
+2. **Compounding-vs-search control** above (~the bulk of what's left). This is the paper.
+3. **Full pass@k curves on an enlarged wall set** (cheap; n=64 samples once per task). Gives the interpretive frame and fixes the n=12 problem.
+4. **Causal-wall self-vs-teacher at matched count** (moderate). Good secondary, only after 2 is running.
+5. **Self-play live arm** — pause until (1) passes on it. Currently your largest GPU-waste risk.
+6. **Probe** — stop. One paragraph in the negatives section.
+
+If (2) comes back flat, write the negative paper honestly and tightly; a rigorous "no compounding at matched compute, here's why" beats a fuzzy positive every time, and it's the result the field actually needs. If you can't get (1) and (2) clean, don't submit.
