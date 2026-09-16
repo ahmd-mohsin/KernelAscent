@@ -66,13 +66,20 @@ to emitting no valid tasks (curriculum collapse $\Rightarrow L-F\approx0$); a fr
 to obtain a clean per-round $L-F$ trajectory.
 
 
-\subsection{Honest framing and next steps (frontier-panel guidance)}
-\textbf{Strongest supported headline:} \emph{KernelAscent separates the bottlenecks of kernel-code
-self-improvement --- generation, selection, weight-update, and curriculum --- and shows that an internal
-correctness probe can unlock substantial candidate-\emph{selection} gains in some small-model settings,
-while sustained recursive gains remain unestablished.} The contribution is a benchmark that
-\emph{distinguishes} these failure modes, with one rigorously-validated positive channel (probe-guided
-selection), an honest decode-limited correctness wall, and a parked (harness-artifact) compounding test.
+\subsection{Thesis and framing (frontier-panel guidance)}
+\textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
+\textbf{roofline-grounded, compute-matched testbed} for RSI dynamics: GPU kernels are the rare domain where
+reward is objectively verifiable and the performance ceiling is \emph{physically known} (the roofline), so
+headroom is an absolute number. The central artifact is a \textbf{lineage-vs-reset $\times$ scale phase
+diagram} with matched total compute and a \emph{positive control} (oracle-injected correct kernels, so a null
+is provably distinguishable from a broken harness). The benchmark's contribution is that it \emph{separates}
+the bottlenecks of kernel-code self-improvement --- generation, selection, weight-update, and curriculum ---
+and makes purported self-improvement hard to fake. Secondary (negative) results: an internal correctness
+probe gives only a modest within-task ranking signal and \emph{no} matched-budget harvesting advantage
+(verifier shortcuts do not beat verification); the correctness wall below $\sim$2B; and a self-play author
+that collapses without structured task mutation. We distinguish \emph{persistent} self-improvement (inherited
+updates help) from \emph{recursive} improvement (updates improve future training), and claim only what the
+controls support.
 Prioritized next runs: (1) a leakage-resistant probe replication on a larger, family-split task bank with a
 \emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
 compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5

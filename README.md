@@ -2,7 +2,7 @@
 
 <h1 align="center">KernelAscent</h1>
 
-<p align="center"><b>A benchmark for compounding kernel optimization.</b></p>
+<p align="center"><b>Does verified self-improvement compound? A roofline-grounded, compute-matched testbed for RSI in GPU-kernel optimization.</b></p>
 
 <p align="center">
 Site: https://ahmd-mohsin.github.io/KernelAscent/ · Full record and every number: <a href="BENCHMARK_LOG.md"><code>BENCHMARK_LOG.md</code></a>
