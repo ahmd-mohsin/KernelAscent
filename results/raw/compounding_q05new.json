@@ -54,6 +54,40 @@
       "lineage_minus_reset": -0.107,
       "lineage_minus_bestofN": -0.084,
       "round_sec": 2182.9
+    },
+    {
+      "round": 3,
+      "trainC": 0.151,
+      "n_ex": 6,
+      "loss": 0.036,
+      "C_lineage": 0.398,
+      "C_reset": 0.3,
+      "C_bestofN": 0.4,
+      "C_retrieval": 0.0,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.194,
+      "gain_vs_C0_lineage": 0.298,
+      "marginal_gain_reset": 0.2,
+      "lineage_minus_reset": 0.098,
+      "lineage_minus_bestofN": -0.002,
+      "round_sec": 2176.5
+    },
+    {
+      "round": 4,
+      "trainC": 0.15,
+      "n_ex": 7,
+      "loss": 0.0,
+      "C_lineage": 0.208,
+      "C_reset": 0.3,
+      "C_bestofN": 0.501,
+      "C_retrieval": 0.1,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": -0.19,
+      "gain_vs_C0_lineage": 0.108,
+      "marginal_gain_reset": 0.2,
+      "lineage_minus_reset": -0.092,
+      "lineage_minus_bestofN": -0.292,
+      "round_sec": 3546.8
     }
   ]
 }
