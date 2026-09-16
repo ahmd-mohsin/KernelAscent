@@ -57,9 +57,9 @@ search in most rounds. Averaged over rounds, accumulated self-training does \emp
 fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
 \textbf{Multi-seed confirmation (up to 4 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a 95\%%
 CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
-$+0.042\,[-0.044,+0.129]$, Qwen-1.5B $-0.008\,[-0.085,+0.069]$, Qwen-3B $-0.009\,[-0.095,+0.077]$; pooled
-($n{=}33$) $\mathbf{+0.002\,[-0.048,+0.052]}$ --- a well-powered equivalence result bounding any compounding
-advantage to $\lesssim0.05$ absolute (the earlier small positive lean vanished with more seeds).
+$+0.042\,[-0.044,+0.129]$, Qwen-1.5B $+0.030\,[-0.030,+0.089]$, Qwen-3B $-0.022\,[-0.096,+0.052]$; pooled
+($n{=}45$) $\mathbf{+0.009\,[-0.035,+0.052]}$ --- a well-powered equivalence result bounding any compounding
+advantage to $\lesssim0.05$ absolute.
 So the small early-round lift is \emph{not} statistically distinguishable from zero --- a \textbf{bounded null}
 (effect $\lesssim 0.09$ absolute), not proof of no compounding; we frame it as an equivalence result, and note
 the pooled interval treats correlated rounds as independent so per-trajectory uncertainty (2--3 seeds) is the
