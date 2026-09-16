@@ -238,6 +238,12 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
     if not pairs:
         return 0.0
     mdl.train(); mdl.gradient_checkpointing_enable(); mdl.config.use_cache = False   # cut 7B activation memory
+    # fp32 MASTER WEIGHTS for the trainable LoRA params (base stays bf16, frozen). bf16 Adam moments on the
+    # tiny LoRA tensors were driving the adapter to NaN in a few steps -> post-SFT generation emitted garbage
+    # (train AND held C -> 0). fp32 params + bf16 autocast forward is the standard stable recipe; we downcast
+    # the LoRA back to bf16 after training so generation stays dtype-consistent with the frozen base.
+    for p in mdl.parameters():
+        if p.requires_grad: p.data = p.data.float()
     opt = torch.optim.AdamW([p for p in mdl.parameters() if p.requires_grad], lr=lr)
     dev = _dev(mdl)
     data = []
@@ -256,12 +262,15 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
         input_ids = torch.tensor([i + [tok.pad_token_id] * (m - len(i)) for i, _ in batch]).to(dev)
         lab = torch.tensor([l + [-100] * (m - len(l)) for _, l in batch]).to(dev)
         att = (input_ids != tok.pad_token_id).long()
-        out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):   # bf16 fwd, fp32 LoRA master weights
+            out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
         if not torch.isfinite(out.loss):
             opt.zero_grad(); continue                      # skip a non-finite step
         out.loss.backward()
         torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
         opt.step(); opt.zero_grad(); losses.append(out.loss.item())
+    for p in mdl.parameters():                             # downcast LoRA back to bf16 for dtype-consistent generation
+        if p.requires_grad: p.data = p.data.to(torch.bfloat16)
     mdl.gradient_checkpointing_disable(); mdl.config.use_cache = True; mdl.eval()   # restore fast generation
     del opt; import gc; gc.collect(); torch.cuda.empty_cache()   # reclaim optimizer/activation memory (fp32 7B is tight on 40GB)
     return statistics.mean(losses) if losses else 0.0
