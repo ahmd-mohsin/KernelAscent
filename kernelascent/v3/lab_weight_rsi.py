@@ -231,7 +231,7 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     return mean, examples, scores, ci, stats
 
 
-def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
+def sft(tok, mdl, pairs, steps, lr=1e-5, bs=2):
     """LoRA rejection-sampling SFT on (task_src, ModelNew code) pairs; loss on completion tokens only.
     Stabilized: low lr + grad clipping + steps scaled to data size (avoid the overfit-to-NaN that made
     generation emit inf/nan logits)."""
