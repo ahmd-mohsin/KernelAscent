@@ -265,9 +265,11 @@ def sft(tok, mdl, pairs, steps, lr=2e-5, bs=2):
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):   # bf16 fwd, fp32 LoRA master weights
             out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
         if not torch.isfinite(out.loss):
-            opt.zero_grad(); continue                      # skip a non-finite step
+            opt.zero_grad(); continue                      # skip a non-finite loss
         out.loss.backward()
-        torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
+        gnorm = torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
+        if not torch.isfinite(gnorm):                      # CRITICAL: NaN/inf GRADIENTS (loss can be finite while grads aren't)
+            opt.zero_grad(); continue                      # were silently corrupting LoRA params to NaN -> garbage generation
         opt.step(); opt.zero_grad(); losses.append(out.loss.item())
     for p in mdl.parameters():                             # downcast LoRA back to bf16 for dtype-consistent generation
         if p.requires_grad: p.data = p.data.to(torch.bfloat16)
