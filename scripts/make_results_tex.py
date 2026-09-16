@@ -54,11 +54,14 @@ kill on a per-kernel timeout) makes the lineage-vs-reset test measurable for the
 $+0.10,+0.10$; Qwen-1.5B $+0.10,+0.20$) but \textbf{collapses to $\approx 0$ by round 3} (both models
 lineage $\approx$ reset; Qwen-3B $C_{\text{lin}}$ even falls $0.51\!\to\!0.30$), and lineage loses to best-of-$N$
 search in most rounds. Averaged over rounds, accumulated self-training does \emph{not} beat a matched-compute
-fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models at
-$\sim$5--8-task held sets ($\pm0.1\approx$ one task, single seed). This is the honest headline the benchmark is
-designed to expose: with a leak-free, compute-matched, roofline-grounded harness, verified self-training gives a
-first-round lift but does not compound at 0.5--3B. (Multi-seed CIs and the compounding-vs-search control are
-queued to tighten it.)
+fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
+\textbf{Multi-seed confirmation (2--3 seeds $\times$ 6 rounds each):} the mean lineage$-$reset with a 95\%
+task/round-clustered CI \emph{spans zero at every scale} --- Qwen-0.5B $+0.042\,[-0.044,+0.129]$, Qwen-1.5B
+$+0.032\,[-0.049,+0.114]$, Qwen-3B $+0.045\,[-0.060,+0.150]$; pooled ($n{=}25$) $+0.040\,[-0.014,+0.094]$.
+So the small early-round lift is \emph{not} statistically distinguishable from zero, and lineage loses to
+best-of-$N$ search in most rounds. This is the honest headline the benchmark is designed to expose: with a
+leak-free, compute-matched, roofline-grounded harness, verified self-training gives at most a first-round lift
+but does \textbf{not compound} at 0.5--3B.
 \paragraph{(historical) Compounding before the fix --- artifact, not a null.}
 A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
 null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
