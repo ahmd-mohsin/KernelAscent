@@ -660,3 +660,96 @@ Reset-style lineage (ReST-EM) for ≥4 rounds, fresh adapter each round on accum
 6. **Probe** — stop. One paragraph in the negatives section.
 
 If (2) comes back flat, write the negative paper honestly and tightly; a rigorous "no compounding at matched compute, here's why" beats a fuzzy positive every time, and it's the result the field actually needs. If you can't get (1) and (2) clean, don't submit.
+
+---
+# Panel round 4 — CI-backed negative, award-bar (2026-09-16)
+
+## GPT-6 Astra
+
+## 1. Award-grade? **Not yet, on the evidence described.**
+
+**Credible, potentially strong paper: yes. Award-grade benchmark/oral: not currently the most defensible expectation.** Fixing the harness makes the results interpretable; it does not, by itself, make the scientific conclusion decisive.
+
+Your strongest contribution is **a controlled way to distinguish cumulative learning from repeated sampling and selection**. That is a real evaluation problem. Your weakest framing is **“RSI does not compound at ≤3B.”** The experiments concern one form of verified self-training, over six rounds, in one domain—not recursive self-improvement broadly.
+
+Three things limit the current claim:
+
+- **A CI spanning zero does not establish no compounding.** Your pooled interval, `[-0.014, +0.094]`, supports “no statistically resolved advantage,” not “no advantage.” Whether it excludes *meaningful* compounding depends on the metric and a justified minimum meaningful effect.
+- **What is independent in pooled n=25?** If these include successive rounds from the same lineage, they are correlated. Treating them as independent would overstate precision. With only 2–3 seeds per configuration, uncertainty over training trajectories remains weakly estimated, even with many evaluation tasks.
+- **The operating regime matters.** Your own teacher result shows that larger models generate substantially more usable training material. That makes “the tested students are below a useful self-training regime” a live alternative explanation—not an objection you can dismiss.
+
+The finding that **lineage loses to compute-matched best-of-N search** may be more consequential than the null lineage–reset contrast. It asks whether training is a better use of compute than simply searching, without requiring you to prove an exact null.
+
+The remaining findings are useful but do not automatically add up to an award-grade centerpiece. The pass@k correction is scientifically valuable; the probe result is informative; the NaN and hang findings strengthen reproducibility. The 50-model study becomes especially valuable if its mechanisms **predict an independently tested outcome**, rather than explain outcomes retrospectively.
+
+**Venue framing:** NeurIPS Datasets & Benchmarks is plausible if the released task bank, evaluator, accounting protocol, baselines, and reproducibility package are independently valuable. Otherwise, this sounds more naturally like an empirical methods paper. Oral/award selection is too contingent to forecast honestly.
+
+## 2. Single highest-leverage experiment
+
+**Run one adequately replicated, compute-matched 14B lineage–reset–search experiment. Pick one larger scale, not a shallow 7B/14B sweep.**
+
+Why this one: you already have evidence that 14B supplies roughly 10× more correct kernels. It directly tests the strongest alternative explanation for your negative result: **insufficient verified training supply at small scale**.
+
+Make it one decisive experiment:
+
+- **Three arms:** persistent lineage, reset-to-base self-training, and no-training best-of-N search.
+- **Matched total compute:** charge generation, verification, training, and evaluation consistently. Let search spend the compute saved by not training.
+- **Primary endpoint:** a prespecified held-out-task performance difference at the final common compute budget. Use the roundwise trajectories to distinguish a first-round lift from continued gains.
+- **Decision rule:** define a smallest meaningful lineage advantage before running. Estimate uncertainty using independent training runs; do not inflate replication with rounds. Prioritize seeds over extra scale points.
+
+The experiment has value either way:
+
+- **Compounding emerges:** you gain evidence for a scale-dependent transition, with the coverage mechanism as a testable explanation.
+- **It remains absent with a sufficiently tight interval:** you substantially strengthen the negative result despite much better verified-data supply.
+- **Lineage beats reset but loses to search:** you reveal genuine cumulative learning that is nevertheless compute-inefficient—a particularly clean distinction.
+
+With 72 GPUs, favor **one interpretable answer over broader coverage**. GPU count alone does not establish feasibility; if adequately replicated 14B runs exceed the budget, do the same design at 7B rather than an underpowered 14B demonstration.
+
+Proper pass@k curves are necessary support, but they are unlikely to transform the paper. Another small-model search control probably will not either, given your existing search results.
+
+## 3. Title and abstract
+
+### **KernelAscent: Testing Whether Verified Self-Training Compounds**
+
+**Abstract:** Verified self-training is often proposed as a route to cumulative model improvement, but repeated gains can reflect sampling and selection rather than benefits from preserving a learned lineage. We introduce KernelAscent, a leak-free, compute-matched testbed for GPU-kernel optimization with correctness verification and roofline-grounded performance evaluation. Across six rounds of self-training with 0.5B, 1.5B, and 3B models, lineage-preserving training shows no statistically resolved advantage over reset-based training, and loses to best-of-N search in most rounds. These results do not establish an absence of compounding, but provide no robust evidence for it in the tested regime. Mechanistic studies find that self-verification predicts correctness modestly without improving matched-budget harvesting, and that apparent small-model correctness barriers reflect low sampling probabilities rather than zero task coverage. We additionally document training and grading failures that can invalidate iterative experiments. KernelAscent provides a controlled framework for separating cumulative learning, verified-data supply, and search efficiency in self-training systems.
+
+
+## Fable-5.1
+
+## (1) Is it award-grade? No — not as stated. Here's exactly why.
+
+**The headline is a bounded null, not a negative.** Your pooled CI is [−0.014, +0.094] around +0.040. That is *consistent with* compounding of ~4 points per round and merely underpowered to prove it. "Does NOT recursively compound" is a stronger claim than the data license. The defensible claim is: "we cannot detect compounding; the effect is ≤ ~0.09 absolute at n=25." Reviewers who know stats will catch this in minute one. Reframe as an equivalence test (TOST) with an explicit smallest-effect-of-interest, and test "transient first-round lift" separately (round-1 Δ vs rounds 2–6 Δ) rather than asserting it.
+
+**0.5–3B is where nobody expected RSI.** The field's prior is already "small models can't self-improve on hard verified tasks." Confirming the prior is a poster, not an oral. The immediate rebuttal is: "run Qwen2.5-Coder-7B/14B." You have 72 GPUs; not having done it will read as a choice.
+
+**Your actual interesting result is buried.** Two things in your list are stronger than the headline:
+- *Search beats self-training at matched compute* (lineage < best-of-N). Known in spirit (test-time-compute papers), but yours is on roofline-graded kernels with a real compute ledger. That's a crisp, useful claim.
+- *The coverage gap* (14B teacher harvests 10× more correct kernels; "wall" is low per-sample p, not zero coverage). This is the *mechanism* for the null: self-training on your own samples sharpens toward what you already cover; it can't add coverage. It connects to the sharpening hypothesis and turns a null into an explanation.
+
+**Scope limitation reviewers will hit:** you tested rejection-sampling SFT. If GRPO/RL on the same verifier isn't in the paper, "verified self-training" in the title overclaims. State it or run it.
+
+**Harness findings (SFT-NaN, grader-hang) are appendix material.** Valuable to practitioners, zero weight toward an oral.
+
+**Honest placement:** as-is, a solid D&B poster or strong workshop paper with a genuinely reusable artifact. The artifact (leak-free, compute-matched, roofline-grounded RSI harness — clearly differentiated from KernelBench, which is a static benchmark) is the durable contribution. The result needs one more move to be oral-competitive.
+
+## (2) The single highest-leverage thing
+
+**Run the identical protocol at 7B and 14B with a pre-registered coverage-gap prediction.** Not just "see if it compounds" — commit in advance that per-round compounding gain should track the harvest-coverage gap (pass@k_harvest − pass@1, or self-harvest yield per round), measured at 0.5/1.5/3/7/14B. Then the paper has one of two outcomes, both publishable and both better than now:
+
+- **Still null at 14B** → a much harder negative ("doesn't compound through 14B on a task where the model *can* generate correct kernels at 10× the 3B rate"), plus the coverage-gap curve as the explanation.
+- **Compounding appears at 7–14B** → a scale-gate result with a predicted mechanism. That's an oral-shaped finding.
+
+Budget on 72 GPUs: 2 scales × 2 arms × 3–5 seeds × 6 rounds, LoRA SFT, is very feasible; the sampling is the cost, and you already have the pipeline. Also increase to 5 seeds at 3B — your 3B CI is carried by 2–3 seeds.
+
+Do the cheap things regardless, they aren't "the" lever but they're mandatory: (a) the single-shot best-of-(6·k) control so lineage is compared to search at *cumulative* sample parity, not per-round; (b) proper pass@k curves (unbiased estimator, k to 1000+) — this is what makes the "wall is an artifact" claim rigorous and feeds the coverage-gap predictor. Bigger task bank helps power but doesn't change the story; skip unless a reviewer demands it.
+
+## (3) Title + abstract
+
+**Title:** *KernelAscent: Search Beats Self-Training in a Compute-Matched Testbed for Recursive Self-Improvement*
+
+(Alternate if you keep the null as headline: *KernelAscent: Verified Self-Training Does Not Detectably Compound Below 3B*)
+
+**Abstract:**
+Recursive self-improvement — a model training on its own verified outputs, then generating better outputs, iteratively — is widely hypothesized but rarely measured under controlled conditions. We introduce KernelAscent, a testbed for verified self-training on CUDA kernel generation, where correctness is checked against reference outputs and speedup is graded against roofline bounds, and where lineage (iterative self-training), reset (fresh model each round), and best-of-N search are compared under a leak-free, compute-matched protocol. Across Qwen 0.5B–3B, 2–3 seeds, and 6 rounds, the lineage-minus-reset effect is +0.040 (95% CI [−0.014, +0.094], pooled n=25): we detect no compounding beyond a bounded first-round lift, and lineage underperforms best-of-N search at matched compute in most rounds. We identify the mechanism as a coverage bottleneck: the sub-2B "correctness wall" is a pass@k artifact of low per-sample success rather than zero coverage, and a 14B teacher harvests 10× more correct kernels than a sub-2B student, so self-training sharpens toward what the model already covers rather than expanding it. Probe-based self-verification achieves within-task AUC ≈ 0.67 but yields no matched-budget harvesting advantage, and a 50-model sweep exposes scale-gated mechanisms in kernel generation. We also document two harness failures — NaN gradients silently corrupting LoRA self-training and un-killable hung kernels deadlocking graders — that produce spurious compounding if uncorrected. KernelAscent provides a rigorous baseline for claims of recursive self-improvement: at ≤3B, sampling more beats training on yourself.
+
+If you add 7–14B, swap the final two sentences for the scale-gate result and the coverage-gap prediction — that version is the one to submit for an oral.
