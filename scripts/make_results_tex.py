@@ -55,7 +55,7 @@ $+0.10,+0.10$; Qwen-1.5B $+0.10,+0.20$) but \textbf{collapses to $\approx 0$ by 
 lineage $\approx$ reset; Qwen-3B $C_{\text{lin}}$ even falls $0.51\!\to\!0.30$), and lineage loses to best-of-$N$
 search in most rounds. Averaged over rounds, accumulated self-training does \emph{not} beat a matched-compute
 fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
-\textbf{Multi-seed confirmation (2--3 seeds $\times$ 6 rounds each):} the mean lineage$-$reset with a 95\%
+\textbf{Multi-seed confirmation (2--3 seeds $\times$ 6 rounds each):} the mean lineage$-$reset with a 95\%%
 task/round-clustered CI \emph{spans zero at every scale} --- Qwen-0.5B $+0.042\,[-0.044,+0.129]$, Qwen-1.5B
 $+0.032\,[-0.049,+0.114]$, Qwen-3B $+0.045\,[-0.060,+0.150]$; pooled ($n{=}25$) $+0.040\,[-0.014,+0.094]$.
 So the small early-round lift is \emph{not} statistically distinguishable from zero, and lineage loses to
