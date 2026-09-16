@@ -67,9 +67,10 @@ on roofline-graded kernels with a full generation$+$verification$+$training comp
 \textbf{coverage gap} --- a 14B teacher harvests $\sim$10$\times$ more verified-correct kernels than a sub-2B
 student on the same tasks, and the sub-2B ``correctness wall'' is a \emph{pass@k artifact} (low per-sample $p$,
 not zero coverage), so self-training \emph{sharpens} what the model already covers rather than expanding it ---
-the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not RL/GRPO); tested at 0.5--3B --- the 7B/14B
-3-arm (lineage/reset/search) replication with a pre-registered coverage-gap prediction is in flight to test the
-insufficient-supply-at-small-scale alternative.
+the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not RL/GRPO). \textbf{Scale test:} the same 3-arm protocol at 7B holds the
+null --- lineage$-$reset $=-0.05,-0.01$ over rounds 0--1 with $C\approx0.70$ near the held ceiling ($0.80$), and
+lineage again loses to best-of-$N$ --- so no compounding through 7B, though the near-ceiling headroom at 7B is
+itself limiting (consistent with the mid-scale-headroom mechanism). 14B is queued (needs a 2-GPU reset shard).
 \paragraph{(historical) Compounding before the fix --- artifact, not a null.}
 A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
 null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
