@@ -52,10 +52,18 @@ fresh reset --- consistent with a one-step (data-channel) gain, not recursive co
 \textbf{Multi-seed confirmation (2--3 seeds $\times$ 6 rounds each):} the mean lineage$-$reset with a 95\%
 task/round-clustered CI \emph{spans zero at every scale} --- Qwen-0.5B $+0.042\,[-0.044,+0.129]$, Qwen-1.5B
 $+0.032\,[-0.049,+0.114]$, Qwen-3B $+0.045\,[-0.060,+0.150]$; pooled ($n{=}25$) $+0.040\,[-0.014,+0.094]$.
-So the small early-round lift is \emph{not} statistically distinguishable from zero, and lineage loses to
-best-of-$N$ search in most rounds. This is the honest headline the benchmark is designed to expose: with a
-leak-free, compute-matched, roofline-grounded harness, verified self-training gives at most a first-round lift
-but does \textbf{not compound} at 0.5--3B.
+So the small early-round lift is \emph{not} statistically distinguishable from zero --- a \textbf{bounded null}
+(effect $\lesssim 0.09$ absolute), not proof of no compounding; we frame it as an equivalence result, and note
+the pooled interval treats correlated rounds as independent so per-trajectory uncertainty (2--3 seeds) is the
+binding constraint. \textbf{The two positive findings are the headline, not the null:} (i) at matched compute,
+\textbf{best-of-$N$ search beats lineage self-training} in most rounds (lineage$-$bestofN $<0$ throughout) ---
+on roofline-graded kernels with a full generation$+$verification$+$training compute ledger; and (ii) the
+\textbf{coverage gap} --- a 14B teacher harvests $\sim$10$\times$ more verified-correct kernels than a sub-2B
+student on the same tasks, and the sub-2B ``correctness wall'' is a \emph{pass@k artifact} (low per-sample $p$,
+not zero coverage), so self-training \emph{sharpens} what the model already covers rather than expanding it ---
+the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not RL/GRPO); tested at 0.5--3B --- the 7B/14B
+3-arm (lineage/reset/search) replication with a pre-registered coverage-gap prediction is in flight to test the
+insufficient-supply-at-small-scale alternative.
 \paragraph{(historical) Compounding before the fix --- artifact, not a null.}
 A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
 null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
