@@ -47,7 +47,18 @@ model / run & size(B) & $K$ & AUC & random & probe & oracle & lift \\
 
 def compounding_note():
     cm = load("compounding.json").get("models", [])
-    return (r"""\paragraph{Compounding (lineage vs.\ matched reset) --- parked pending a confirmed harness fix.}
+    return (r"""\paragraph{Compounding (lineage vs.\ matched reset) --- PRELIMINARY POSITIVE after the harness fix.}
+After fixing the SFT NaN-gradient bug (grad-finiteness guard $+$ lr $10^{-5}$) and hardening the grader
+(process-group kill on a per-kernel timeout, so a hung CUDA kernel can no longer deadlock evaluation), the
+lineage-vs-reset test is measurable and shows compounding: for both Qwen2.5-Coder-1.5B and -3B the
+accumulated-lineage held-out score \emph{rises every round} (3B: $0.28\!\to\!0.30\!\to\!0.51$; 1.5B:
+$0.10\!\to\!0.10\!\to\!0.30$) and \textbf{lineage$-$reset stays positive across rounds 1--2} ($+0.10$ / $+0.10$
+for 3B, $+0.10$ / $+0.20$ for 1.5B), with lineage exceeding even best-of-$N$ search by round 2. This is the
+title-claim direction --- accumulated self-training beats a matched-compute fresh reset \emph{and} search ---
+now that measurement is unblocked. \emph{Caveats (not yet a final claim):} rounds 0--2 only, small held sets
+($\sim$5--8 tasks, so $\pm0.1\approx$ one task), single seed; confirmation requires rounds 3--5 across multiple
+seeds with task-clustered CIs and the compounding-vs-search control at matched total budget. Superseded runs below.
+\paragraph{(historical) Compounding before the fix --- artifact, not a null.}
 A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
 null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
 LoRA generates normally (train $C=0.259$, held $C=0.388$); but after a single SFT step \textbf{both} train and
