@@ -148,18 +148,40 @@ class _null:
     def __exit__(self, *a): return False
 
 
-def _grade_isolated(src, codes):
+def _run_grade(path, env, timeout):
+    """Run grade_batch.py in its OWN process group; on timeout SIGKILL the WHOLE group so a hung CUDA kernel
+    (unkillable via a plain child SIGKILL) can't deadlock the grader. Returns stdout or "" on timeout/error.
+    Bounded timeouts (a legit compile+grade is seconds; anything minutes = an infinite-loop kernel to reap)."""
+    import subprocess, signal
+    try:
+        p = subprocess.Popen([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
+                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, env=env, start_new_session=True)
+    except Exception:
+        return ""
+    try:
+        so, _ = p.communicate(timeout=timeout)
+        return so
+    except subprocess.TimeoutExpired:
+        try: os.killpg(os.getpgid(p.pid), signal.SIGKILL)      # reap the hung kernel's entire process group
+        except Exception:
+            try: p.kill()
+            except Exception: pass
+        try: p.communicate(timeout=15)
+        except Exception: pass
+        return ""
+
+
+def _grade_isolated(src, codes, timeout=90):
     """Grade candidate kernels in a FRESH subprocess (CUDA crash-isolation). Returns [(ok, sp), ...]."""
-    import subprocess, tempfile
+    import tempfile
     if not codes:
         return []
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     json.dump({"task": src, "codes": codes}, open(path, "w"))
     env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME; grade on a spare GPU
     try:
-        r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
-                           capture_output=True, text=True, timeout=900, env=env)   # compile baseline is slow
-        line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
+        so = _run_grade(path, env, timeout)
+        line = [l for l in so.splitlines() if l.startswith("RESULT")]
         res = json.loads(line[-1][len("RESULT"):]) if line else []
     except Exception:
         res = []
@@ -172,7 +194,7 @@ def _grade_isolated_batch(items, chunk=12):
     `chunk` tasks (not per task). items = [(src, codes), ...]; returns [[(ok,sp),...] per task]. If a chunk's
     subprocess dies (a kernel poisons CUDA), fall back to per-task grading for that chunk so one bad kernel
     only costs its own chunk's speed, never correctness."""
-    import subprocess, tempfile
+    import tempfile
     out = [None] * len(items)
     for i in range(0, len(items), chunk):
         grp = items[i:i + chunk]
@@ -182,15 +204,14 @@ def _grade_isolated_batch(items, chunk=12):
         env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME
         res = None
         try:
-            r = subprocess.run([sys.executable, os.path.join(HERE, "grade_batch.py"), path],
-                               capture_output=True, text=True, timeout=1200, env=env)   # compile baseline is slow
-            line = [l for l in r.stdout.splitlines() if l.startswith("RESULT")]
+            so = _run_grade(path, env, 240)                    # process-group-killed on timeout (was 1200s subprocess.run)
+            line = [l for l in so.splitlines() if l.startswith("RESULT")]
             res = json.loads(line[-1][len("RESULT"):]) if line else None
         except Exception:
             res = None
         os.remove(path)
-        if not res or len(res) != len(grp):                    # chunk failed -> per-task fallback
-            res = [_grade_isolated(s, c) for s, c in grp]
+        if not res or len(res) != len(grp):                    # chunk failed -> per-task fallback (short per-task timeout)
+            res = [_grade_isolated(s, c, timeout=60) for s, c in grp]
         for j, (s, c) in enumerate(grp):
             rj = res[j] if j < len(res) else []
             out[i + j] = rj + [[False, 0.0, 0.0]] * (len(c) - len(rj))
