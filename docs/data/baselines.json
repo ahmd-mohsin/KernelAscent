@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "Recursion vs sampling: recursion_gain = weight-RSI C minus best non-recursive baseline (best-of-k / self-refine / retrieval) at matched budget. >0 = training on own kernels beats sampling more.",
   "models": [
     {

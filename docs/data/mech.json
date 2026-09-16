@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "Mechanism: per-round trajectories over 12 rounds. Compounders sustain self-data DIVERSITY and RETENTION; overfitters show diversity collapse + retention decline as self-minus-fresh goes negative.",
   "models": [
     {

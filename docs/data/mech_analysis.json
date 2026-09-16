@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "WHY larger models compound RSI and smaller don't: scale -> correctness-wall crossing -> training gradient -> LoRA drift (by depth) + sustained self-data diversity -> held-out compounding. Re-derived from per-round WHY-RSI probe series.",
   "findings": {
     "n_models": 50,

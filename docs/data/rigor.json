@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "cross-seed self-vs-fresh; holds = mean(last2)>0.05 AND sign-consistent.",
   "models": [
     {

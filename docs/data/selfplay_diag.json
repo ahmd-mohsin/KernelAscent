@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "T5 self-play diagnosis: authored-task solve-rate collapse (frac_trivial=solver solves >=90%, frac_unsolvable=<=10%) shows why unconstrained L-F~0. Rescue: Goldilocks author (keep authored tasks solved in band) -> L_minus_F_goldilocks. goldilocks_rescues=True iff Lg-F>0 sustained while unconstrained L-F~0.",
   "models": [
     {

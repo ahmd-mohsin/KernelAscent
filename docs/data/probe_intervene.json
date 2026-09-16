@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15",
+  "updated": "2026-09-16",
   "note": "Probe-as-intervention (self-verification): at equal budget K, RANDOM=natural single-draw success, PROBE=pick highest correctness-probe score, ORACLE=any-correct-in-K. lift=PROBE-RANDOM. Probe lifting yield above random (esp. lifting sub-2B off the correctness wall) = the wall is partly a DECODE artifact and self-verification is a missing RSI primitive (causal counterpart to the interp AUC finding).",
   "models": [
     {
@@ -478,6 +478,50 @@
           "n": 32,
           "probe_anycorrect": 1,
           "rand_anycorrect": 1.0
+        }
+      ]
+    },
+    {
+      "model": "Qwen2.5-Coder-3B-Instruct",
+      "size_b": 3,
+      "K": 32,
+      "auc": 0.804,
+      "layer_frac": 0.94,
+      "random_rate": 0.299,
+      "probe_rate": 0.25,
+      "oracle_rate": 0.75,
+      "lift": -0.049,
+      "probe_pick_speedup": 0.853,
+      "k_sweep": [
+        {
+          "n": 1,
+          "probe_anycorrect": 0.25,
+          "rand_anycorrect": 0.299
+        },
+        {
+          "n": 2,
+          "probe_anycorrect": 0.5,
+          "rand_anycorrect": 0.47
+        },
+        {
+          "n": 4,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.632
+        },
+        {
+          "n": 8,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.719
+        },
+        {
+          "n": 16,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.747
+        },
+        {
+          "n": 32,
+          "probe_anycorrect": 0.75,
+          "rand_anycorrect": 0.75
         }
       ]
     },
