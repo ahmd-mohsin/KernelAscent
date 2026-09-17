@@ -116,10 +116,10 @@ def run(args):
             traj.append(row); prevC = C
             print("  [%s] r%d C=%.3f cov_held=%d/%d cov_UNC=%d/%d (%.0fs)" %
                   (arm, r, C, len(cov_h), len(held), len(new_cov), len(unc), time.time() - t0), flush=True)
-        results[arm] = traj
-        json.dump({"student": args.student, "teacher": args.teacher, "C0": C0, "inject_n": inj,
-                   "covered_train": len(cov), "uncovered_train": len(unc), "arms": results},
-                  open(os.path.join(args.outdir, "transplant.json"), "w"), indent=2)
+            results[arm] = traj   # CHECKPOINT AFTER EVERY ROUND: partial arms visible + survive node recycle
+            json.dump({"student": args.student, "teacher": args.teacher, "C0": C0, "inject_n": inj,
+                       "covered_train": len(cov), "uncovered_train": len(unc), "arms": results},
+                      open(os.path.join(args.outdir, "transplant.json"), "w"), indent=2)
 
     # headline contrast: does coverage injection EXPAND coverage more than sharpening injection?
     def fin(a, key): return results[a][-1][key] if a in results and results[a] else None
