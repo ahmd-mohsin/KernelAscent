@@ -97,6 +97,36 @@ lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experim
 and we do not report their numbers as evidence.
 """ % len(cm))
 
+def pmap_curve():
+    ms = load("pmap_curve.json").get("models", [])
+    if not ms:
+        return "% no pmap curve\n"
+    rows = ""
+    for m in ms:
+        rows += ("%s & %d & %d/%d & %.0f\\%% & %.3f & %.3f & %.0f$\\times$ \\\\\n" %
+                 (n(m.get("size_b")), m.get("K", 0), m.get("coverage", 0), m.get("n_tasks", 0),
+                  100 * m.get("coverage_frac", 0), m.get("pass1", 0), m.get("passK", 0),
+                  (m.get("passK", 0) / m.get("pass1", 1) if m.get("pass1") else 0)))
+    return (r"""\paragraph{Coverage-vs-scale $p$-maps (the wall is a sampling artifact).} For each model we sample
+$K$ kernels per task and estimate per-task $p_K(t)$, coverage set $\{t:p_K(t){>}0\}$, and unbiased pass@1/pass@$K$
+(Chen et al.). Coverage jumps sharply across the sub-2B ``wall'' (0.5B$\to$3B: 14\%$\to$83\%), and \emph{below}
+the wall pass@$K\gg$pass@1 (12--17$\times$) --- the wall is a low-per-sample-probability \emph{sampling}
+artifact, not absent capability. At 14B the ratio collapses to $\sim$1$\times$ (pass@1${=}0.66$): the teacher is
+reliably-per-sample, not sampling-limited. Rejection-sampling self-training can only \emph{sharpen} the thin
+low-$p$ frontier a small model already covers; it cannot manufacture the coverage a larger model has --- the
+mechanism behind the compounding null.
+\begin{table}[h]\centering\footnotesize
+\caption{Per-task correctness $p$-maps across scale (Qwen2.5-Coder / same task bank). Coverage $=$ tasks with
+$\geq1$ verified-correct sample; K-ratio $=$ pass@$K$/pass@1.}
+\begin{tabular}{rrrrrrr}
+\toprule
+size(B) & $K$ & coverage & cov.\% & pass@1 & pass@$K$ & K-ratio \\
+\midrule
+%s\bottomrule
+\end{tabular}\end{table}
+""" % rows)
+
+
 def mech_note():
     mf = load("mech_analysis.json"); rows = mf.get("models", [])
     ncross = sum(1 for m in rows if m.get("wall_crossed")); nrsi = sum(1 for m in rows if m.get("rsi"))
@@ -129,6 +159,7 @@ def build():
 \subsection{Mechanism and self-play}
 %s
 %s
+%s
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
@@ -148,7 +179,7 @@ Prioritized next runs: (1) a leakage-resistant probe replication on a larger, fa
 \emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
 compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
 self-play with author validity + learnability gates before extending trajectories.
-""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), mech_note(), selfplay_note()))
+""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), mech_note(), selfplay_note(), pmap_curve()))
     open(OUT, "w").write(body)
     print("wrote", OUT, "(%d bytes)" % len(body))
 

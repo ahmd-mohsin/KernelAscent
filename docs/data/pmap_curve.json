@@ -1,0 +1,54 @@
+{
+ "models": [
+  {
+   "tag": "q05",
+   "size_b": 0.5,
+   "coverage": 4,
+   "n_tasks": 29,
+   "coverage_frac": 0.138,
+   "pass1": 0.0091,
+   "passK": 0.1089,
+   "K": 64
+  },
+  {
+   "tag": "q15",
+   "size_b": 1.5,
+   "coverage": 8,
+   "n_tasks": 29,
+   "coverage_frac": 0.276,
+   "pass1": 0.0136,
+   "passK": 0.2347,
+   "K": 64
+  },
+  {
+   "tag": "q3",
+   "size_b": 3,
+   "coverage": 24,
+   "n_tasks": 29,
+   "coverage_frac": 0.828,
+   "pass1": 0.1119,
+   "passK": 0.7765,
+   "K": 64
+  },
+  {
+   "tag": "q7",
+   "size_b": 7,
+   "coverage": 24,
+   "n_tasks": 29,
+   "coverage_frac": 0.828,
+   "pass1": 0.0789,
+   "passK": 0.7985,
+   "K": 48
+  },
+  {
+   "tag": "q14",
+   "size_b": 14,
+   "coverage": 25,
+   "n_tasks": 29,
+   "coverage_frac": 0.862,
+   "pass1": 0.6552,
+   "passK": 0.8621,
+   "K": 24
+  }
+ ]
+}
