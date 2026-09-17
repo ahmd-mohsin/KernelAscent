@@ -131,6 +131,16 @@ size(B) & $K$ & coverage & cov.\% & pass@1 & pass@$K$ & K-ratio \\
 \bottomrule
 \end{tabular}\end{table}
 
+\paragraph{Sharpening geometry (why compounding is coverage-limited).} Partitioning tasks by per-sample success $p_K(t)$ into \emph{unreachable} ($p{=}0$), \emph{sharpenable} ($0{<}p{<}0.2$, where rejection-sampling self-training can add signal), and \emph{reliable} ($p{\geq}0.2$) reveals the mechanism directly: at small scale the unreachable mass dominates (0.5B: 86\%) and the sharpenable band is thin; it \emph{peaks at mid-scale} (3B/7B: 59--79\% sharpenable --- the only regime with substantial material for self-training, consistent with where transient compounding appears); and at 14B it collapses as mass moves to \emph{reliable} (86\%), leaving nothing to sharpen. Self-training can only move the sharpenable band --- thin below the wall, absent above it --- so it cannot manufacture coverage.
+\begin{table}[h]\centering\footnotesize\caption{Per-task success mass by scale (same bank). Sharpenable $=$ the band rejection-sampling self-training can act on.}\begin{tabular}{rrrr}\toprule
+size(B) & unreachable $p{=}0$ & sharpenable $0{<}p{<}0.2$ & reliable $p{\geq}0.2$ \\\midrule
+0.5 & 25/29 (86\%) & 4/29 (14\%) & 0/29 (0\%) \\
+1.5 & 21/29 (72\%) & 8/29 (28\%) & 0/29 (0\%) \\
+3 & 5/29 (17\%) & 17/29 (59\%) & 7/29 (24\%) \\
+7 & 5/29 (17\%) & 23/29 (79\%) & 1/29 (3\%) \\
+14 & 4/29 (14\%) & 0/29 (0\%) & 25/29 (86\%) \\
+\bottomrule\end{tabular}\end{table}
+
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
