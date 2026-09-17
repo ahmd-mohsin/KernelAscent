@@ -1,0 +1,59 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "seed": 304,
+  "C0": 0.40079918083151456,
+  "held_family": "l3",
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.2,
+      "n_ex": 8,
+      "loss": 0.0,
+      "C_lineage": 0.2,
+      "C_reset": 0.1,
+      "C_bestofN": 0.2,
+      "C_retrieval": 0.0,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": -0.201,
+      "gain_vs_C0_lineage": -0.201,
+      "marginal_gain_reset": -0.3,
+      "lineage_minus_reset": 0.099,
+      "lineage_minus_bestofN": -0.0,
+      "round_sec": 2952.9
+    },
+    {
+      "round": 1,
+      "trainC": 0.126,
+      "n_ex": 5,
+      "loss": 0.0,
+      "C_lineage": 0.2,
+      "C_reset": 0.2,
+      "C_bestofN": 0.2,
+      "C_retrieval": 0.0,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": -0.0,
+      "gain_vs_C0_lineage": -0.201,
+      "marginal_gain_reset": -0.201,
+      "lineage_minus_reset": -0.0,
+      "lineage_minus_bestofN": -0.001,
+      "round_sec": 2538.3
+    },
+    {
+      "round": 2,
+      "trainC": 0.175,
+      "n_ex": 7,
+      "loss": 0.0,
+      "C_lineage": 0.2,
+      "C_reset": 0.2,
+      "C_bestofN": 0.401,
+      "C_retrieval": 0.1,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.001,
+      "gain_vs_C0_lineage": -0.2,
+      "marginal_gain_reset": -0.201,
+      "lineage_minus_reset": 0.0,
+      "lineage_minus_bestofN": -0.2,
+      "round_sec": 3488.0
+    }
+  ]
+}

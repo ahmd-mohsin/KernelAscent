@@ -1,0 +1,363 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-3B",
+ "tag": "q3c3",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 10,
+ "zero_task_frac": 0.345,
+ "failure_dist": {
+  "no_extract": 260,
+  "syntax_error": 119,
+  "name_error": 24,
+  "correct": 36,
+  "runtime_other": 9,
+  "wrong_output": 12,
+  "type_shape": 4
+ },
+ "failure_pct": {
+  "no_extract": 56.0,
+  "syntax_error": 25.6,
+  "name_error": 5.2,
+  "correct": 7.8,
+  "runtime_other": 1.9,
+  "wrong_output": 2.6,
+  "type_shape": 0.9
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l1_2",
+  "l3_4",
+  "l3_3",
+  "l1_7",
+  "l2_3",
+  "l2_5",
+  "l1_4",
+  "l3_1",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_1": {
+   "n_ok": 3,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 3,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_10": {
+   "n_ok": 3,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 5,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 4,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 3,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": " mask+softmax, fp16 PV) -> out-proj -> residual -> RMSNorm\n    B, S, D = 4, 2048, 2048\n    N_HEADS, N_KV_HEADS = 16, 4\n    HEAD_DIM = D // N_HEADS  # 128\n    EPS = 1e-5\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        S, D, H, HKV, HD = self.S, self.D, self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "                        # [B, H, S, HD]\n        o = o.transpose(1, 2).reshape(b, s, D)\n        o = o @ self.w_o.t()\n\n        return F.layer_norm(x + o, x.shape, eps=Model.EPS)\n\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator().manual_seed(1)\n    return [torch.randn(Model.B, Model.S, Model.D, generator=g).to(dev, DT)]<|fim_middle|>\n\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i8, i16, i32, i64, i"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "kv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf *"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf,"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        self.norm1_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev, dt))\n        self.norm2_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev,",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": " = temp + 1.702 * xptr * temp\n    temp = temp * 0.5 + 0.5\n    yptr.copy_(temp)\n\n\nclass Model(nn.Module):\n    # Transformer out-projection with fused epilogue:\n    #   y = x + gamma * gelu_tanh(x @ W^T + b)\n    # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(1234)\n        w = torch.randn(DIM, DIM, generator=g) * (DIM ** -0.5)\n        b = torch.randn(DIM, generator=g) * ",
+    "error": "SyntaxError('unterminated string literal (detected at line 60)', ('/home/greenla"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "class ModelNew(nn.Module):\n   ",
+    "error": "IndentationError('expected an indented block after class definition on line 38',"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]<|fim_middle|>\n\n",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate_half(kf) * sin).to(x.dtype)\n\n        rep = H",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   },
+   {
+    "task": "l2_14",
+    "code_tail": "ict the next word in a new sentence.\n# The model consists of two neural networks: a bidirectional LSTM and a feedforward neural network.\n# The bidirectional LSTM takes in a sequence of words and outputs a sequence of hidden states.\n# The feedforward neural network takes in the hidden states and outputs a probability distribution over the possible next words.\n# The loss function is the negative log likelihood of the true word given the predicted word.\n# The model is trained for a number of epochs",
+    "error": "NameError(\"name 'fused_gemm_add_scale' is not defined\")"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": "t()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = xc.square().mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.weight.float() + self.bias.float()\n        h = F.gelu(h, approximate=\"tanh\")\n        return (xf + h).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = x * 2.0 + 0.5\n    return [x.to(DT)]\n",
+    "error": "NameError(\"name 'g' is not defined\")"
+   },
+   {
+    "task": "l3_4",
+    "code_tail": ")\n        q, k, v = torch.split(qkv, [self.h * self.hd, self.kvh * self.hd, self.kvh * self.hd], dim=-1)\n        q = q.view(b, s, self.h, self.hd)\n        k = k.view(b, s, self.kvh, self.hd)\n        v = v.view(b, s, self.kvh, self.hd)\n        q = self._rms(q, self.q_norm_w)\n        k = self._rms(k, self.k_norm_w)\n        cos = self.cos[:s][None, :, None, :]\n        sin = self.sin[:s][None, :, None, :]\n        q = (q * cos + self._rot(q) * sin).to(x.dtype).transpose(1, 2)   # [B,H,S,HD]\n        k",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   },
+   {
+    "task": "l3_4",
+    "code_tail": "d(self, x):\n        b, s, _ = x.shape\n        h = self.ln1(x)\n        qkv = self.qkv(h)\n        q, k, v = torch.split(qkv, [self.h * self.hd, self.kvh * self.hd, self.kvh * self.hd], dim=-1)\n        q = q.view(b, s, self.h, self.hd)\n        k = k.view(b, s, self.kvh, self.hd)\n        v = v.view(b, s, self.kvh, self.hd)\n        q = self._rms(q, self.q_norm_w)\n        k = self._rms(k, self.k_norm_w)\n        cos = self.cos[:s][None, :, None, :]\n        sin = self.sin[:s][None, :, None, :]\n        q",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "     x = x.float()\n        y = LN.apply(x, self.ln_w, self.ln_b, self.ln_eps)\n        y = y * self.gate.float() + self.shift.float()\n        y = nn.functional.gelu(y, approximate=\"tanh\")\n        y = RMS.apply(y, self.rms_eps)\n        return y.to(x.dtype)\n\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator(device=dev).manual_seed(1234)\n    x = torch.randn(32768, 4096, generator=g, device=dev, dtype=torch.float32)\n    return [x.to(DT)]",
+    "error": "NameError(\"name 'Tensor' is not defined\")"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_2",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n       ",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "ef forward(self, x):\n        h = F.linear(x, self.weight, self.bias)          # [M, N] fp16 GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")                # activation\n        return h * self.scale + x                        # per-channel scale + residual\n\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(M, K, generator=g, dtype=torch.float32).to(device=device, dtype=DT)\n    return [x]",
+    "error": "RuntimeError('mat1 and mat2 must have the same dtype, but got Half and Float')"
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "ce=device, dtype=dt), requires_grad=False)\n        self.scale = nn.Parameter(s.to(device=device, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)  # [B, S, HIDDEN]\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + h * self.scale  # residual + per-channel scale\n\n# Create an instance of the model\nmodel_new = ModelNew()\n# Get input tensors\nx = torch.randn(BATCH, SEQ, HIDDEN)\n# Run the model and check the output\nout = model_new(x)\n",
+    "error": "RuntimeError('Expected all tensors to be on the same device, but found at least "
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "      grid = lambda META: (triton.cdiv(N, META[\"BLOCK_SIZE\"]),)\n        dense_fwd_kernel[grid](\n            x, self.weight, self.bias, self.scale,\n            y,\n            None,\n            None,\n            None,\n            None,\n            0,\n            0,\n            0,\n            0,\n            B * S,\n            HIDDEN,\n            BLOCK_SIZE,\n            N,\n            1,\n        )\n        y = y.reshape(B, S, HIDDEN)\n        return x + y * self.scale  # residual + per-channel scale\n\n",
+    "error": "AssertionError()"
+   },
+   {
+    "task": "l2_13",
+    "code_tail": ", S, N] fp16 GEMM (fp32 accumulate) + bias\n        h = F.gelu(h, approximate=\"tanh\")        # activation\n        return x + h * self.gamma                # per-channel scale + residual\n\n\ndef get_inputs():\n    g = torch.Generator(device=DEVICE).manual_seed(1234)\n    x = torch.randn(BATCH, SEQ, HIDDEN, device=DEVICE, generator=g).to(DT)\n    return [x]\n\n\n# Example usage\nif __name__ == \"__main__\":\n    model = ModelNew()\n    inputs = get_inputs()\n    outputs = model(*inputs)\n    print(outputs.shape)\n",
+    "error": "RuntimeError(\"Expected a 'cpu' device type for generator but found 'cuda'\")"
+   },
+   {
+    "task": "l2_6",
+    "code_tail": "ard(self, x):\n        # Compute linear transformation of input tensor\n        h = torch.matmul(x, self.weight) + self.bias\n        # Apply gelu activation function to output tensor\n        h = F.gelu(h)\n        # Add residual connection and return output tensor\n        return x + self.gamma * h\n\n# Create instance of ModelNew class\nmodel_new = ModelNew()\n# Define input tensor\ninput_tensor = torch.randn(_B, _S, _H, dtype=DT)\n# Forward pass through model_new\noutput_tensor = model_new(input_tensor)\n",
+    "error": "RuntimeError('expected m1 and m2 to have the same dtype, but got: c10::Half != f"
+   }
+  ],
+  "wrong_output": [
+   {
+    "task": "l2_2",
+    "code_tail": "elf.bias = nn.Parameter(b, requires_grad=False)\n        self.gamma = nn.Parameter(gamma, requires_grad=False)\n\n    def forward(self, x):\n        y = F.linear(x, self.weight, self.bias)      # [M, N] GEMM + bias\n        y = F.gelu(y, approximate=\"tanh\")            # activation\n        y = y * self.gamma                           # per-channel scale\n        return x + y                                 # residual\n\n\ndef get_inputs():\n    x = torch.randn(M, K, device=_DEVICE, dtype=DT)\n    return [x]",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_14",
+    "code_tail": "delNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        self.proj = nn.Linear(K, N, bias=False, dtype=dt)\n        self.scale = nn.Parameter(torch.randn(N, dtype=dt), requires_grad=False)\n        self.act = nn.GELU()\n\n    def forward(self, x):\n        return x + self.act(self.scale * self.proj(x))\n\n    def extra_repr(self):\n        return f'scale = {self.scale}'\n\n\ndef get_inputs():\n    B, S, K, N = 8, 2048, 4096, 4096\n    x = torch.randn(B, S, K).cuda()\n    return [x]",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": " # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_11",
+    "code_tail": "t = nn.Parameter(torch.randn(N, K, dtype=dt, device=\"cuda\") * (1.0 / K ** 0.5))\n        self.bias = nn.Parameter(torch.randn(N, dtype=dt, device=\"cuda\") * 0.02)\n        self.scale = nn.Parameter(torch.ones(N, dtype=dt, device=\"cuda\") * 1.0)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)  # [M, N] fp16 GEMM, fp32 accumulate, bias\n        h = F.gelu(h, approximate=\"tanh\")        # activation\n        return x + self.scale * h                # per-channel scale + residual",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "e=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = torch.matmul(x, self.weight) + self.bias  # [M, N] GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")             # activation\n        return h * self.gamma + x                     # per-channel scale + residual\n\ndef get_inputs():\n    dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=dev, dtype=DT)\n    return [x]",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "torch.save(outputs_ref, \"/tmp/out23.pt\")\n    torch.save(outputs_ref, \"/tmp/out24.pt\")\n    torch.save(outputs_ref, \"/tmp/out25.pt\")\n    torch.save(outputs_ref, \"/tmp/out26.pt\")\n    torch.save(outputs_ref, \"/tmp/out27.pt\")\n    torch.save(outputs_ref, \"/tmp/out28.pt\")\n    torch.save(outputs_ref, \"/tmp/out29.pt\")\n    torch.save(outputs_ref, \"/tmp/out30.pt\")\n    torch.save(outputs_ref, \"/tmp/out31.pt\")\n    torch.save(outputs_ref, \"/tmp/out32.pt\")\n    torch.save(outputs_ref, \"/tmp/out33.pt\")\n    torch",
+    "error": "wrong/imprecise"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l1_6",
+    "code_tail": "(torch.sum(xf ** 2, dim=-1, keepdims=True) + self.eps)\n        h = h @ self.w_in.float()\n        # GELU, tanh approximation\n        a = 0.5 * h * (1.0 + torch.tanh(0.7978845608028654 * (h + 0.044715 * h * h * h)))\n        # layer-scaled residual add back onto the stream\n        y = xf + a * self.w_res.float()\n        # post-norm (RMSNorm) + scale\n        inv2 = torch.rsqrt(y.pow(2).mean(dim=-1, keepdims=True) + self.eps)\n        out = y * inv2 * self.w_out.float()\n        return out.to(x.dtype)\n",
+    "error": "RuntimeError('mat1 and mat2 shapes cannot be multiplied (32768x4096 and 32768x40"
+   },
+   {
+    "task": "l1_1",
+    "code_tail": "od\n    def __delitem__(cls, key):\n        return super().__delitem__(key)\n\n    @staticmethod\n    def __reversed__(cls):\n        return super().__reversed__()\n\n    @staticmethod\n    def __add__(cls, other):\n        return super().__add__(other)\n\n    @staticmethod\n    def __sub__(cls, other):\n        return super().__sub__(other)\n\n    @staticmethod\n    def __mul__(cls, other):\n        return super().__mul__(other)\n\n    @staticmethod\n    def __truediv__(cls, other):\n        return super().__truediv",
+    "error": "TypeError(\"ModelNew.__getattribute__() missing 1 required positional argument: '"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "same output as the original model. This ensures that the optimized model is reliable and can handle a wide range of inputs. As such, the optimized model must be tested on a variety of inputs to ensure that it produces the same output as the original model. This ensures that the optimized model is reliable and can handle a wide range of inputs. As such, the optimized model must be tested on a variety of inputs to ensure that it produces the same output as the original model. This ensures that the",
+    "error": "IndexError('Dimension out of range (expected to be in range of [-2, 1], but got "
+   },
+   {
+    "task": "l1_3",
+    "code_tail": "=g)\n        gain = 0.5 + torch.rand(cols, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gain = nn.Parameter(gain.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        x = x.float()\n        x = x.to(tl.float16)\n        y = self.fused_gelu(x * self.weight + self.bias)\n        y = y * self.gain + x\n        return y.to(x.dtype)\n",
+    "error": "TypeError('to() received an invalid combination of arguments - got (dtype), but "
+   }
+  ]
+ }
+}

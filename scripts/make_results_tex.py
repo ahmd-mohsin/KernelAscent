@@ -57,15 +57,15 @@ search in most rounds. Averaged over rounds, accumulated self-training does \emp
 fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
 \textbf{Multi-seed confirmation (up to 4 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a 95\%%
 CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
-$-0.004\,[-0.046,+0.037]$ ($n{=}34$), Qwen-1.5B $+0.020\,[-0.005,+0.044]$ ($n{=}66$), Qwen-3B
-$+0.006\,[-0.029,+0.041]$ ($n{=}55$) --- \textbf{every scale now individually TOST-equivalent};
-pooled ($n{=}155$) $\mathbf{+0.010\,[-0.009,+0.028]}$. \textbf{Formal equivalence (TOST):} at an equivalence
+$-0.010\,[-0.049,+0.028]$ ($n{=}41$), Qwen-1.5B $+0.018\,[-0.005,+0.041]$ ($n{=}84$), Qwen-3B
+$+0.001\,[-0.028,+0.031]$ ($n{=}70$) --- \textbf{every scale individually TOST-equivalent};
+pooled ($n{=}195$) $\mathbf{+0.006\,[-0.010,+0.023]}$. \textbf{Formal equivalence (TOST):} at an equivalence
 margin $\delta{=}0.05$ the pooled \emph{and} all three per-scale $90\%%$ CIs lie strictly inside
-$[-\delta,+\delta]$ (TOST rejects non-equivalence at every scale), and a BIC-approximate Bayes factor gives
-$\mathrm{BF}_{01}\!\approx\!8.7$ pooled (per-scale $3.4$--$7.1$) --- moderate-to-strong evidence \emph{for} the
-null, strengthening monotonically as seeds accumulate ($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to8.7$ at
-$n{=}155$). (An earlier apparent 3B negative lean at $n{=}43$ was small-sample noise; it regressed to
-$\approx0$ by $n{=}55$.) \textbf{No scale in $0.5$--$3$B shows any compounding advantage or deficit.} We state the estimand as an
+$[-\delta,+\delta]$ (TOST rejects non-equivalence at every scale), and a BIC-approximate Bayes factor reaches
+$\mathrm{BF}_{01}\!\approx\!11.5$ pooled (\emph{strong} evidence for the null; per-scale $3.8$--$8.3$),
+strengthening monotonically as seeds accumulate ($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to11.5$ at $n{=}195$).
+(An earlier apparent 3B negative lean at $n{=}43$ was small-sample noise; it regressed to $\approx0$ by
+$n{=}70$.) \textbf{No scale in $0.5$--$3$B shows any compounding advantage or deficit.} We state the estimand as an
 \emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
 the binding constraint). \textbf{Coverage mechanism (established via $p$-maps, not the transplant).} We
 implemented a randomized coverage-transplant $2\times2$ (lineage $\pm$ teacher kernels on student-\emph{covered}

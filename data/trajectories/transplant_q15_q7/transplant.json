@@ -30,6 +30,132 @@
         "coverage_uncovered_train": 3,
         "uncovered_train_total": 14,
         "sec": 824.9
+      },
+      {
+        "round": 2,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": 0.0,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 1,
+        "coverage_uncovered_train": 1,
+        "uncovered_train_total": 14,
+        "sec": 905.1
+      }
+    ],
+    "L+T_in": [
+      {
+        "round": 0,
+        "n_ex": 1,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": 0.0,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 3,
+        "coverage_uncovered_train": 0,
+        "uncovered_train_total": 14,
+        "sec": 711.0
+      },
+      {
+        "round": 1,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.062,
+        "marginal_gain": 0.062,
+        "gain_vs_C0": 0.062,
+        "coverage_held": 2,
+        "coverage_uncovered_train": 1,
+        "uncovered_train_total": 14,
+        "sec": 812.8
+      },
+      {
+        "round": 2,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.063,
+        "marginal_gain": 0.001,
+        "gain_vs_C0": 0.063,
+        "coverage_held": 0,
+        "coverage_uncovered_train": 1,
+        "uncovered_train_total": 14,
+        "sec": 775.6
+      }
+    ],
+    "L+T_out": [
+      {
+        "round": 0,
+        "n_ex": 1,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": 0.0,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 3,
+        "coverage_uncovered_train": 1,
+        "uncovered_train_total": 14,
+        "sec": 718.4
+      },
+      {
+        "round": 1,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.059,
+        "marginal_gain": 0.059,
+        "gain_vs_C0": 0.059,
+        "coverage_held": 2,
+        "coverage_uncovered_train": 2,
+        "uncovered_train_total": 14,
+        "sec": 763.3
+      },
+      {
+        "round": 2,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": -0.059,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 1,
+        "coverage_uncovered_train": 1,
+        "uncovered_train_total": 14,
+        "sec": 763.7
+      }
+    ],
+    "L+T_rand": [
+      {
+        "round": 0,
+        "n_ex": 1,
+        "loss": 0.0,
+        "C": 0.129,
+        "marginal_gain": 0.129,
+        "gain_vs_C0": 0.129,
+        "coverage_held": 0,
+        "coverage_uncovered_train": 2,
+        "uncovered_train_total": 14,
+        "sec": 716.5
+      },
+      {
+        "round": 1,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.123,
+        "marginal_gain": -0.006,
+        "gain_vs_C0": 0.123,
+        "coverage_held": 2,
+        "coverage_uncovered_train": 0,
+        "uncovered_train_total": 14,
+        "sec": 763.3
+      },
+      {
+        "round": 2,
+        "n_ex": 1,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": -0.123,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 0,
+        "coverage_uncovered_train": 0,
+        "uncovered_train_total": 14,
+        "sec": 840.9
       }
     ]
   }
