@@ -229,9 +229,12 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     # KA_SCORE=compiled scores capability on the torch.compile speedup (headroom for correct-but-slow models
     # of ANY size), instead of the correctness-heavy eager score. Isolates SPEED optimization from correctness.
     use_compiled = os.environ.get("KA_SCORE", "eager") == "compiled"
+    # KA_SFT_SELECT=topq -> A1 speedup-weighted rejection sampling: keep only the top-quartile (by compiled
+    # speedup) correct kernels per task for SFT, instead of all correct (denser reward; RL-ladder A1 arm).
+    topq = os.environ.get("KA_SFT_SELECT", "all") == "topq"
     scores = []; examples = []; corr = []; comp = []
     for src, codes, res in zip(srcs, per_task_codes, grades):
-        best = 0.0; n_ok = 0; best_c = 0.0
+        best = 0.0; n_ok = 0; best_c = 0.0; ok_cands = []
         for code, g in zip(codes, res):
             ok, se, sc, ceil = (list(g) + [0.0, 0.0, 0.0, 1.5])[:4]
             s = LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))  # headroom-normalized
@@ -241,7 +244,13 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
                 n_ok += 1
                 if sc > best_c:
                     best_c = sc
-                examples.append((src, code))               # keep ALL correct kernels -> more SFT data
+                ok_cands.append((sc, code))
+        if topq and ok_cands:
+            ok_cands.sort(key=lambda x: x[0], reverse=True)
+            keep = ok_cands[:max(1, len(ok_cands) // 4)]     # top quartile by speedup (>=1)
+            examples += [(src, c) for _, c in keep]
+        else:
+            examples += [(src, c) for _, c in ok_cands]      # default: keep ALL correct kernels
         scores.append(best)
         corr.append(1.0 if n_ok > 0 else 0.0)              # per-task solved-at-all (correctness, not speed)
         comp.append(best_c)                                # best compiled speedup among correct candidates
