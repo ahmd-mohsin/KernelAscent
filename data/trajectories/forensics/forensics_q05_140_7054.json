@@ -1,0 +1,255 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B",
+ "tag": "q05_140_7054",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 336,
+  "syntax_error": 127,
+  "correct": 1
+ },
+ "failure_pct": {
+  "no_extract": 72.4,
+  "syntax_error": 27.4,
+  "correct": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "in[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate_half(kf) * sin).to(x.dtype)\n\n        rep = H // HKV\n        k = k.repeat_interleave(rep, dim=1)                          # [B, H, S, HD]\n        v = v.repeat_interleave(rep, dim=1)\n\n        scores = torch.matmul(q, k.transpose(-1, -2)).float"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "s to run\n    examples = [\n        tl.testing.to_gpu(x) for x in get_inputs()\n    ]\n\n    # submit examples to server\n    async with session:\n        # note the use of a client to avoid the overhead of opening a new connection to the server\n        for x, example in enumerate(examples):\n            response = await session.execute(model, [tl.testing.to_device(example)], [tl.testing.to_device(example"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "64I16I16I16,\n    I64I32I32I32,\n    I64I64I64I64,\n    I64I8I8I8I8,\n    I64I16I16I16I16,\n    I64I32I32I32I32,\n    I64I64I64I64I64,\n    I64I8I8I8I8I8,\n    I64I16I16I16I16I16,\n    I64I32I32I32I32I32,\n    I64I64I64I64I64I64,\n    I64I8I8I8I8I8I8,\n    I64I16I16I16I16I16I16,\n    I64I32I32I32I32I32I32,\n    I64I64I64I64I64I64I64,\n    I64I8I8I8I8I8I8I8,\n    I64I16I16I16I16I16I16I16,\n    I64I32I32I32I32I32I32"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "e(\"en\"))\n    outputs = model(inp)\n    return {\"outputs\": outputs.detach().cpu().numpy()}\n@app.post(\"/predict\")\nasync def predict(model: Model, inp: str):\n    inp = torch.from_numpy(inp.encode(\"en\"))\n    outputs = model(inp)\n    return {\"outputs\": outputs.detach().cpu().numpy()}\n@app.post(\"/predict\")\nasync def predict(model: Model, inp: str):\n    inp = torch.from_numpy(inp.encode(\"en\"))\n    outputs"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ".module[0] = modelBuilder.module[0] + modelBuilder.module[0] modelBuilder.module[0] = modelBuilder.module[0] + modelBuilder.module[0] modelBuilder.module[0] = modelBuilder.module[0] + modelBuilder.module[0] modelBuilder.module[0] = modelBuilder.module[0] + modelBuilder.module[0] modelBuilder.module[0] = modelBuilder.module[0] + modelBuilder.module[0] modelBuilder.module[0] = modelBuilder.module[0]"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "e it to a file named `model.py`.\nThis is a template file, you should edit it to give your own model, and save it to a file named `model.py`.\nThis is a template file, you should edit it to give your own model, and save it to a file named `model.py`.\nThis is a template file, you should edit it to give your own model, and save it to a file named `model.py`.\nThis is a template file, you should edit it"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "elf.eps)\n rencontrer\nYou can use a `torch.nn.LayerNorm` as a base for your custom LayerNorm implementation. It should work for most cases. The important part is that it should be `torch.nn.LayerNorm`-like in terms of parameters and behavior.\n\nclass LayerNorm(torch.nn.LayerNorm):\n    def forward(self, x):\n        return super().forward(x)\n\n\nclass TrigonometricLayerNorm(torch.nn.Module):\n    def __init__(self, dim, eps=1e-5):\n        super().__init__()\n        self.dim = dim\n        self.eps = eps",
+    "error": "IndentationError('unindent does not match any outer indentation level', ('/home/"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": " torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HKV * HD, H, HD)                     # [B, HKV, S, HD, H, HD]\n        qkv = qkv.permute(1, 2, 4, 6, ",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "lf, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.transpose(1, 2)                                    # [B, HKV, S",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ":\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.permute(2, 0, 1)                                   # [S, (H+2*HKV)*HD, B",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": " torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(q",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HD).transpose(1, 2)",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ]
+ }
+}

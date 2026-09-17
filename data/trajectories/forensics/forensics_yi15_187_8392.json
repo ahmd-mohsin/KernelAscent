@@ -1,0 +1,286 @@
+{
+ "model": "01-ai/Yi-Coder-1.5B",
+ "tag": "yi15_187_8392",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 29,
+ "zero_task_frac": 1.0,
+ "failure_dist": {
+  "no_extract": 448,
+  "syntax_error": 12,
+  "runtime_other": 2,
+  "name_error": 1,
+  "type_shape": 1
+ },
+ "failure_pct": {
+  "no_extract": 96.6,
+  "syntax_error": 2.6,
+  "runtime_other": 0.4,
+  "name_error": 0.2,
+  "type_shape": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "type_shape"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "       assert torch.allclose(x, x_triton), f\"Incorrect output at step {i}:\\n\" f\"{x} vs. {x_triton}\"\n\nif __name__ == \"__main__\":\n    import argparse\n\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--num_threads\", \"-nt\", type=int, default=4, help=\"# threads\")\n    args = parser.parse_args()\n    from triton.testing import run_multi_threads\n\n    run_multi_threads(run, args.num_threads)"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "    if self.module_context:\n            with self.module_context:\n                return self.runtime.forward(*args)\n        else:\n            return self.runtime.forward(*args)\n\nclass TritonModuleContext(TritonContext):\n    \"\"\"\n    Module context that allows inference with a Triton module. This context\n    is typically used with :class:`~triton.module.TritonModule` and\n    :func:`~triton.module.T"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "out: tl.tensor((Model.B, Model.S, Model.D))):\n        B, S, D = Model.B, Model.S, Model.D\n        H, HKV, HD, D = Model.N_HEADS, Model.N_KV_HEADS, Model.HEAD_DIM, Model.D\n        x = x.to(dt=tl.float32)\n        out = out.to(dt=tl.float32)\n\n        h = tl.RMSNorm(x, w=Model.norm1_w.to(dt=tl.float32))\n        qkv = tl.matmul(h, Model.w_qkv.to(dt=tl.float32), trans_b=True)\n        q, k, v = tl.split("
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "dd_state(\"total_samples\", torch.tensor(0), dist_reduce_fx=\"sum\")\n\n    def update(self, preds: Tensor, target: Tensor) -> None:\n        \"\"\"Update state with predictions and targets.\"\"\"\n        mean_absolute_percentage_error, n_obs = _mean_absolute_percentage_error_update(preds, target)\n        self.mean_absolute_percentage_error += mean_absolute_percentage_error\n        self.total_samples += n_obs\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "This file is part of Indico.\n# Copyright (C) 2002 - 2020 CERN\n#\n# Indico is free software; you can redistribute it and/or\n# modify it under the terms of the MIT License; see the\n# LICENSE file for more details.\n\nimport os\nfrom os.path import dirname\n\nfrom indico.core.db import db\nfrom indico.core.db.sqlalchemy.custom import Ginutriples\nfrom indico.core.db.sqlalchemy.custom.utils import (create_gin"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "da.synchronize()\n    end = perf_counter()\n    duration = end - start\n    print(f\"{duration} seconds\")\n    profile_kernel(\n        \"triton\",\n        \"Model\",\n        [\"x\"],\n        [inputs[0].shape],\n        [inputs[0].dtype],\n        f\"{Model.B},{Model.S},{Model.D},{Model.N_HEADS},{Model.N_KV_HEADS},{Model.HEAD_DIM}\",\n        f\"{Model.B},{Model.S},{Model.D}\",\n        [\"x\"],\n        duration,\n    )"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l2_2",
+    "code_tail": " run_tests, TEST_WITH_ASAN, IS_CI\nfrom torch.testing._internal.jit_utils import enable_legacy_transformer_mode\n\n# Make the helper files in test/ importable\npytorch_test_dir = Path(__file__).resolve().parent.parent\nsys.path.append(str(pytorch_test_dir))\n\n# Tests for fp16.py\nfrom fp16 import Model, ModelNew, get_inputs\n\n@onlyOnCPUAndCUDA\nclass TestFp16(TestCase):\n    \"\"\"\n    Tests that fp16.py runs with AMP enabled.\n\n    \"\"\"\n\n    @benchmark.precise(repeat(4))\n    def test_correctness(self, device,",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "[head, M, K]\n        y = F.linear(x, self.weight, self.bias)          # [M, K] fp16 GEMM + bias\n        y = self.mask * y                              # per-head mask\n        y = y * self.scale                             # per-head scale\n        y = y.transpose(1, 0)                          # [head, M, K]\n        y = y @ q                                      # [head, M, K] @ [head, K, M]\n        return y.transpose(1, 0).contiguous()           # [head, M, K] @ [head, M, K] -> [M, head, M]\n\ndef",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_8",
+    "code_tail": "B, S, N] fp16 GEMM + bias\n        return h                                                   # [B, S, N] fp16\n\nif __name__ == \"__main__\":\n    model = Model()\n    model_new = ModelNew()\n    inputs = get_inputs()\n\n    # Sanity check that the pre-trained models have the same weight tensor layout:\n    model_weight = model.weight.data.clone().to(\"cpu\")\n    model_new_weight = model_new.weight1.data.clone().to(\"cpu\")\n    print(model_weight.dtype)\n    print(model_weight.shape)\n    print(model_new_weight",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_8",
+    "code_tail": "   b = block_size * block_size\n        j = i % block_size\n        p = (i // block_size) % block_size\n        q = (i // block_size) // block_size\n        o = i // b\n\n        x_off = x_stride * o + p\n        weight_off = w_stride * o + j\n        bias_off = q * 4096 + p\n        scale_off = q\n\n        y[i] = F.linear(x[x_off : x_off + n], weight[weight_off : weight_off + b], bias[bias_off : bias_off + b])\n        y[i] = F.gelu(y[i], approximate=\"tanh\")\n        y[i] *= scale[scale_off : scale_off + b",
+    "error": "SyntaxError(\"'[' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "i in range(len(x)):\n        y[i] = f(a[i].to(device=\"cuda\", dtype=DT))\n    if (x[0].dtype != y[0].dtype) or (x[0].device != y[0].device):\n        print(\"Type mismatch between kernel and host.\")\n    elif (x[0].layout != y[0].layout) or (x[0].device != y[0].device):\n        print(\"Layout mismatch between kernel and host.\")\n    elif (x[0].is_pinned() != y[0].is_pinned()) or (x[0].contiguous() != y[0].contiguous()):\n        print(\"Cannot be cast to the same storage.\")\n    else:\n        print(f\"Type:",
+    "error": "SyntaxError('unterminated f-string literal (detected at line 92)', ('/home/green"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "     * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1\n        * 1",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l3_4",
+    "code_tail": "D_DIM))\n        freqs = torch.outer(torch.arange(SEQ, dtype=torch.float32), inv_freq)\n        emb = torch.cat([freqs, freqs], dim=-1)\n        self.register_buffer(\"cos\", emb.cos().to(DEVICE), persistent=False)\n        self.register_buffer(\"sin\", emb.sin().to(DEVICE), persistent=False)\n        self.register_buffer(\n            \"mask\", torch.triu(torch.ones(SEQ, SEQ, dtype=torch.bool, device=DEVICE), diagonal=1), persistent=False\n        )\n\n    def _rms(self, t, w):\n        tf = t.float()\n        ",
+    "error": "RuntimeError(\"Expected a 'cpu' device type for generator but found 'cuda'\")"
+   },
+   {
+    "task": "l2_8",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        self.model = Model",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_11",
+    "code_tail": "4x faster.\n#\n# Note: there's a little bias in the \"GEMM: 324.4 ms vs 365.6 ms\"; it's more like 2%.\n#\n# Benchmark result: 1581.19 ms, 374.73 ms.\n# 4x faster.\n#\n# Note: there's a little bias in the \"GEMM: 320.4 ms vs 353.8 ms\"; it's more like 2%.\n#\n# Benchmark result: 1568.12 ms, 369.56 ms.\n# 4x faster.\n#\n# Note: there's a little bias in the \"GEMM: 320.5 ms vs 354.1 ms\"; it's more like 2%.\n#\n# Benchmark result: 1639.18 ms, 385.39 ms.\n# 4x faster.\n#\n# Note: there's a little bias in the \"GEMM: 321.7",
+    "error": "NameError(\"name 'device' is not defined\")"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_3",
+    "code_tail": "nel scale + residual\n\n# def model_torch_correct(inputs):\n#     x = inputs[0]\n#     return check_correct(model, x)\n\n# def model_torch_correct_all(inputs):\n#     x_all = x.repeat(16, 1, 1)\n#     return check_correct_all(model, x_all)\n\n# torch_correct = timed(\"torch_correct\", model_torch_correct, *inputs)\n# torch_correct_all = timed(\"torch_correct_all\", model_torch_correct_all, *inputs)\n\n# # ModelParallel\n# inputs = get_inputs()\n# model = Model().cuda()\n\n# def model_mp(inputs):\n#     x = inputs[0]\n",
+    "error": "TypeError(\"'torch.dtype' object is not callable\")"
+   }
+  ]
+ }
+}

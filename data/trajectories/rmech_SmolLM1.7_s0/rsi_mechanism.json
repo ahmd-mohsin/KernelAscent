@@ -1,0 +1,133 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B",
+  "seed": 0,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.0,
+      "C_held": 0.038,
+      "transfer_gap": -0.038,
+      "retention": 0,
+      "gen_distinct2": 0.402,
+      "gen_dissim": 0.908,
+      "gen_entropy": 0.536,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.479,
+      "gen_dissim": 0.921,
+      "gen_entropy": 0.536,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 2,
+      "C_train": 0.031,
+      "C_held": 0.039,
+      "transfer_gap": -0.007,
+      "retention": 0,
+      "gen_distinct2": 0.497,
+      "gen_dissim": 0.913,
+      "gen_entropy": 0.536,
+      "drift_total": 0.1106,
+      "drift_early": 0.0633,
+      "drift_mid": 0.0642,
+      "drift_late": 0.0639,
+      "sft_loss": 0.3828
+    },
+    {
+      "round": 3,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.461,
+      "gen_dissim": 0.914,
+      "gen_entropy": 0.536,
+      "drift_total": 0.1356,
+      "drift_early": 0.0781,
+      "drift_mid": 0.0798,
+      "drift_late": 0.0772,
+      "sft_loss": 0.2604
+    },
+    {
+      "round": 4,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0.125,
+      "gen_distinct2": 0.496,
+      "gen_dissim": 0.904,
+      "gen_entropy": 0.536,
+      "drift_total": 0.1392,
+      "drift_early": 0.0805,
+      "drift_mid": 0.0814,
+      "drift_late": 0.0793,
+      "sft_loss": 0.2469
+    },
+    {
+      "round": 5,
+      "C_train": 0.0,
+      "C_held": 0.039,
+      "transfer_gap": -0.039,
+      "retention": 0,
+      "gen_distinct2": 0.453,
+      "gen_dissim": 0.919,
+      "gen_entropy": 0.536,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 6,
+      "C_train": 0.0,
+      "C_held": 0.038,
+      "transfer_gap": -0.038,
+      "retention": 0,
+      "gen_distinct2": 0.46,
+      "gen_dissim": 0.898,
+      "gen_entropy": 0.536,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 7,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.502,
+      "gen_dissim": 0.921,
+      "gen_entropy": 0.536,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    }
+  ],
+  "verdict": {
+    "compounded": false,
+    "mechanisms": [
+      "drift_saturation"
+    ],
+    "carrying_depth": "mid"
+  }
+}

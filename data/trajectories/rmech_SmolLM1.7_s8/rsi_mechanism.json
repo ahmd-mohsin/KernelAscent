@@ -1,0 +1,36 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B",
+  "seed": 8,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.49,
+      "gen_dissim": 0.9,
+      "gen_entropy": 0.536,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0.125,
+      "gen_distinct2": 0.476,
+      "gen_dissim": 0.9,
+      "gen_entropy": 0.536,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    }
+  ]
+}

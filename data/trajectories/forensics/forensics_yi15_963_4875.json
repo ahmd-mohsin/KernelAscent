@@ -1,0 +1,279 @@
+{
+ "model": "01-ai/Yi-Coder-1.5B",
+ "tag": "yi15_963_4875",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 446,
+  "syntax_error": 13,
+  "name_error": 4,
+  "correct": 1
+ },
+ "failure_pct": {
+  "no_extract": 96.1,
+  "syntax_error": 2.8,
+  "name_error": 0.9,
+  "correct": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_6": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "ed(self):\n        self.assertTrue(is_parameter_server_parallel_enabled())\n\n    def test_is_rocm_available(self):\n        self.assertTrue(is_rocm_available())\n\n    def test_initialize_model_parallel(self):\n        initialize_model_parallel(1, 1)\n        if is_gloo_available():\n            initialize_model_parallel(\"gloo\", 1, 1)\n        if is_nccl_available():\n            initialize_model_parallel(\""
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "     >>> preds = torch.tensor([[[0, 0, 0, 0],\n        ...                        [0, 1, 1, 0],\n        ...                        [0, 1, 1, 0],\n        ...                        [0, 1, 1, 0],\n        ...                        [0, 0, 0, 0]],\n        ...                       [[0, 0, 0, 0],\n        ...                        [0, 1, 1, 0],\n        ...                        [0, 1, 1, 0],\n        .."
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "(min=0, max=1)\n    x = x.mul(255)\n    x = x.to(torch.uint8)\n    return x.to(DT)\n\ndef main():\n    torch.jit.script(ref)\n    benchmark(ref, get_inputs)\n\nif __name__ == '__main__':\n    main()<|endoftext|>import sys\nimport time\nimport torch\nimport math\nimport argparse\nimport numpy as np\nimport os\nimport cv2\nfrom PIL import Image\nimport random\nfrom tqdm import tqdm\n\ndef benchmark(func, args_f):\n    t ="
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "inters into the A100+Triton shared memory buffer.\n    #   There are 3 pointers to the attention key/value heads:\n    #     qkv_ptr[0] points to the attention key/value head for query\n    #     qkv_ptr[1] points to the attention key/value head for key\n    #     qkv_ptr[2] points to the attention key/value head for value\n    #   The `q_ptr` is a 3-element pointer array of pointers into the A100+Trit"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "py_triton)\n    print_times(model.mod_py_triton)\n    print_stats_mod(model.mod_py_triton)\n\n    print_stats(model.mod_py_triton_2)\n    warmup(model.mod_py_triton_2)\n    print_times(model.mod_py_triton_2)\n    print_stats_mod(model.mod_py_triton_2)\n\n    print_stats(model.mod_py_triton_3)\n    warmup(model.mod_py_triton_3)\n    print_times(model.mod_py_triton_3)\n    print_stats_mod(model.mod_py_triton_3)"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "n_f = main()\n    triton_f(\"qkv\", \"o\", \"w_qkv\", \"w_o\", \"mask\", 4096, 1e-6)\n\n    # If you want to do a sanity check, you can uncomment this to print out\n    # the kernels for your model.\n    # mod.model._print_kernels(True)\n\n    for x in get_inputs():\n        ref = mod(x)\n        triton_f(x, ref, mod.model.w_qkv, mod.model.w_o, mod.model.mask, x.size(1), 1e-6)\n        print(f\"Diff: {ref.sub(triton_f"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l2_14",
+    "code_tail": "hat is correct beats a fancy one that errors.\")\n    print(\"*\", \"Define ONLY `class ModelNew(nn.Module)` with the same __init__/forward signature, in ONE python code block.\")\n    print(\"*\" * 80)\n    # print(\"*\", \"Your code must be SELF-CONTAINED and RUN AS-IS: import ONLY torch and torch.nn as nn (optionally `import triton` and `import triton.language as tl` \u2014 nothing else, no other triton submodules, no autocast wrappers, no external packages)\")\n    # print(\"*\", \"Prefer fused torch ops; a plain-",
+    "error": "SyntaxError('unterminated string literal (detected at line 36)', ('/home/greenla"
+   },
+   {
+    "task": "l3_4",
+    "code_tail": "arange(SEQ, dtype=torch.float32), inv_freq)\n        emb = torch.cat([freqs, freqs], dim=-1)\n        self.register_buffer(\"cos\", emb.cos().to(DEVICE), persistent=False)\n        self.register_buffer(\"sin\", emb.sin().to(DEVICE), persistent=False)\n        self.register_buffer(\n            \"mask\", torch.triu(torch.ones(SEQ, SEQ, dtype=torch.bool, device=DEVICE), diagonal=1), persistent=False\n        )\n\n    def _rms(self, t, w):\n        tf = t.float()\n        return tf * torch.rsqrt(tf.pow(2).mean(-1,",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_1",
+    "code_tail": "     out_idx = tl.program_id(0) * tl.blocksize() + tl.thread_id()\n        x = tl.load(x, offset=tl.program_id(1) * tl.blocksize() + tl.thread_id())\n        out[out_idx] = tl.div(x, x)\n\n    @triton.jit\n    def _my_func_7(x, y, out, out_idx):\n        out_idx = tl.program_id(0) * tl.blocksize() + tl.thread_id()\n        x = tl.load(x, offset=tl.program_id(1) * tl.blocksize() + tl.thread_id())\n        out[out_idx] = tl.add(x, x)\n\n    @triton.jit\n    def _my_func_8(x, y, out, out_idx):\n        out_idx",
+    "error": "IndentationError('unindent does not match any outer indentation level', ('/home/"
+   },
+   {
+    "task": "l2_13",
+    "code_tail": " HIDDEN = 4, 2048, 4096\n\nclass Model(nn.Module):\n    \"\"\"Dense projection with a fused epilogue:\n        y = x + gamma * gelu_tanh(x @ W^T + b)\n    (bias + activation + per-channel LayerScale + residual add).\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(0)\n        w = torch.randn(HIDDEN, HIDDEN, generator=g) * (1.0 / HIDDEN ** 0.5)\n        b = torch.randn(HIDDEN, generator=g) * 0.02\n        gamma = 0.5 + torch.rand(HIDDEN, generator=",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "y * torch.rsqrt(ms + self.eps) * self.rms_w.float()\n        return out.to(x.dtype)\n\ndef get_model_time(model):\n    inputs = get_inputs()\n    inputs.append(model)\n    for i in range(32):\n        torch.cuda.synchronize()\n        start = time.time()\n        for j in range(32):\n            with torch.cuda.amp.autocast():\n                model(*inputs)\n        torch.cuda.synchronize()\n        end = time.time()\n        torch.cuda.synchronize()\n        print(f\"{model.__class__.__name__}, {i + 1}, {1e-3",
+    "error": "SyntaxError(\"'{' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": ", x):\n        y = torch.nn.functional.normalize(x, dim=-1, eps=self.eps)\n        return y.mul(self.ln_w).add(self.ln_b).mul(0.5).mul(torch.erf(0.7978845608028654 * (y + 0.044715 * y * y * y))).mul(self.rms_w)\n\n\"\"\"\n\ndef get_benchmarks():\n    yield {\"name\": \"plain\", \"fn\": Model, \"inputs\": get_inputs}\n    yield {\"name\": \"fast\", \"fn\": ModelNew, \"inputs\": get_inputs}\n\nif __name__ == \"__main__\":\n    benchmark = Benchmark(get_benchmarks())\n    benchmark.report_benchmark()\n    benchmark.report_metrics()",
+    "error": "SyntaxError('unterminated triple-quoted string literal (detected at line 58)', ("
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_11",
+    "code_tail": "uda\").eval()(*inputs),\n        repeat=1,\n        warmup=1,\n        num_threads=2,\n        cuda_stream_max=1,\n    )\n\n    benchmark(\n        \"ModelNew\",\n        lambda: ModelNew(*inputs).to(\"cuda\").eval()(*inputs),\n        repeat=1,\n        warmup=1,\n        num_threads=2,\n        cuda_stream_max=1,\n    )\n\n    benchmark(\n        \"ModelNew:jit\",\n        lambda: ModelNew(*inputs).to(\"cuda\").eval().to(\"cuda\"),\n        repeat=1,\n        warmup=1,\n        num_threads=2,\n        cuda_stream_max=1,\n    )",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "rnel_ref_kernel_ref_kernel_kernel_kernel_kernel_kernel_kernel():\n    return get_model_kernel()\n\ndef get_model_kernel_kernel_kernel_ref_kernel_ref_kernel_kernel_kernel_kernel_kernel_kernel_kernel():\n    return get_model_kernel()\n\ndef get_model_kernel_kernel_kernel_ref_kernel_ref_kernel_kernel_kernel_kernel_kernel_kernel_kernel_kernel():\n    return get_model_kernel()\n\ndef get_model_kernel_kernel_kernel_ref_kernel_ref_kernel_kernel_kernel_kernel_kernel_kernel_kernel_kernel_kernel():\n    return get_",
+    "error": "NameError(\"name 'dev' is not defined\")"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "f.ln_w.float() + self.ln_b.float()\n        y = 0.5 * y * (1.0 + torch.tanh(0.7978845608028654 * (y + 0.044715 * y * y * y)))\n        ms = (y * y).mean(dim=-1, keepdim=True)\n        out = y * torch.rsqrt(ms + self.eps) * self.rms_w.float()\n        return out.to(x.dtype)\n\nif __name__ == \"__main__\":\n    p = torch.jit.save_script_module(\n        torch.jit.script(Model().float().to(torch.float16).cuda()),\n        \"model.pt\",\n    )\n    p.forward(get_inputs()[0])\n    ModelNew().forward(get_inputs()[0])",
+    "error": "NameError(\"name 'g' is not defined\")"
+   },
+   {
+    "task": "l1_5",
+    "code_tail": ")).to(dev, dt), requires_grad=False)\n        self.gate_b = nn.Parameter((0.1 * torch.randn(N, generator=g)).to(dev, dt), requires_grad=False)\n\n    def forward(self, x):\n        mu = x.mean(dim=-1, keepdim=True)\n        xc = x - mu\n        var = (xc * xc).mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.ln_w.float() + self.ln_b.float()\n        act = F.gelu(h, approximate=\"tanh\")\n        gate = torch.sigmoid(h * self.gate_w.float() + self.gate_b.float())",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   }
+  ]
+ }
+}

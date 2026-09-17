@@ -1,0 +1,303 @@
+{
+ "model": "deepseek-ai/deepseek-coder-1.3b-base",
+ "tag": "ds13_140_2533",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 406,
+  "syntax_error": 49,
+  "name_error": 6,
+  "correct": 1,
+  "runtime_other": 2
+ },
+ "failure_pct": {
+  "no_extract": 87.5,
+  "syntax_error": 10.6,
+  "name_error": 1.3,
+  "correct": 0.2,
+  "runtime_other": 0.4
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "rint(model())\n\n    model = Model(dt=torch.float16)\n    print(model())\n\n    model = Model(dt=torch.float16)\n    print(model())\n\n    import sys\n    sys.path.append(\"/home/ubuntu/triton-inference-server\")\n    from triton_client.grpc_client import TritonClient\n\n    client = TritonClient(\n        \"localhost\",\n        \"12345\",\n        \"model-1\",\n        \"model-1\",\n        \"1\",\n        \"1\",\n        \"1\",\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "sqrt(tf.pow(2).mean(-1, keepdim=True))\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).trans"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "del_name\": model_name})\n    triton_model.init_model(model_name)\n\n    num_inputs = len(inputs)\n    inputs_batch_size = inputs[0].shape[0]\n    inputs_batch_size_max = 1024\n\n    benchmark = Benchmark(\n        triton_model, triton_inputs, triton_outputs, model_name,\n        num_inputs, inputs_batch_size, inputs_batch_size_max\n    )\n\n    benchmark.run_benchmark()\n\n\nif __name__ == \"__main__\":\n    main()"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": " channel_credentials=None,\n            call_credentials=None,\n            compression=None,\n            wait_for_ready=None,\n            timeout=None,\n            metadata=None):\n        return grpc.experimental.unary_unary(request, target, '/test.LAMAV4/Make',\n            test__pb2.GetRequest.SerializeToString,\n            test__pb2.GetResponse.FromString,\n            options, channel_credentials"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ", 1)\n        self.conv3 = nn.Conv2d(32, 64, 3, 1, 1)\n        self.conv4 = nn.Conv2d(64, 64, 3, 1, 1)\n        self.conv5 = nn.Conv2d(64, 128, 3, 1, 1)\n        self.conv6 = nn.Conv2d(128, 128, 3, 1, 1)\n        self.conv7 = nn.Conv2d(128, 256, 3, 1, 1)\n        self.conv8 = nn.Conv2d(256, 256, 3, 1, 1)\n        self.conv9 = nn.Conv2d(256, 512, 3, 1, 1)\n        self.conv10 = nn.Conv2d(512, 512, 3, 1, 1)"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "     model(torch.randn(Model.B, Model.S, Model.D).to(device, DT))\n\n\ndef main():\n    for dev in [\"cpu\", \"cuda\"]:\n        test_trace_output(dev)\n        test_trace_input(dev)\n        test_trace_both(dev)\n        test_runtime(dev)\n\n\nif __name__ == \"__main__\":\n    main()\n\n#tests/test_triton_ml_onnx_backend.py\n#!/usr/bin/env python3\n\n# Copyright (c) Facebook, Inc. and its affiliates.\n# This source code"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "n(cls.pytorch_model_dir)\n            cls.pytorch_inputs = [torch.randn(impl.Model.B, impl.Model.S, impl.Model.D)]\n            cls.pytorch_inputs_device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n            cls.pytorch_inputs_dtype = \"float16\"\n            cls.pytorch_output = cls.pytorch_model(cls.pytorch_inputs)\n\n        def test_model_fn_impl(self):\n            assert len(self.triton_inputs) == 1\n            assert len(self.triton_inputs[0]) == 3\n            assert self.triton_inputs[0].",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "class ModelNew(nn.Module):\n    # ...\n\nThat is not how you define a subclass of Model. A class is defined by having an __init__ method, and a superclass is defined by having a super() call.\nLastly, you have:\nq = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\nq = q.view(b, s, H, HD).transpose(1, 2)\n\nThat is not how you split the tensor into chunks. You need to do something like:\nq = torch.split(qkv, [H * HD, HKV * HD], dim=-1)\n\n",
+    "error": "IndentationError('expected an indented block after class definition on line 81',"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "class ModelNew(nn.Module)` with the same __init__/forward signature, in ONE python code block.\n\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\n# Transformer-scale GEMM: (batch*seq) x hidden -> hidden\nM = 8192   # tokens (e.g. batch 8 x seq 1024)\nK = 4096   # input features\nN = 4096   # output features (== K so the residual is well",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "\n    epilogue: bias -> tanh-GELU -> per-channel LayerScale -> residual add.\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(N, K, generator=g) * (1.0 / K ** 0.5)\n        b = torch.randn(N, generator=g) * 0.02\n        gamma = 0.5 + 0.5 * torch.rand(N, generator=g)\n        self.weight = nn.Parameter(w.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DE",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "elf.weight, self.bias)          # [M, N] fp16 GEMM + bias\n            h = F.gelu(h, approximate=\"tanh\")                # activation\n            return h * self.scale + x                        # per-channel scale + residual\n\n    @cuda.jit\n    def run(x, model, weight, bias, scale):\n        h = cuda.linear(x, weight, bias)\n        h = cuda.gelu(h)\n        return h * scale + x\n\n    @py.kernel(flags=[], name=\"run\", backend=py.CppBackend())\n    def py_run(x, model, weight, bias, scale):\n        cuda",
+    "error": "IndentationError('unindent does not match any outer indentation level', ('/home/"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)          # [M, N] fp16 GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")                # activation\n        return h * self.scale + x                        # per-channel scale + residual\n\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(M, K, generator=g, dtype=torch.float32).to(device",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l3_4",
+    "code_tail": "ork.viewsets import ViewSet\nfrom .serializers import ModelNewSerializer\nfrom .model import ModelNew\n\n\nclass ModelViewSet(ViewSet):\n    serializer_class = ModelNewSerializer\n\n    def list(self, request):\n        return Response(ModelNew.objects.all())\n\n    def create(self, request):\n        return Response(ModelNew.objects.create(**request.data))\n\n#router.py\nfrom rest_framework.routers import DefaultRouter\nfrom .views import ModelViewSet\n\nrouter = DefaultRouter()\nrouter.register(\"\", ModelViewSet)",
+    "error": "NameError(\"name 'serializers' is not defined\")"
+   },
+   {
+    "task": "l1_10",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self):\n        super().__init__()\n\n    def forward(self, x):\n        return Model().forward(x)\n\n\n@triton.jit(inputs=triton.In(model=ModelNew, X=triton.INPUT(dtype=triton.float16)), outputs=triton.Out(y=triton.OUTPUT(dtype=triton.float16)))\ndef model_func(x):\n    return ModelNew().forward(x)\n\n\ndef main():\n    assert (get_outputs() == model_func(get_inputs())).all()\n\n\nif __name__ == \"__main__\":\n    main()",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "ting.compare_triton_and_torch_implementations(\n        model_new_func, model_new_func, [ModelNew, ModelNew]\n    )\n\n\ndef test_model_triton_gpu():\n    triton.testing.compare_triton_and_torch_implementations(\n        model_new_func, model_new_func, [ModelNew, ModelNew], device=\"cuda\"\n    )\n\n\n# pytest test_model_torch.py\n\n#pytest test_model_triton.py\n\n#pytest test_model_triton_gpu.py\n\n#pytest test_model_new.py\n\n#pytest test_model_torch.py\n\n#pytest test_model_triton.py\n\n#pytest test_model_triton_gpu.",
+    "error": "NameError(\"name 'tl' is not defined\")"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "= torch.randn(ROWS, H, dtype=DT)\n    y = ModelNew().forward(x)\n    return [y]\n\n## Solution\nimport torch\nimport torch.nn as nn\n\n# DT = torch.float16\nDT = torch.float32\nROWS, H = 32768, 4096\n\n\nclass ModelNew(nn.Module):\n    # NormFormer-style FFN tail: LayerNorm -> affine -> tanh-GELU -> RMSNorm -> gain\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(1234)\n        self.ln_",
+    "error": "AttributeError(\"'ModelNew' object has no attribute 'ln_'\")"
+   },
+   {
+    "task": "l2_5",
+    "code_tail": "f, x):\n        # x: [B, S, N]\n        # self.weight: [N, K]\n        # self.bias: [N]\n        # self.gamma: [N]\n        # self.act: function\n\n        h = tl.matmul(x, self.weight, trans_a=True)       # [B, S, K]\n        y = self.act(h) * self.gamma + x                 # [B, S, N]\n        return y\n\n\nclass TransformerModelNew(tl.Compute):\n    @tl.impl('compute')\n    def __init__(self):\n        self.model = ModelNew(dt=f16)\n\n    @tl.impl('compute')\n    def __call__(self, inputs):\n        return self",
+    "error": "NameError(\"name 'tl' is not defined\")"
+   },
+   {
+    "task": "l1_4",
+    "code_tail": "nerator=g)\n    row_shift = torch.randn(ROWS, 1, generator=g)\n    x = torch.randn(ROWS, COLS, generator=g) * row_scale + row_shift\n    return [x.to(device=device, dtype=DT)]\n\n\n@torch.no_grad()\ndef test_model_new(model, inputs):\n    assert model(inputs[0]).allclose(model.forward(inputs[0]))\n    # assert model.forward(inputs[0]).allclose(model(inputs[0]))\n\n\n@torch.no_grad()\ndef test_model_new2(model, inputs):\n    assert model.forward(inputs[0]).allclose(model(inputs[0]))\n    # assert model.forward(",
+    "error": "NameError(\"name 'g' is not defined\")"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_8",
+    "code_tail": "t__()\n        dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        hidden = 4096\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(hidden, hidden, generator=g) * (hidden ** -0.5)\n        b = torch.randn(hidden, generator=g) * 0.02\n        s = 1.0 + 0.1 * torch.randn(hidden, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n       ",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "d(get_inputs())\n# END\n\n# Compare this code to the original implementation\n# N.B. You can add additional imports above, and put the code between BEGIN and END comments.\n\n# BEGIN\ndef forward_original(inputs):\n    return torch.nn.functional.linear(inputs[0], weight, bias)\n\n\ndef forward_optimized(inputs):\n    h = torch.nn.functional.gelu(\n        torch.nn.functional.linear(inputs[0], weight, bias), approximate=\"tanh\"\n    )\n    return inputs[0] + scale * h\n# END\n\n# Compare the optimized and original\n",
+    "error": "RuntimeError('\\nTensor (inferred) cannot be used as a tuple:\\n  File \"/home/gree"
+   }
+  ]
+ }
+}

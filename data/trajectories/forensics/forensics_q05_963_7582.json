@@ -1,0 +1,277 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B",
+ "tag": "q05_963_7582",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 29,
+ "zero_task_frac": 1.0,
+ "failure_dist": {
+  "no_extract": 337,
+  "syntax_error": 124,
+  "runtime_other": 1,
+  "name_error": 2
+ },
+ "failure_pct": {
+  "no_extract": 72.6,
+  "syntax_error": 26.7,
+  "runtime_other": 0.2,
+  "name_error": 0.4
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "This is a straightforward question about how to speed up the above model. One option is to use a faster PyTorch optimizer such as Triton's native `torch.triton.autocast`. The other option is to experiment with a more complex model like the `torch.triton` library, which uses a more advanced optimizer. The choice ultimately depends on the specific architecture and use case."
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "      qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.reshape(b, s, -1, H * HD).transpose(1, 2)         # [B, H, S, HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                   "
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "= get_test_metrics(outputs)\n\n    print(\"Inputs:\")\n    print(inputs)\n    print(\"Outputs:\")\n    print(outputs)\n    print(\"Metrics:\")\n    print(metrics)\n    print(\"Info:\")\n    print(info)\n    print(\"Test inputs:\")\n    print(test_inputs)\n    print(\"Test outputs:\")\n    print(test_outputs)\n    print(\"Test metrics:\")\n    print(test_metrics)\n\n\ndef main():\n    test()\n\n\nif __name__ == \"__main__\":\n    main()"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "n a website, personalizing the content of a website for the visitor, analyzing website traffic, identifying visitors, and improving a website.\nCookies are a form of code that is embedded in HTML pages. They are used to send data to a server, and are typically used for analytics and tracking purposes.\nCookies can be used for various purposes, including:\n\n\n- Tracking website visitors: Cookies can be"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "0201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201020102010201"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "o(dev), persistent=False)\n        self.register_buffer(\"sin\", emb.sin().to(dev), persistent=False)\n        self.register_buffer(\n            \"mask\", torch.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False\n        )\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "f, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HD).transpose(1, 2)                  # [B, H,   S,",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "  return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HD).transpose(1, 2)                  # [B, H, S, HD",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)] **)",
+    "error": "SyntaxError(\"unmatched ')'\", ('/home/greenland-user/ka/ka_data/cand_modules/cand"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "s, no external packages). Prefer fused torch ops; a plain-torch kernel that is correct beats a fancy one that errors. Define ONLY `class ModelNew(nn.Module)`. This is your fast module. Do not use any external packages, even if you do import triton or triton.language. Also, make sure your code is *independent* of the torch.nn package. (You can use any other packages, even if they are not used inside your code. They don't need to be in the same file as the above class, they just need to be used in",
+    "error": "SyntaxError(\"invalid character '\u2014' (U+2014)\", ('/home/greenland-user/ka/ka_data/"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_3",
+    "code_tail": "class ModelNew(nn.Module):\n    \"\"\"\n    LayerScale-style residual projection block (transformer-realistic):\n        out = x + gamma * gelu_tanh(x @ W^T + b)\n    One 8192x4096x4096 fp16 GEMM with a fused epilogue\n    (bias + tanh-GELU + per-channel scale + residual add).\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n       ",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l3_1",
+    "code_tail": " self.l0 * 2, persistent=False)\n\n        # --- QKV projection ---\n        qkv = self.l1 @ self.w_qkv + self.b_qkv\n        q, k, v = qkv.split(H, dim=-1)\n\n        # --- Rotary position embeddings on q, k ---\n        cos = self.rope_cos[:S].view(1, 1, S, d)\n        sin = self.rope_sin[:S].view(1, 1, S, d)\n        q = q * cos + self._rotate_half(q) * sin\n        k = k * cos + self._rotate_half(k) * sin\n\n        # --- Causal scaled dot-product attention, fully materialized ---\n        scores = torch",
+    "error": "AttributeError(\"'ModelNew' object has no attribute 'dt'\")"
+   },
+   {
+    "task": "l1_5",
+    "code_tail": "eter((0.5 * torch.randn(N, generator=g)).to(dev, dt), requires_grad=False)\n        self.gate_b = nn.Parameter((0.1 * torch.randn(N, generator=g)).to(dev, dt), requires_grad=False)\n\n    def forward(self, x):\n        xf = x.float()\n        mu = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mu\n        var = (xc * xc).mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.ln_w.float() + self.ln_b.float()\n        act = F.gelu(h, approximate=\"tanh\")\n        gate",
+    "error": "NameError(\"name 'gate' is not defined\")"
+   }
+  ]
+ }
+}

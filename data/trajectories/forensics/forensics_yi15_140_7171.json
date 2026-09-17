@@ -1,0 +1,302 @@
+{
+ "model": "01-ai/Yi-Coder-1.5B",
+ "tag": "yi15_140_7171",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 449,
+  "syntax_error": 7,
+  "runtime_other": 4,
+  "type_shape": 1,
+  "correct": 1,
+  "name_error": 2
+ },
+ "failure_pct": {
+  "no_extract": 96.8,
+  "syntax_error": 1.5,
+  "runtime_other": 0.9,
+  "type_shape": 0.2,
+  "correct": 0.2,
+  "name_error": 0.4
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_9": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "get_total_epochs,\n    get_total_steps_per_epoch,\n)\n\nclass ModelCheckpoint:\n    \"\"\"\n    Manages checkpointing for a model\n    \"\"\"\n\n    def __init__(\n        self,\n        model: ModelType,\n        model_dir: Union[str, pathlib.Path],\n        logger: Optional[logging.Logger] = None,\n        log_dir: Union[str, pathlib.Path, None] = None,\n        config: Optional[config.Config] = None,\n        model_"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ")\n        for i in range(T):\n            f(*args, **kwargs)\n        print(\n            f\"{f.__name__}, {T}, {time.perf_counter() - t0}, {autotune_ctx._autotune_context._autotune._autotune_key}\"\n        )\n\n    benchmark(benchmark_cpu)\n\n    def benchmark_cpu(f, *args, **kwargs):\n        t0 = time.perf_counter()\n        for i in range(T):\n            f(*args, **kwargs)\n        print(\n            f\"{f"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "assert torch.allclose(out, check(x, device=\"cpu\"), atol=1e-3)\n\n    torch.cuda.synchronize()\n    out = bench(x, device=\"cpu\")\n    assert torch.allclose(out, check(x, device=\"cpu\"), atol=1e-3)\n\n    torch.cuda.synchronize()\n    out = bench(x, device=\"cpu\")\n    assert torch.allclose(out, check(x, device=\"cpu\"), atol=1e-3)\n\n    torch.cuda.synchronize()\n    out = bench(x, device=\"cpu\")\n    assert torch."
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "_size=32,\n    dtype=tl.float32,\n):\n    \"\"\"\n    Reduce a tensor using a reduction kernel on Triton.\n\n    :param inp: input tensor\n    :param reduction_op: reduction op function, must be one of\n      `reduce_sum`, `reduce_sum_max`, `reduce_prod`, `reduce_min`, `reduce_max`, `reduce_any`, `reduce_all`\n    :param reduction_size: size of the reduction\n    :param reduction_index: index of the reduction\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "* Model.D ** -0.5).to(dev)\n    )\n    model.w_norm2_o = nn.Parameter(\n        (torch.randn(Model.D, generator=g) * Model.D ** -0.5).to(dev)\n    )\n    model.register_buffer(\n        \"mask\", torch.triu(torch.ones(Model.S, Model.S, dtype=torch.bool), diagonal=1).to(dev)\n    )\n    model.norm1_w = nn.Parameter((1.0 + 0.1 * torch.randn(Model.D, generator=g)).to(dev))\n    model.norm2_w = nn.Parameter((1.0"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "ed to support the `cargo build --bin <bin>`\n        command.\n        If not specified, defaults to `<cargo-dir>/bin/cargo`.\n        \"\"\",\n    )\n    parser.add_argument(\n        \"--cargo-dir\",\n        help=\"\"\"Path to Cargo.\n        This is used to find the location of the Cargo binary.\n        If not specified, defaults to `<cargo-dir>/.cargo`.\n        \"\"\",\n    )\n    parser.add_argument(\n        \"--"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "e(b, H, 1) * (2 * torch.pi / S)).cos()\n        x = x.expand(b, H, S)\n        x = x.reshape(b, H, S, S)\n        x = x.transpose(1, 2)\n        x = x.reshape(b, S, H, S)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b, S, D)\n        x = x.reshape(b",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "= ModelNew()\nmod_new.export_library(\"my_mod_new.lib\", dynamic=True)\n\nfrom triton.testing import check_tvm_results\nfrom triton.testing import check_tvm_results_pytorch\nfrom triton.testing import check_tvm_results_ptq\n\ncheck_tvm_results(mod, inputs, \"my_mod\", \"triton.py\")\ncheck_tvm_results(mod_new, inputs, \"my_mod_new\", \"triton.py\")\n\nfrom triton.testing import check_tvm_results_pytorch\ncheck_tvm_results_pytorch(mod, inputs, \"my_mod\", \"triton.py\")\ncheck_tvm_results_pytorch(mod_new, inputs, \"my_mod_",
+    "error": "SyntaxError('unterminated string literal (detected at line 103)', ('/home/greenl"
+   },
+   {
+    "task": "l2_8",
+    "code_tail": "\")\n    correctness_check(model, inputs[0])\n    print(f\"speed:\")\n    t0 = time.perf_counter()\n    y_comp = model(*inputs)\n    print(f\"time: {(time.perf_counter() - t0) * 1000:.2f} ms\")\n    print(f\"speed: {(y_ref.numel() / (time.perf_counter() - t0)):.2f} tokens/ms\")\n    print(\"-\" * 80)\n    print(f\"ref vs comp: {100 * torch.allclose(y_ref, y_comp):.2f}%\")\n\ndef correctness_check_and_print_fast_2(model: Model, inputs: list[torch.Tensor]):\n    y_ref = model(*inputs)\n    print(f\"model: {model} {model.",
+    "error": "SyntaxError(\"'{' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_1",
+    "code_tail": "ython Inference Server\n\n    -   Simple TensorRT Inference Server with PyTorch (experimental)\n        -   Triton Inference Server with PyTorch\n\n    -   Simple TensorRT Inference Server with Python (experimental)\n        -   Triton Inference Server with Python\n\n    -   Simple TensorRT Inference Server with Tensorflow (experimental)\n        -   Triton Inference Server with Tensorflow\n\n    -   Simple TensorRT Inference Server with Custom Python\n        -   Triton Inference Server with Custom Python\n",
+    "error": "SyntaxError('unterminated triple-quoted string literal (detected at line 111)', "
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "_autorange()\n            triton.testing.verify_triton(fn, inputs, verbose=1)\n        else:\n            benchmark.Timer(\n                label=\"triton\",\n                stmt=f\"{fn.__name__}({', '.join(map(repr, inputs))})\",\n                setup=f\"from __main__ import {fn.__name__}\",\n                num_threads=num_threads,\n            ).blocked_autorange()\n            triton.testing.verify_triton(fn, inputs, verbose=1)\n\n        benchmark.Timer(\n            label=\"ref\",\n            stmt=f\"{mod.__",
+    "error": "SyntaxError(\"'{' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "    model = model_class(dt=torch.float32).to(\"cuda\")\n    t0 = time.time()\n    model(*inputs)\n    elapsed = time.time() - t0\n    return elapsed\n\nif __name__ == \"__main__\":\n    import time\n    import sys\n    import numpy as np\n\n    inputs = get_inputs()\n    print(\"Model 1:\")\n    m1 = measure_time(Model, Model, inputs)\n    print(\"Model 2:\")\n    m2 = measure_time(Model, Model, inputs)\n    print(\"Speedup:\", m1/m2)\n    print(\"Speedup (np):\", np.prod(m2/m1))\n    print(\"Timing (ms):\", m1*1e3/np.mean(np.",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_11",
+    "code_tail": "\")\n        return x * self.scale\n\n# Benchmark code:\nif __name__ == \"__main__\":\n    model = ModelNew()\n    inputs = get_inputs()\n    x = inputs[0]\n    model.weight.data.copy_(x.data)\n    model.bias.data.copy_(x.data)\n    model.scale.data.copy_(x.data)\n    model.scale.data.copy_(x.data)\n    model.scale.data.copy_(x.data)\n    model.scale.data.copy_(x.data)\n    model.scale.data.copy_(x.data)\n    time_per_iter = time.perf_counter()\n    for i in range(num_iters):\n        x = model(x)\n    time_per_iter",
+    "error": "RuntimeError('The size of tensor a (8192) must match the size of tensor b (4096)"
+   },
+   {
+    "task": "l2_8",
+    "code_tail": "Model()\n    model_t = ModelNew()\n\n    benchmark_function(benchmark, model, inputs, repeat=1000)\n    benchmark_function(benchmark, model_t, inputs, repeat=1000)\n\n    # tl.cuda.saxpy(x, 1.0, y) # y = 1.0 * x + y\n    # tl.cuda.saxpy(x, float4(1.0, 1.0, 1.0, 1.0), y) # y = float4(1.0, 1.0, 1.0, 1.0) * x + y\n    # tl.cuda.saxpy(x, float4(1.0, 1.0, 1.0, 1.0), y, incx=4) # y = float4(1.0, 1.0, 1.0, 1.0) * x + y\n    # tl.cuda.saxpy(x, float4(1.0, 1.0, 1.0, 1.0), y, incx=4, incy=8) # y = float4(1.0, 1.0,",
+    "error": "RuntimeError('expected mat1 and mat2 to have the same dtype, but got: c10::Half "
+   },
+   {
+    "task": "l2_13",
+    "code_tail": "\"\"\n            # x = tl.load(x_ptr)\n            # w = tl.load(w_ptr)\n            # b = tl.load(b_ptr)\n            # gamma = tl.load(gamma_ptr)\n            x = tl.load(x_ptr, device=\"cpu\")\n            w = tl.load(w_ptr, device=\"cpu\")\n            b = tl.load(b_ptr, device=\"cpu\")\n            gamma = tl.load(gamma_ptr, device=\"cpu\")\n            y = tl.zeros(batch, seq, hidden, device=DEVICE)\n            # y = F.linear(x, w, b)                                                # [B, S, N] fp16 GEMM (fp3",
+    "error": "RuntimeError('expected mat1 and mat2 to have the same dtype, but got: c10::Half "
+   },
+   {
+    "task": "l1_5",
+    "code_tail": "LayerNorm(fp32 stats) -> GELU(tanh) * sigmoid-gate -> residual -> row-wise log-softmax\n        # on a [16384, 4096] fp16 tensor. Pure elementwise chain + 4 row reductions;\n        # ideal traffic is one read + one write of x (bandwidth-bound).\n        def __init__(self, dt=DT):\n            super().__init__()\n            self.dt = dt\n            self.eps = 1e-5\n            N = 4096\n            dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n            g = torch.Generator().manual_seed(1234)",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_11",
+    "code_tail": "(0)\n        n = N\n        x = tl.load(x_ptr + n * pid)\n        y = tl.zeros((N,), dtype=dtype)\n        y = kernel_kernel(x, y)\n        tl.store(y_ptr + n * pid, y)\n\n    @triton.jit\n    def kernel_kernel(x, y):\n        pid = tl.program_id(0)\n        n = y.shape[0]\n        if pid == 0:\n            return kernel_kernel_kernel(x, y, n)\n        else:\n            return tl.zeros((n,), dtype=y.dtype)\n\n    @triton.jit\n    def kernel_kernel_kernel(x, y, n):\n        pid = tl.program_id(0)\n        idx = tl",
+    "error": "TypeError(\"linear(): argument 'input' (position 1) must be Tensor, not numpy.nda"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_15",
+    "code_tail": "If the implementations are correct, they should be about the same speed.\n# 2. If they are incorrect, they should be significantly different (like 10x faster).<|endoftext|>#!/usr/bin/env python\n\n# Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.\n\n# Redistribution and use in source and binary forms, with or without\n# modification, are permitted provided that the following conditions\n# are met:\n#  * Redistributions of source code must retain the above copyright\n#    notice, this list of",
+    "error": "NameError(\"name 'time' is not defined\")"
+   },
+   {
+    "task": "l1_5",
+    "code_tail": "eter((0.1 * torch.randn(4096, generator=self.g)), requires_grad=False)\n\n    def forward(self, x):\n        w = self.ln_w.to(x.dtype)\n        b = self.ln_b.to(x.dtype)\n        g = self.gate_w.to(x.dtype)\n        h = x.to(x.dtype) * w + b\n        act = F.gelu(h, approximate=\"tanh\")\n        gate = torch.sigmoid(h * g + self.gate_b.to(x.dtype))\n        y = act * gate + x\n        m = y.amax(dim=-1, keepdim=True)\n        z = y - m\n        lse = torch.log(torch.exp(z).sum(dim=-1, keepdim=True))\n        ",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   }
+  ]
+ }
+}

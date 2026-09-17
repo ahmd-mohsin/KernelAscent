@@ -1,0 +1,66 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-1.5B",
+  "seed": 6209,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.037,
+      "C_held": 0.0,
+      "transfer_gap": 0.037,
+      "retention": 0,
+      "gen_distinct2": 0.284,
+      "gen_dissim": 0.675,
+      "gen_entropy": 0.007,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.0,
+      "C_held": 0.0,
+      "transfer_gap": 0.0,
+      "retention": 0,
+      "gen_distinct2": 0.266,
+      "gen_dissim": 0.741,
+      "gen_entropy": 0.007,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 2,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.272,
+      "gen_dissim": 0.724,
+      "gen_entropy": 0.007,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 3,
+      "C_train": 0.031,
+      "C_held": 0.0,
+      "transfer_gap": 0.031,
+      "retention": 0,
+      "gen_distinct2": 0.273,
+      "gen_dissim": 0.768,
+      "gen_entropy": 0.007,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B",
+ "tag": "q05_963_6927",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 29,
+ "zero_task_frac": 1.0,
+ "failure_dist": {
+  "no_extract": 346,
+  "syntax_error": 114,
+  "name_error": 3,
+  "type_shape": 1
+ },
+ "failure_pct": {
+  "no_extract": 74.6,
+  "syntax_error": 24.6,
+  "name_error": 0.6,
+  "type_shape": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "]\n        q = qkv[:, :H, :].reshape(b, s, H, s).transpose(1, 2)       # [B, H, S, S]\n        k = qkv[:, H:, :].reshape(b, s, HKV, s).transpose(1, 2)      # [B, HKV, S, S]\n        v = qkv[:, HKV:, :].reshape(b, s, HKV, s).transpose(1, 2)     # [B, HKV, S, S]\n        scores = torch.matmul(q, k.transpose(-1, -2)).float() * (HD ** -0.5)  # [B, H, S, S]\n        scores = scores.masked_fill(self.mask[:s,"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ", D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, "
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\nocracy\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "tors\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators\nvalidators"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ", [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "for the given problem?\n\nLet's take a look at the model you implemented for the given problem: `Model`. The model is a sequence-to-sequence model that is trained on the `bert-large-cased-finetuned-mrpc-1000000-train.txt` file.\n\nThis model consists of two parts: the encoder and the decoder. The encoder and the decoder are both stacked RNNs, but the encoder has a different architecture and uses fused"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.reshape(b, s, H, HKV * HD).transpose(1, 2)         # [B, H, S",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "ent=False)\n        self.register_buffer(\"sin\", emb.sin().to(dev), persistent=False)\n        self.register_buffer(\n            \"mask\", torch.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False\n        )\n\n    @staticmethod\n    def _rotate_half(t):\n        t1, t2 = t.chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "norm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.transpose(1, 2).reshape(b, S, 2, H, HKV, HD)       # [B,",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "                                  # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HD)                                 # [B, H, S, HD]\n        qkv = qkv.transpose(1, 2)                                    # [B, H,   S, HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HK",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.permute(0, 2, 1)                                  # [B, S, 2*H*HD",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "self.EPS)\n        return tl.rand.zeros((2, tl.size(t, 0), generator=g), dtype=tl.float32).to(\n            dev, dt\n        ) + tl.rand.zeros((2, tl.size(t, 0), generator=g), dtype=tl.float32).to(\n            dev, dt\n        )\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l1_6",
+    "code_tail": "equires_grad=False)\n        self.b_in = nn.Parameter(b_in.to(dev, dt), requires_grad=False)\n        self.w_res = nn.Parameter(w_res.to(dev, dt), requires_grad=False)\n        self.w_out = nn.Parameter(w_out.to(dev, dt), requires_grad=False)\n\n    def forward(self, x):\n        xf = x.float()\n        # pre-norm (RMSNorm) + affine\n        inv1 = torch.rsqrt(xf.pow(2).mean(dim=-1, keepdim=True) + self.eps)\n        h = xf * inv1 * self.w_in.float() + self.b_in.float()\n        # GELU, tanh approximation",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   },
+   {
+    "task": "l2_3",
+    "code_tail": "F.gelu(h, approximate=\"tanh\")                # activation\n        return x + self.gamma * h                        # per-channel scale + residual\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(8, 1024, 4096, generator=g)         # B=8, S=1024, D=4096 -> M=8192 tokens\n    return [x.to(device=device, dtype=DT)]                                                     # [B, S, D]\n\ninputs = get_inputs",
+    "error": "NameError(\"name 'device' is not defined\")"
+   },
+   {
+    "task": "l3_1",
+    "code_tail": "egister_buffer(\"rope_sin\", emb.sin().to(DEVICE, dt), persistent=False)\n\n        # Causal mask (True = masked out)\n        mask = torch.triu(torch.ones(SEQ, SEQ, dtype=torch.bool), diagonal=1)\n        self.register_buffer(\"causal_mask\", mask.to(DEVICE), persistent=False)\n\n    @staticmethod\n    def _rotate_half(x):\n        x1, x2 = x.chunk(2, dim=-1)\n        return torch.cat([-x2, x1], dim=-1)\n\n    def forward(self, x):\n        B, S, H = x.shape\n        nh, d = self.n_heads, self.head_dim\n\n       ",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l3_1",
+    "code_tail": "tics, fp16 affine) ---\n        xf = x.float()\n        mu = xf.mean(dim=-1, keepdim=True)\n        var = xf.var(dim=-1, unbiased=False, keepdim=True)\n        h = ((xf - mu) * torch.rsqrt(var + LN_EPS)).to(self.dt) * self.ln1_w + self.ln1_b\n\n        # --- QKV projection ---\n        qkv = h @ self.w_qkv.t() + self.b_qkv                 # (B, S, 3H)\n        qkv = qkv.reshape(B, S, nh, 3, nh, d).transpose(2, 3).contiguous() # (B, 3, nh, nh, S, d)\n        q, k, v = torch.chunk(qkv, dim=4, num_chunks=3)",
+    "error": "RuntimeError(\"shape '[4, 2048, 16, 3, 16, 64]' is invalid for input of size 2516"
+   }
+  ]
+ }
+}

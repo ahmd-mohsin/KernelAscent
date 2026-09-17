@@ -1,0 +1,331 @@
+{
+ "model": "deepseek-ai/deepseek-coder-1.3b-base",
+ "tag": "ds13_140_2301",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 421,
+  "syntax_error": 30,
+  "name_error": 6,
+  "runtime_other": 3,
+  "wrong_output": 2,
+  "type_shape": 1,
+  "correct": 1
+ },
+ "failure_pct": {
+  "no_extract": 90.7,
+  "syntax_error": 6.5,
+  "name_error": 1.3,
+  "runtime_other": 0.6,
+  "wrong_output": 0.4,
+  "type_shape": 0.2,
+  "correct": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "type_shape"
+  },
+  "l2_13": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "to(torch.float16),\n    ]\n\n\n@tl.func(\"conv2d_triton\")\ndef conv2d_triton(input_a: tl.types.TensorType(dtype=tl.float16), input_b: tl.types.TensorType(dtype=tl.float16)):\n    return input_a @ input_b\n\n\ndef get_reference(get_inputs):\n    input_a = torch.tensor(get_inputs()[0]).to(torch.float32).to(torch.device(\"cuda\"))\n    input_b = torch.tensor(get_inputs()[1]).to(torch.float32).to(torch.device(\"cuda"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "pt.py\nfrom .base import _test_triton_pytorch_torchscript\n\n\ndef test_triton_pytorch_torchscript_shape():\n    _test_triton_pytorch_torchscript(\n        \"triton_pytorch_torchscript_shape\",\n        get_inputs,\n        get_expected,\n        get_expected_triton_str,\n        get_expected_triton_shape,\n        get_expected_triton_dtype,\n        get_expected_triton_device,\n    )\n\n#lambdalib/tests/test_trit"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "PS)\n#       return (tf * w.float()).to(t.dtype)\n#\n#   def forward(self, x):\n#       b, s, _ = x.shape\n#       H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n#\n#       h = self._rmsnorm(x, self.norm1_w)\n#       qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n#       q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n#       q ="
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "return [\n        _fwd_bwd(inputs),\n    ]\n\n\ndef test_fwd_to_ref_bwd(inputs):\n    from triton.language import primitives\n    from triton.language.cuda import copy\n    from triton.language.cpp_extension import create_primitive\n\n    def _fwd_to_ref(inputs):\n        with primitives.create_primitive(\"model\") as primitive:\n            primitive.set_inputs(\n                [\n                    copy(input"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "h.float16\", \"torch.float32\")\n        c = c.replace(\"torch.float32\", \"torch.float16\")\n        return c\n\n    for name, p in Model().named_parameters():\n        if name != \"w_o\":\n            print(f\"{name} = tl.constant({get_code_helper(p)})\")\n        else:\n            print(f\"{name} = tl.constant({get_code_helper(p)})\")\n    print()\n    print(Model())\n\n\ndef get_code_as_str():\n    return get_code()\n\n#"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ")\n        print(f\"PyTorch: {r1} | PyTorch CPU: {torch.cuda.get_device_properties(0).total_memory / 1024 / 1024}MB\")\n        print(f\"PyTorch GPU: {torch.cuda.get_device_name(0)}\")\n        print(f\"Triton: {r2} | Triton CPU: {torch.backends.triton.get_device_properties()[0].total_memory / 1024 / 1024}MB\")\n        print(f\"Triton GPU: {torch.backends.triton.get_device_name(0)}\")\n        print(\"=\" * 50)"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "fused_triton_model_and_cached_model_tests.py\nfrom typing import List\n\nimport torch\nimport torch.nn as nn\n\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\n\nclass Model(nn.Module):\n    # PyTorch model.\n\n    @staticmethod\n    def forward(inputs):\n        return inputs[0]\n\n\nclass ModelFused(nn.Module):\n    # Triton fused model.\n\n    @staticmethod\n    def forward(inputs):\n        return inputs[0]\n\n\nclass ModelTriton(nn.Module):\n    # Triton wrapper.\n\n    @staticmethod\n    def forward(",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "puts\n\n# %%timeit\ndef test_2():\n    assert get_outputs_new(get_inputs_new()) != get_outputs_cpu(get_inputs_new())\n\n\n# Test 3: different dtype, same output\n\n# %%timeit\ndef test_3():\n    assert get_outputs_new(get_inputs_new()) != get_outputs_cpu(get_inputs_new())\n\n\n# Test 4: different dtype, different outputs\n\n# %%timeit\ndef test_4():\n    assert get_outputs_new(get_inputs_new()) == get_outputs_cpu(get_inputs_new())\n\n\n# %%\ntest_1()\ntest_2()\ntest_3()\ntest_4()\n\n#tests/test_model.py\nfrom models import",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "ype=DT)\n\n\ndef triton_model(device=_DEVICE):\n    import triton.language as tl\n\n    @tl.kernel\n    def __call__(x):\n        g = tl.this_bundle().this_shard_scope().generator()\n        w = tl.random_normal((DIM, DIM), 1234, generator=g)\n        b = tl.random_normal((DIM,), 1234, generator=g)\n        gamma = 0.5 + tl.random_normal((DIM,), 1234, generator=g)\n        weight = tl.convert_to(w)\n        bias = tl.convert_to(b)\n        gamma = tl.convert_to(gamma)\n\n        @tl.foreach(dim=0)\n        def f",
+    "error": "SyntaxError(\"expected '('\", ('/home/greenland-user/ka/ka_data/cand_modules/cand_"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "`\n\n### Test Case 4: Cyclic\n\n```py\nclass ModelNew(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.w = nn.Parameter(torch.ones(DIM, DIM), requires_grad=True)\n        self.b = nn.Parameter(torch.zeros(DIM), requires_grad=True)\n        self.gamma = nn.Parameter(torch.ones(DIM), requires_grad=True)\n\n    def forward(self, x):\n        return x + self.gamma * torch.tanh(x @ self.w.t() + self.b)\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "[8192, 4096] fp16 GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")                # activation\n        return h * self.scale + x                        # per-channel scale + residual\n\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(8192, 4096, generator=g, dtype=torch.float32).to(device=device, dtype=DT)\n    return [x]\n\n\ndef make_triton_program(x):\n    with tl.init(arch=tl.Backend.CUDA",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "available() else \"cpu\"\n        g = torch.Generator(device=\"cpu\").manual_seed(1234)\n        w = torch.randn(N, K, generator=g, dtype=torch.float32) * (1.0 / K ** 0.5)\n        b = torch.randn(N, generator=g, dtype=torch.float32) * 0.1\n        s = 1.0 + 0.1 * torch.randn(N, generator=g, dtype=torch.float32)\n        self.weight = nn.Parameter(w.to(device=device, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=device, dtype=dt), requires_grad=False)\n        self.scale = n",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_7",
+    "code_tail": ".float16\n#\n# BATCH = 16\n# SEQ = 512\n# DIM = 4096\n# _DEVICE = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n#\n#\n# class Model(nn.Module):\n#     # Transformer out-projection with fused epilogue:\n#     #   y = x + gamma * gelu_tanh(x @ W^T + b)\n#     # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n#\n#     def __init__(self, dt=DT):\n#         super().__init__()\n#         g = torch.Generator().manual_seed(1234)\n#         w = torch.randn(DIM, DIM, generator=g) * (DIM ** -0",
+    "error": "NameError(\"name 'g' is not defined\")"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": ".get_model_instance_ptr(model_instance)\n    model_definition.set_model_instance_ptr(model_instance_ptr)\n\n    if model_definition.has_error():\n        raise tr.TritonException(\"Model construction failed: {}\".format(model_definition.error().c_str()))\n\n    model_definition_ptr = tr.get_model_definition_ptr(model_definition)\n    if model_definition_ptr is None:\n        raise tr.TritonException(\"Model construction returned no model definition\")\n\n    model_ptr = tr.get_model_ptr(model_definition_ptr)\n",
+    "error": "NameError(\"name 'tl' is not defined\")"
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "orch.Generator(device=\"cpu\").manual_seed(0)\n    x = torch.randn(BATCH, SEQ, HIDDEN, generator=g)\n    return [x.to(device=device, dtype=DT)]\n\n\n# Run your code here.\n\nprint(model)\nprint(f\"Model parameters: {sum(p.numel() for p in model.parameters())}\")\n\n#%%\n# Compare the GPU and CPU performance.\n\nwith tl.launcher(ctx, opt) as l:\n    tl.foreach(model)(get_inputs())\n\nprint(f\"Model parameters: {sum(p.numel() for p in model.parameters())}\")\n\n#%%\n# If you have a lot of parameters, you can compress them",
+    "error": "NameError(\"name 'Module' is not defined\")"
+   },
+   {
+    "task": "l1_1",
+    "code_tail": " = torch.randn(ROWS, HIDDEN, generator=g).to(device=dev, dtype=DT)\ntriton.linalg.fp16_converter.convert_fp16(model, inputs, input_dtypes=[torch.float16])\n\nimport torch\nimport torch.nn as nn\nimport torch.cuda\n\nclass Model(nn.Module):\n    # RMSNorm (fp32 stats) -> per-channel affine -> SiLU-style self-gating -> fp16\n    def __init__(self, dt=torch.float16, hidden=4096, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   },
+   {
+    "task": "l2_13",
+    "code_tail": " = nn.Parameter(gamma.to(device=DEVICE, dtype=dt), requires_grad=False)  # [N]\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)      # [B, S, N] fp16 GEMM (fp32 accumulate) + bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        return x + h * self.gamma                    # per-channel scale + residual\n\n\n@pytest.mark.parametrize(\"dt\", [torch.float32, torch.float16])\ndef test_pytorch(dt):\n    model = Model()\n    inputs = get_inputs(batch_size=4)",
+    "error": "NameError(\"name 'pytest' is not defined\")"
+   },
+   {
+    "task": "l1_3",
+    "code_tail": "type=dt)\n    print(\"x.shape:\", x.shape)\n    y = model.forward(x)\n    print(\"y.shape:\", y.shape)\n    print(\"y.device:\", y.device)\n    print(\"y.dtype:\", y.dtype)\n    print(\"y.requires_grad:\", y.requires_grad)\n    y_new = model_new.forward(x)\n    print(\"y_new.shape:\", y_new.shape)\n    print(\"y_new.device:\", y_new.device)\n    print(\"y_new.dtype:\", y_new.dtype)\n    print(\"y_new.requires_grad:\", y_new.requires_grad)\n    model_new_ptr = tl.mem_ref_from_ptr(model_new.ptr)\n    kernel(model_new_ptr, None)",
+    "error": "AttributeError(\"module 'triton.language' has no attribute 'func'\")"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_1",
+    "code_tail": "x = torch.randn(8192, 4096, generator=g, dtype=torch.float16)\n    return [x]\n\n\ndef get_outputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    y = torch.randn(8192, 4096, generator=g, dtype=torch.float16).to(device=device, dtype=torch.float16)\n    return [y]\n\n\ndef get_model_calls(model):\n    return [(model, \"forward\", get_inputs(), get_outputs())]\n\n\ndef get_expected_outputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").man",
+    "error": "RuntimeError('mat1 and mat2 must have the same dtype, but got Half and Float')"
+   },
+   {
+    "task": "l2_6",
+    "code_tail": "scale (LayerScale) + residual.\n        \"\"\"\n        def __init__(self, dt=torch.float16):\n            super(ModelNew, self).__init__()\n            device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n            g = torch.Generator(device=\"cpu\").manual_seed(1234)\n            w = torch.randn(4096, 4096) * (1.0 / math.sqrt(4096))   # [N, K], keeps outputs ~N(0,1)\n            b = torch.randn(4096)\n            gamma = torch.full((4096,), 0.1) + 0.01 * torch.randn(4096)  # per-channel",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l2_6",
+    "code_tail": "class ModelNew(nn.Module):\n    \"\"\"\n    PyTorch new implementation with fused GEMM and error accumulation.\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator(device=\"cpu\").manual_seed(42)\n        w = torch.randn(_N, _H, generator=g) * (1.0 / math.sqrt(_H))   # [N, K], keeps outputs ~N(0,1)\n        b = torch",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   }
+  ],
+  "wrong_output": [
+   {
+    "task": "l1_1",
+    "code_tail": "     self.bias = nn.Parameter((0.05 * torch.randn(hidden)).to(device=torch.device(\"cuda\"), dtype=dt))\n        self.gate = nn.Parameter((0.5 + 0.1 * torch.randn(hidden)).to(device=torch.device(\"cuda\"), dtype=dt))\n\n    def forward(self, x):\n        xf = x.float()\n        ms = xf.square().mean(dim=-1, keepdim=True)\n        y = xf * torch.rsqrt(ms + self.eps)\n        y = y * self.weight.float() + self.bias.float()\n        out = y * torch.sigmoid(y * self.gate.float())\n        return out.to(x.dtype)\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l1_7",
+    "code_tail": "rch.nn as nn (optionally `import triton` and `import triton.language as tl` \u2014 nothing else, no other triton submodules, no autocast wrappers, no external packages). Prefer fused torch ops; a plain-torch kernel that is correct beats a fancy one that errors. Define ONLY `class ModelNew(nn.Module)` with the same __init__/forward signature, in ONE python code block.\n\nimport torch\nimport torch.nn as nn\n\nclass Model(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.layers = n",
+    "error": "wrong/imprecise"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_10",
+    "code_tail": "t = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)          # [M, N] GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")                # activation\n        return h * self.gamma + x                        # per-channel scale + residual\n\n#",
+    "error": "RuntimeError('mat1 and mat2 shapes cannot be multiplied (8192x4096 and 8192x4096"
+   }
+  ]
+ }
+}

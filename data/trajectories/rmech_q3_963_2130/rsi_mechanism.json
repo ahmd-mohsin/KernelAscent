@@ -1,0 +1,51 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B",
+  "seed": 2130,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.093,
+      "C_held": 0.039,
+      "transfer_gap": 0.055,
+      "retention": 0.25,
+      "gen_distinct2": 0.316,
+      "gen_dissim": 0.572,
+      "gen_entropy": 0.009,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.276,
+      "C_held": 0.115,
+      "transfer_gap": 0.161,
+      "retention": 0.125,
+      "gen_distinct2": 0.274,
+      "gen_dissim": 0.54,
+      "gen_entropy": 0.009,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 2,
+      "C_train": 0.187,
+      "C_held": 0.038,
+      "transfer_gap": 0.149,
+      "retention": 0.375,
+      "gen_distinct2": 0.288,
+      "gen_dissim": 0.545,
+      "gen_entropy": 0.009,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    }
+  ]
+}

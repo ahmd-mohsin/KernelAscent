@@ -1,0 +1,42 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "seed": 3871,
+  "C0": 0.08059086705521477,
+  "held_family": "l3",
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.235,
+      "n_ex": 15,
+      "loss": 0.0,
+      "C_lineage": 0.226,
+      "C_reset": 0.134,
+      "C_bestofN": 0.148,
+      "C_retrieval": 0.148,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.145,
+      "gain_vs_C0_lineage": 0.145,
+      "marginal_gain_reset": 0.053,
+      "lineage_minus_reset": 0.092,
+      "lineage_minus_bestofN": 0.078,
+      "round_sec": 3061.8
+    },
+    {
+      "round": 1,
+      "trainC": 0.289,
+      "n_ex": 19,
+      "loss": 0.0,
+      "C_lineage": 0.227,
+      "C_reset": 0.147,
+      "C_bestofN": 0.227,
+      "C_retrieval": 0.148,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.001,
+      "gain_vs_C0_lineage": 0.146,
+      "marginal_gain_reset": 0.067,
+      "lineage_minus_reset": 0.08,
+      "lineage_minus_bestofN": 0.0,
+      "round_sec": 2794.2
+    }
+  ]
+}

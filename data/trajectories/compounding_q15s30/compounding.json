@@ -88,6 +88,23 @@
       "lineage_minus_reset": -0.1,
       "lineage_minus_bestofN": -0.466,
       "round_sec": 1923.3
+    },
+    {
+      "round": 5,
+      "trainC": 0.148,
+      "n_ex": 6,
+      "loss": 0.0,
+      "C_lineage": 0.208,
+      "C_reset": 0.0,
+      "C_bestofN": 0.501,
+      "C_retrieval": 0.0,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.208,
+      "gain_vs_C0_lineage": 0.108,
+      "marginal_gain_reset": -0.1,
+      "lineage_minus_reset": 0.208,
+      "lineage_minus_bestofN": -0.293,
+      "round_sec": 1903.9
     }
   ]
 }
