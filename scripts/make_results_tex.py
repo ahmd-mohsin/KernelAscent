@@ -60,7 +60,7 @@ CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate
 $+0.042\,[-0.044,+0.129]$, Qwen-1.5B $+0.030\,[-0.030,+0.089]$, Qwen-3B $-0.022\,[-0.096,+0.052]$; pooled
 ($n{=}45$) $\mathbf{+0.009\,[-0.035,+0.052]}$ --- a well-powered equivalence result bounding any compounding
 advantage to $\lesssim0.05$ absolute. \textbf{Formal equivalence (TOST):} at an equivalence margin
-$\delta{=}0.05$ the pooled $90\%$ CI lies inside $[-\delta,+\delta]$ (TOST rejects non-equivalence), and a
+$\delta{=}0.05$ the pooled $90\%%$ CI lies inside $[-\delta,+\delta]$ (TOST rejects non-equivalence), and a
 BIC-approximate Bayes factor gives $\mathrm{BF}_{01}\!\approx\!5.8$ (moderate evidence \emph{for} the null over
 a $\delta$-sized effect); per-scale $\mathrm{BF}_{01}\!\approx\!3.6$ at 1.5B/3B. We state the estimand as an
 \emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
