@@ -248,7 +248,8 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     mean = statistics.mean(scores) if scores else 0.0
     ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
     stats = {"correct_rate": round(statistics.mean(corr), 3) if corr else 0.0,
-             "compiled_sp": round(statistics.mean(comp), 3) if comp else 0.0}
+             "compiled_sp": round(statistics.mean(comp), 3) if comp else 0.0,
+             "per_task_correct": corr}   # per-task 0/1 solved-at-all (for batched coverage attribution)
     return mean, examples, scores, ci, stats
 
 

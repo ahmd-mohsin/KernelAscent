@@ -29,13 +29,14 @@ from peft import get_peft_model_state_dict, set_peft_model_state_dict
 
 
 def _coverage(tok, mdl, names, k, adapter=False):
-    """per-task correct (p>0) using eval_tasks stats; returns (covered_names, uncovered_names, pairs)."""
-    covered, uncovered, allpairs = [], [], []
-    # eval one task at a time to attribute correctness (eval_tasks returns examples across the batch)
-    for n in names:
-        _, ex, _, _, st = W.eval_tasks(tok, mdl, [n], k, adapter=adapter)
-        (covered if st.get("correct_rate", 0) > 0 else uncovered).append(n)
-        allpairs += ex
+    """per-task correct (p>0) via a SINGLE batched eval_tasks call (per_task_correct aligns with names order).
+    Batching is critical: per-task calls spawned hundreds of isolated graders and were impractically slow."""
+    if not names:
+        return [], [], []
+    _, allpairs, _, _, st = W.eval_tasks(tok, mdl, names, k, adapter=adapter)
+    corr = st.get("per_task_correct", [0] * len(names))
+    covered = [n for n, c in zip(names, corr) if c > 0]
+    uncovered = [n for n, c in zip(names, corr) if c <= 0]
     return covered, uncovered, allpairs
 
 
