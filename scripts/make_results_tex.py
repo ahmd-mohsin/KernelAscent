@@ -109,7 +109,7 @@ def pmap_curve():
                   (m.get("passK", 0) / m.get("pass1", 1) if m.get("pass1") else 0)))
     return (r"""\paragraph{Coverage-vs-scale $p$-maps (the wall is a sampling artifact).} For each model we sample
 $K$ kernels per task and estimate per-task $p_K(t)$, coverage set $\{t:p_K(t){>}0\}$, and unbiased pass@1/pass@$K$
-(Chen et al.). Coverage jumps sharply across the sub-2B ``wall'' (0.5B$\to$3B: 14\%$\to$83\%), and \emph{below}
+(Chen et al.). Coverage jumps sharply across the sub-2B ``wall'' (0.5B$\to$3B: 14\%%$\to$83\%%), and \emph{below}
 the wall pass@$K\gg$pass@1 (12--17$\times$) --- the wall is a low-per-sample-probability \emph{sampling}
 artifact, not absent capability. At 14B the ratio collapses to $\sim$1$\times$ (pass@1${=}0.66$): the teacher is
 reliably-per-sample, not sampling-limited. Rejection-sampling self-training can only \emph{sharpen} the thin
@@ -120,7 +120,7 @@ mechanism behind the compounding null.
 $\geq1$ verified-correct sample; K-ratio $=$ pass@$K$/pass@1.}
 \begin{tabular}{rrrrrrr}
 \toprule
-size(B) & $K$ & coverage & cov.\% & pass@1 & pass@$K$ & K-ratio \\
+size(B) & $K$ & coverage & cov.\%% & pass@1 & pass@$K$ & K-ratio \\
 \midrule
 %s\bottomrule
 \end{tabular}\end{table}

@@ -104,6 +104,29 @@ Open-weight arm: 24 models; closed/API arm: 11 models. Diagnosis runs showed the
 to emitting no valid tasks (curriculum collapse $\Rightarrow L-F\approx0$); a fresh matched-budget run is in flight
 to obtain a clean per-round $L-F$ trajectory.
 
+\paragraph{Coverage-vs-scale $p$-maps (the wall is a sampling artifact).} For each model we sample
+$K$ kernels per task and estimate per-task $p_K(t)$, coverage set $\{t:p_K(t){>}0\}$, and unbiased pass@1/pass@$K$
+(Chen et al.). Coverage jumps sharply across the sub-2B ``wall'' (0.5B$\to$3B: 14\%$\to$83\%), and \emph{below}
+the wall pass@$K\gg$pass@1 (12--17$\times$) --- the wall is a low-per-sample-probability \emph{sampling}
+artifact, not absent capability. At 14B the ratio collapses to $\sim$1$\times$ (pass@1${=}0.66$): the teacher is
+reliably-per-sample, not sampling-limited. Rejection-sampling self-training can only \emph{sharpen} the thin
+low-$p$ frontier a small model already covers; it cannot manufacture the coverage a larger model has --- the
+mechanism behind the compounding null.
+\begin{table}[h]\centering\footnotesize
+\caption{Per-task correctness $p$-maps across scale (Qwen2.5-Coder / same task bank). Coverage $=$ tasks with
+$\geq1$ verified-correct sample; K-ratio $=$ pass@$K$/pass@1.}
+\begin{tabular}{rrrrrrr}
+\toprule
+size(B) & $K$ & coverage & cov.\% & pass@1 & pass@$K$ & K-ratio \\
+\midrule
+0.500 & 64 & 4/29 & 14\% & 0.009 & 0.109 & 12$\times$ \\
+1.500 & 64 & 8/29 & 28\% & 0.014 & 0.235 & 17$\times$ \\
+3.000 & 64 & 24/29 & 83\% & 0.112 & 0.776 & 7$\times$ \\
+7.000 & 48 & 24/29 & 83\% & 0.079 & 0.798 & 10$\times$ \\
+14.000 & 24 & 25/29 & 86\% & 0.655 & 0.862 & 1$\times$ \\
+\bottomrule
+\end{tabular}\end{table}
+
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
