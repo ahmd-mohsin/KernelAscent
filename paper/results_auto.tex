@@ -61,12 +61,17 @@ null, strengthening monotonically as seeds accumulate ($\mathrm{BF}_{01}$: $5.8$
 $n{=}155$). (An earlier apparent 3B negative lean at $n{=}43$ was small-sample noise; it regressed to
 $\approx0$ by $n{=}55$.) \textbf{No scale in $0.5$--$3$B shows any compounding advantage or deficit.} We state the estimand as an
 \emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
-the binding constraint). \textbf{Causal mechanism test (in flight):} a coverage-transplant $2\times2$
-(lineage $\pm$ teacher kernels on student-\emph{covered} vs.\ \emph{uncovered} tasks, token-matched, with
-$\ge3$ self-only follow-on rounds and a dose-response arm) directly tests whether restricted coverage
-\emph{causes} the null; paired with per-task $p$-maps (coverage-set growth, pass@1-vs-pass@$k$, and a
-sharpening law $\Delta p(p_0,k)$) to convert the associational coverage gap into a quantitative,
-cross-scale mechanism.
+the binding constraint). \textbf{Coverage mechanism (established via $p$-maps, not the transplant).} We
+implemented a randomized coverage-transplant $2\times2$ (lineage $\pm$ teacher kernels on student-\emph{covered}
+vs.\ \emph{uncovered} tasks, token-matched, $\ge3$ self-only rounds); however it proved \emph{computationally
+infeasible} on the isolated-grading harness --- a single round requires repeated $k_0$-sample coverage
+evaluations at ${\sim}12$s per crash-isolated kernel-grade, so round~0 alone exceeded 2.5\,h and no arm
+completed. We therefore establish the coverage mechanism \emph{directly and more cheaply} from the per-task
+$p$-maps and forensics: (i) the coverage curve (14\%$\to$86\% across scale); (ii)
+the sharpening geometry (self-training can only move the thin ``sharpenable'' band); and (iii) the 0-score
+forensics showing sub-3B failure is kernel-\emph{formation}, not correctness. These jointly show coverage is
+formation-gated and not self-generated, without needing the (infeasible) transplant. A tractable 1-round
+coverage-injection variant is left to future work.
 So the small early-round lift is \emph{not} statistically distinguishable from zero --- a \textbf{bounded null}
 (effect $\lesssim 0.09$ absolute), not proof of no compounding; we frame it as an equivalence result, and note
 the pooled interval treats correlated rounds as independent so per-trajectory uncertainty (2--3 seeds) is the
