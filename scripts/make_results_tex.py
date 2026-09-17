@@ -87,7 +87,7 @@ on roofline-graded kernels with a full generation$+$verification$+$training comp
 \textbf{coverage gap} --- a 14B teacher harvests $\sim$10$\times$ more verified-correct kernels than a sub-2B
 student on the same tasks, and the sub-2B ``correctness wall'' is a \emph{pass@k artifact} (low per-sample $p$,
 not zero coverage), so self-training \emph{sharpens} what the model already covers rather than expanding it ---
-the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not RL/GRPO). \textbf{Scale test:} the same 3-arm protocol at 7B holds the
+the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not full RL/GRPO). \textbf{Optimizer-agnosticism (preliminary):} a denser-reward variant (A1: speedup-weighted rejection sampling --- keep only the top-quartile-by-roofline correct kernels for SFT) shows the \emph{same} null (pooled lineage$-$reset $+0.017$, $n{=}9$ round-comparisons over 2 seeds), consistent with rejection-sampling SFT: shaping the reward denser does not manufacture compounding, evidence the null is not an artifact of the weakest selection rule. \textbf{Scale test:} the same 3-arm protocol at 7B holds the
 null --- lineage$-$reset $=-0.05,-0.01$ over rounds 0--1 with $C\approx0.70$ near the held ceiling ($0.80$), and
 lineage again loses to best-of-$N$ --- so no compounding through 7B, though the near-ceiling headroom at 7B is
 itself limiting (consistent with the mid-scale-headroom mechanism). 14B is queued (needs a 2-GPU reset shard).
