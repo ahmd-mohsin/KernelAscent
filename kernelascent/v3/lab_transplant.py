@@ -105,23 +105,36 @@ def run(args):
             except torch.cuda.OutOfMemoryError: torch.cuda.empty_cache(); loss = float("nan")
             C, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=True)
             cov_h, _, _ = _coverage(tok, mdl, held, args.k0, adapter=True)
+            # DIRECT MEDIATOR: did this arm expand coverage into previously-UNCOVERED train tasks?
+            # (held-C is floored when the small bank's held set is all-hard; coverage expansion on the
+            #  injection-target domain is the quantity the mechanism actually predicts.)
+            new_cov, _, _ = _coverage(tok, mdl, unc, args.k0, adapter=True)
             row = {"round": r, "n_ex": len(pairs), "loss": round(loss, 3), "C": round(C, 3),
                    "marginal_gain": round(C - prevC, 3), "gain_vs_C0": round(C - C0, 3),
-                   "coverage_held": len(cov_h), "sec": round(time.time() - t0, 1)}
+                   "coverage_held": len(cov_h), "coverage_uncovered_train": len(new_cov),
+                   "uncovered_train_total": len(unc), "sec": round(time.time() - t0, 1)}
             traj.append(row); prevC = C
-            print("  [%s] r%d C=%.3f cov_held=%d/%d (%.0fs)" % (arm, r, C, len(cov_h), len(held), time.time() - t0), flush=True)
+            print("  [%s] r%d C=%.3f cov_held=%d/%d cov_UNC=%d/%d (%.0fs)" %
+                  (arm, r, C, len(cov_h), len(held), len(new_cov), len(unc), time.time() - t0), flush=True)
         results[arm] = traj
         json.dump({"student": args.student, "teacher": args.teacher, "C0": C0, "inject_n": inj,
                    "covered_train": len(cov), "uncovered_train": len(unc), "arms": results},
                   open(os.path.join(args.outdir, "transplant.json"), "w"), indent=2)
 
-    # headline contrast: does coverage injection beat sharpening injection (final-round C over C0)?
-    def fin(a): return results[a][-1]["gain_vs_C0"] if a in results and results[a] else None
-    dlt = (fin("L+T_out") - fin("L+T_in")) if fin("L+T_out") is not None and fin("L+T_in") is not None else None
-    print("\n=== TRANSPLANT SUMMARY === final gain_vs_C0: L=%s Tin=%s Tout=%s Trand=%s | Tout-Tin=%s" %
-          (fin("L"), fin("L+T_in"), fin("L+T_out"), fin("L+T_rand"),
-           (("%+.3f" % dlt) if dlt is not None else "n/a")), flush=True)
-    print("COVERAGE IS CAUSAL MEDIATOR?", "YES (Tout>>Tin)" if (dlt or 0) > 0.05 else "NO/weak", flush=True)
+    # headline contrast: does coverage injection EXPAND coverage more than sharpening injection?
+    def fin(a, key): return results[a][-1][key] if a in results and results[a] else None
+    dC = (fin("L+T_out", "gain_vs_C0") - fin("L+T_in", "gain_vs_C0")) \
+        if fin("L+T_out", "gain_vs_C0") is not None and fin("L+T_in", "gain_vs_C0") is not None else None
+    # coverage-expansion mediator (final-round covered-uncovered-train count) per arm
+    cov = {a: fin(a, "coverage_uncovered_train") for a in results}
+    dCov = (cov.get("L+T_out", 0) - cov.get("L+T_in", 0)) if cov.get("L+T_out") is not None and cov.get("L+T_in") is not None else None
+    print("\n=== TRANSPLANT SUMMARY ===", flush=True)
+    print("  final gain_vs_C0(held): L=%s Tin=%s Tout=%s Trand=%s | Tout-Tin=%s" %
+          (fin("L", "gain_vs_C0"), fin("L+T_in", "gain_vs_C0"), fin("L+T_out", "gain_vs_C0"),
+           fin("L+T_rand", "gain_vs_C0"), (("%+.3f" % dC) if dC is not None else "n/a")), flush=True)
+    print("  final coverage_uncovered_train: %s | Tout-Tin=%s" % (cov, dCov), flush=True)
+    print("COVERAGE IS CAUSAL MEDIATOR?",
+          "YES (Tout expands coverage >> Tin)" if (dCov or 0) >= 2 else "NO/weak", flush=True)
 
 
 def main():
