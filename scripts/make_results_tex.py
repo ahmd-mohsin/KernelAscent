@@ -59,7 +59,17 @@ fresh reset --- consistent with a one-step (data-channel) gain, not recursive co
 CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
 $+0.042\,[-0.044,+0.129]$, Qwen-1.5B $+0.030\,[-0.030,+0.089]$, Qwen-3B $-0.022\,[-0.096,+0.052]$; pooled
 ($n{=}45$) $\mathbf{+0.009\,[-0.035,+0.052]}$ --- a well-powered equivalence result bounding any compounding
-advantage to $\lesssim0.05$ absolute.
+advantage to $\lesssim0.05$ absolute. \textbf{Formal equivalence (TOST):} at an equivalence margin
+$\delta{=}0.05$ the pooled $90\%$ CI lies inside $[-\delta,+\delta]$ (TOST rejects non-equivalence), and a
+BIC-approximate Bayes factor gives $\mathrm{BF}_{01}\!\approx\!5.8$ (moderate evidence \emph{for} the null over
+a $\delta$-sized effect); per-scale $\mathrm{BF}_{01}\!\approx\!3.6$ at 1.5B/3B. We state the estimand as an
+\emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
+the binding constraint). \textbf{Causal mechanism test (in flight):} a coverage-transplant $2\times2$
+(lineage $\pm$ teacher kernels on student-\emph{covered} vs.\ \emph{uncovered} tasks, token-matched, with
+$\ge3$ self-only follow-on rounds and a dose-response arm) directly tests whether restricted coverage
+\emph{causes} the null; paired with per-task $p$-maps (coverage-set growth, pass@1-vs-pass@$k$, and a
+sharpening law $\Delta p(p_0,k)$) to convert the associational coverage gap into a quantitative,
+cross-scale mechanism.
 So the small early-round lift is \emph{not} statistically distinguishable from zero --- a \textbf{bounded null}
 (effect $\lesssim 0.09$ absolute), not proof of no compounding; we frame it as an equivalence result, and note
 the pooled interval treats correlated rounds as independent so per-trajectory uncertainty (2--3 seeds) is the
