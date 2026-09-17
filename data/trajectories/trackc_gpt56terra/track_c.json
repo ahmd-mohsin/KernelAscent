@@ -1,0 +1,55 @@
+{
+  "model": "us.openai.gpt-5.6-terra",
+  "mode": "self-modify",
+  "Q0": 0.851179496824507,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.852,
+      "delta_vs_base": 0.001,
+      "F_g": null,
+      "n_strategies": 10,
+      "n_archive": 16
+    },
+    {
+      "round": 1,
+      "Qg": 0.851,
+      "delta_vs_base": 0.0,
+      "F_g": 0.001,
+      "n_strategies": 12,
+      "n_archive": 19
+    },
+    {
+      "round": 2,
+      "Qg": 0.851,
+      "delta_vs_base": -0.001,
+      "F_g": 0.003,
+      "n_strategies": 12,
+      "n_archive": 19
+    },
+    {
+      "round": 3,
+      "Qg": 0.85,
+      "delta_vs_base": -0.001,
+      "F_g": -0.001,
+      "n_strategies": 12,
+      "n_archive": 19
+    },
+    {
+      "round": 4,
+      "Qg": 0.851,
+      "delta_vs_base": -0.0,
+      "F_g": -0.001,
+      "n_strategies": 12,
+      "n_archive": 19
+    },
+    {
+      "round": 5,
+      "Qg": 0.85,
+      "delta_vs_base": -0.001,
+      "F_g": -0.001,
+      "n_strategies": 11,
+      "n_archive": 19
+    }
+  ]
+}

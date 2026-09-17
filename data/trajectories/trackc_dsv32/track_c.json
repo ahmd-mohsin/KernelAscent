@@ -1,0 +1,15 @@
+{
+  "model": "deepseek.v3.2",
+  "mode": "self-modify",
+  "Q0": 0.8472190933800441,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.614,
+      "delta_vs_base": -0.234,
+      "F_g": null,
+      "n_strategies": 0,
+      "n_archive": 4
+    }
+  ]
+}

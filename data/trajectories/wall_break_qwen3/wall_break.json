@@ -1,0 +1,19 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "E": 8,
+  "oversample": 6,
+  "probe_auc": 0.862,
+  "fit_correct": 24,
+  "fit_incorrect": 38,
+  "within_verify_yield_baseline": 0.417,
+  "within_verify_yield_probe": 0.427,
+  "yield_gain": 0.01,
+  "n_pairs_baseline": 40,
+  "n_pairs_probe": 41,
+  "C0_held": 0.429,
+  "C_held_after_baseline_sft": 0.0,
+  "C_held_after_probe_sft": 0.0,
+  "drift_baseline": NaN,
+  "drift_probe": NaN,
+  "wall_broken": false
+}

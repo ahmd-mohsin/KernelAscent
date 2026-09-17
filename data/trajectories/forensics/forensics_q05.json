@@ -1,0 +1,268 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B",
+ "tag": "q05",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 29,
+ "zero_task_frac": 1.0,
+ "failure_dist": {
+  "no_extract": 329,
+  "syntax_error": 133,
+  "name_error": 2
+ },
+ "failure_pct": {
+  "no_extract": 70.9,
+  "syntax_error": 28.7,
+  "name_error": 0.4
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "/87.0.4280.88 Safari/537.36\"\n userAgent: \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36\"\n userAgent: \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36\"\n userAgent: \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "odel(x):\n    \"\"\"model with fused torch ops and triton\"\"\"\n    s, d, h, kvh = x.shape\n    x = x.view(s, d, h)\n    h = h // kvh\n    q, k, v = torch.split(x, [h * kvh, h * kvh, h * kvh], dim=-1)\n    q = torch.nn.functional.linear(q, Model.w_qkv).view(s, h, h, h * kvh)\n    k = torch.nn.functional.linear(k, Model.w_qkv).view(s, h, h, h * kvh)\n    v = torch.nn.functional.linear(v, Model.w_qkv).view(s, h,"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "s: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model\nInputs: Model\noutputs: Model"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "st be RUN AS-IS, NOT in a function.\nIn [28]: x = model(x)\nIn [29]: x.shape\nOut[29]: torch.Size([4, 2048, 2048])\n\nIn [30]: model = Model()  # This must be RUN AS-IS, NOT in a function.\nIn [31]: x = model(x)\nIn [32]: x.shape\nOut[32]: torch.Size([4, 2048, 2048])\n\nIn [33]: model = Model()  # This must be RUN AS-IS, NOT in a function.\nIn [34]: x = model(x)\nIn [35]: x.shape\nOut[35]: torch.Size([4, 2048,"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": " 0.6186,  0.5744,  0.5114],\n         [ 0.4824,  0.4292,  0.3749,  0.3205,  0.2655, ...,  0.6480,  0.6028,  0.5540]]],\n        [[[[ 0.4576,  0.4082,  0.3620,  0.3144,  0.2708, ...,  0.5824,  0.4947,  0.3803],\n         [ 0.3478,  0.2980,  0.2515,  0.2051,  0.1614, ...,  0.5958,  0.5044,  0.4376],\n         [ 0.2842,  0.2316,  0.1823,  0.1364,  0.0922, ...,  0.6056,  0.5164,  0.4513],\n         [ 0.237"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "mple.\nx = torch.randn(4, 2048, 2048, device=torch.device(\"cuda\"), dtype=torch.float16)\nm = Model()\nout = m(x)\nprint(out.shape)  # (4, 2048)\n\n# Example\n# The following example shows how to use this module for a single example.\nx = torch.randn(4, 2048, 2048, device=torch.device(\"cuda\"), dtype=torch.float16)\nm = Model()\nout = m(x)\nprint(out.shape)  # (4, 2048)\n\n# Example\n# The following example shows"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": ":\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = torch.cat([h, qkv], dim=-1)                           # [B, S, (2H+2*HKV)*HD",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "f, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": " = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.view(b, s, H, HD)                                  # [B, H, S, HD]\n        qkv = qkv",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "CONTAINED and RUN AS-IS: import ONLY torch and torch.nn as nn (optionally `import triton` and `import triton.language as tl` \u2014 nothing else, no other triton submodules, no autocast wrappers, no external packages). Prefer fused torch ops; a plain-torch kernel that is correct beats a fancy one that errors. Define ONLY `class ModelNew(nn.Module)` with the same __init__/forward signature, in ONE python code block.\n\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float1",
+    "error": "SyntaxError(\"invalid character '\u2014' (U+2014)\", ('/home/greenland-user/ka/ka_data/"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "rch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\nBATCH = 16\nSEQ = 512\nDIM = 4096\n_DEVICE = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n\nclass Model(nn.Module):\n    # Transformer out-projection with fused epilogue:\n    #   y = x + gamma * gelu_tanh(x @ W^T + b)\n    # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(1234)\n        w = torch.randn(DIM, DIM",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "ts):\n    model = ModelNew()\n    x = torch.tensor(inputs[0]).to(device=_DEVICE)\n    model.eval()\n    h = model(x)\n    model.train()\n    return h.numpy()\n\ninputs = get_inputs()\nh = run_model(inputs)\nassert torch.allclose(h, torch.tensor([0.11191364]), atol=1e-5)\norical\n\ndef run_model(inputs):\n    model = ModelNew()\n    x = torch.tensor(inputs[0]).to(device=_DEVICE)\n    model.eval()\n    h = model(x)\n    model.train()\n    return h.numpy()\n\ninputs = get_inputs()\nh = run_model(inputs)\nassert torch.all",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_14",
+    "code_tail": "lse)\n        self.outputs = nn.Parameter(get_outputs(), requires_grad=False)\n        self.compiler = get_compiler()\n\n    def forward(self, x):\n        self.input.to(x.device)\n        self.outputs.to(x.device)\n        self.input.gather(1, self.outputs)\n        return self.outputs\n\ndef get_inputs():\n    x = torch.randn(8, 2048, 4096)\n    return [x.to(get_default_device())]\n\ndef get_outputs():\n    x = torch.randn(8, 2048, 4096)\n    return [x.to(get_default_device())]\n\ndef get_compiler():\n    return",
+    "error": "NameError(\"name 'get_default_device' is not defined\")"
+   },
+   {
+    "task": "l1_3",
+    "code_tail": "xc = x - mean\n    var = (xc * xc).mean(dim=-1, keepdim=True)\n    y = xc * torch.rsqrt(var + triton.cconstant(0.1))\n    y = y * w + b\n    y = y * triton.cconstant(gain)\n    y = y * out\n    y = y + triton.cconstant(out)\n    out = y\n\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    torch.manual_seed(1234)\n    x = torch.randn(32768, 4096, device=dev, dtype=torch.float32).to(DT)\n    out = torch.randn(32768, 4096, device=dev, dtype=torch.float32).to(DT)\n   ",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   }
+  ]
+ }
+}

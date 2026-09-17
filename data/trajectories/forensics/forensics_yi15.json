@@ -1,0 +1,278 @@
+{
+ "model": "01-ai/Yi-Coder-1.5B",
+ "tag": "yi15",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 28,
+ "zero_task_frac": 0.966,
+ "failure_dist": {
+  "no_extract": 447,
+  "correct": 1,
+  "name_error": 2,
+  "syntax_error": 13,
+  "type_shape": 1
+ },
+ "failure_pct": {
+  "no_extract": 96.3,
+  "correct": 0.2,
+  "name_error": 0.4,
+  "syntax_error": 2.8,
+  "type_shape": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_1": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "type_shape"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "no_extract"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "_inputs(b, m, n, k, n_samples, dtype):\n    inputs = []\n    for _ in range(n_samples):\n        inputs.append(torch.randn(b, m, k, dtype=dtype))\n    return inputs\n\ndef bench_cpu(f, inputs, dtype):\n    with benchmark() as b:\n        for x in inputs:\n            f(x)\n    return b.average_time() * (1e-6 * x.shape[0])\n\ndef bench_gpu(f, inputs, dtype):\n    with benchmark() as b:\n        for x in inputs:\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "()\", \"\")\n    kernel_template = kernel_template.replace(\"__threadidx\", \"__thread_id\")\n    kernel_template = kernel_template.replace(\"__threadid\", \"__thread_id\")\n    kernel_template = kernel_template.replace(\"__threadids\", \"__thread_ids\")\n    kernel_template = kernel_template.replace(\"__tid\", \"__thread_id\")\n    kernel_template = kernel_template.replace(\"__tid__\", \"__thread_id\")\n    kernel_template ="
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "if __name__ == \"__main__\":\n    model = Model()\n    opt = triton.autotune(model,\n                          get_inputs,\n                          options={\"num_warps\": 4, \"num_stages\": 1, \"allow_tf32\": True})\n\n    # Test correctness\n    opt(**opt.signature).backward(\n        torch.randn_like(opt.signature[\"x\"], device=\"cpu\"))"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "eck_close(r, r_ref)\n\ndef check_diag(x, y, r):\n    if not isinstance(x, (list, tuple)):\n        x = x.reshape(N, N)\n        y = y.reshape(N, N)\n        r = r.reshape(N, N)\n\n    r_ref = x.diag() @ y\n    _dot_kernel(x.diag(), y, r)\n    check_close(r, r_ref)\n\ndef check_outer(x, y, r):\n    if not isinstance(x, (list, tuple)):\n        x = x.reshape(N, N)\n        y = y.reshape(N, N)\n        r = r.reshape"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "        outs = main(inputs)\n    benchmark = Benchmark(\n        name=\"model-benchmark-no-autocast\",\n        inputs=inputs,\n        outputs=outs,\n        num_warmup_steps=1000,\n        num_benchmark_steps=100000,\n    )\n    benchmark.report()\n    res = get_benchmark_results(benchmark)\n    print(res)<|endoftext|>#!/usr/bin/env python3\n\n# Copyright (c) 2023, NVIDIA CORPORATION.  All rights reserved.\n#\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "device=tl.get_device_count(\"cuda\")[0])\n    Q[0] = tl.load(W_QKV + offsets)\n    K[0] = tl.load(W_QKV + offsets + 1)\n    V[0] = tl.load(W_QKV + offsets + 2)\n    k = tl.load(W_O + offsets)\n    K[1] = tl.permute(K[0], 0, 2, 1)\n    V[1] = tl.permute(V[0], 0, 2, 1)\n    k = tl.load(W_O + offsets + 1)\n    Q[1] = tl.permute(Q[0], 0, 2, 1)\n    Q[2] = tl.load(W_O + offsets + 2)\n    y = tl.zeros((B_, S_, D_),"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_1",
+    "code_tail": "\n    with torch.autocast(\"cuda\" if torch.cuda.is_available() else \"cpu\"):\n        x = get_inputs()\n        start = time.perf_counter()\n        f(x[0])\n        elapsed = time.perf_counter() - start\n    return elapsed * 1e3\n\nif __name__ == \"__main__\":\n    print(\"FP16\")\n    model = Model().float()\n    print(time_module(model))\n    print(time_fuse(model.forward))\n    print(time_fuse_torch(model.forward))\n    print(time_fuse_triton(model.forward))\n    print(time_fuse_triton_torch(model.forward))\n    ",
+    "error": "NameError(\"name 'g' is not defined\")"
+   },
+   {
+    "task": "l2_15",
+    "code_tail": "onst_pointer(\"float16\"),\n    x1: tl.const_pointer(\"float16\"),\n    y1: tl.const_pointer(\"float16\"),\n    gamma1: tl.const_pointer(\"float16\"),\n    x2: tl.const_pointer(\"float16\"),\n    y2: tl.const_pointer(\"float16\"),\n    gamma2: tl.const_pointer(\"float16\"),\n    x3: tl.const_pointer(\"float16\"),\n    y3: tl.const_pointer(\"float16\"),\n    gamma3: tl.const_pointer(\"float16\"),\n):\n    pid = tl.program_id(axis=0)\n    tid = tl.thread_id(axis=0)\n\n    # Parsing:\n    i_tid = tl.program_id(axis=0)\n    j_tid = tl",
+    "error": "NameError(\"name 'g' is not defined\")"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l2_14",
+    "code_tail": "uous().as_strided(x.size(), (B, 1, 1, 1, x.size(2), K)),\n            self.model.weight.contiguous().as_strided(self.model.weight.size(), (1, 1, K, 1, 1, K)),\n            self.model.bias.contiguous().as_strided(self.model.bias.size(), (1, 1, 1, 1, 1, 1)),\n            self.model.scale.contiguous().as_strided(self.model.scale.size(), (1, 1, 1, 1, 1, 1)),\n            x.contiguous().as_strided(x.size(), (1, 1, 1, 1, K, 1)),\n            x_stride=1, W_stride=4, b_stride=8, scale_stride=12, y_stride=16,",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "ef compare_ms(m1, m2, inputs, ms):\n    m1 = m1(inputs[0])\n    m2 = m2(inputs[0])\n    check_correctness(inputs, ms, m1, inputs[0], ms, m2)\n\ndef get_model(dtype=torch.float16):\n    return Model(dtype=dtype)\n\ndef run_benchmark_new(model, inputs, num_iters, warm_iters, name=\"self\"):\n    for i in range(num_iters):\n        model(inputs[0])\n    t1 = time.perf_counter()\n    for i in range(warm_iters):\n        model(inputs[0])\n    t2 = time.perf_counter()\n    ms = (t2 - t1) / warm_iters * 1e-3\n    print(",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "e-5\n        self.rms_eps = 1e-6\n        self.ln_w = nn.Parameter((1.0 + 0.1 * torch.randn(H, generator=g)).to(dev, dt), requires_grad=False)\n        self.ln_b = nn.Parameter((0.1 * torch.randn(H, generator=g)).to(dev, dt), requires_grad=False)\n        self.gate = nn.Parameter((0.75 + 0.5 * torch.rand(H, generator=g)).to(dev, dt), requires_grad=False)\n        self.shift = nn.Parameter((0.05 * torch.randn(H, generator=g)).to(dev, dt), requires_grad=False)\n\n    def forward(self, x):\n        xf = x.",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_11",
+    "code_tail": " inputs, device)\n    warmup(model2, inputs, device)\n    time1 = [run_and_time(model1, inputs, device) for i in range(num_repeats)]\n    time2 = [run_and_time(model2, inputs, device) for i in range(num_repeats)]\n    time1.sort()\n    time2.sort()\n    print(f\"{time1[0] / num_warmups:.1f}ms / {time1[-1] / num_warmups:.1f}ms\")\n    print(f\"{time2[0] / num_warmups:.1f}ms / {time2[-1] / num_warmups:.1f}ms\")\n    print(f\"{sum(time1) / num_warmups:.1f}ms / {sum(time2) / num_warmups:.1f}ms\")\n    print(f\"{max",
+    "error": "SyntaxError(\"'{' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l1_10",
+    "code_tail": " \"resnet50_v2_stem\", \"resnet101_v2_stem_layer_norm\", \"resnet152_v2_stem_layer_norm\", \"resnet18_v2_stem_layer_norm\", \"resnet34_v2_stem_layer_norm\", \"resnet50_v2_stem_layer_norm\"]\n\ndef _get_stem_layer_norm(in_channels: int, d_inner: int, is_group_norm: bool) -> nn.Module:\n    \"\"\"A helper function for getting the stem LayerNorm.\"\"\"\n    norm_cls = BatchNormGroup if is_group_norm else _NormBase\n\n    return nn.Sequential(\n        nn.Conv2d(in_channels, d_inner, 7, 2, 3, bias=False, padding=3, stride=2",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "(x)\n        return h * self.scale\n\nmodel = ModelNewNoFusedNoResidual(DT)\nprofile(model)\n\n# ==============================================================================================================\n#                                                  SELF-CONTAINED, RUN AS-IS, NO FUSED GPU OPS, NO RESIDUAL\n# ==============================================================================================================\n\nclass ModelNewNoFusedNoResidual(nn.Module):\n\n    def __init__(self, dt=DT):\n",
+    "error": "IndentationError('expected an indented block after function definition on line 1"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_10",
+    "code_tail": "d(x)\nt2 = torch.cuda.synchronize()\nt3 = torch.cuda.synchronize()\nt4 = torch.cuda.synchronize()\nt5 = torch.cuda.synchronize()\nt6 = torch.cuda.synchronize()\n\n# Print time\nprint(f\"[Warm-up] ModelNew time (ms): {1e3 * (t2 - t1) / 100:.3f}\")\nprint(f\"[  100] ModelNew time (ms): {1e3 * (t3 - t2) / 100:.3f}\")\nprint(f\"[  200] ModelNew time (ms): {1e3 * (t4 - t3) / 100:.3f}\")\nprint(f\"[  300] ModelNew time (ms): {1e3 * (t5 - t4) / 100:.3f}\")\nprint(f\"[  400] ModelNew time (ms): {1e3 * (t6 - t5) / 100:.3f}\")",
+    "error": "TypeError(\"Model.forward() missing 1 required positional argument: 'x'\")"
+   }
+  ]
+ }
+}

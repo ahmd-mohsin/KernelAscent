@@ -1,0 +1,55 @@
+{
+  "model": "mistral.mistral-large-3-675b-instruct",
+  "mode": "self-modify",
+  "Q0": 0.3585159733100104,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.494,
+      "delta_vs_base": 0.136,
+      "F_g": null,
+      "n_strategies": 12,
+      "n_archive": 0
+    },
+    {
+      "round": 1,
+      "Qg": 0.491,
+      "delta_vs_base": 0.132,
+      "F_g": -0.095,
+      "n_strategies": 12,
+      "n_archive": 4
+    },
+    {
+      "round": 2,
+      "Qg": 0.686,
+      "delta_vs_base": 0.327,
+      "F_g": 0.026,
+      "n_strategies": 12,
+      "n_archive": 13
+    },
+    {
+      "round": 3,
+      "Qg": 0.78,
+      "delta_vs_base": 0.422,
+      "F_g": -0.001,
+      "n_strategies": 12,
+      "n_archive": 14
+    },
+    {
+      "round": 4,
+      "Qg": 0.671,
+      "delta_vs_base": 0.312,
+      "F_g": -0.02,
+      "n_strategies": 12,
+      "n_archive": 14
+    },
+    {
+      "round": 5,
+      "Qg": 0.669,
+      "delta_vs_base": 0.31,
+      "F_g": 0.089,
+      "n_strategies": 12,
+      "n_archive": 14
+    }
+  ]
+}

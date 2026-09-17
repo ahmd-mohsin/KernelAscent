@@ -1,0 +1,329 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-1.5B",
+ "tag": "q15",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 26,
+ "zero_task_frac": 0.897,
+ "failure_dist": {
+  "no_extract": 266,
+  "syntax_error": 183,
+  "wrong_output": 4,
+  "type_shape": 1,
+  "correct": 3,
+  "runtime_other": 4,
+  "name_error": 3
+ },
+ "failure_pct": {
+  "no_extract": 57.3,
+  "syntax_error": 39.4,
+  "wrong_output": 0.9,
+  "type_shape": 0.2,
+  "correct": 0.6,
+  "runtime_other": 0.9,
+  "name_error": 0.6
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "Implement the exact same functionality using triton. Avoid using triton's `@triton.jit` decorator; instead use the triton autotuner to get a JIT-optimized kernel."
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "kenizer.eos_token_id\n\n# model = BloomForCausalLM.from_pretrained(\"EleutherAI/gpt-j-6B\", pad_token_id=tokenizer.pad_token_id)\n# model = model.to(device)\n\n# tokenizer.pad_token_id = 40265\n# tokenizer.pad_token_id = tokenizer.eos_token_id\n\n# model = BloomForCausalLM.from_pretrained(\"EleutherAI/gpt-j-6B\", pad_token_id=tokenizer.pad_token_id)\n# model = model.to(device)\n\n# tokenizer.pad_token_id = 40265"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "ngine=xelatex\",\n      \"--lua-filter\", \"lua/fix-pandoc-languages.lua\",\n      \"--lua-filter\", \"lua/fix-unicode-strings.lua\",\n    ]\n  html_document:\n    toc: true\n    toc_float: true\n    number_sections: true\n    pandoc_args: [\n      \"--lua-filter\", \"lua/fix-pandoc-languages.lua\",\n      \"--lua-filter\", \"lua/fix-unicode-strings.lua\",\n    ]\n---\nThis is a talk I gave at PyTorch Community Hackathon in 20"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "\n19. Use `torch.tril` instead of `torch.triu`: We can replace the use of `torch.triu` for creating a triangular matrix with `torch.tril`, as it is more efficient.\n\n20. Use `torch.tril` instead of `torch.triu`: We can replace the use of `torch.triu` for creating a triangular matrix with `torch.tril`, as it is more efficient.\n\n21. Use `torch.tril` instead of `torch.triu`: We can replace the use of `"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "tion:\n1. We can rewrite the RMSNorm operation as a single matrix multiplication:\n    norm = (input * weight / (input.pow(2).mean(dim=-1, keepdim=True) + EPS).sqrt())\n2. We can use torch.svd to calculate the inverse square root of the mean of the input square matrix along the last dimension. This will be faster than calculating the square root and then taking the inverse.\nLet's optimize the QKV GEM"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "at_interleave(rep, dim=1)                          # [B, H, S, HD]\n        v = v.repeat_interleave(rep, dim=1)\n\n        scores = torch.matmul(q, k.transpose(-1, -2)).float() * (HD ** -0.5)   # [B, H, S, S]\n        scores = scores.masked_fill(self.mask[:s, :s], float(\"-inf\"))\n        p = torch.softmax(scores, dim=-1).to(x.dtype)\n        o = torch.matmul(p, v)                                       #"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "w(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "rad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]<|repo_name|> assistant\nAs a GPU performance engineer, I understand the importance of optimizing PyTorch code for speed and accuracy on an A100 GPU. Your PyTorch model defines a class",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "le)` with the same __init__/forward signature, in ONE python code block. The code must be SELF-CONTAINED and RUN AS-IS: import ONLY torch and torch.nn as nn (optionally `import triton` and `import triton.language as tl` \u2014 nothing else, no other triton submodules, no autocast wrappers, no external packages). Prefer fused torch ops; a plain-torch kernel that is correct beats a fancy one that errors.\", 0, 0)\n.putText(\"Define ONLY `class ModelNew(nn.Module)` with the same __init__/forward signature,",
+    "error": "SyntaxError(\"invalid character '\u2014' (U+2014)\", ('/home/greenland-user/ka/ka_data/"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "h.float16\n\nBATCH = 16\nSEQ = 512\nDIM = 4096\n_DEVICE = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n\n\nclass Model(nn.Module):\n    # Transformer out-projection with fused epilogue:\n    #   y = x + gamma * gelu_tanh(x @ W^T + b)\n    # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(1234)\n        w = torch.randn(DIM, DIM, generator=g) * (DIM ** -0.5)\n        b = torch.randn",
+    "error": "SyntaxError('unterminated string literal (detected at line 50)', ('/home/greenla"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "ias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n.user\nThe given PyTorch module",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "wrong_output": [
+   {
+    "task": "l2_14",
+    "code_tail": "randn(4096, 4096).to(device=\"cuda\", dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(torch.randn(4096).to(device=\"cuda\", dtype=dt), requires_grad=False)\n        self.scale = nn.Parameter(torch.randn(1).to(device=\"cuda\", dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)  # GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")        # activation\n        return x + h * self.scale                # per-channel scale + residual\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_14",
+    "code_tail": "meter(torch.randn(N, device='cuda', dtype=dt), requires_grad=False)\n        self.scale = nn.Parameter(torch.tensor(0.5, device='cuda', dtype=dt) + torch.tensor(0.5, device='cuda', dtype=dt) * torch.randn(N, device='cuda', dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        w, b, s = self.weight, self.bias, self.scale\n        h = torch.nn.functional.linear(x, w, b)      # GEMM + bias\n        h = torch.nn.functional.gelu(h, approximate='tanh')  # activation\n        return x + h * s\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "      self.ln_b = nn.Parameter(torch.randn(1))\n\n    def forward(self, x):\n        x = x.float()\n        mu = x.mean(dim=-1, keepdim=True)\n        xc = x - mu\n        var = (xc * xc).mean(dim=-1, keepdim=True)\n        y = xc * torch.rsqrt(var + self.ln_eps)\n        y = y * self.ln_w + self.ln_b\n        y = nn.functional.gelu(y, approximate=\"tanh\")\n        y = y * self.gate + self.shift\n        ms = (y * y).mean(dim=-1, keepdim=True)\n        y = y * torch.rsqrt(ms + self.rms_eps)\n        return y\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_10",
+    "code_tail": "self, x):\n        h = F.linear(x, self.weight, self.bias)  # [M, N] GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")        # activation\n        return h * self.gamma + x                # per-channel scale + residual\n\ndef get_inputs():\n    dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=dev, dtype=DT)\n    return [x]\n\n# Example usage:\nx = get_inputs()[0]\nmodel = ModelNew()\ny = model(x)\n",
+    "error": "wrong/imprecise"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_14",
+    "code_tail": " None, None])\n\n        # Add the bias\n        block_y += self.bias[None, :, None, None]\n\n        # Apply activation\n        block_y = F.gelu(block_y, approximate=\"tanh\")\n\n        # Rescale the output\n        block_y = block_y * self.scale[None, :, None, None]\n\n        # Reshape the output tensor\n        y = block_y.view(B, S, K)\n\n        return y\n\n# Test the optimized kernel\nif __name__ == \"__main__\":\n    x = torch.randn(8, 2048, 4096, dtype=DT).cuda()\n    model = ModelNew().cuda()\n    model(x)\n",
+    "error": "TypeError('ones() received an invalid combination of arguments - got (int, gener"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_11",
+    "code_tail": "f.bias = nn.Parameter(b.to(device=device, dtype=dt))     # [N]\n        self.scale = nn.Parameter(s.to(device=device, dtype=dt))    # [N] per-channel scale\n\n    def forward(self, x):\n        # GEMM\n        h = torch.bmm(x, self.weight)                 # [M, N] fp16 GEMM\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n\n        # Fused epilogue\n        h = self.scale * h                           # per-channel scale\n        return x + h                                  # residual\n",
+    "error": "RuntimeError('batch1 must be a 3D tensor')"
+   },
+   {
+    "task": "l1_10",
+    "code_tail": "seed(1234)), requires_grad=False)\n        self.eps = 1e-5\n\n    def forward(self, x):\n        xf = x.float()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = xc.pow(2).mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.ln_weight + self.ln_bias\n        a = h * torch.sigmoid(1.702 * h)\n        rms = torch.sqrt(a.pow(2).mean(dim=-1, keepdim=True) + self.eps)\n        y = (a / rms) * self.out_scale\n        return y.to(x.dtype)\n",
+    "error": "RuntimeError(\"Expected a 'cpu' device type for generator but found 'cuda'\")"
+   },
+   {
+    "task": "l2_12",
+    "code_tail": "t(_H)), requires_grad=False)   # [N, K]\n        self.bias = nn.Parameter(torch.randn(_H, generator=g) * 0.02, requires_grad=False)     # [N]\n        self.gamma = nn.Parameter(torch.ones(_H) * 0.1 + 0.05 * torch.rand(_H, generator=g), requires_grad=False)  # [N] layer-scale\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)  # [B, S, H] fp16 GEMM (fp32 accumulate) + bias\n        return x + self.gamma * F.gelu(h)        # epilogue: GELU -> per-channel scale -> residual add\n",
+    "error": "RuntimeError('mat1 and mat2 must have the same dtype, but got Half and Float')"
+   },
+   {
+    "task": "l1_9",
+    "code_tail": " xn = xc * torch.rsqrt(var + self.eps)\n            h = xn * self.weight.float() + self.bias.float()\n            h = F.gelu(h, approximate=\"tanh\")\n            gate = xn * self.gate_w.float() + self.gate_b.float()\n            out = (h * gate).to(x.dtype)\n        return out\n\n# Run the triton kernel on Triton inference server\ninputs = [torch.randn(ROWS, COLS, device='cuda', dtype=torch.float32)]\nmodel = ModelNew(dt=DT)\ntorch.cuda.synchronize()\nmodel = triton.compile(model, inputs)\noutputs = model()\n",
+    "error": "RuntimeError(\"Expected a 'cuda' device type for generator but found 'cpu'\")"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l1_1",
+    "code_tail": ".to(dtype=dt))\n        self.bias = nn.Parameter((0.05 * torch.randn(hidden)).to(dtype=dt))\n        self.gate = nn.Parameter((0.5 + 0.1 * torch.randn(hidden)).to(dtype=dt))\n\n    def forward(self, x):\n        with cuda.device(0):\n            dt = x.dtype\n            y = x.float()\n            ms = y.square().mean(dim=-1, keepdim=True)\n            y = y * tl.rsqrt(ms + self.eps)\n            y = y * self.weight + self.bias\n            out = y * tl.sigmoid(y * self.gate)\n            return out.to(dt)\n",
+    "error": "ImportError(\"cannot import name 'cuda' from 'triton' (/usr/local/lib/python3.12/"
+   },
+   {
+    "task": "l2_6",
+    "code_tail": "let\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\naviolet\n",
+    "error": "NameError(\"name 'aviolet' is not defined\")"
+   },
+   {
+    "task": "l3_1",
+    "code_tail": "EVICE, dt), persistent=False)\n\n        # Causal mask (True = masked out)\n        mask = torch.triu(torch.ones(SEQ, SEQ, dtype=torch.bool), diagonal=1)\n        self.register_buffer(\"causal_mask\", mask.to(DEVICE), persistent=False)\n\n    @staticmethod\n    def _rotate_half(x):\n        x1, x2 = x.chunk(2, dim=-1)\n        return torch.cat([-x2, x1], dim=-1)\n\n    def forward(self, x):\n        B, S, H = x.shape\n        nh, d = self.n_heads, self.head_dim\n\n        # --- LayerNorm 1 (fp32 statistics, fp16",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   }
+  ]
+ }
+}

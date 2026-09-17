@@ -1,0 +1,17 @@
+{
+  "student": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "teacher": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "C0_held": 0.25,
+  "n_self": 5,
+  "n_ext": 57,
+  "n_matched": 5,
+  "C_held_after_self_sft": 0.0,
+  "C_held_after_ext_sft": 0.0,
+  "ext_minus_self": 0.0,
+  "verify_budget_sweep": {
+    "4": 0.25,
+    "16": 0.167
+  },
+  "wall_is_coverage_gap": false,
+  "wall_moves_with_search": false
+}

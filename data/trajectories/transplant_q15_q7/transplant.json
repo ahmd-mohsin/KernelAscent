@@ -1,0 +1,36 @@
+{
+  "student": "Qwen/Qwen2.5-Coder-1.5B",
+  "teacher": "Qwen/Qwen2.5-Coder-7B",
+  "C0": 0.0,
+  "inject_n": 1,
+  "covered_train": 2,
+  "uncovered_train": 14,
+  "arms": {
+    "L": [
+      {
+        "round": 0,
+        "n_ex": 0,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": 0.0,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 3,
+        "coverage_uncovered_train": 7,
+        "uncovered_train_total": 14,
+        "sec": 2486.9
+      },
+      {
+        "round": 1,
+        "n_ex": 3,
+        "loss": 0.0,
+        "C": 0.0,
+        "marginal_gain": 0.0,
+        "gain_vs_C0": 0.0,
+        "coverage_held": 0,
+        "coverage_uncovered_train": 3,
+        "uncovered_train_total": 14,
+        "sec": 824.9
+      }
+    ]
+  }
+}
