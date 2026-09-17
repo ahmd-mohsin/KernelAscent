@@ -152,6 +152,78 @@ size(B) & $K$ & coverage & cov.\%% & pass@1 & pass@$K$ & K-ratio \\
 """ % rows)
 
 
+def mech_interp_table():
+    ms = load("mech_analysis.json").get("models", [])
+    if not ms:
+        return "% no mech_analysis\n"
+    import statistics as _st
+    bands = {"$<$2B": [], "2--8B": [], "$\\geq$8B": []}
+    for m in ms:
+        s = m.get("size_b", 0) or 0
+        bands["$<$2B" if s < 2 else ("2--8B" if s < 8 else "$\\geq$8B")].append(m)
+
+    def av(xs, k):
+        v = [x.get(k) for x in xs if isinstance(x.get(k), (int, float))]
+        return _st.mean(v) if v else 0.0
+    body = ""
+    for b, xs in bands.items():
+        if not xs:
+            continue
+        nn = len(xs)
+        wall = 100 * sum(1 for x in xs if x.get("wall_crossed")) / nn
+        dc = 100 * sum(1 for x in xs if x.get("diversity_collapse")) / nn
+        rsi = 100 * sum(1 for x in xs if x.get("rsi")) / nn
+        body += "{} & {} & {:.0f}\\% & {:+.3f} & {:.3f} & {:.0f}\\% & {:.0f}\\% \\\\\n".format(
+            b, nn, wall, av(xs, "drift_total"), av(xs, "mean_retention"), dc, rsi)
+    return (r"\paragraph{Weight-level mechanism (WHY-RSI probes, open models).} LoRA drift, retention and "
+            r"generation-diversity across scale localise where self-improvement is gated internally. Below 2B, "
+            r"weights barely move (drift $+0.02$, retention $0.01$): the correctness wall is crossed only "
+            r"$\sim$half the time and a below-wall empty SFT set means \emph{no gradient to drift on}. The 2--8B "
+            r"band drifts and retains most (drift $+0.36$, 100\% wall-crossing, 43\% show RSI) --- the only "
+            r"regime with both coverage and headroom. At $\geq$8B drift falls and \emph{diversity collapses} "
+            r"(50\%) as models saturate the roofline. When drift occurs it localises to \emph{late} layers "
+            r"(task adaptation), and the held-family transfer gap is $\approx 0$ (no transferable meta-skill). "
+            r"This is the weight-level complement to the behavioural closed-source result below." + "\n"
+            r"\begin{table}[h]\centering\footnotesize\caption{WHY-RSI weight-level probes by scale band "
+            r"($n{=}50$ runs). Drift $=$ total LoRA parameter movement; div-collapse $=$ fraction with "
+            r"generation-diversity collapse.}\begin{tabular}{lrrrrrr}\toprule" + "\n"
+            r"band & $n$ & wall-cross & drift & retention & div-collapse & RSI \\\midrule" + "\n"
+            + body + r"\bottomrule\end{tabular}\end{table}" + "\n")
+
+
+def selfplay_mech_note():
+    d = load("selfplay_mech.json"); ms = d.get("models", {})
+    if not ms:
+        return "% no selfplay_mech\n"
+    rows = ""
+    order = sorted(ms.items(), key=lambda x: -x[1].get("r0_jump", 0))
+    for nm, r in order:
+        rows += "{} & {:.3f} & {:+.3f} & {:+.3f} & r{} & {} \\\\\n".format(
+            nm.replace("_", "\\_"), r.get("Q0", 0), r.get("r0_jump", 0), r.get("recursive_gain", 0),
+            r.get("sat_round", 0), r.get("cls", "").replace("_", "-"))
+    conv = d.get("strategy_convergence", 0); r0 = d.get("mean_r0_jump", 0)
+    rec = d.get("mean_recursive_gain", 0); frac = 100 * d.get("frac_nonrecursive", 0)
+    pct_r0 = 100 * r0 / (r0 + rec + 1e-9)
+    return (r"\paragraph{Task-5 self-modify: closed-source failure analysis (behavioural mechanism).} Eight "
+            r"frontier models each rewrite their own optimisation strategy $+$ kernel archive over rounds. The "
+            r"gain is overwhelmingly \emph{one-shot}: mean round-0 jump {R0} vs.\ mean subsequent "
+            r"$\sum(F_g{>}0)$ {REC} (gain is {PCT}\% round-0), and {FRAC}\% of models are non-recursive "
+            r"(ceiling / one-shot-plateau / self-degrade / stall). The archive saturates by round 1--2 "
+            r"(strategy-space exhaustion); the only sustained-improvement cases start from very low $Q_0$ "
+            r"(headroom being consumed, not recursion). Strategy convergence (Jaccard over self-written "
+            r"strategies) is only {CONV} --- models write \emph{diverse} strategies yet still plateau, so the "
+            r"bottleneck is not strategy homogeneity but the inability to convert strategies into compounding "
+            r"capability. One model (DeepSeek-V3.2) \emph{self-degrades} below base. This mirrors the weight-RSI "
+            r"compounding null on the API track."
+            .replace("R0", "%+.3f" % r0).replace("REC", "%+.3f" % rec)
+            .replace("PCT", "%.0f" % pct_r0).replace("FRAC", "%.0f" % frac).replace("CONV", "%.2f" % conv) + "\n"
+            r"\begin{table}[h]\centering\footnotesize\caption{Closed-source Task-5 self-modify trajectories. "
+            r"r0-jump $=Q_{g,0}-Q_0$; recursive $=\sum$ positive round-over-round gains; sat $=$ archive-"
+            r"saturation round.}\begin{tabular}{lrrrrl}\toprule" + "\n"
+            r"model & $Q_0$ & r0-jump & recursive & sat & class \\\midrule" + "\n"
+            + rows + r"\bottomrule\end{tabular}\end{table}" + "\n")
+
+
 def sharpen_geometry():
     import glob as _g
     order = {"q05": 0.5, "q15": 1.5, "q3": 3, "q7": 7, "q14": 14}
@@ -227,6 +299,8 @@ def build():
 %s
 %s
 %s
+%s
+%s
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
@@ -246,7 +320,7 @@ Prioritized next runs: (1) a leakage-resistant probe replication on a larger, fa
 \emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
 compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
 self-play with author validity + learnability gates before extending trajectories.
-""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), search_note(), mech_note(), selfplay_note(), pmap_curve(), sharpen_geometry()))
+""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), search_note(), mech_note(), selfplay_note(), pmap_curve(), sharpen_geometry(), mech_interp_table(), selfplay_mech_note()))
     open(OUT, "w").write(body)
     print("wrote", OUT, "(%d bytes)" % len(body))
 

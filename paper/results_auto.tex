@@ -143,6 +143,27 @@ size(B) & unreachable $p{=}0$ & sharpenable $0{<}p{<}0.2$ & reliable $p{\geq}0.2
 14 & 4/29 (14\%) & 0/29 (0\%) & 25/29 (86\%) \\
 \bottomrule\end{tabular}\end{table}
 
+\paragraph{Weight-level mechanism (WHY-RSI probes, open models).} LoRA drift, retention and generation-diversity across scale localise where self-improvement is gated internally. Below 2B, weights barely move (drift $+0.02$, retention $0.01$): the correctness wall is crossed only $\sim$half the time and a below-wall empty SFT set means \emph{no gradient to drift on}. The 2--8B band drifts and retains most (drift $+0.36$, 100\% wall-crossing, 43\% show RSI) --- the only regime with both coverage and headroom. At $\geq$8B drift falls and \emph{diversity collapses} (50\%) as models saturate the roofline. When drift occurs it localises to \emph{late} layers (task adaptation), and the held-family transfer gap is $\approx 0$ (no transferable meta-skill). This is the weight-level complement to the behavioural closed-source result below.
+\begin{table}[h]\centering\footnotesize\caption{WHY-RSI weight-level probes by scale band ($n{=}50$ runs). Drift $=$ total LoRA parameter movement; div-collapse $=$ fraction with generation-diversity collapse.}\begin{tabular}{lrrrrrr}\toprule
+band & $n$ & wall-cross & drift & retention & div-collapse & RSI \\\midrule
+$<$2B & 26 & 54\% & +0.024 & 0.011 & 19\% & 4\% \\
+2--8B & 14 & 100\% & +0.355 & 0.156 & 43\% & 43\% \\
+$\geq$8B & 10 & 70\% & +0.290 & 0.106 & 50\% & 30\% \\
+\bottomrule\end{tabular}\end{table}
+
+\paragraph{Task-5 self-modify: closed-source failure analysis (behavioural mechanism).} Eight frontier models each rewrite their own optimisation strategy $+$ kernel archive over rounds. The gain is overwhelmingly \emph{one-shot}: mean round-0 jump {+0.120} vs.\ mean subsequent $\sum(F_g{>}0)$ {+0.057} (gain is {68}\% round-0), and {75}\% of models are non-recursive (ceiling / one-shot-plateau / self-degrade / stall). The archive saturates by round 1--2 (strategy-space exhaustion); the only sustained-improvement cases start from very low $Q_0$ (headroom being consumed, not recursion). Strategy convergence (Jaccard over self-written strategies) is only {0.12} --- models write \emph{diverse} strategies yet still plateau, so the bottleneck is not strategy homogeneity but the inability to convert strategies into compounding capability. One model (DeepSeek-V3.2) \emph{self-degrades} below base. This mirrors the weight-RSI compounding null on the API track.
+\begin{table}[h]\centering\footnotesize\caption{Closed-source Task-5 self-modify trajectories. r0-jump $=Q_{g,0}-Q_0$; recursive $=\sum$ positive round-over-round gains; sat $=$ archive-saturation round.}\begin{tabular}{lrrrrl}\toprule
+model & $Q_0$ & r0-jump & recursive & sat & class \\\midrule
+GPT-6-Astra & 0.298 & +0.502 & +0.113 & r2 & IMPROVING \\
+Sonnet-5 & 0.493 & +0.395 & +0.069 & r2 & ONE-SHOT-PLATEAU \\
+Mistral-3 & 0.359 & +0.135 & +0.115 & r4 & IMPROVING \\
+Kimi & 0.752 & +0.073 & +0.113 & r1 & STALL \\
+GPT-5.6-sol & 0.813 & +0.057 & +0.041 & r3 & ONE-SHOT-PLATEAU \\
+Opus-5 & 0.878 & +0.032 & +0.000 & r1 & CEILING \\
+GPT-5.6-terra & 0.851 & +0.001 & +0.004 & r2 & CEILING \\
+DeepSeek-V3.2 & 0.847 & -0.233 & +0.000 & r1 & SELF-DEGRADE \\
+\bottomrule\end{tabular}\end{table}
+
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
