@@ -9,6 +9,9 @@ For each model we sample K candidates on every task and classify **why** each sc
 | Qwen2.5-Coder-1.5B | 1.5B | 90% | 57% | 39% | 1% | 1% | 1% | incoherence/format |
 | Yi-Coder-1.5B | 1.5B | 97% | 96% | 3% | 0% | 0% | 0% | incoherence/format |
 | Qwen2.5-Coder-3B | 3B | 48% | 51% | 33% | 5% | 2% | 6% | incoherence/format |
+| DeepSeek-Coder-6.7B | 6.7B | 62% | 80% | 11% | 3% | 0% | 3% | incoherence/format |
+| Qwen2.5-Coder-7B | 7B | 28% | 8% | 75% | 5% | 0% | 9% | truncation/syntax |
+| Qwen2.5-Coder-14B | 14B | 14% | 0% | 9% | 8% | 8% | 65% | correct |
 
 ## Qwen2.5-Coder-0.5B (0.5B) — example failure chains
 **no_extract** (incoherence/format) — task `l3_2`, error: `-`
@@ -531,5 +534,435 @@ def get_inputs():
 
 
 
+
+```
+
+## DeepSeek-Coder-6.7B (6.7B) — example failure chains
+**no_extract** (incoherence/format) — task `l3_2`, error: `-`
+```
+...es = scores - 1e10 * mask
+    p = tl.softmax(scores, axis=-1)
+    o = p @ v
+    out[..., :, :] = o
+
+
+@triton.jit
+def fused_qkv_rope(q, k, v, mask, pb, out):
+    # mask is [S, S]
+    # pb is a bool
+    # q, k, v are [B, S, D]
+    # out is [B, N_HEADS, S, HEAD_DIM]
+    # qkv is [B, S, N_HEADS*HEAD_DIM
+```
+**syntax_error** (truncation/syntax) — task `l2_7`, error: `SyntaxError("'(' was never closed", ('/home/greenland-user/ka/ka_data/cand_modul`
+```
+...nt(hf_model_out.dtype, hf_model_new_out.dtype)
+    print(hf_model_out.eq(hf_model_new_out).all())
+    print(torch.allclose(hf_model_out, hf_model_new_out, atol=0.01, rtol=0.01))
+
+    input_ids_t = input_ids.to(model_new.hf_model.device)
+    model_new.hf_model.to(model_new.hf_model.device)
+    print(
+```
+**name_error** (API-hallucination) — task `l2_2`, error: `AttributeError("'NoneType' object has no attribute 'shape'")`
+```
+...
+
+
+if __name__ == "__main__":
+    model = Model()
+    model.to(_DEVICE)
+    model.eval()
+
+    with torch.no_grad():
+        x = get_inputs()
+        y = model(x)
+        z = model.forward(*x)
+        print(y.device, y.dtype)
+        print(z.device, z.dtype)
+        print(torch.max(torch.abs(y - z)))
+```
+**wrong_output** (silently-wrong) — task `l2_14`, error: `wrong/imprecise`
+```
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+## Qwen2.5-Coder-7B (7B) — example failure chains
+**no_extract** (incoherence/format) — task `l3_2`, error: `-`
+```
+...r("sin", emb.sin().to(dev), persistent=False)
+        self.register_buffer(
+            "mask", torch.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False
+        )
+
+    @staticmethod
+    def _rotate_half(t):
+        t1, t2 = t.chunk(2, dim=-1)
+        return torch.cat([-t2
+```
+**syntax_error** (truncation/syntax) — task `l3_2`, error: `SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can`
+```
+...D_DIM, self.D
+
+        h = self._rmsnorm(x, self.norm1_w)
+        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]
+        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)
+        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,
+```
+**name_error** (API-hallucination) — task `l3_2`, error: `NameError("name 'triton' is not defined")`
+```
+...t * s * s, mask=tl.arange(0, s) < s)
+        q = q * cos + self._rotate_half(q) * sin
+        k = k * cos + self._rotate_half(k) * sin
+        q = q.reshape(num_warps, block_size // num_warps, num_heads, head_dim)
+        k = k.reshape(num_warps, block_size // num_warps, num_heads, head_dim)
+       
+```
+**wrong_output** (silently-wrong) — task `l1_6`, error: `wrong/imprecise`
+```
+....eps) * self.w_in.float() + self.b_in.float()
+        a = 0.5 * x * (1.0 + torch.tanh(0.7978845608028654 * (x + 0.044715 * x * x * x)))
+        y = x + a * self.w_res.float()
+        y = y * torch.rsqrt(y.pow(2).sum(dim=-1, keepdim=True) + self.eps) * self.w_out.float()
+        return y.to(x.dtype)
+
+```
+
+## Qwen2.5-Coder-14B (14B) — example failure chains
+**syntax_error** (truncation/syntax) — task `l3_2`, error: `SyntaxError("'(' was never closed", ('/home/greenland-user/ka/ka_data/cand_modul`
+```
+...ose(1, 2)                    # [B, HKV, S, HD]
+        v = v.view(b, s, HKV, HD).transpose(1, 2)
+
+        cos = self.cos[:s][None, None]
+        sin = self.sin[:s][None, None]
+        qf, kf = q.float(), k.float()
+        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)
+        k = (kf * cos
+```
+**name_error** (API-hallucination) — task `l2_2`, error: `ImportError("cannot import name '_amp_foreach_non_fused_bias_gelu' from 'torch._`
+```
+...non_fused_bias_gelu([x], [self.weight], [self.bias])[0]
+        y = y * self.gamma  # per-channel scale
+        return x + y         # residual
+
+
+def get_inputs():
+    g = torch.Generator(device="cpu").manual_seed(1)
+    x = torch.randn(M, K, generator=g).to(device=_DEVICE, dtype=DT)
+    return [x]
+
+```
+**wrong_output** (silently-wrong) — task `l2_7`, error: `wrong/imprecise`
+```
+...orward(self, x):
+        h = F.linear(x, self.weight.t(), self.bias)
+        h = F.gelu(h, approximate="tanh")
+        return x + self.gamma * h
+
+def get_inputs():
+    g = torch.Generator().manual_seed(42)
+    x = torch.randn(BATCH, SEQ, DIM, generator=g)
+    return [x.to(device=_DEVICE, dtype=DT)]
 
 ```

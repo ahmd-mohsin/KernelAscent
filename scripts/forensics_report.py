@@ -22,6 +22,7 @@ def main():
     rows = []
     for f in sorted(glob.glob(os.path.join(fdir, "forensics_*.json"))):
         d = json.load(open(f)); t = d["tag"]
+        if t.endswith("c2"): continue  # 2nd-cycle stability runs, not in main table
         nm, sz = NAMES.get(t, (t, 99))
         rows.append((sz, nm, t, d))
     rows.sort()

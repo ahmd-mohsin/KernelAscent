@@ -1,0 +1,277 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B",
+ "tag": "q05c2",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 29,
+ "zero_task_frac": 1.0,
+ "failure_dist": {
+  "no_extract": 329,
+  "syntax_error": 132,
+  "type_shape": 2,
+  "name_error": 1
+ },
+ "failure_pct": {
+  "no_extract": 70.9,
+  "syntax_error": 28.4,
+  "type_shape": 0.4,
+  "name_error": 0.2
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l2_7",
+  "l2_2",
+  "l2_1",
+  "l2_14",
+  "l1_2",
+  "l1_6",
+  "l3_4",
+  "l1_8",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_8",
+  "l2_4",
+  "l1_1",
+  "l2_10",
+  "l2_13",
+  "l1_7",
+  "l2_3",
+  "l2_12",
+  "l2_5",
+  "l2_6",
+  "l1_4",
+  "l1_9",
+  "l1_3",
+  "l2_15",
+  "l3_1",
+  "l2_9",
+  "l1_5"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_8": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_7": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "cuda()\n    model.eval()\n\n    inputs = get_inputs()\n    outputs = model(inputs)\n\n    print(outputs.shape)\n\n    output = get_output(outputs)\n\n    print(output)\n\n\nmain()\n\u0438\u0442\u0435\u043b\u0435\u0439\nuser\nYou are an expert GPU performance engineer. You write correct, fast PyTorch/Triton kernels. mi\u0142o\npisa\u0107\nOptimize this PyTorch module for speed on an A100 GPU, numerically equivalent (same dtype, same output). The code must"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make the kernel run on multiple CPU threads. Make"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "HD).transpose(1, 2)  # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n\n        cos = self.cos[:s][None, None]  # [B, H, HKV]\n        sin = self.sin[:s][None, None]\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate_half(kf) * sin).to(x.dtype)\n\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ") -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x) -> x = Model(x"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": ".to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n        triton.set_dtype(self.dt)\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = tl.split(qkv, [H * HD, HKV * HD], dim=-1)               # [B, (H+2*HKV)*HD"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "\n    loss = torch.sum(output ** 2, dim=-1).mean()\n    loss.backward()\n    optimizer.step()\n    return loss\n\n@triton.jit\ndef predict(x, model, optimizer):\n    model.get_inputs()[0] = x\n    model.zero_grad()\n    output = model(x)\n    loss = torch.sum(output ** 2, dim=-1).mean()\n    loss.backward()\n    optimizer.step()\n    return output\n\ndef test():\n    with triton.testing.device(\"cuda:0\", \"cpu:0\"):\n"
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "ter_buffer(\n            \"mask\", torch.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False\n        )\n\n    @staticmethod\n    def _rotate_half(t):\n        t1, t2 = t.chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D =",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": ", dt=DT):\n        super().__init__()\n        S, D, H, HKV, HD = self.S, self.D, self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.norm1_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev, dt))\n        self.norm2_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev, dt))\n        self.w_qkv = nn.Parameter(\n            (torch.randn((H + 2 * HKV)",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()                                     # [B, S, (H+2*HKV)*HD]\n        qkv = qkv.permute(0, 2, 1, 3)                                # [B, S, (H+2*HKV), HD]\n        qkv = qkv.reshape(-1, H, HKV, HD).perm",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "h.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False\n        )\n\n    @staticmethod\n    def _rotate_half(t):\n        t1, t2 = t.chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\u0438\u0447\u043d\u043e\n\n```\nclass Model(nn.Module):\n    # Transformer out-projection with fused epilogue:\n    #   y = x + gamma * gelu_tanh(x @ W^T + b)\n    # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n\n    def __init__(",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_11",
+    "code_tail": "nn.Parameter(b.to(device=device, dtype=dt))     # [N]\n        self.scale = nn.Parameter(s.to(device=device, dtype=dt))    # [N] per-channel scale\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)      # [M, N] fp16 GEMM, fp32 accumulate, bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        return x + self.scale * h                    # per-channel scale + residual\n\n# Example usage\nmodel = ModelNew()\ninputs = get_inputs()\noutputs = model(inputs)\n",
+    "error": "TypeError(\"linear(): argument 'input' (position 1) must be Tensor, not list\")"
+   },
+   {
+    "task": "l3_1",
+    "code_tail": "(self.dt) * self.ln1_w + self.ln1_b\n\n        # --- QKV projection ---\n        qkv = h @ self.w_qkv.t() + self.b_qkv                 # (B, S, 3H)\n        qkv = qkv.view(B, S, nh, d).transpose(1, 2)               # (B, nh, S, d)\n        q, k, v = qkv.split(H, dim=-1)\n        q = q.view(B, S, nh, d).transpose(1, 2)\n        k = k.view(B, S, nh, d).transpose(1, 2)\n        v = v.view(B, S, nh, d).transpose(1, 2)\n\n        # --- Rotary position embeddings on q, k ---\n        cos = self.rope_cos[:S].view",
+    "error": "RuntimeError(\"shape '[4, 2048, 16, 64]' is invalid for input of size 25165824\")"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_6",
+    "code_tail": "t shape.\nmodel_new = model_new.to(triton.device(\"A100\"))\nmodel_new = model_new.eval()\n# Check the output shape.\nmodel_new = model_new.to(triton.device(\"A100\"))\nmodel_new = model_new.eval()\n\n# Check the output shape.\nmodel_new = model_new.to(triton.device(\"A100\"))\nmodel_new = model_new.eval()\n# Check the output shape.\nmodel_new = model_new.to(triton.device(\"A100\"))\nmodel_new = model_new.eval()\n\n# Check the output shape.\nmodel_new = model_new.to(triton.device(\"A100\"))\nmodel_new = model_new.eval()\n",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   }
+  ]
+ }
+}
