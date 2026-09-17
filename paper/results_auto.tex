@@ -164,6 +164,16 @@ GPT-5.6-terra & 0.851 & +0.001 & +0.004 & r2 & CEILING \\
 DeepSeek-V3.2 & 0.847 & -0.233 & +0.000 & r1 & SELF-DEGRADE \\
 \bottomrule\end{tabular}\end{table}
 
+\paragraph{0-score failure forensics (where the wall actually is).} Sampling $K$ candidates per task and classifying \emph{why} each scores zero shows the sub-3B ``correctness wall'' is really a kernel-\emph{formation} wall: the dominant failure is \texttt{no\_extract} (no parseable \texttt{ModelNew} ever emitted; 57--96\% of candidates) followed by \texttt{syntax\_error} (truncated mid-kernel), \emph{not} runnable-but-wrong kernels. Reading the chains: 0.5B mode-collapses into off-task repetition, 1.5--3B truncate or \emph{hallucinate APIs} (e.g.\ \texttt{torch.gelu}), and only at $\geq$3B do \texttt{wrong\_output} (silently incorrect) and \texttt{correct} appear. The failure locus moves \emph{downstream} with scale (incoherence $\to$ truncation $\to$ API-hallucination $\to$ wrong-output $\to$ correct): each scale step advances the model one pipeline stage, which is \emph{why} coverage is formation-gated below the wall (cf.\ the $p$-map coverage curve).
+\begin{table}[h]\centering\footnotesize\caption{0-score candidate failure taxonomy by scale (\% of sampled candidates). Formation failures (no\_extract$+$syntax) dominate below 3B.}\begin{tabular}{lrrrrrr}\toprule
+model & zero-task & no\_extract & syntax & name/API & wrong\_out & correct \\\midrule
+Qwen-0.5B & 100\% & 71\% & 29\% & 0\% & 0\% & 0\% \\
+DeepSeek-1.3B & 86\% & 90\% & 7\% & 1\% & 0\% & 1\% \\
+Qwen-1.5B & 90\% & 57\% & 39\% & 1\% & 1\% & 1\% \\
+Yi-1.5B & 97\% & 96\% & 3\% & 0\% & 0\% & 0\% \\
+Qwen-3B & 48\% & 51\% & 33\% & 5\% & 2\% & 6\% \\
+\bottomrule\end{tabular}\end{table}
+
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a

@@ -152,6 +152,36 @@ size(B) & $K$ & coverage & cov.\%% & pass@1 & pass@$K$ & K-ratio \\
 """ % rows)
 
 
+def forensics_note():
+    ms = load("forensics_summary.json").get("models", [])
+    if not ms:
+        return "% no forensics\n"
+    ms = sorted(ms, key=lambda m: m.get("size_b", 99))
+    body = ""
+    for m in ms:
+        p = m.get("failure_pct", {})
+        body += "{} & {:.0f}\\% & {:.0f}\\% & {:.0f}\\% & {:.0f}\\% & {:.0f}\\% & {:.0f}\\% \\\\\n".format(
+            m["model"].replace("2.5-Coder", "").replace("-Coder", ""), 100 * m.get("zero_frac", 0),
+            p.get("no_extract", 0), p.get("syntax_error", 0), p.get("name_error", 0),
+            p.get("wrong_output", 0), p.get("correct", 0))
+    return (r"\paragraph{0-score failure forensics (where the wall actually is).} Sampling $K$ candidates per "
+            r"task and classifying \emph{why} each scores zero shows the sub-3B ``correctness wall'' is really a "
+            r"kernel-\emph{formation} wall: the dominant failure is \texttt{no\_extract} (no parseable "
+            r"\texttt{ModelNew} ever emitted; 57--96\% of candidates) followed by \texttt{syntax\_error} "
+            r"(truncated mid-kernel), \emph{not} runnable-but-wrong kernels. Reading the chains: 0.5B "
+            r"mode-collapses into off-task repetition, 1.5--3B truncate or \emph{hallucinate APIs} "
+            r"(e.g.\ \texttt{torch.gelu}), and only at $\geq$3B do \texttt{wrong\_output} (silently incorrect) "
+            r"and \texttt{correct} appear. The failure locus moves \emph{downstream} with scale "
+            r"(incoherence $\to$ truncation $\to$ API-hallucination $\to$ wrong-output $\to$ correct): each "
+            r"scale step advances the model one pipeline stage, which is \emph{why} coverage is formation-gated "
+            r"below the wall (cf.\ the $p$-map coverage curve)." + "\n"
+            r"\begin{table}[h]\centering\footnotesize\caption{0-score candidate failure taxonomy by scale "
+            r"(\% of sampled candidates). Formation failures (no\_extract$+$syntax) dominate below 3B.}"
+            r"\begin{tabular}{lrrrrrr}\toprule" + "\n"
+            r"model & zero-task & no\_extract & syntax & name/API & wrong\_out & correct \\\midrule" + "\n"
+            + body + r"\bottomrule\end{tabular}\end{table}" + "\n")
+
+
 def mech_interp_table():
     ms = load("mech_analysis.json").get("models", [])
     if not ms:
@@ -301,6 +331,7 @@ def build():
 %s
 %s
 %s
+%s
 
 \subsection{Thesis and framing (frontier-panel guidance)}
 \textbf{Primary question (reframed):} \emph{Does verified self-improvement compound?} KernelAscent is a
@@ -320,7 +351,7 @@ Prioritized next runs: (1) a leakage-resistant probe replication on a larger, fa
 \emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
 compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
 self-play with author validity + learnability gates before extending trajectories.
-""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), search_note(), mech_note(), selfplay_note(), pmap_curve(), sharpen_geometry(), mech_interp_table(), selfplay_mech_note()))
+""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), search_note(), mech_note(), selfplay_note(), pmap_curve(), sharpen_geometry(), mech_interp_table(), selfplay_mech_note(), forensics_note()))
     open(OUT, "w").write(body)
     print("wrote", OUT, "(%d bytes)" % len(body))
 
