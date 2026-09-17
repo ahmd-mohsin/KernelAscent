@@ -753,3 +753,550 @@ Do the cheap things regardless, they aren't "the" lever but they're mandatory: (
 Recursive self-improvement — a model training on its own verified outputs, then generating better outputs, iteratively — is widely hypothesized but rarely measured under controlled conditions. We introduce KernelAscent, a testbed for verified self-training on CUDA kernel generation, where correctness is checked against reference outputs and speedup is graded against roofline bounds, and where lineage (iterative self-training), reset (fresh model each round), and best-of-N search are compared under a leak-free, compute-matched protocol. Across Qwen 0.5B–3B, 2–3 seeds, and 6 rounds, the lineage-minus-reset effect is +0.040 (95% CI [−0.014, +0.094], pooled n=25): we detect no compounding beyond a bounded first-round lift, and lineage underperforms best-of-N search at matched compute in most rounds. We identify the mechanism as a coverage bottleneck: the sub-2B "correctness wall" is a pass@k artifact of low per-sample success rather than zero coverage, and a 14B teacher harvests 10× more correct kernels than a sub-2B student, so self-training sharpens toward what the model already covers rather than expanding it. Probe-based self-verification achieves within-task AUC ≈ 0.67 but yields no matched-budget harvesting advantage, and a 50-model sweep exposes scale-gated mechanisms in kernel generation. We also document two harness failures — NaN gradients silently corrupting LoRA self-training and un-killable hung kernels deadlocking graders — that produce spurious compounding if uncorrected. KernelAscent provides a rigorous baseline for claims of recursive self-improvement: at ≤3B, sampling more beats training on yourself.
 
 If you add 7–14B, swap the final two sentences for the scale-gate result and the coverage-gap prediction — that version is the one to submit for an oral.
+
+
+---
+
+# Round 5 feedback (2026-09-16) — post bounded-null, next-steps for rigorous/award paper
+
+## GPT-6 Astra
+
+## Bottom line
+
+**The highest-leverage next step is a randomized “coverage rescue” experiment—not simply another scale point.** Deliberately expand the student’s accessible solution repertoire, hold the alternative explanations fixed, and test whether this changes *subsequent compounding*, not just immediate accuracy.
+
+My ranking:
+
+| Rank | Experiment | Why it matters |
+|---|---|---|
+| **Prerequisite** | Audit equivalence claims, headroom, and the compounding positive control | Ensures the central claim is actually identified |
+| **1** | **Coverage intervention × lineage/reset** | Can turn the proposed mechanism into a causal explanation |
+| **2** | **Search–training budget frontier, including amortization** | Turns an empirical ranking into an actionable result |
+| **3** | **One targeted RL/GRPO falsification test** | Tests the largest remaining algorithmic boundary |
+| **4** | **14B, conditionally** | Useful if it crosses a mechanistically relevant threshold; otherwise another null |
+| **5** | **Self-play curriculum redesign** | Potentially interesting, but currently the highest-risk distraction |
+
+I would organize the paper around **when verified search can—and cannot—be converted into reusable capability**. That is stronger than organizing it around a generic absence of RSI.
+
+---
+
+## First: the statistical claim needs narrowing
+
+Based on the intervals you supplied, I would not yet write:
+
+> “Any compounding advantage is below approximately 0.05 through 3B.”
+
+Your pooled interval extends to **+0.055**, and the individual-scale intervals extend to **+0.129, +0.073, and +0.080**. Thus:
+
+- The pooled estimate is consistent with a small average effect.
+- It does **not** establish a common <0.05 bound at every scale.
+- Whether it establishes formal equivalence depends on the prespecified margin, confidence level, and test.
+- The two 7B round differences are useful observations, but are not themselves an uncertainty bound.
+
+A defensible current formulation is:
+
+> “Across the evaluated 0.5–3B conditions, the pooled estimated lineage advantage is 0.003, with interval [−0.048, 0.055]. We find no evidence of compounding under rejection-sampling SFT, while excluding large average advantages at this budget and horizon.”
+
+If the scientifically meaningful equivalence margin is ±0.05, establish it with the appropriate equivalence procedure; do not choose the margin retrospectively to fit the interval. Also distinguish an **average effect across scales** from an **effect bounded at each scale**.
+
+Three additional checks are worth more than another weakly replicated scale point:
+
+1. **Independent units.** Are the \(n\)’s independent training lineages or correlated tasks/rounds within a smaller number of lineages? Resample or model at the level of treatment assignment; account for task-family clustering where relevant.
+2. **Headroom.** Near-ceiling scores can suppress a lineage advantage. Include a prespecified, non-ceiling task stratum—not merely an aggregate roofline normalization.
+3. **Positive-control specificity.** Oracle-injected correct kernels are a positive control for learning only if they improve the relevant held-out outcome. They are a positive control for *detecting compounding* only if the setup can detect a known sequential advantage over matched reset.
+
+A particularly useful assay check is a small constructed task ladder: mastering stage A makes stage B learnable, which makes stage C learnable. Run the *same lineage/reset protocol*. If this does not produce a detectable advantage where one is designed to exist, the benchmark may be insensitive to sequential accumulation.
+
+That would not establish real-world compounding, but it would make the real-world null much more credible.
+
+---
+
+## 1. The strongest next result: randomized coverage rescue
+
+### The causal claim to test
+
+Your proposed chain is:
+
+\[
+\text{low probability of new correct solutions}
+\rightarrow
+\text{little new learnable information in self-harvested data}
+\rightarrow
+\text{sharpening without repertoire expansion}
+\rightarrow
+\text{no lineage advantage}.
+\]
+
+The current observations support parts of this chain. They do not yet show that restricted coverage is what **causes the absence of compounding**.
+
+The decisive intervention is:
+
+> **Inject an equal-sized, verified training set that expands accessible coverage rather than reinforcing existing coverage, then test whether autonomous improvement and the lineage/reset gap change.**
+
+### Minimal useful design
+
+Start at one scale with working training infrastructure, measurable learning, and substantial headroom—likely 1.5B or 3B, depending on your actual pilot results.
+
+Cross two factors:
+
+| | Reinforcement injection | Frontier injection |
+|---|---|---|
+| **Matched reset** | Teacher solutions from student-covered families | Teacher solutions from student-low-coverage families |
+| **Lineage** | Same intervention rule | Same intervention rule |
+
+Both injected datasets should come from the **same teacher/source**, rather than comparing self-generated code against teacher code. Otherwise teacher style, code quality, and provenance become obvious confounds.
+
+Control as closely as practical for:
+
+- Number of verified examples and training tokens.
+- Optimization quality and code complexity.
+- Training FLOPs and hyperparameter-selection budget.
+- Access to accumulated data under the original reset protocol.
+- Injection timing.
+- Teacher-generation costs, charged equally or explicitly reported as a common subsidy.
+
+Estimate student coverage using **independent pre-intervention samples**, then seal evaluation instances. Use held-out shapes/instances and, where appropriate, held-out compositional variants. Reproducing injected kernels is not the desired outcome.
+
+“Low coverage” should mean a measured low probability under a defined sampling budget—not “zero support.” Your own pass@k finding makes that distinction essential.
+
+### The three readouts
+
+**First: manipulation check.**  
+Does frontier injection increase held-out coverage beyond reinforcement injection?
+
+**Second: transmission.**  
+After injection stops, does the model autonomously harvest correct solutions from additional, previously low-coverage regions?
+
+**Third: compounding.**  
+Does frontier injection increase the lineage advantage relative to reset?
+
+The key contrast is:
+
+\[
+\delta =
+\left(Y_{L,\text{frontier}}-Y_{R,\text{frontier}}\right)
+-
+\left(Y_{L,\text{reinforce}}-Y_{R,\text{reinforce}}\right).
+\]
+
+Evaluate this after several subsequent rounds, not only immediately after SFT.
+
+### Why this is substantially stronger
+
+If you find:
+
+- Equal data volume,
+- An actual expansion in held-out coverage,
+- More new autonomous harvesting in later rounds,
+- And a positive interaction \(\delta\),
+
+then you can say:
+
+> “Changing the information content of the training stream—not simply adding more correct examples—changes whether lineage accumulation helps.”
+
+That is a much more compelling contribution than “larger teachers generate more correct code.”
+
+### Important: the experiment must be allowed to falsify your mechanism
+
+There are three scientifically distinct outcomes:
+
+1. **Coverage expands and compounding appears.**  
+   Strong support for coverage as a bottleneck.
+
+2. **Coverage expands, but compounding remains absent.**  
+   Coverage was not sufficient. Investigate retention, transfer, optimization efficiency, or insufficient advantage over reset. Do not retain “the mechanism for the null” unchanged.
+
+3. **Coverage fails to expand.**  
+   The intervention did not manipulate the proposed mediator. This is not a clean test of the mechanism.
+
+Your oracle-injection experiments may already provide part of this answer. **If they genuinely expanded held-out coverage without inducing compounding, that is evidence against the strongest current coverage explanation.** If they merely supplied more correct examples from already accessible regions, the targeted rescue remains untested.
+
+**This is my answer to (c), and my top experimental recommendation.**
+
+---
+
+## 2. Make search-beats-training a deployment-relevant frontier
+
+Your search result is potentially the most immediately useful finding. Its main vulnerability is **amortization**.
+
+Training pays an upfront cost and may reduce the cost of solving many future tasks. Search pays repeatedly. A single matched-budget comparison may not settle which is preferable over the relevant deployment horizon.
+
+### Run a compact budget-frontier experiment
+
+On a sealed task distribution, compare:
+
+1. Base model + best-of-N verified search.
+2. Lineage-trained model + best-of-N verified search.
+3. Matched-reset model + best-of-N verified search.
+
+Vary:
+
+- Total available compute.
+- Number of deployment tasks.
+- Per-task sampling allowance.
+
+Including search on the trained models matters: “training versus search” is otherwise a false dichotomy.
+
+Report:
+
+- Verified correctness and roofline-graded quality.
+- Training cost.
+- Generation cost.
+- Verification/benchmarking cost.
+- End-to-end wall-clock cost separately where it changes the practical conclusion.
+
+Use independent timing measurements for selected winners so noisy benchmark selection does not inflate best-of-N gains.
+
+### The question to answer
+
+> “Does self-training ever move the achievable quality–total-cost frontier, and if so, after how much reuse?”
+
+At equal target quality, the simple intuition is:
+
+\[
+Q^* \approx
+\frac{\text{training cost}}
+{\text{search cost per task before training}
+-
+\text{search cost per task after training}},
+\]
+
+when the denominator is positive. The actual analysis should use measured curves rather than assume constant per-task costs.
+
+Either outcome is valuable:
+
+- **No crossover over a meaningful deployment range:** search dominance becomes substantially stronger.
+- **A crossover exists:** training is an amortization tool, even though it does not compound.
+
+That second outcome does not weaken the paper. It yields a sharper distinction:
+
+> **Distilling search can improve inference efficiency without creating a self-sustaining improvement process.**
+
+Also tighten the “10× coverage” result. Ten times as many verified kernels is not necessarily ten times as much coverage. Decompose it into:
+
+- Correct samples per generation.
+- Unique task families solved.
+- Distinct solution strategies, to the extent measurable.
+- Yield per token and per unit compute.
+- Discovery curves as sampling budget increases.
+
+A reviewer will otherwise ask whether the teacher is producing more duplicates, receiving more compute, or simply shifting probability mass on the same task set.
+
+---
+
+## 3. RL/GRPO: worthwhile as a targeted boundary test, not a new research program
+
+### Does rejection-sampling SFT suffice?
+
+**Yes for a scoped claim. No for an algorithm-general claim.**
+
+It supports:
+
+> “No measurable compounding under verified rejection-sampling SFT in the tested regime.”
+
+It does not support:
+
+> “GPU-kernel self-improvement does not compound,”
+
+without substantial qualification.
+
+SFT and RL differ in ways directly relevant to your mechanism:
+
+- SFT reinforces selected outputs.
+- RL can also use relative reward information and alter unsuccessful behavior.
+- RL can optimize speed conditional on correctness rather than merely imitate accepted kernels.
+- Exploration and on-policy distribution shifts may matter.
+
+None of that guarantees RL will work. It means the SFT null does not settle the question.
+
+### The highest-value RL experiment
+
+Run **one serious, powered lineage/reset test at a deliberately favorable operating point**:
+
+- A scale with enough successful samples to obtain learning signal.
+- Tasks with genuine optimization headroom.
+- Several rounds.
+- A verified reward aligned with your benchmark.
+- Matched search baselines.
+- A single-round positive control demonstrating that the RL implementation actually learns.
+
+If binary correctness is part of the reward, estimate how often a GRPO group is informative. Under independent sampling with success probability \(p\) and group size \(G\), the probability of a mixed-success group is:
+
+\[
+1-(1-p)^G-p^G.
+\]
+
+If nearly every group is all-failure, an RL null mostly establishes reward starvation. That can support a bottleneck story, but it is not a strong falsification of RL-enabled compounding.
+
+If you need a shared warm start to get usable rewards, provide it to both RL and SFT and state that the result is conditional on that initialization.
+
+Keep the objective comparable. A speed-optimizing RL method versus a correctness-only SFT selection rule confounds the update algorithm with the target.
+
+### My decision rule
+
+- **For a tightly scoped, mechanism-first paper:** RL is optional.
+- **For a broad RSI/compounding headline:** RL is worth more than a routine 14B replication.
+- **If implementing stable RL will consume the remaining project:** narrow the claim instead.
+
+One informative RL point is better than a large, reward-starved RL sweep.
+
+---
+
+## 4. Is 14B worth the engineering cost?
+
+**Not simply because it is larger.**
+
+It is worth doing if it tests a predicted transition:
+
+- Does 14B have substantially greater *student-side* verified discovery coverage?
+- Does it escape the low-information training regime?
+- Does it have enough benchmark headroom?
+- Can you afford sufficient independent runs and rounds to obtain an interpretable bound?
+
+The teacher’s much higher verified yield makes 14B potentially interesting—but only if the prospective student at that scale actually crosses the relevant threshold.
+
+### Cheap go/no-go pilot
+
+Before investing in the reset shard, measure:
+
+1. Verified discovery curves.
+2. Fraction of usable self-training examples.
+3. Single-round held-out learning.
+4. Remaining performance headroom.
+
+Then:
+
+- **Coverage meaningfully changes:** 14B becomes a mechanistic boundary test and moves up the ranking.
+- **Only baseline score improves:** another scale point has lower leverage.
+- **Headroom disappears:** redesign the evaluation stratum before interpreting another null.
+
+I would rather have a credible multi-round causal experiment at 3B than two under-replicated 14B rounds.
+
+Also, I would call the existing result a **scale sweep**, not yet a phase diagram. A phase diagram becomes persuasive when its axes include the variables that plausibly determine the regime: coverage, usable data yield, budget, headroom, and training method—not just parameter count.
+
+---
+
+## 5. Salvaging self-play: constrain task validity, then learn curriculum selection
+
+The current author is solving too many problems at once:
+
+1. Invent a valid task.
+2. Make it learnable.
+3. Make it useful.
+4. Maintain diversity.
+5. Improve alongside the solver.
+
+With curriculum collapse and 0/228 passing your learnability gate, this is not yet a clean test of author co-evolution.
+
+### Redesign the author’s action space
+
+Use a verified task generator. Let the author choose:
+
+- Operator/composition.
+- Shapes and layouts.
+- Dtypes.
+- Hardware/resource constraints.
+- Difficulty parameters.
+- Controlled mutations.
+
+Every emitted task should have:
+
+- Executable semantics.
+- An independent verifier.
+- A trusted correct witness.
+
+The author should initially learn **which tasks to propose**, not how to invent arbitrary executable task specifications.
+
+### Fix learnability before training the author
+
+Replace the coarse bank with parameterized task ladders. Find settings spanning a useful range of student success probabilities.
+
+Do not assume “50% success” is universally optimal. The useful band depends on harvesting budget: it should generate enough successes to train on while preserving room for improvement.
+
+Your first success criterion should be mundane:
+
+> “The generator can reliably supply valid, diverse tasks on which the solver measurably improves.”
+
+Until that is true, an L−F comparison is mostly measuring failures of task construction.
+
+### Prevent invalidity from starving the solver
+
+Use a common admission gate and a fallback reservoir of calibrated tasks. If the author exhausts its proposal budget, fill the solver batch from the reservoir.
+
+Crucially:
+
+- Charge rejected proposals to the author’s budget.
+- Do not grant unlimited retries.
+- Report fallback rate as a primary author metric.
+
+Now a collapsed author yields “no benefit beyond fallback” rather than “the solver received no training.”
+
+### Reward transferable learning progress
+
+Do not reward raw solver failure. That encourages impossible tasks.
+
+Use batch-level estimates of improvement on **fresh sibling instances** after a small solver update, along with validity, diversity, and generation-cost terms. Estimate this periodically with shadow evaluations if doing it for every proposal is too expensive.
+
+Keep the final evaluation bank sealed. The author’s validation feedback is training information.
+
+### Make L−F identify the intended effect
+
+If F is the frozen-author arm, give F and L:
+
+- The same initial author.
+- The same generator and action space.
+- The same proposal budget.
+- The same admission rules.
+- The same fallback reservoir.
+- The same solver-training budget.
+
+Only L receives author learning updates.
+
+If the admission gate adapts to the current solver, then both arms already have some adaptive curriculum behavior. That is fine, but state the estimand accurately:
+
+> “Does learned author adaptation outperform a frozen proposal policy with the same adaptive admission machinery?”
+
+Evaluate L−F on an exogenous bank, not each arm’s own authored tasks.
+
+**My advice: keep this out of the critical path unless author co-evolution is indispensable to the paper’s identity.** Otherwise it is a separate project.
+
+---
+
+## What could move this from “solid negative” to an exceptional paper?
+
+No individual result guarantees acceptance or an award. But the most persuasive package would be:
+
+### 1. A null with a validated detector
+
+The same protocol detects sequential gains on a constructed positive control, yet yields a tight, appropriately scoped null on real kernel tasks.
+
+### 2. A causal boundary
+
+A randomized intervention changes accessible coverage and changes—or demonstrably fails to change—compounding in the predicted way.
+
+### 3. A resource-allocation law practitioners can use
+
+You identify when to spend compute on:
+
+- More samples.
+- A stronger teacher.
+- Student training.
+- Repeated deployment.
+
+### 4. An unusually reproducible benchmark
+
+Your retained artifacts and infrastructure fixes are assets. Release enough to reconstruct:
+
+- Lineage/reset ancestry and data access.
+- Full compute accounting.
+- Kernel verification.
+- Timeout/failure handling.
+- Timing methodology.
+- Statistical aggregation.
+
+That makes the benchmark useful even to researchers who disagree with your interpretation.
+
+**If I could request only one new headline result, it would be:**
+
+> **“At fixed verified-example count and budget, frontier-expanding supervision—but not reinforcement of already-covered solutions—enables additional autonomous discovery and increases the lineage/reset advantage.”**
+
+That would turn “we did not observe compounding” into **an experimentally supported account of what prevents it and what changes the regime**.
+
+If the rescue fails despite a successful coverage manipulation, that is also important—but the paper should then explicitly conclude that coverage alone does not explain the null. The credibility gained by testing that possibility is itself high leverage.
+
+## Claude Fable-5.1
+
+## Executive read
+
+You have a bounded null on *parameter* compounding and a mechanism hypothesis (sharpening-not-expansion) that is currently associational. The path from "solid negative" to "must-accept" is not more nulls at more scales; it is (1) making the mechanism causal and quantitative, (2) showing the mechanism *predicts a positive regime* and then demonstrating it, and (3) showing the mechanism is optimizer-agnostic. A null with a boundary is a phase diagram; a null without one is a benchmark report.
+
+Two things reviewers will hit that you didn't ask about, fix first:
+
+- **Round count.** "7B holds the null over rounds 0–1" is not a compounding test. Compounding claims need ≥4–5 rounds with a per-round trajectory plot and bootstrap CIs, at least at ≤3B where it's cheap. State 7B as a scale check, not a compounding result, unless you extend it.
+- **Ceiling confound.** 7B at C≈0.70 against a held ceiling of 0.80 has almost no headroom; a null there is uninformative. Report headroom-normalized gains (fraction of ceiling gap closed) everywhere, and build a hard tier for anything ≥7B.
+- **Statistics.** Say "equivalence" formally: TOST with margin ±0.05 on the pooled n=34, plus a Bayes factor for H0 vs. a +0.05 effect. Your CIs support it; make it a test, not a description.
+
+---
+
+## Ranked next experiments
+
+### 1. Make the mechanism causal: p-maps + coverage transplant + sharpening law  (highest leverage, lowest cost)
+
+**1a. Per-task p-maps across rounds.** For every task *t* and round *r*, sample k≈256–512 kernels, compute p_r(t) (fraction verified-correct) and best roofline fraction. Cost is grading, not training. This one artifact yields four figures:
+
+- *Mass-shift histogram*: distribution of p_r(t) across rounds. Prediction: intermediate-p mass moves toward 1; the p≈0 mass doesn't move. Reset arm as control.
+- *Coverage set*: C_r = {t : p_r(t) > 0}. Test |C_r \ C_0| vs. matched-reset. Prediction: ≈0 beyond sampling noise.
+- *pass@1 vs pass@k trajectories*: if pass@1 rises while pass@k flattens or falls, you've shown the lineage has *less* harvestable frontier each round — a diversity death spiral that mechanically forbids compounding under rejection sampling and directly predicts finding (i). Also track distinct-solution count per task (AST hash) as the diversity proxy.
+- *The amortization ceiling scatter*: per task, lineage round-R pass@1 vs. round-0 pass@k_harvest. Points above the diagonal = improvement beyond amortizing search. Prediction: none beyond noise. This is the single figure that unifies (i) and (ii).
+
+**1b. Sharpening law.** Fit Δp_r(t) as a function of p_0(t) and harvest budget k. Prediction: Δ≈0 for p_0 < ~1/k, peaked at intermediate p_0, saturating near 1. If the same curve fits 0.5B/1.5B/3B (and later GRPO), you have a quantitative, cross-scale law rather than a null.
+
+**1c. Coverage transplant 2×2 (the causal test for (c)).** At 1.5B (your best-powered scale), token-matched arms:
+- L: lineage only
+- L+T_in: + teacher kernels on tasks the student *already covers* (sharpening only)
+- L+T_out: + teacher kernels on tasks the student *does not cover* (coverage only, same token count)
+- L+T_rand: + random teacher subset
+
+Then run ≥3 *self-only* rounds after injection. Predictions: T_out > T_rand > T_in ≈ L; and crucially, injected coverage *persists and gets sharpened* by subsequent self-rounds. Add a dose-response arm (inject 10/25/50/100% of uncovered tasks). If gain is monotone in coverage injected and ~zero for T_in, coverage is causally the mediator — and you've converted your oracle positive control into a mechanism demonstration: *self-training is a sharpener that requires an external coverage source.*
+
+**1d. Held-out families.** Partition the bank by op family; train lineage on some, evaluate on held-out. Δ≈0 on held-out = per-task amortization, not a transferable skill. This is also the fair answer to "but training amortizes across future queries" (see #4).
+
+### 2. Oracle frontier curriculum — the precursor that decides whether self-play matters at all  (answers (b) and is your best shot at a positive regime)
+
+The mechanism predicts exactly what a curriculum must do: put tasks with p_0 ∈ (1/k, ~0.5) into the harvest. You don't need an LLM author to test this — you have 14B-harvested difficulty maps.
+
+- **Goldilocks arm**: each round, train only on tasks whose current p_r is in the frontier band, vs. uniform.
+- **Expanding-k arm**: raise k_harvest per round (16→64→256) so frontier tasks mechanically enter the harvest. Compute-match against best-of-N.
+- **Combined arm**.
+
+If either compounds (lineage > reset, and coverage set grows), you have the positive regime and the paper's boundary: *compounding occurs iff new coverage enters the harvest — from a teacher, from a curriculum, or from a larger k — never from the lineage's own fixed-budget samples.* If even the oracle curriculum fails, the author is irrelevant and self-play becomes a one-paragraph lessons-learned. Either outcome is decisive, which is why this outranks fixing the author.
+
+### 3. Close the RL loophole with a cheap→expensive ladder  (answers (a); insurance, but mandatory)
+
+Rejection-sampling SFT is filtered behavior cloning ≈ REINFORCE with binary reward; theoretically it cannot leave the support of the policy, and the RLVR-sharpening literature (Yue et al. 2025 and successors) says the same for GRPO. Your mechanism therefore *predicts* GRPO sharpens faster but leaves C_r frozen. But every reviewer will write "you used the weakest possible training method" unless there is an RL arm. Do it as a ladder so you can stop early if the story holds:
+
+- **A1: speedup-weighted rejection sampling** (keep top-quartile roofline fraction among correct). Tests the "dense reward matters" objection with zero new infra.
+- **A2: DPO with (correct, incorrect) pairs per task.** Tests the "negatives matter" objection.
+- **A3: one GRPO arm** at 1.5B or 3B, reward = correct × roofline fraction (+ small compile shaping), ≥4 rounds, n≥8, compute-matched, with the same p-map instrumentation as #1. Watch for grader exploits — any reward hacking you catch is a bonus finding, not a failure.
+
+Rejection-sampling alone does *not* suffice to claim "no compounding" to a skeptical audience. But you don't need a full RL axis; you need one well-instrumented arm that shows the same coverage-frozen signature. If GRPO *does* expand coverage, that's a more interesting paper, not a worse one.
+
+### 4. Break-even amortization analysis for search-vs-training  (cheap; makes (i) fair and actionable)
+
+Finding (i) is currently vulnerable: best-of-N spends compute per query; training amortizes. Compute the break-even: how many future queries before lineage training pays off, given (a) in-distribution gain and (b) held-out gain from 1d. With ~zero held-out transfer, break-even is infinite for novel tasks and finite only for repeated tasks — a concrete engineering recommendation ("in domains with cheap, dense verification and low cross-task transfer, spend on search"). Add a *repeat-task positive control* (same tasks queried repeatedly) to show your harness detects the regime where training should win.
+
+### 5. 14B  (answers (d); medium — do it only in a specific form)
+
+The 0.5–7B diagram is flat, so 14B on the *same bank* adds one point and inherits the ceiling confound. Worth the 2-GPU shard only if:
+- you run it on a hard tier (tasks where 14B p_0 ∈ (0.01, 0.5)), and
+- you instrument it with the #1 p-maps, and
+- you treat it as the "your model is just too weak" refutation: the model with the most coverage and the most to sharpen still shows frozen C_r.
+
+If GPU-constrained, everything in #1–#4 outranks it. A cheaper substitute: one round of p-maps on a 32B open model to show the sharpening law extrapolates.
+
+### 6. Self-play author redesign  (only after #2 shows an oracle curriculum works)
+
+Collapse to "no valid tasks" and P3's 0/228 learnability pass are the same disease: free-form generation + a sparse validity/learnability gate. Redesign so validity is structural and learnability is searchable:
+
+- **Knob-parameterized DSL**: shape, dtype, fusion-chain length, layout, reduction dims, tiling constraints. Author proposes *edits to knobs*, not free-form tasks. Reference implementation is composed from verified primitives so validity is near-guaranteed.
+- **Adaptive difficulty**: continuous knobs let you bisect to the frontier band (p ∈ (1/k, 0.5)) — this is why P3 saw only too-easy/too-hard; discrete mutations can't land in the band.
+- **Minimal-criterion archive** (POET/PAIRED-style): tasks that pass validity + learnability enter a persistent archive; the curriculum samples from the archive, so it can never collapse to empty.
+- **Author reward**: solver learning progress (|Δp| across rounds) or intermediate p, plus shaping for compile/finite-reference/determinism.
+- **Measuring L−F**: arms S (solver on fixed bank), F (frozen round-0 author), L (co-trained author); outcome = solver performance on *held-out human-written tasks* (KernelBench-style) at matched compute. L−F > 0 with coverage-set growth is the genuine co-evolution result.
+
+### Cut or relegate
+Probe-as-intervention → appendix. P3 as-is → lessons learned. Current author → lessons learned unless #6 runs.
+
+---
+
+## (e) What flips "solid negative" to "must-accept"
+
+1. **A quantitative, cross-scale, cross-optimizer law** (1b), not a null: "Δp is a function of (p_0, k) and nothing else we varied."
+2. **Causal mediation with dose-response** (1c): coverage injection restores compounding; sharpening-only injection doesn't.
+3. **A demonstrated positive regime** (#2): compounding appears when the frontier enters the harvest. A boundary makes the null a phase diagram.
+4. **Optimizer-agnosticism** (#3): SFT, DPO, GRPO share the coverage-frozen signature.
+5. **The unifying figure** (1a amortization scatter): lineage never exceeds round-0 best-of-k on any task — self-training is compression of search.
+6. **Actionable economics** (#4): break-even analysis with a clear recommendation.
+7. **Artifacts**: the hardened harness (grader deadlock fix, NaN guard), p-maps, and all S3 lineage artifacts released. The grader-hardening alone is a contribution people will use.
+
+The framing that ties it together: *"Self-training sharpens; it does not explore. In kernel optimization, compounding is coverage-limited, and coverage is not self-generated."* Lead with the law and the transplant result; the null becomes the corollary rather than the headline.
