@@ -42,16 +42,26 @@ def bf01_bic(vals):
     return bf01
 
 
-def load_dir(d):
+# CRITICAL: only canonical POST-FIX seeds count. Older/broken runs (qwen7, qwen3, *fix, *gentle, *min, q7)
+# predate the SFT NaN-gradient fix and show lineage collapse-to-0 (C_lineage=0, n_ex=0 from round 1) which
+# pollutes the pooled estimate toward a spurious large-negative "finding". The post-fix seed naming is
+# compounding_q{05,15,3}{new|sN}. Pass --all to override (e.g. to audit the broken runs deliberately).
+import re
+_CLEAN = re.compile(r"^compounding_q(05|15|3)(new|s\d+)$")
+
+
+def load_dir(d, allow_all=False):
     groups = {}
     for f in sorted(glob.glob(os.path.join(d, "compounding_*", "compounding.json")) +
                     glob.glob(os.path.join(d, "*.json"))):
+        tag = os.path.basename(os.path.dirname(f))
+        if not allow_all and not _CLEAN.match(tag):
+            continue
         try:
             j = json.load(open(f))
         except Exception:
             continue
-        model = (j.get("model") or os.path.basename(os.path.dirname(f))).split("/")[-1]
-        key = "".join(c for c in model if not c.isdigit() or True)  # keep full name; group below by size tag
+        model = (j.get("model") or tag).split("/")[-1]
         vals = [h["lineage_minus_reset"] for h in j.get("history", []) if h.get("lineage_minus_reset") is not None]
         groups.setdefault(model, []).extend(vals)
     return groups
@@ -61,8 +71,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data"))
     ap.add_argument("--delta", type=float, default=0.05)
+    ap.add_argument("--all", action="store_true", help="include non-canonical/broken runs (default: post-fix seeds only)")
     a = ap.parse_args()
-    groups = load_dir(a.dir)
+    groups = load_dir(a.dir, allow_all=a.all)
     if not groups:
         print("no compounding data found under", a.dir); return
     pooled = []
