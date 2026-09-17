@@ -1,0 +1,112 @@
+{
+ "models": {
+  "GPT-6-Astra": {
+   "Q0": 0.297926150791129,
+   "Qg0": 0.8,
+   "Qgf": 0.854,
+   "r0_jump": 0.502073849208871,
+   "recursive_gain": 0.113,
+   "delta_vs_base": 0.556,
+   "rounds": 6,
+   "sat_round": 2,
+   "n_strategies": 12,
+   "n_archive": 5,
+   "cls": "IMPROVING"
+  },
+  "DeepSeek-V3.2": {
+   "Q0": 0.8472190933800441,
+   "Qg0": 0.614,
+   "Qgf": 0.614,
+   "r0_jump": -0.2332190933800441,
+   "recursive_gain": 0,
+   "delta_vs_base": -0.234,
+   "rounds": 1,
+   "sat_round": 1,
+   "n_strategies": 12,
+   "n_archive": 7,
+   "cls": "SELF-DEGRADE"
+  },
+  "GPT-5.6-sol": {
+   "Q0": 0.813419722386415,
+   "Qg0": 0.87,
+   "Qgf": 0.889,
+   "r0_jump": 0.05658027761358497,
+   "recursive_gain": 0.041,
+   "delta_vs_base": 0.075,
+   "rounds": 6,
+   "sat_round": 3,
+   "n_strategies": 12,
+   "n_archive": 15,
+   "cls": "ONE-SHOT-PLATEAU"
+  },
+  "GPT-5.6-terra": {
+   "Q0": 0.851179496824507,
+   "Qg0": 0.852,
+   "Qgf": 0.85,
+   "r0_jump": 0.0008205031754929815,
+   "recursive_gain": 0.004,
+   "delta_vs_base": -0.001,
+   "rounds": 6,
+   "sat_round": 2,
+   "n_strategies": 10,
+   "n_archive": 11,
+   "cls": "CEILING"
+  },
+  "Kimi": {
+   "Q0": 0.7515242972445516,
+   "Qg0": 0.825,
+   "Qgf": 0.813,
+   "r0_jump": 0.07347570275544835,
+   "recursive_gain": 0.113,
+   "delta_vs_base": 0.062,
+   "rounds": 2,
+   "sat_round": 1,
+   "n_strategies": 12,
+   "n_archive": 4,
+   "cls": "STALL"
+  },
+  "Mistral-3": {
+   "Q0": 0.3585159733100104,
+   "Qg0": 0.494,
+   "Qgf": 0.669,
+   "r0_jump": 0.1354840266899896,
+   "recursive_gain": 0.11499999999999999,
+   "delta_vs_base": 0.31,
+   "rounds": 6,
+   "sat_round": 4,
+   "n_strategies": 12,
+   "n_archive": 12,
+   "cls": "IMPROVING"
+  },
+  "Opus-5": {
+   "Q0": 0.8784284181158997,
+   "Qg0": 0.91,
+   "Qgf": 0.91,
+   "r0_jump": 0.031571581884100364,
+   "recursive_gain": 0,
+   "delta_vs_base": 0.032,
+   "rounds": 1,
+   "sat_round": 1,
+   "n_strategies": 12,
+   "n_archive": 20,
+   "cls": "CEILING"
+  },
+  "Sonnet-5": {
+   "Q0": 0.49309662314986163,
+   "Qg0": 0.888,
+   "Qgf": 0.894,
+   "r0_jump": 0.3949033768501384,
+   "recursive_gain": 0.06899999999999999,
+   "delta_vs_base": 0.401,
+   "rounds": 6,
+   "sat_round": 2,
+   "n_strategies": 12,
+   "n_archive": 9,
+   "cls": "ONE-SHOT-PLATEAU"
+  }
+ },
+ "strategy_convergence": 0.11984125258548735,
+ "mean_r0_jump": 0.1202112780996977,
+ "mean_recursive_gain": 0.056875,
+ "frac_nonrecursive": 0.75
+}
