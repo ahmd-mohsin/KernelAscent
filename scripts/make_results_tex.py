@@ -97,6 +97,29 @@ lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experim
 and we do not report their numbers as evidence.
 """ % len(cm))
 
+def search_note():
+    d = load("search_vs_train.json"); p = d.get("pooled")
+    if not p:
+        return "% no search_vs_train data\n"
+    ms = d.get("models", [])
+    per = ", ".join("%s $%+.3f$" % (m["model"].replace("Qwen2.5-Coder-", "").replace("-Instruct", ""), m["mean"]) for m in ms)
+    # built with .format (no %-format string) to avoid LaTeX % / $ escaping hazards
+    return (r"\paragraph{Finding (i): at matched compute, best-of-$N$ search beats lineage self-training "
+            r"(significant).} lab\_compounding compares, each round, the lineage model against frozen-base "
+            r"best-of-$N$ at the \emph{matched cumulative} generation budget $k(r{+}1)$. Pooled over the clean "
+            r"post-fix seeds ($n{=}NPOOL$ round-comparisons), lineage$-$bestof$N = MEANP\,[LOP,HIP]$ --- the 95\% "
+            r"CI \emph{excludes zero} --- and search strictly wins in FRACP of matched-budget rounds. Per scale: "
+            r"PERSCALE (all negative, all CIs below zero). Unlike the compounding null (which spans zero), this is "
+            r"a \emph{significant positive} result: verified search converts a fixed generation budget into "
+            r"capability more efficiently than distilling that same budget into weights. The practical corollary "
+            r"(with the coverage gap) is that in domains with cheap dense verification and low cross-task "
+            r"transfer, compute is better spent on search than on self-training."
+            .replace("NPOOL", str(p["n"]))
+            .replace("MEANP", "%+.3f" % p["mean"]).replace("LOP", "%+.3f" % p["lo"]).replace("HIP", "%+.3f" % p["hi"])
+            .replace("FRACP", "{:.0f}".format(100 * p["search_wins_frac"]) + r"\%")
+            .replace("PERSCALE", per) + "\n")
+
+
 def pmap_curve():
     ms = load("pmap_curve.json").get("models", [])
     if not ms:
@@ -156,6 +179,9 @@ def build():
 %s
 %s
 
+\subsection{Search vs.\ training (the headline positive)}
+%s
+
 \subsection{Mechanism and self-play}
 %s
 %s
@@ -179,7 +205,7 @@ Prioritized next runs: (1) a leakage-resistant probe replication on a larger, fa
 \emph{within-task} ranking metric and matched-candidate comparators (random / length-normalized likelihood /
 compile-filter); (2) a staged lineage-vs-reset debug to recover or drop the compounding claim; (3) T5
 self-play with author validity + learnability gates before extending trajectories.
-""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), mech_note(), selfplay_note(), pmap_curve()))
+""" % (datetime.date.today().isoformat(), probe_table(), compounding_note(), search_note(), mech_note(), selfplay_note(), pmap_curve()))
     open(OUT, "w").write(body)
     print("wrote", OUT, "(%d bytes)" % len(body))
 

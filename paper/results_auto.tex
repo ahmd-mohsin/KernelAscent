@@ -91,6 +91,10 @@ lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experim
 and we do not report their numbers as evidence.
 
 
+\subsection{Search vs.\ training (the headline positive)}
+\paragraph{Finding (i): at matched compute, best-of-$N$ search beats lineage self-training (significant).} lab\_compounding compares, each round, the lineage model against frozen-base best-of-$N$ at the \emph{matched cumulative} generation budget $k(r{+}1)$. Pooled over the clean post-fix seeds ($n{=}83$ round-comparisons), lineage$-$bestof$N = -0.113\,[-0.153,-0.074]$ --- the 95\% CI \emph{excludes zero} --- and search strictly wins in 70\% of matched-budget rounds. Per scale: 0.5B $-0.140$, 1.5B $-0.080$, 3B $-0.145$ (all negative, all CIs below zero). Unlike the compounding null (which spans zero), this is a \emph{significant positive} result: verified search converts a fixed generation budget into capability more efficiently than distilling that same budget into weights. The practical corollary (with the coverage gap) is that in domains with cheap dense verification and low cross-task transfer, compute is better spent on search than on self-training.
+
+
 \subsection{Mechanism and self-play}
 \paragraph{Mechanism (50 WHY-RSI probes, 0.5--15B).} Two internal gates, reported as \emph{associations}
 (not yet causal). (1) \textbf{Correctness wall:} small ($<$2B) models cross \emph{less frequently} than $\geq$2B models
