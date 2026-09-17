@@ -57,12 +57,14 @@ search in most rounds. Averaged over rounds, accumulated self-training does \emp
 fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
 \textbf{Multi-seed confirmation (up to 4 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a 95\%%
 CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
-$+0.042\,[-0.044,+0.129]$, Qwen-1.5B $+0.030\,[-0.030,+0.089]$, Qwen-3B $-0.022\,[-0.096,+0.052]$; pooled
-($n{=}45$) $\mathbf{+0.009\,[-0.035,+0.052]}$ --- a well-powered equivalence result bounding any compounding
-advantage to $\lesssim0.05$ absolute. \textbf{Formal equivalence (TOST):} at an equivalence margin
-$\delta{=}0.05$ the pooled $90\%%$ CI lies inside $[-\delta,+\delta]$ (TOST rejects non-equivalence), and a
-BIC-approximate Bayes factor gives $\mathrm{BF}_{01}\!\approx\!5.8$ (moderate evidence \emph{for} the null over
-a $\delta$-sized effect); per-scale $\mathrm{BF}_{01}\!\approx\!3.6$ at 1.5B/3B. We state the estimand as an
+$+0.028$, Qwen-1.5B $+0.025$, Qwen-3B $-0.040$ (per-scale means; individual $90\%%$ CIs still cross
+$\pm\delta$ and are not yet formally equivalent --- the binding constraint is per-trajectory seed count);
+pooled ($n{=}79$) $\mathbf{-0.004\,[-0.030,+0.023]}$ --- a well-powered equivalence result bounding any
+compounding advantage to $\lesssim0.05$ absolute. \textbf{Formal equivalence (TOST):} at an equivalence margin
+$\delta{=}0.05$ the pooled $90\%%$ CI lies strictly inside $[-\delta,+\delta]$ (TOST rejects non-equivalence),
+and a BIC-approximate Bayes factor gives $\mathrm{BF}_{01}\!\approx\!8.7$ (moderate-to-strong evidence
+\emph{for} the null over a $\delta$-sized effect), strengthening monotonically as seeds accumulate
+($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to8.7$ at $n{=}79$). We state the estimand as an
 \emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
 the binding constraint). \textbf{Causal mechanism test (in flight):} a coverage-transplant $2\times2$
 (lineage $\pm$ teacher kernels on student-\emph{covered} vs.\ \emph{uncovered} tasks, token-matched, with
