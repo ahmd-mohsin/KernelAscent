@@ -3,7 +3,7 @@
  "note": "Task 5b CLOSED (API) self-play, 3-arm: co-evolution channel is the PROCEDURE. STATIC / FROZEN-AUTHOR (empty-procedure author) / LIVE-AUTHOR (co-evolved-procedure author). PRIMARY=L-F. Sustained L-F>0 with model_proposed>0 = closed-model self-referential RSI without weight access.",
  "models": [
   {
-   "model": "deepseek.v3.2",
+   "model": "DeepSeek V3.2",
    "tier": "small",
    "rounds": [
     0,
@@ -244,7 +244,7 @@
    "verdict": "adaptive-curriculum only (L==F)"
   },
   {
-   "model": "moonshotai.kimi-k2.5",
+   "model": "Kimi K2.5",
    "tier": "small",
    "rounds": [
     0,
@@ -1125,7 +1125,7 @@
    "verdict": "no self-referential compounding"
   },
   {
-   "model": "deepseek.v3.2",
+   "model": "DeepSeek V3.2",
    "tier": "small",
    "rounds": [
     0,
@@ -1927,7 +1927,7 @@
    "verdict": "adaptive-curriculum only (L==F)"
   },
   {
-   "model": "mistral.mistral-large-3-675b-instruct",
+   "model": "Mistral Large 3",
    "tier": "small",
    "rounds": [
     0,

@@ -21,7 +21,7 @@
    "verdict": "improves"
   },
   {
-   "model": "mistral.mistral-large-3-675b-instruct",
+   "model": "Mistral Large 3",
    "mode": "self-modify",
    "rounds": 6,
    "Q0": 0.359,
@@ -30,7 +30,7 @@
    "verdict": "improves"
   },
   {
-   "model": "Nova-Pro",
+   "model": "Nova Pro",
    "mode": "self-modify",
    "rounds": 5,
    "Q0": 0.401,
@@ -48,7 +48,7 @@
    "verdict": "improves"
   },
   {
-   "model": "Kimi-K2.5",
+   "model": "Kimi K2.5",
    "mode": "self-modify",
    "rounds": 2,
    "Q0": 0.752,
@@ -93,7 +93,7 @@
    "verdict": "flat"
   },
   {
-   "model": "deepseek.v3.2",
+   "model": "DeepSeek V3.2",
    "mode": "self-modify",
    "rounds": 1,
    "Q0": 0.847,

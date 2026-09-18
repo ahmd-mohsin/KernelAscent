@@ -37,7 +37,7 @@
   },
   {
    "trainee": "Qwen2.5-Coder-1.5B",
-   "researcher": "Nova-Pro",
+   "researcher": "Nova Pro",
    "rounds": 5,
    "C0": 0.147,
    "C_improved": 0.118,
