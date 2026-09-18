@@ -282,13 +282,13 @@ body{font-feature-settings:"ss01","ss02"}
    VIZ THEME — white + red, small, centered, vertical (2026-09-18)
    ============================================================ */
 .viz-frame{
-  --vink:#1a1a1a; --vmut:#6b6b6b; --vgrid:#e4e4e7; --vpaper:#ffffff; --vwash:#faf7f7;
-  --red:#c1121f; --red2:#e5484d; --redwash:#fdecec; --gold:#9a7b1f; --slate:#2b3b52;
+  --vink:#241c1c; --vmut:#716361; --vgrid:#dccfca; --vpaper:#ffffff; --vwash:#fceeee;
+  --red:#b4232c; --red2:#d34049; --redwash:#fceeee; --gold:#9a7b1f; --slate:#2b3b52;
   position:relative; border:1px solid #ecdcdc; border-radius:14px;
   background:var(--vpaper); box-shadow:0 8px 30px rgba(120,0,0,.06);
-  padding:14px 14px 6px; margin:22px auto 0; max-width:820px;
+  padding:12px 14px 6px; margin:20px auto 0; max-width:720px;
 }
-.viz-frame .viz-svg{display:block;width:100%;height:auto;margin-inline:auto;max-width:820px}
+.viz-frame .viz-svg{display:block;width:100%;height:auto;margin-inline:auto;max-width:720px}
 .viz-frame text{font-family:var(--serif,Georgia,serif);fill:var(--vink)}
 .viz-frame .stage-title{font-size:17px;font-weight:600;letter-spacing:-.01em}
 .viz-frame .metric{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;fill:var(--red)}
@@ -300,5 +300,5 @@ body{font-feature-settings:"ss01","ss02"}
 @keyframes edge-flow{to{stroke-dashoffset:-14}}
 @media(prefers-reduced-motion:reduce){.edge-flow{animation:none}}
 /* figures render centered in the normal column width, stacked vertically */
-.vizwide{width:100%;max-width:820px;margin:22px auto 0;left:auto;transform:none;position:static}
+.vizwide{width:100%;max-width:720px;margin:20px auto 0;left:auto;transform:none;position:static}
 .vizwide figcaption{max-width:64ch;margin:12px auto 0;text-align:center}
