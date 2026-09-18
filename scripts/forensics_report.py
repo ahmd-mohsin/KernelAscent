@@ -19,12 +19,27 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def main():
     fdir = os.environ.get("KA_FOREN_DIR", "/tmp/ka/foren")
-    rows = []
+    # aggregate ALL forensics runs by canonical family prefix (mean over cycles/seeds) -> clean table
+    fam_keys = sorted(NAMES.keys(), key=len, reverse=True)   # longest-first so q14 matches before q1
+    agg = {}
     for f in sorted(glob.glob(os.path.join(fdir, "forensics_*.json"))):
-        d = json.load(open(f)); t = d["tag"]
-        if t.endswith("c2"): continue  # 2nd-cycle stability runs, not in main table
-        nm, sz = NAMES.get(t, (t, 99))
-        rows.append((sz, nm, t, d))
+        try: d = json.load(open(f))
+        except Exception: continue
+        t = d["tag"]
+        fam = next((k for k in fam_keys if t == k or t.startswith(k + "_") or t.startswith(k + "c")), None)
+        if not fam:
+            continue
+        a = agg.setdefault(fam, {"zero": [], "pct": {}, "n": 0})
+        a["zero"].append(d.get("zero_task_frac", 0)); a["n"] += 1
+        for kk, vv in d.get("failure_pct", {}).items():
+            a["pct"].setdefault(kk, []).append(vv)
+    import statistics as _st
+    rows = []
+    for fam, a in agg.items():
+        nm, sz = NAMES[fam]
+        d = {"zero_task_frac": _st.mean(a["zero"]) if a["zero"] else 0,
+             "failure_pct": {k: _st.mean(v) for k, v in a["pct"].items()}, "examples": {}, "n_cycles": a["n"]}
+        rows.append((sz, nm, fam, d))
     rows.sort()
     summ = {"models": []}
     md = ["# 0-score failure forensics — where every model family gets stuck (mechanistic)", "",

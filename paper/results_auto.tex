@@ -170,43 +170,14 @@ DeepSeek-V3.2 & 0.847 & -0.233 & +0.000 & r1 & SELF-DEGRADE \\
 \paragraph{0-score failure forensics (where the wall actually is).} Sampling $K$ candidates per task and classifying \emph{why} each scores zero shows the sub-3B ``correctness wall'' is really a kernel-\emph{formation} wall: the dominant failure is \texttt{no\_extract} (no parseable \texttt{ModelNew} ever emitted; 57--96\% of candidates) followed by \texttt{syntax\_error} (truncated mid-kernel), \emph{not} runnable-but-wrong kernels. Reading the chains: 0.5B mode-collapses into off-task repetition, 1.5--3B truncate or \emph{hallucinate APIs} (e.g.\ \texttt{torch.gelu}), and only at $\geq$3B do \texttt{wrong\_output} (silently incorrect) and \texttt{correct} appear. The failure locus moves \emph{downstream} with scale (incoherence $\to$ truncation $\to$ API-hallucination $\to$ wrong-output $\to$ correct): each scale step advances the model one pipeline stage, which is \emph{why} coverage is formation-gated below the wall (cf.\ the $p$-map coverage curve).
 \begin{table}[h]\centering\footnotesize\caption{0-score candidate failure taxonomy by scale (\% of sampled candidates). Formation failures (no\_extract$+$syntax) dominate below 3B.}\begin{tabular}{lrrrrrr}\toprule
 model & zero-task & no\_extract & syntax & name/API & wrong\_out & correct \\\midrule
-Qwen-0.5B & 100\% & 71\% & 29\% & 0\% & 0\% & 0\% \\
-DeepSeek-1.3B & 86\% & 90\% & 7\% & 1\% & 0\% & 1\% \\
-Qwen-1.5B & 90\% & 57\% & 39\% & 1\% & 1\% & 1\% \\
-Yi-1.5B & 97\% & 96\% & 3\% & 0\% & 0\% & 0\% \\
-Qwen-3B & 48\% & 51\% & 33\% & 5\% & 2\% & 6\% \\
-DeepSeek-6.7B & 62\% & 80\% & 11\% & 3\% & 0\% & 3\% \\
-Qwen-7B & 28\% & 8\% & 75\% & 5\% & 0\% & 9\% \\
-Qwen-14B & 14\% & 0\% & 9\% & 8\% & 8\% & 65\% \\
-ds13_140_2301 & 97\% & 91\% & 6\% & 1\% & 0\% & 0\% \\
-ds13_140_2533 & 97\% & 88\% & 11\% & 1\% & 0\% & 0\% \\
-ds13_140_3062 & 93\% & 91\% & 7\% & 1\% & 0\% & 0\% \\
-ds13_140_5347 & 93\% & 89\% & 9\% & 1\% & 0\% & 0\% \\
-ds67_140_3963 & 38\% & 77\% & 13\% & 2\% & 1\% & 5\% \\
-ds67_140_4054 & 62\% & 82\% & 8\% & 4\% & 1\% & 3\% \\
-ds67_226_5539 & 48\% & 75\% & 13\% & 4\% & 1\% & 4\% \\
-ds67_226_8290 & 52\% & 78\% & 11\% & 2\% & 0\% & 5\% \\
-ds67_963_2417 & 55\% & 80\% & 10\% & 2\% & 1\% & 4\% \\
-q05_140_7054 & 97\% & 72\% & 27\% & 0\% & 0\% & 0\% \\
-q05_963_6927 & 100\% & 75\% & 25\% & 1\% & 0\% & 0\% \\
-q05_963_7582 & 100\% & 73\% & 27\% & 0\% & 0\% & 0\% \\
-q14_140_2987 & 14\% & 0\% & 9\% & 7\% & 8\% & 65\% \\
-q14_187_5744 & 14\% & 0\% & 8\% & 7\% & 9\% & 67\% \\
-q14_226_1209 & 14\% & 0\% & 7\% & 9\% & 8\% & 64\% \\
-q14_226_4682 & 14\% & 0\% & 9\% & 7\% & 10\% & 66\% \\
-q15_187_4181 & 90\% & 56\% & 41\% & 1\% & 0\% & 1\% \\
-q15_187_7750 & 83\% & 57\% & 40\% & 1\% & 0\% & 1\% \\
-q15_963_5033 & 86\% & 58\% & 39\% & 1\% & 0\% & 1\% \\
-q15_963_8802 & 93\% & 60\% & 36\% & 3\% & 1\% & 0\% \\
-q3_140_1632 & 45\% & 49\% & 33\% & 7\% & 1\% & 6\% \\
-q3_187_4665 & 41\% & 50\% & 32\% & 6\% & 3\% & 6\% \\
-q3_963_5947 & 41\% & 50\% & 33\% & 5\% & 2\% & 6\% \\
-q3c3 & 34\% & 56\% & 26\% & 5\% & 3\% & 8\% \\
-q7_187_7689 & 48\% & 10\% & 76\% & 5\% & 1\% & 6\% \\
-yi15_140_7171 & 97\% & 97\% & 2\% & 0\% & 0\% & 0\% \\
-yi15_187_6278 & 100\% & 97\% & 3\% & 1\% & 0\% & 0\% \\
-yi15_187_8392 & 100\% & 97\% & 3\% & 0\% & 0\% & 0\% \\
-yi15_963_4875 & 97\% & 96\% & 3\% & 1\% & 0\% & 0\% \\
+Qwen-0.5B & 99\% & 72\% & 27\% & 0\% & 0\% & 0\% \\
+DeepSeek-1.3B & 93\% & 90\% & 8\% & 1\% & 0\% & 0\% \\
+Qwen-1.5B & 90\% & 58\% & 38\% & 1\% & 0\% & 1\% \\
+Yi-1.5B & 98\% & 97\% & 2\% & 0\% & 0\% & 0\% \\
+Qwen-3B & 41\% & 52\% & 31\% & 6\% & 2\% & 7\% \\
+DeepSeek-6.7B & 53\% & 79\% & 11\% & 3\% & 1\% & 4\% \\
+Qwen-7B & 38\% & 9\% & 75\% & 5\% & 0\% & 8\% \\
+Qwen-14B & 14\% & 0\% & 8\% & 8\% & 8\% & 65\% \\
 \bottomrule\end{tabular}\end{table}
 
 
