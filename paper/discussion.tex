@@ -1,0 +1,81 @@
+% Discussion: why verified self-training does not compound (distilled from GPT-6-Astra analysis, 2026-09-18).
+% Static, hand-checked. \input by figures.tex.
+\section{Why self-improvement does not compound}
+
+\paragraph{The mechanism: a discovery$\to$assimilation bottleneck (sharpening, not exploration).}
+Our two strongest results jointly localise the failure. Best-of-$N$ search beating lineage training at matched
+compute (lineage$-$bestof$N=-0.113\,[-0.153,-0.074]$), together with the large pass@$K\!\gg\!$pass@1 gap, shows
+that \emph{useful solutions are already present in the sampling tail} but are not reliably produced in one
+sample. The limiting pipeline is therefore
+\[
+\text{rare verified sample}\;\to\;\text{selected SFT example}\;\to\;\text{weight update}\;\to\;\text{reliably reusable gain},
+\]
+and it is \emph{lossy}: search can exploit a rare discovery directly, whereas training must compress it into a
+shared parameterisation, preserve other skills, and have the gain survive later rounds. The lineage-vs-reset
+null (inheriting updates does not beat restarting) is direct evidence \emph{against a useful cumulative learning
+state}, not merely evidence that individual updates are small. This is the classic self-training signature:
+selected-sample training concentrates probability on \emph{already-reachable} successes faster than it expands
+what is reachable (cf.\ STaR, ReST, ReST$^{EM}$, expert iteration; and the RLVR capability-boundary debate,
+Yue et al.\ 2025).
+
+\paragraph{A formal fixed point --- with its limits stated precisely.}
+Under an \emph{idealised} support-preserving rejection-conditioning operator $R$ (unlimited accepted samples,
+exact per-task fitting, no cross-task transfer), exact solution-support coverage
+$C_0(\pi)=\Pr_x[p_\pi(x)>0]$ is invariant and $R$ is idempotent after one step: $C_0(R\pi)=C_0(\pi)$ and
+$R^2\pi=R\pi$. On tasks with positive success probability $R$ places all mass on accepted outputs; on $p{=}0$
+tasks no accepted distribution exists. So an idealised verified-SFT loop is a \emph{one-step fixed point in
+exact coverage}. \textbf{We are careful about what this does \emph{not} say.} (i) Neural SFT is not this
+operator --- shared parameters can generalise and raise the probability of unsampled outputs, so real SFT need
+not preserve support. (ii) \emph{Finite-budget} coverage is \emph{not} invariant:
+$C_K(\pi)=\mathbb{E}_x[1-(1-p_\pi(x))^K]$ rises sharply under sharpening even when $C_0$ is fixed --- ``pass@$K$
+coverage is a fixed point'' is false. (iii) Zero observed successes only bound $p\lesssim 3/K$; our
+``unreachable mass'' is more precisely \emph{undiscovered mass at the evaluated budget}. (iv) A training-operator
+fixed point is \emph{not} a parameter-space local optimum. We therefore report an \textbf{operational
+self-training plateau / protocol-relative fixed point}, never an unqualified ``local optimum.''
+
+\paragraph{Why verified search escapes where training does not.}
+Search does not escape the policy's support; it escapes the \emph{one-sample} bottleneck and avoids the
+assimilation bottleneck. For success probability $p$, $P(\text{hit in }N)=1-(1-p)^N$ makes extra draws
+valuable when $p$ is small, and the verifier keeps the winner. Search (a) uses a discovery directly rather than
+compressing it into weights, (b) allocates candidates per-task rather than via one shared update, and (c) does
+not permanently contract the proposal policy. The precise statement: \emph{verified search accesses useful
+existing tail capability more efficiently than the tested training loop consolidates it}. (This does not settle
+lifetime economics --- a training update could amortise over enough future queries; that needs a separate
+deployment-horizon study.)
+
+\paragraph{Diversity contraction as a reinforcing lock (associational).}
+Selected-sample SFT can drive a loop: current common winners $\to$ accepted set $\to$ higher probability on
+those winners $\to$ fewer alternatives in the next accepted set. The loss is \emph{option value} --- rare
+decompositions and kernel families that would enable \emph{later} discoveries. If undiscovered useful mass
+$U_t$ shrinks, later rounds find fewer novel successes ($1-(1-U_t)^N\le NU_t$) even as pass@1 rises on familiar
+ones. Higher retention among compounders and diversity collapse at large scale are \emph{consistent} with this
+lock, but we flag them as association, not proof: low diversity can also reflect successful specialisation, and
+the cleanest test is a matched-reward, matched-example, diversity-\emph{preserving} intervention.
+
+\paragraph{The inverted-U, mechanistically.} Partition tasks into \emph{undiscovered} ($p{\approx}0$ at budget),
+\emph{learnable frontier} ($0<p<0.2$), and \emph{near-ceiling} ($p$ high). Most self-training value comes from
+the middle band. Small models: formation failures ($P(A\mid x)=P(F\mid x)P(A\mid F,x)$ with tiny $P(F)$) starve
+the accepted set; mid-scale: the frontier is widest, so discoveries become signal (RSI peaks); large scale:
+high coverage but little remaining headroom, so drift redistributes mass within already-covered behaviour
+(``churn without gain'' --- supported descriptively; ``only superficial late-layer edits'' is \emph{not} yet
+established, as parameter distance is not calibrated functional change).
+
+\paragraph{What would break the plateau, and what our data predict.}
+Two distinct breakouts are needed: \emph{accumulation} (retain/express more already-discoverable successes ---
+could yield lineage$>$reset) and \emph{frontier expansion} (make new strategies operationally reachable ---
+required once the frontier is exhausted). A productive loop needs
+$\text{new discoveries}+\text{assimilation}+\text{retention}+\text{headroom}$ simultaneously. The single most
+informative next experiment is a \textbf{coverage-injection $\times$ diversity-preserving} factorial: inject
+stronger-model / repair / search-generated solutions on \emph{undiscovered} tasks and test whether inherited
+gains then emerge --- separating ``lack of discoveries'' from ``loss of discoveries after learning.''
+Exploration bonuses, novelty-selected accepted sets, prerequisite curricula, off-policy replay, and
+search-amplified expert iteration are ranked candidates; each helps only the specific deficit it targets (e.g.\
+entropy cannot fix formation; off-policy replay of redundant winners adds no frontier information).
+
+\paragraph{Scope --- claims we do \emph{not} make.} We do not claim the models' reachable set is mathematically
+invariant, that the weights sit at a genuine local optimum, or that RL/RLVR cannot expand capability. We claim,
+with strong evidence: under verified rejection-sampling SFT at the tested scales/budget, carrying the lineage
+forward does not beat a matched reset (equivalence, $\mathrm{BF}_{01}\approx14.5$); verified search is a better
+use of the same compute; and the binding internal signals are coverage/formation (small), a mid-scale learnable
+frontier, and drift-without-gain plus diversity contraction (large). The synthesis: \emph{expert iteration
+without sufficient expert amplification, plus incomplete retention of the apprentice's useful tail.}

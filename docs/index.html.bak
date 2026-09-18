@@ -42,7 +42,7 @@
   <h2>What we found</h2>
   <p class="small sub"><b>Self-training sharpens what a model already covers; it does not explore. In GPU-kernel optimization, compounding is coverage-limited — and coverage is not self-generated.</b></p>
   <ul class="small">
-    <li><b>No compounding (strong null).</b> Lineage vs.\ matched-reset over multi-round rejection-sampling SFT: pooled lineage−reset = +0.001 [−0.015, +0.018] (n=213), TOST-equivalent at δ=0.05, Bayes factor BF₀₁≈14.5; every scale 0.5–3B individually equivalent. 7B/14B extension running.</li>
+    <li><b>No compounding (strong null).</b> Lineage vs. matched-reset over multi-round rejection-sampling SFT: pooled lineage−reset = +0.001 [−0.015, +0.018] (n=213), TOST-equivalent at δ=0.05, Bayes factor BF₀₁≈14.5; every scale 0.5–3B individually equivalent. 7B/14B extension running.</li>
     <li><b>Search beats training (significant).</b> At matched compute, best-of-N search beats lineage self-training: lineage−bestofN = −0.113 [−0.153, −0.074] (CI excludes 0); search wins 70% of rounds.</li>
     <li><b>Coverage-vs-scale (0.5B→14B).</b> Coverage 14%→86%; below the wall pass@K ≫ pass@1 (12–17×) — the sub-2B "correctness wall" is a sampling artifact, not absent capability.</li>
     <li><b>0-score forensics (8 families).</b> The sub-3B wall is a kernel-<i>formation</i> failure (no_extract 57–96%), not correctness; failure marches downstream with scale: incoherence → truncation → API-hallucination → wrong-output → correct.</li>

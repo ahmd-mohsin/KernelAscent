@@ -295,6 +295,4 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 
 \clearpage
 \input{results_auto}
-\clearpage
-\input{discussion}
 \end{document}
