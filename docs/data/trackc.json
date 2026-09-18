@@ -1,105 +1,105 @@
 {
-  "updated": "2026-09-16",
-  "note": "procedure RSI: model rewrites its own executable procedure; Qg vs frozen procedure.",
-  "models": [
-    {
-      "model": "us.openai.gpt-6-astra",
-      "mode": "self-modify",
-      "rounds": 6,
-      "Q0": 0.298,
-      "Qg": 0.854,
-      "delta_vs_base": 0.556,
-      "verdict": "improves"
-    },
-    {
-      "model": "us.anthropic.claude-sonnet-5",
-      "mode": "self-modify",
-      "rounds": 6,
-      "Q0": 0.493,
-      "Qg": 0.894,
-      "delta_vs_base": 0.401,
-      "verdict": "improves"
-    },
-    {
-      "model": "mistral.mistral-large-3-675b-instruct",
-      "mode": "self-modify",
-      "rounds": 6,
-      "Q0": 0.359,
-      "Qg": 0.669,
-      "delta_vs_base": 0.31,
-      "verdict": "improves"
-    },
-    {
-      "model": "Nova-Pro",
-      "mode": "self-modify",
-      "rounds": 5,
-      "Q0": 0.401,
-      "Qg": 0.49,
-      "delta_vs_base": 0.089,
-      "verdict": "improves"
-    },
-    {
-      "model": "us.openai.gpt-5.6-sol",
-      "mode": "self-modify",
-      "rounds": 6,
-      "Q0": 0.813,
-      "Qg": 0.889,
-      "delta_vs_base": 0.075,
-      "verdict": "improves"
-    },
-    {
-      "model": "Kimi-K2.5",
-      "mode": "self-modify",
-      "rounds": 2,
-      "Q0": 0.752,
-      "Qg": 0.813,
-      "delta_vs_base": 0.062,
-      "verdict": "improves"
-    },
-    {
-      "model": "Claude-Opus-5",
-      "mode": "self-modify",
-      "rounds": 1,
-      "Q0": 0.878,
-      "Qg": 0.91,
-      "delta_vs_base": 0.032,
-      "verdict": "improves"
-    },
-    {
-      "model": "Fable-5.1",
-      "mode": "frozen",
-      "rounds": 1,
-      "Q0": 0.732,
-      "Qg": 0.741,
-      "delta_vs_base": 0.009,
-      "verdict": "flat"
-    },
-    {
-      "model": "us.openai.gpt-5.6-terra",
-      "mode": "self-modify",
-      "rounds": 6,
-      "Q0": 0.851,
-      "Qg": 0.85,
-      "delta_vs_base": -0.001,
-      "verdict": "flat"
-    },
-    {
-      "model": "Llama-3.3-70B",
-      "mode": "self-modify",
-      "rounds": 5,
-      "Q0": 0.458,
-      "Qg": 0.455,
-      "delta_vs_base": -0.004,
-      "verdict": "flat"
-    },
-    {
-      "model": "deepseek.v3.2",
-      "mode": "self-modify",
-      "rounds": 1,
-      "Q0": 0.847,
-      "Qg": 0.614,
-      "delta_vs_base": -0.234,
-      "verdict": "degrades"
-    }
-  ]
+ "updated": "2026-09-16",
+ "note": "procedure RSI: model rewrites its own executable procedure; Qg vs frozen procedure.",
+ "models": [
+  {
+   "model": "GPT-6 Astra",
+   "mode": "self-modify",
+   "rounds": 6,
+   "Q0": 0.298,
+   "Qg": 0.854,
+   "delta_vs_base": 0.556,
+   "verdict": "improves"
+  },
+  {
+   "model": "Claude Sonnet 5",
+   "mode": "self-modify",
+   "rounds": 6,
+   "Q0": 0.493,
+   "Qg": 0.894,
+   "delta_vs_base": 0.401,
+   "verdict": "improves"
+  },
+  {
+   "model": "mistral.mistral-large-3-675b-instruct",
+   "mode": "self-modify",
+   "rounds": 6,
+   "Q0": 0.359,
+   "Qg": 0.669,
+   "delta_vs_base": 0.31,
+   "verdict": "improves"
+  },
+  {
+   "model": "Nova-Pro",
+   "mode": "self-modify",
+   "rounds": 5,
+   "Q0": 0.401,
+   "Qg": 0.49,
+   "delta_vs_base": 0.089,
+   "verdict": "improves"
+  },
+  {
+   "model": "GPT-5.6 Sol",
+   "mode": "self-modify",
+   "rounds": 6,
+   "Q0": 0.813,
+   "Qg": 0.889,
+   "delta_vs_base": 0.075,
+   "verdict": "improves"
+  },
+  {
+   "model": "Kimi-K2.5",
+   "mode": "self-modify",
+   "rounds": 2,
+   "Q0": 0.752,
+   "Qg": 0.813,
+   "delta_vs_base": 0.062,
+   "verdict": "improves"
+  },
+  {
+   "model": "Claude-Opus-5",
+   "mode": "self-modify",
+   "rounds": 1,
+   "Q0": 0.878,
+   "Qg": 0.91,
+   "delta_vs_base": 0.032,
+   "verdict": "improves"
+  },
+  {
+   "model": "Fable-5.1",
+   "mode": "frozen",
+   "rounds": 1,
+   "Q0": 0.732,
+   "Qg": 0.741,
+   "delta_vs_base": 0.009,
+   "verdict": "flat"
+  },
+  {
+   "model": "GPT-5.6 Terra",
+   "mode": "self-modify",
+   "rounds": 6,
+   "Q0": 0.851,
+   "Qg": 0.85,
+   "delta_vs_base": -0.001,
+   "verdict": "flat"
+  },
+  {
+   "model": "Llama-3.3-70B",
+   "mode": "self-modify",
+   "rounds": 5,
+   "Q0": 0.458,
+   "Qg": 0.455,
+   "delta_vs_base": -0.004,
+   "verdict": "flat"
+  },
+  {
+   "model": "deepseek.v3.2",
+   "mode": "self-modify",
+   "rounds": 1,
+   "Q0": 0.847,
+   "Qg": 0.614,
+   "delta_vs_base": -0.234,
+   "verdict": "degrades"
+  }
+ ]
 }

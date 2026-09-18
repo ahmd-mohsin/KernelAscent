@@ -1,171 +1,171 @@
 {
-  "updated": "2026-09-16",
-  "note": "closed researcher rewrites the training harness; improved-vs-frozen on the open trainee (headroom score, SOTA bank).",
-  "models": [
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "Fable-5.1",
-      "rounds": 5,
-      "C0": 0.147,
-      "C_improved": 0.501,
-      "C_frozen": 0.029,
-      "impr_minus_frozen": 0.472,
-      "peak": 0.472,
-      "verdict": "harness helps"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-7B",
-      "researcher": "Fable-5.1",
-      "rounds": 5,
-      "C0": 0.083,
-      "C_improved": 0.336,
-      "C_frozen": 0.023,
-      "impr_minus_frozen": 0.313,
-      "peak": 0.372,
-      "verdict": "harness helps"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "Llama-3.3-70B",
-      "rounds": 5,
-      "C0": 0.147,
-      "C_improved": 0.182,
-      "C_frozen": 0.029,
-      "impr_minus_frozen": 0.153,
-      "peak": 0.365,
-      "verdict": "harness helps"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "Nova-Pro",
-      "rounds": 5,
-      "C0": 0.147,
-      "C_improved": 0.118,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0.118,
-      "peak": 0.118,
-      "verdict": "harness helps"
-    },
-    {
-      "trainee": "OpenCoder-1.5B",
-      "researcher": "Fable-5.1",
-      "rounds": 5,
-      "C0": 0.147,
-      "C_improved": 0.235,
-      "C_frozen": 0.5,
-      "impr_minus_frozen": -0.265,
-      "peak": 0.085,
-      "verdict": "hurts"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-0.5B",
-      "researcher": "qwen14b",
-      "rounds": 8,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0.056,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "OpenCoder-1.5B",
-      "researcher": "sonnet5",
-      "rounds": 6,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0.056,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "Claude-Opus-5",
-      "rounds": 6,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0.056,
-      "impr_minus_frozen": -0.056,
-      "peak": 0.056,
-      "verdict": "hurts"
-    },
-    {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "Fable-5.1",
-      "rounds": 5,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0.444,
-      "impr_minus_frozen": -0.444,
-      "peak": 0.029,
-      "verdict": "hurts"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-0.5B",
-      "researcher": "Fable-5.1",
-      "rounds": 5,
-      "C0": 0.235,
-      "C_improved": 0.473,
-      "C_frozen": 0.504,
-      "impr_minus_frozen": -0.031,
-      "peak": 0.003,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-0.5B",
-      "researcher": "gpt56sol",
-      "rounds": 6,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "astra",
-      "rounds": 6,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "OpenCoder-1.5B",
-      "researcher": "ds6p7b",
-      "rounds": 8,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "DeepSeek-Coder-1.3B",
-      "researcher": "sc15b",
-      "rounds": 3,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    },
-    {
-      "trainee": "Qwen2.5-Coder-1.5B",
-      "researcher": "qwen14b",
-      "rounds": 4,
-      "C0": 0,
-      "C_improved": 0,
-      "C_frozen": 0,
-      "impr_minus_frozen": 0,
-      "peak": 0,
-      "verdict": "flat"
-    }
-  ]
+ "updated": "2026-09-16",
+ "note": "closed researcher rewrites the training harness; improved-vs-frozen on the open trainee (headroom score, SOTA bank).",
+ "models": [
+  {
+   "trainee": "Qwen2.5-Coder-1.5B",
+   "researcher": "Fable-5.1",
+   "rounds": 5,
+   "C0": 0.147,
+   "C_improved": 0.501,
+   "C_frozen": 0.029,
+   "impr_minus_frozen": 0.472,
+   "peak": 0.472,
+   "verdict": "harness helps"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-7B",
+   "researcher": "Fable-5.1",
+   "rounds": 5,
+   "C0": 0.083,
+   "C_improved": 0.336,
+   "C_frozen": 0.023,
+   "impr_minus_frozen": 0.313,
+   "peak": 0.372,
+   "verdict": "harness helps"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-1.5B",
+   "researcher": "Llama-3.3-70B",
+   "rounds": 5,
+   "C0": 0.147,
+   "C_improved": 0.182,
+   "C_frozen": 0.029,
+   "impr_minus_frozen": 0.153,
+   "peak": 0.365,
+   "verdict": "harness helps"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-1.5B",
+   "researcher": "Nova-Pro",
+   "rounds": 5,
+   "C0": 0.147,
+   "C_improved": 0.118,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0.118,
+   "peak": 0.118,
+   "verdict": "harness helps"
+  },
+  {
+   "trainee": "OpenCoder-1.5B",
+   "researcher": "Fable-5.1",
+   "rounds": 5,
+   "C0": 0.147,
+   "C_improved": 0.235,
+   "C_frozen": 0.5,
+   "impr_minus_frozen": -0.265,
+   "peak": 0.085,
+   "verdict": "hurts"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-0.5B",
+   "researcher": "qwen14b",
+   "rounds": 8,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0.056,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "OpenCoder-1.5B",
+   "researcher": "Claude Sonnet 5",
+   "rounds": 6,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0.056,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "DeepSeek-Coder-1.3B",
+   "researcher": "Claude-Opus-5",
+   "rounds": 6,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0.056,
+   "impr_minus_frozen": -0.056,
+   "peak": 0.056,
+   "verdict": "hurts"
+  },
+  {
+   "trainee": "DeepSeek-Coder-1.3B",
+   "researcher": "Fable-5.1",
+   "rounds": 5,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0.444,
+   "impr_minus_frozen": -0.444,
+   "peak": 0.029,
+   "verdict": "hurts"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-0.5B",
+   "researcher": "Fable-5.1",
+   "rounds": 5,
+   "C0": 0.235,
+   "C_improved": 0.473,
+   "C_frozen": 0.504,
+   "impr_minus_frozen": -0.031,
+   "peak": 0.003,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-0.5B",
+   "researcher": "GPT-5.6 Sol",
+   "rounds": 6,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-1.5B",
+   "researcher": "GPT-6 Astra",
+   "rounds": 6,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "OpenCoder-1.5B",
+   "researcher": "ds6p7b",
+   "rounds": 8,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "DeepSeek-Coder-1.3B",
+   "researcher": "sc15b",
+   "rounds": 3,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0,
+   "verdict": "flat"
+  },
+  {
+   "trainee": "Qwen2.5-Coder-1.5B",
+   "researcher": "qwen14b",
+   "rounds": 4,
+   "C0": 0,
+   "C_improved": 0,
+   "C_frozen": 0,
+   "impr_minus_frozen": 0,
+   "peak": 0,
+   "verdict": "flat"
+  }
+ ]
 }
