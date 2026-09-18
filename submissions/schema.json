@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KernelAscent leaderboard submission",
+  "description": "One submission = one model on one track (or one self-improvement harness for the harness track). Self-reported rows are accepted by the PR bot; a maintainer re-runs on the private held-out split to mark a row `verified`.",
+  "schema_version": 1,
+  "tracks": {
+    "capability":     {"desc": "Task 1 one-shot skill. Submit a model (API or open).",            "metrics": ["correct_rate", "fast_rate", "meanC", "trials"]},
+    "weight_rsi":     {"desc": "Task 2 weight-RSI. Submit a BASE open-weight model; our harness runs the compounding loop.", "metrics": ["rounds", "C0", "C_final", "lineage_minus_reset"]},
+    "procedure_rsi":  {"desc": "Task 3 procedure-RSI. Submit a model (open or API); it edits its own procedure, weights fixed.", "metrics": ["rounds", "Q0", "Q_final", "Q_gain_vs_frozen"]},
+    "closed_open":    {"desc": "Task 4 closed->open. Submit a researcher model that rewrites an open trainee's harness.", "metrics": ["rounds", "improved_minus_frozen", "peak"]},
+    "selfplay":       {"desc": "Task 5 self-play. Submit a model; it authors its own frontier (3-arm).", "metrics": ["rounds", "L_minus_F", "F_minus_S", "authored"]},
+    "harness":        {"desc": "OPEN community track: submit a self-improvement RECIPE/HARNESS (not a model). We run it on a fixed open trainee and measure whether it makes self-improvement compound.", "metrics": ["base_trainee", "improved_minus_frozen"]}
+  },
+  "note": "RSI is not a weight state you can upload. For the RSI tracks you submit a base model (or, for the harness track, a self-improvement procedure) and OUR harness runs the loop. Metrics you self-report are provisional until a maintainer verifies them on the held-out split."
+}

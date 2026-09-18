@@ -1,0 +1,43 @@
+name: Build community leaderboard
+
+# When a submission lands on main, the bot re-aggregates the community board, normalizes
+# model display names, and commits the regenerated data back so GitHub Pages serves it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "submissions/**"
+      - "scripts/aggregate_leaderboard.py"
+      - "scripts/pretty_names.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leaderboard-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Aggregate + normalize names
+        run: |
+          python3 scripts/aggregate_leaderboard.py
+          python3 scripts/pretty_names.py || true
+      - name: Commit regenerated board
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/leaderboard_community.json docs/data/*.json
+          if git diff --cached --quiet; then
+            echo "no leaderboard changes"
+          else
+            git commit -m "chore(bot): rebuild community leaderboard [skip ci]"
+            git push
+          fi

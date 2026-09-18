@@ -239,3 +239,29 @@ fetch("data/open_rsi.json").then(r => r.json()).then(d => {
   const io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }); }, {threshold:.12});
   document.querySelectorAll("section, figure, .track, .note").forEach((el,i)=>{ el.classList.add("reveal"); el.style.transitionDelay=(Math.min(i,6)*40)+"ms"; io.observe(el); });
 })();
+
+// Community board — data/leaderboard_community.json (built by the submission bot)
+(function communityBoard(){
+  const TRACK_LABEL = { capability:"Capability", weight_rsi:"Weight-RSI", procedure_rsi:"Procedure-RSI",
+                        closed_open:"Closed→Open", selfplay:"Self-play", harness:"Harness" };
+  const HEADLINE = { capability:["meanC","mean C"], weight_rsi:["lineage_minus_reset","lineage−reset"],
+                     procedure_rsi:["Q_gain_vs_frozen","Q gain"], closed_open:["peak","peak"],
+                     selfplay:["L_minus_F","L−F"], harness:["improved_minus_frozen","improved−frozen"] };
+  fetch("data/leaderboard_community.json").then(r=>r.json()).then(d=>{
+    const tb = document.querySelector("#comm-lb tbody"); if(!tb) return;
+    const up = document.getElementById("comm-updated"); if(up) up.textContent = "updated "+(d.updated||"");
+    const rows = [];
+    Object.keys(TRACK_LABEL).forEach(t=>{
+      (d.tracks && d.tracks[t] || []).forEach(m=>{
+        const [k,lbl] = HEADLINE[t];
+        const val = (typeof m[k]==="number") ? (Math.round(m[k]*1000)/1000).toFixed(3) : "—";
+        const status = m.verified ? `<span class="pill good">verified</span>` : `<span class="pill flat">self-reported</span>`;
+        const kind = (m.kind==="open_weight") ? "open weight" : (m.kind==="api" ? "closed / API" : m.kind||"");
+        rows.push(`<tr><td>${TRACK_LABEL[t]}</td><td><b>${m.model||"?"}</b></td><td><span class="pill kind">${kind}</span></td>`
+          + `<td class="num">${val} <span class="mid small">${lbl}</span></td><td>${status}</td><td class="small">${m.submitter||""}</td></tr>`);
+      });
+    });
+    tb.innerHTML = rows.length ? rows.join("")
+      : `<tr><td colspan="6" class="mid">No community submissions yet — <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">be the first</a>.</td></tr>`;
+  }).catch(()=>{ const tb=document.querySelector("#comm-lb tbody"); if(tb) tb.innerHTML=`<tr><td colspan="6" class="mid">Serve over HTTP to load the community board.</td></tr>`; });
+})();

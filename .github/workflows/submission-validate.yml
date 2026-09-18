@@ -1,0 +1,40 @@
+name: Validate submission
+
+# Runs on every PR that touches submissions/. Pure schema/repro validation — it never
+# executes a submitter's model (that happens only in the gated verified-eval job on the
+# self-hosted cluster runner). Keeps arbitrary PR code away from our GPUs.
+on:
+  pull_request:
+    paths:
+      - "submissions/**"
+      - "scripts/validate_submission.py"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate all submissions
+        id: val
+        run: |
+          python3 scripts/validate_submission.py --all | tee /tmp/val.txt
+      - name: Comment result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = "### KernelAscent submission check\n\n```\n";
+            try { body += fs.readFileSync('/tmp/val.txt','utf8'); } catch(e){ body += "(no output)"; }
+            body += "\n```\n\nSelf-reported numbers are provisional. A maintainer re-runs your model on the private held-out split to mark the row **verified**.";
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner, repo: context.repo.repo, body
+            });

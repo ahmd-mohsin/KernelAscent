@@ -302,3 +302,13 @@ body{font-feature-settings:"ss01","ss02"}
 /* figures render centered in the normal column width, stacked vertically */
 .vizwide{width:100%;max-width:720px;margin:20px auto 0;left:auto;transform:none;position:static}
 .vizwide figcaption{max-width:64ch;margin:12px auto 0;text-align:center}
+
+/* --- Submit / community board polish (white+red, small, centered) --- */
+.lab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--red,#b4232c);border:1px solid #e2cfcf;border-radius:20px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+#submit .note table{width:100%;margin-top:8px;font-size:13.5px}
+#submit .note table th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);text-align:left;padding:6px 8px;border-bottom:1px solid var(--hair)}
+#submit .note table td{padding:6px 8px;border-bottom:1px solid #f0eaea;vertical-align:top}
+#submit .note table tr:last-child td{border-bottom:none}
+#comm-lb .pill.good{background:#fff;color:var(--red,#b4232c);border-color:var(--red,#b4232c);font-weight:600}
+#comm-lb td{vertical-align:middle}
+#comm-updated{color:var(--sub)}

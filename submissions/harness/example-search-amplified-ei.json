@@ -1,0 +1,28 @@
+{
+ "schema_version": 1,
+ "track": "harness",
+ "date": "2026-09-18",
+ "model": {
+  "name": "search-amplified expert iteration (recipe)",
+  "kind": "open_weight",
+  "hf_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "org": "community",
+  "params_b": 1.5
+ },
+ "submitter": { "name": "example", "github": "octocat" },
+ "self_improve_harness": {
+  "repo": "https://github.com/octocat/ka-search-amplified-ei",
+  "entrypoint": "run.py:build_accepted_set",
+  "description": "Before SFT, amplify each round's accepted set with best-of-32 search on the UNDISCOVERED tasks (p~0 at k=1), and select for decomposition diversity rather than pass@1. Targets the discovery->assimilation bottleneck the paper identifies."
+ },
+ "metrics": {
+  "base_trainee": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "improved_minus_frozen": 0.0
+ },
+ "repro": {
+  "harness_commit": "REPLACE_WITH_GIT_SHA",
+  "seeds": [0, 1, 2],
+  "split": "public",
+  "command": "python -m kernelascent.v3.lab_transplant --recipe octocat/ka-search-amplified-ei --trainee Qwen/Qwen2.5-Coder-1.5B-Instruct --rounds 6"
+ }
+}

@@ -6,7 +6,7 @@
 <title>KernelAscent</title>
 <meta name="description" content="KernelAscent is a benchmark for compounding kernel optimization. Models write GPU kernels graded for correctness and speed. Open and closed models compete on capability. Open weight models test recursive self improvement." />
 <link rel="icon" href="logo.png" />
-<link rel="stylesheet" href="style.css?v=09181246">
+<link rel="stylesheet" href="style.css?v=09181615">
 </head>
 <body>
 <header class="nav">
@@ -238,21 +238,35 @@ ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier</c
 
 <section id="submit">
   <div class="snum">05 / Submit</div>
-  <h2>Add your model</h2>
-  <p>Everything runs behind one entrypoint. The board is scored on a private held out split.</p>
-  <pre><code>docker build -t ka -f docker/Dockerfile .
+  <h2>Add your model — automated through GitHub</h2>
+  <p class="sub">Open a pull request adding one JSON file under <code>submissions/&lt;track&gt;/</code>. A bot validates it, rebuilds the community board, and your row appears flagged <b>self-reported</b>; a maintainer then re-runs it on the private held-out split to mark it <b>verified</b>. Submitter code never runs on our GPUs from a PR — the held-out eval is a gated, maintainer-only job.</p>
 
-# Task 1, Capability, open or closed
-docker run --rm -e AWS_SHARED_CREDENTIALS_FILE=/creds -e AWS_PROFILE=bedrock \
-  -v $PWD/creds:/creds:ro -v $PWD/out:/out ka \
-  --track capability --api-model &lt;model&gt; --tier medium
+  <div class="note" style="margin:14px 0">
+    <b>Do I submit a model, or something else?</b> RSI is not a weight state you can upload — you cannot "fine-tune a model for RSI." RSI is a <i>protocol we run on a base model</i>. So the submission unit depends on the track:
+    <table style="margin-top:10px"><thead><tr><th>Track</th><th>You submit</th><th>What we run</th></tr></thead><tbody>
+      <tr><td><b>Capability</b></td><td>a model (open or API)</td><td>one-shot held-out kernel eval</td></tr>
+      <tr><td><b>Weight-RSI</b></td><td>a base open-weight model</td><td>our compounding loop → lineage−reset</td></tr>
+      <tr><td><b>Procedure-RSI</b></td><td>a model (open or API)</td><td>it edits its own frozen-weight procedure</td></tr>
+      <tr><td><b>Closed→Open</b></td><td>a researcher model</td><td>it rewrites an open trainee's harness</td></tr>
+      <tr><td><b>Self-play</b></td><td>a model</td><td>3-arm self-play → L−F</td></tr>
+      <tr><td><b>Harness</b> <span class="lab">open track</span></td><td>a self-improvement <i>recipe</i> (code, not a model)</td><td>we run your recipe on a fixed open trainee</td></tr>
+    </tbody></table>
+    <p style="margin:10px 0 0">The <b>Harness</b> track is the real open contribution: naive verified self-training does <b>not</b> compound (our headline null), so a recipe that makes it compound — coverage injection, diversity-preserving selection, search-amplified expert iteration — is exactly the result this benchmark exists to surface.</p>
+  </div>
 
-# Task 2, RSI, open weight, GPU
-docker run --rm --gpus all -v $PWD/out:/out ka \
-  --track rsi --model &lt;hf-id&gt; --rounds 5 --k 3
+  <pre><code># 1. add submissions/&lt;track&gt;/your-model.json  (see submissions/schema.json)
+# 2. validate locally, then open a PR
+python3 scripts/validate_submission.py submissions/capability/your-model.json
+# 3. the bot rebuilds docs/data/leaderboard_community.json and your row shows below</code></pre>
+  <p class="small">Full guide: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">submissions/README.md</a>. Prefer not to write JSON? Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model submission issue</a>.</p>
 
-# each writes out/scorecard.json</code></pre>
-  <p>Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model submission issue</a> with your <code>scorecard.json</code>. Maintainers re-run on the held out split and add your row. Automatic submission through GitHub is coming soon.</p>
+  <h3 style="margin-top:30px">Community board <span id="comm-updated" class="tiny"></span></h3>
+  <p class="small sub">Rows submitted through GitHub. <span class="pill good">verified</span> = re-run by a maintainer on the held-out split; <span class="pill flat">self-reported</span> = submitter numbers, pending verification.</p>
+  <div class="tablewrap">
+    <table id="comm-lb"><thead><tr>
+      <th>Track</th><th>Model / recipe</th><th>Kind</th><th class="num">headline</th><th>status</th><th>by</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
 </section>
 </div>
 
@@ -260,7 +274,7 @@ docker run --rm --gpus all -v $PWD/out:/out ka \
   KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. Weight RSI runs an open weight self training loop. Procedure RSI lets open and closed models improve their own executable research procedure with weights fixed. Everything is GPU graded.
 </footer>
 
-<script src="app.js?v=09181246"></script>
-<script src="viz.js?v=09181246"></script>
+<script src="app.js?v=09181615"></script>
+<script src="viz.js?v=09181615"></script>
 </body>
 </html>

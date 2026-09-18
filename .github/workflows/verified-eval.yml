@@ -1,0 +1,39 @@
+name: Verified held-out eval (maintainer)
+
+# GATED tier. Manually dispatched by a maintainer only. Runs a submitted model on the
+# PRIVATE held-out split on the self-hosted Greenland cluster runner, then marks the row
+# verified. Never triggered by external PRs.
+on:
+  workflow_dispatch:
+    inputs:
+      submission:
+        description: "Path to the submission JSON (e.g. submissions/capability/my-model.json)"
+        required: true
+      gpu:
+        description: "GPU index on the runner"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    # requires a self-hosted runner labelled `greenland` with the held-out split + creds.
+    runs-on: [self-hosted, greenland]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run held-out eval + write verified metrics
+        env:
+          KA_DATA_DIR: ${{ secrets.KA_DATA_DIR }}
+        run: |
+          python3 scripts/run_submission.py "${{ inputs.submission }}" --gpu "${{ inputs.gpu }}"
+      - name: Rebuild board + commit
+        run: |
+          python3 scripts/aggregate_leaderboard.py
+          python3 scripts/pretty_names.py || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ inputs.submission }}" docs/data/leaderboard_community.json
+          git commit -m "verify(bot): held-out eval for ${{ inputs.submission }} [skip ci]" || echo "nothing to commit"
+          git push || true

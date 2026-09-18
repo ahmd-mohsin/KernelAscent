@@ -1,0 +1,25 @@
+{
+ "schema_version": 1,
+ "track": "capability",
+ "date": "2026-09-18",
+ "model": {
+  "name": "Qwen2.5-Coder-7B-Instruct",
+  "kind": "open_weight",
+  "hf_id": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "org": "Alibaba",
+  "params_b": 7
+ },
+ "submitter": { "name": "example", "github": "octocat" },
+ "metrics": {
+  "correct_rate": 0.61,
+  "fast_rate": 0.22,
+  "meanC": 0.41,
+  "trials": 75
+ },
+ "repro": {
+  "harness_commit": "REPLACE_WITH_GIT_SHA",
+  "seeds": [0, 1, 2, 3, 4],
+  "split": "public",
+  "command": "kernelascent eval --model Qwen/Qwen2.5-Coder-7B-Instruct --tiers L1,L2,L3 --k 5 --split public"
+ }
+}

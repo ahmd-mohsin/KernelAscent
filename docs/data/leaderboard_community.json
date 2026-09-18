@@ -1,0 +1,51 @@
+{
+ "updated": "2026-09-18",
+ "note": "Community submissions. Rows marked verified were re-run by a maintainer on the private held-out split; the rest are self-reported.",
+ "sort_key": {
+  "capability": "meanC",
+  "weight_rsi": "lineage_minus_reset",
+  "procedure_rsi": "Q_gain_vs_frozen",
+  "closed_open": "peak",
+  "selfplay": "L_minus_F",
+  "harness": "improved_minus_frozen"
+ },
+ "tracks": {
+  "capability": [
+   {
+    "model": "Qwen2.5-Coder-7B-Instruct",
+    "kind": "open_weight",
+    "org": "Alibaba",
+    "params_b": 7,
+    "verified": false,
+    "submitter": "example",
+    "date": "2026-09-18",
+    "source_file": "submissions/capability/example-qwen7b.json",
+    "correct_rate": 0.61,
+    "fast_rate": 0.22,
+    "meanC": 0.41,
+    "trials": 75
+   }
+  ],
+  "weight_rsi": [],
+  "procedure_rsi": [],
+  "closed_open": [],
+  "selfplay": [],
+  "harness": [
+   {
+    "model": "search-amplified expert iteration (recipe)",
+    "kind": "open_weight",
+    "org": "community",
+    "params_b": 1.5,
+    "verified": false,
+    "submitter": "example",
+    "date": "2026-09-18",
+    "source_file": "submissions/harness/example-search-amplified-ei.json",
+    "base_trainee": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "improved_minus_frozen": 0.0,
+    "recipe": "https://github.com/octocat/ka-search-amplified-ei",
+    "entrypoint": "run.py:build_accepted_set"
+   }
+  ]
+ },
+ "count": 2
+}

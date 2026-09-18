@@ -1,42 +1,51 @@
 name: Model submission
-description: Submit a model to a KernelAscent leaderboard
-title: "[Submission] <model name>"
+description: Add your model (or a self-improvement harness) to a KernelAscent leaderboard
+title: "[submission] <model or harness name>"
 labels: ["submission"]
 body:
-  - type: input
-    id: model
+  - type: markdown
     attributes:
-      label: Model
-      description: Name / Bedrock id / HF id
-      placeholder: us.anthropic.claude-opus-4-8
-    validations: { required: true }
+      value: |
+        Two ways in. **Fastest:** open a PR adding a JSON file under `submissions/<track>/` (the
+        bot validates it and rebuilds the board automatically — see `submissions/README.md`).
+        **Or** fill this issue and a maintainer files the PR for you. Either way, a maintainer
+        re-runs your model on the private held-out split to mark the row **verified**.
   - type: dropdown
     id: track
     attributes:
       label: Track
-      options: [Capability, Scaffold-RSI, Weight-RSI]
-    validations: { required: true }
-  - type: input
-    id: tiers
-    attributes:
-      label: Tiers evaluated
-      placeholder: L1,L2
-    validations: { required: true }
-  - type: input
-    id: org
-    attributes:
-      label: Org / params
-      placeholder: Anthropic / n-a
-  - type: textarea
-    id: how
-    attributes:
-      label: How to run it
-      description: Backend (Bedrock / API / open weights), any access notes, and a results.json or runs/ link if you have one.
-    validations: { required: true }
-  - type: checkboxes
-    id: ack
-    attributes:
-      label: Acknowledgement
       options:
-        - label: I understand the leaderboard row is verified by maintainers on the private held-out split.
-          required: true
+        - capability (Task 1 — one-shot skill, any model)
+        - weight_rsi (Task 2 — open-weight base model, we run the compounding loop)
+        - procedure_rsi (Task 3 — open or API, edits its own procedure)
+        - closed_open (Task 4 — a researcher model rewrites an open trainee's harness)
+        - selfplay (Task 5 — self-play, 3-arm)
+        - harness (OPEN track — submit a self-improvement recipe, not a model)
+    validations: { required: true }
+  - type: input
+    id: model
+    attributes:
+      label: Model name / HF id / API id
+      placeholder: "Qwen/Qwen2.5-Coder-7B-Instruct  or  us.openai.gpt-6-astra"
+    validations: { required: true }
+  - type: dropdown
+    id: kind
+    attributes: { label: Kind, options: ["open_weight", "api"] }
+    validations: { required: true }
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Self-reported metrics (JSON)
+      description: "Paste the metrics block for your track (see submissions/schema.json)."
+      render: json
+  - type: input
+    id: commit
+    attributes:
+      label: Harness commit (git sha you ran)
+    validations: { required: true }
+  - type: markdown
+    attributes:
+      value: |
+        **On RSI:** you don't upload an "RSI-tuned" model — RSI is a protocol *we* run on your
+        base model. For the `harness` track you submit a self-improvement *recipe* and we run it
+        on a fixed open trainee. See `submissions/README.md`.
