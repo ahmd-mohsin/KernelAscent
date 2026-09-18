@@ -1,0 +1,36 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B",
+  "seed": 7510,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.089,
+      "C_held": 0.077,
+      "transfer_gap": 0.012,
+      "retention": 0.125,
+      "gen_distinct2": 0.271,
+      "gen_dissim": 0.538,
+      "gen_entropy": 0.011,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0
+    },
+    {
+      "round": 1,
+      "C_train": 0.063,
+      "C_held": 0.211,
+      "transfer_gap": -0.148,
+      "retention": 0.125,
+      "gen_distinct2": 0.261,
+      "gen_dissim": 0.514,
+      "gen_entropy": 0.011,
+      "drift_total": 0.0,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "sft_loss": 0.0
+    }
+  ]
+}

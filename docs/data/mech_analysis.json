@@ -1,27 +1,27 @@
 {
-  "updated": "2026-09-17",
+  "updated": "2026-09-18",
   "note": "WHY larger models compound RSI and smaller don't: scale -> correctness-wall crossing -> training gradient -> LoRA drift (by depth) + sustained self-data diversity -> held-out compounding. Re-derived from per-round WHY-RSI probe series.",
   "findings": {
-    "n_models": 125,
+    "n_models": 133,
     "correctness_wall": {
-      "frac_cross_if_ge2B": 0.91,
+      "frac_cross_if_ge2B": 0.92,
       "frac_cross_if_lt2B": 0.54,
       "claim": "Sub-2B almost never cross the correctness wall (C_train=0) -> zero SFT gradient -> drift=0 -> RSI impossible. This is the primary gate."
     },
     "among_wall_crossers": {
-      "n": 89,
-      "frac_rsi": 0.28,
+      "n": 97,
+      "frac_rsi": 0.29,
       "rsi_vs_flat_diversity": [
-        0.419,
-        0.537
+        0.413,
+        0.515
       ],
       "rsi_vs_flat_drift": [
-        0.502,
-        0.181
+        0.465,
+        0.211
       ],
       "rsi_vs_flat_retention": [
-        0.234,
-        0.106
+        0.224,
+        0.149
       ],
       "claim": "Among models that DO produce correct kernels, compounders sustain higher generation diversity and larger sustained drift; flat ones show diversity collapse + drift saturation."
     },
@@ -35,20 +35,20 @@
         "mean_diversity": 0.46
       },
       "2-8B": {
-        "n": 41,
+        "n": 45,
         "frac_cross_wall": 0.98,
-        "frac_rsi": 0.46,
-        "mean_C_train": 0.195,
-        "mean_drift": 0.258,
-        "mean_diversity": 0.533
+        "frac_rsi": 0.49,
+        "mean_C_train": 0.188,
+        "mean_drift": 0.246,
+        "mean_diversity": 0.516
       },
       ">=9B": {
-        "n": 17,
-        "frac_cross_wall": 0.76,
-        "frac_rsi": 0.24,
-        "mean_C_train": 0.244,
-        "mean_drift": 0.721,
-        "mean_diversity": 0.371
+        "n": 21,
+        "frac_cross_wall": 0.81,
+        "frac_rsi": 0.19,
+        "mean_C_train": 0.277,
+        "mean_drift": 0.726,
+        "mean_diversity": 0.342
       }
     }
   },
@@ -1836,6 +1836,24 @@
       "mean_transfer_gap": 0.033
     },
     {
+      "model": "deepseek-ai/deepseek-coder-6.7b-base",
+      "size_b": 6.7,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.094,
+      "C_held_gain": 0.076,
+      "rsi": true,
+      "drift_early": 0.1578,
+      "drift_mid": 0.1551,
+      "drift_late": 0.163,
+      "drift_total": 0.476,
+      "drift_locus": "late",
+      "mean_diversity": 0.551,
+      "diversity_collapse": true,
+      "mean_retention": 0.125,
+      "mean_transfer_gap": 0.022
+    },
+    {
       "model": "Qwen2.5-Coder-7B",
       "size_b": 7,
       "tier": "mid",
@@ -1906,6 +1924,60 @@
       "diversity_collapse": false,
       "mean_retention": 0.208,
       "mean_transfer_gap": 0.062
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-7B",
+      "size_b": 7,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.089,
+      "C_held_gain": 0.134,
+      "rsi": true,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "drift_total": 0.0,
+      "drift_locus": "none",
+      "mean_diversity": 0.266,
+      "diversity_collapse": false,
+      "mean_retention": 0.125,
+      "mean_transfer_gap": -0.068
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-7B",
+      "size_b": 7,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.094,
+      "C_held_gain": 0.071,
+      "rsi": true,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "drift_total": 0.0,
+      "drift_locus": "none",
+      "mean_diversity": 0.279,
+      "diversity_collapse": true,
+      "mean_retention": 0.188,
+      "mean_transfer_gap": -0.088
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-7B",
+      "size_b": 7,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.197,
+      "C_held_gain": 0.0,
+      "rsi": false,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "drift_total": 0.0,
+      "drift_locus": "none",
+      "mean_diversity": 0.294,
+      "diversity_collapse": false,
+      "mean_retention": 0.5,
+      "mean_transfer_gap": 0.1
     },
     {
       "model": "OpenCoder-8B-Base",
@@ -2266,6 +2338,78 @@
       "diversity_collapse": true,
       "mean_retention": 0.75,
       "mean_transfer_gap": -0.018
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+      "size_b": 14,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.442,
+      "C_held_gain": -0.025,
+      "rsi": false,
+      "drift_early": 0.3924,
+      "drift_mid": 0.512,
+      "drift_late": 0.5223,
+      "drift_total": 1.4266,
+      "drift_locus": "late",
+      "mean_diversity": 0.188,
+      "diversity_collapse": true,
+      "mean_retention": 0.75,
+      "mean_transfer_gap": -0.052
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+      "size_b": 14,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.411,
+      "C_held_gain": 0.001,
+      "rsi": false,
+      "drift_early": 0.4236,
+      "drift_mid": 0.5759,
+      "drift_late": 0.57,
+      "drift_total": 1.5695,
+      "drift_locus": "mid",
+      "mean_diversity": 0.221,
+      "diversity_collapse": false,
+      "mean_retention": 0.75,
+      "mean_transfer_gap": -0.051
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+      "size_b": 14,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.41,
+      "C_held_gain": 0.0,
+      "rsi": false,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "drift_total": 0.0,
+      "drift_locus": "none",
+      "mean_diversity": 0.246,
+      "diversity_collapse": false,
+      "mean_retention": 0.75,
+      "mean_transfer_gap": -0.051
+    },
+    {
+      "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+      "size_b": 14,
+      "tier": null,
+      "wall_crossed": true,
+      "max_C_train": 0.419,
+      "C_held_gain": 0.0,
+      "rsi": false,
+      "drift_early": 0.0,
+      "drift_mid": 0.0,
+      "drift_late": 0.0,
+      "drift_total": 0.0,
+      "drift_locus": "none",
+      "mean_diversity": 0.225,
+      "diversity_collapse": false,
+      "mean_retention": 0.75,
+      "mean_transfer_gap": -0.043
     },
     {
       "model": "starcoder2-15b",

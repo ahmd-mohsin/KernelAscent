@@ -13760,6 +13760,422 @@
     0.0,
     0.0
    ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+   "seed": 3157,
+   "C_train": [
+    0.442,
+    0.416,
+    0.412
+   ],
+   "C_held": [
+    0.494,
+    0.461,
+    0.469
+   ],
+   "transfer_gap": [
+    -0.052,
+    -0.046,
+    -0.057
+   ],
+   "retention": [
+    0.75,
+    0.75,
+    0.75
+   ],
+   "gen_distinct2": [
+    0.231,
+    0.19,
+    0.143
+   ],
+   "gen_dissim": [
+    0.366,
+    0.26,
+    0.092
+   ],
+   "gen_entropy": [
+    0.008,
+    0.007,
+    0.008
+   ],
+   "drift_total": [
+    null,
+    0.8885,
+    0.7688
+   ],
+   "drift_early": [
+    null,
+    0.4364,
+    0.3484
+   ],
+   "drift_mid": [
+    null,
+    0.5443,
+    0.4796
+   ],
+   "drift_late": [
+    null,
+    0.5534,
+    0.4912
+   ],
+   "sft_loss": [
+    0.0265,
+    0.018,
+    0.0169
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+   "seed": 5546,
+   "C_train": [
+    0.411,
+    0.41
+   ],
+   "C_held": [
+    0.461,
+    0.462
+   ],
+   "transfer_gap": [
+    -0.05,
+    -0.051
+   ],
+   "retention": [
+    0.75,
+    0.75
+   ],
+   "gen_distinct2": [
+    0.229,
+    0.213
+   ],
+   "gen_dissim": [
+    0.4,
+    0.339
+   ],
+   "gen_entropy": [
+    0.008,
+    0.008
+   ],
+   "drift_total": [
+    null,
+    0.9121
+   ],
+   "drift_early": [
+    null,
+    0.4236
+   ],
+   "drift_mid": [
+    null,
+    0.5759
+   ],
+   "drift_late": [
+    null,
+    0.57
+   ],
+   "sft_loss": [
+    0.0351,
+    0.0213
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-7B",
+   "seed": 7510,
+   "C_train": [
+    0.089,
+    0.063
+   ],
+   "C_held": [
+    0.077,
+    0.211
+   ],
+   "transfer_gap": [
+    0.012,
+    -0.148
+   ],
+   "retention": [
+    0.125,
+    0.125
+   ],
+   "gen_distinct2": [
+    0.271,
+    0.261
+   ],
+   "gen_dissim": [
+    0.538,
+    0.514
+   ],
+   "gen_entropy": [
+    0.011,
+    0.011
+   ],
+   "drift_total": [
+    null,
+    0.0
+   ],
+   "drift_early": [
+    null,
+    0.0
+   ],
+   "drift_mid": [
+    null,
+    0.0
+   ],
+   "drift_late": [
+    null,
+    0.0
+   ],
+   "sft_loss": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-7B",
+   "seed": 1109,
+   "C_train": [
+    0.031,
+    0.094
+   ],
+   "C_held": [
+    0.115,
+    0.186
+   ],
+   "transfer_gap": [
+    -0.084,
+    -0.093
+   ],
+   "retention": [
+    0.125,
+    0.25
+   ],
+   "gen_distinct2": [
+    0.31,
+    0.248
+   ],
+   "gen_dissim": [
+    0.647,
+    0.524
+   ],
+   "gen_entropy": [
+    0.011,
+    0.011
+   ],
+   "drift_total": [
+    null,
+    0.0
+   ],
+   "drift_early": [
+    null,
+    0.0
+   ],
+   "drift_mid": [
+    null,
+    0.0
+   ],
+   "drift_late": [
+    null,
+    0.0
+   ],
+   "sft_loss": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+   "seed": 3343,
+   "C_train": [
+    0.41
+   ],
+   "C_held": [
+    0.461
+   ],
+   "transfer_gap": [
+    -0.051
+   ],
+   "retention": [
+    0.75
+   ],
+   "gen_distinct2": [
+    0.246
+   ],
+   "gen_dissim": [
+    0.417
+   ],
+   "gen_entropy": [
+    0.008
+   ],
+   "drift_total": [
+    null
+   ],
+   "drift_early": [
+    null
+   ],
+   "drift_mid": [
+    null
+   ],
+   "drift_late": [
+    null
+   ],
+   "sft_loss": [
+    0.0254
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+   "seed": 5513,
+   "C_train": [
+    0.419
+   ],
+   "C_held": [
+    0.462
+   ],
+   "transfer_gap": [
+    -0.043
+   ],
+   "retention": [
+    0.75
+   ],
+   "gen_distinct2": [
+    0.225
+   ],
+   "gen_dissim": [
+    0.394
+   ],
+   "gen_entropy": [
+    0.008
+   ],
+   "drift_total": [
+    null
+   ],
+   "drift_early": [
+    null
+   ],
+   "drift_mid": [
+    null
+   ],
+   "drift_late": [
+    null
+   ],
+   "sft_loss": [
+    0.0362
+   ]
+  },
+  {
+   "model": "deepseek-ai/deepseek-coder-6.7b-base",
+   "seed": 1811,
+   "C_train": [
+    0.0,
+    0.094,
+    0.094,
+    0.094
+   ],
+   "C_held": [
+    0.0,
+    0.077,
+    0.038,
+    0.076
+   ],
+   "transfer_gap": [
+    0.0,
+    0.017,
+    0.055,
+    0.017
+   ],
+   "retention": [
+    0,
+    0.125,
+    0.125,
+    0.25
+   ],
+   "gen_distinct2": [
+    0.604,
+    0.539,
+    0.523,
+    0.539
+   ],
+   "gen_dissim": [
+    0.929,
+    0.91,
+    0.91,
+    0.903
+   ],
+   "gen_entropy": [
+    0.748,
+    0.748,
+    0.771,
+    0.734
+   ],
+   "drift_total": [
+    null,
+    0.2648,
+    0.3015,
+    0.2581
+   ],
+   "drift_early": [
+    null,
+    0.1538,
+    0.1757,
+    0.1439
+   ],
+   "drift_mid": [
+    null,
+    0.1499,
+    0.1686,
+    0.1469
+   ],
+   "drift_late": [
+    null,
+    0.155,
+    0.1778,
+    0.1563
+   ],
+   "sft_loss": [
+    0.0,
+    0.1866,
+    0.08,
+    0.2536
+   ]
+  },
+  {
+   "model": "Qwen/Qwen2.5-Coder-7B",
+   "seed": 8999,
+   "C_train": [
+    0.197
+   ],
+   "C_held": [
+    0.096
+   ],
+   "transfer_gap": [
+    0.1
+   ],
+   "retention": [
+    0.5
+   ],
+   "gen_distinct2": [
+    0.294
+   ],
+   "gen_dissim": [
+    0.618
+   ],
+   "gen_entropy": [
+    0.011
+   ],
+   "drift_total": [
+    null
+   ],
+   "drift_early": [
+    null
+   ],
+   "drift_mid": [
+    null
+   ],
+   "drift_late": [
+    null
+   ],
+   "sft_loss": [
+    0.0
+   ]
   }
  ]
 }

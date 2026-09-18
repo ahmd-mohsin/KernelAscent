@@ -1,0 +1,21 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "seed": 5513,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.419,
+      "C_held": 0.462,
+      "transfer_gap": -0.043,
+      "retention": 0.75,
+      "gen_distinct2": 0.225,
+      "gen_dissim": 0.394,
+      "gen_entropy": 0.008,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0362
+    }
+  ]
+}

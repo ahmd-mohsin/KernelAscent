@@ -1,0 +1,36 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "seed": 5546,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.411,
+      "C_held": 0.461,
+      "transfer_gap": -0.05,
+      "retention": 0.75,
+      "gen_distinct2": 0.229,
+      "gen_dissim": 0.4,
+      "gen_entropy": 0.008,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.0351
+    },
+    {
+      "round": 1,
+      "C_train": 0.41,
+      "C_held": 0.462,
+      "transfer_gap": -0.051,
+      "retention": 0.75,
+      "gen_distinct2": 0.213,
+      "gen_dissim": 0.339,
+      "gen_entropy": 0.008,
+      "drift_total": 0.9121,
+      "drift_early": 0.4236,
+      "drift_mid": 0.5759,
+      "drift_late": 0.57,
+      "sft_loss": 0.0213
+    }
+  ]
+}
