@@ -49,16 +49,18 @@ $+0.10,+0.10$; Qwen-1.5B $+0.10,+0.20$) but \textbf{collapses to $\approx 0$ by 
 lineage $\approx$ reset; Qwen-3B $C_{\text{lin}}$ even falls $0.51\!\to\!0.30$), and lineage loses to best-of-$N$
 search in most rounds. Averaged over rounds, accumulated self-training does \emph{not} beat a matched-compute
 fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
-\textbf{Multi-seed confirmation (up to 4 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a 95\%
-CI \emph{spans zero at every scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
-$-0.019\,[-0.055,+0.017]$ ($n{=}49$), Qwen-1.5B $+0.018\,[-0.005,+0.041]$ ($n{=}87$), Qwen-3B
-$-0.004\,[-0.032,+0.024]$ ($n{=}75$); pooled ($n{=}211$) $\mathbf{+0.001\,[-0.015,+0.018]}$.
+\textbf{Multi-seed confirmation (up to 6 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a TOST
+$90\%$ CI \emph{spans zero at every well-powered scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
+$-0.018\,[-0.052,+0.016]$ ($n{=}51$), Qwen-1.5B $+0.009\,[-0.013,+0.031]$ ($n{=}93$), Qwen-3B
+$-0.007\,[-0.034,+0.020]$ ($n{=}78$); pooled ($n{=}228$, incl.\ early 7B/14B) $\mathbf{-0.002\,[-0.017,+0.013]}$.
 \textbf{Formal equivalence (TOST):} at margin $\delta{=}0.05$ the pooled $90\%$ CI lies well inside
-$[-\delta,+\delta]$ with $\mathrm{BF}_{01}\!\approx\!14.4$ --- \emph{strong} evidence for the null,
-strengthening monotonically with seeds ($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to14.4$ at $n{=}211$). The 1.5B
-and 3B scales are individually TOST-equivalent ($\mathrm{BF}_{01}$ $4.1$, $8.4$); the noisiest 0.5B scale is
-marginal (CI just crosses $-\delta$), the only residue of any effect and negative if anything. \textbf{No scale
-in $0.5$--$3$B shows a compounding \emph{advantage}.} We state the estimand as an
+$[-\delta,+\delta]$ with $\mathrm{BF}_{01}\!\approx\!14.7$ --- \emph{strong} evidence for the null,
+strengthening monotonically with seeds ($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to14.7$ at $n{=}228$). The 1.5B
+and 3B scales are individually TOST-equivalent ($\mathrm{BF}_{01}$ $7.7$, $8.1$); the noisiest 0.5B scale is
+marginal (CI just crosses $-\delta$, $\mathrm{BF}_{01}$ $4.8$), the only residue of any effect and negative if
+anything; the 7B extension is still underpowered ($n{=}5$, ${\sim}64$\,min/round, CI $[-0.065,+0.113]$ spanning
+zero). \textbf{No scale in $0.5$--$3$B shows a compounding \emph{advantage}, and the early 7B/14B points fall
+within the equivalence bounds.} We state the estimand as an
 \emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
 the binding constraint). \textbf{Coverage mechanism (established via $p$-maps, not the transplant).} We
 implemented a randomized coverage-transplant $2\times2$ (lineage $\pm$ teacher kernels on student-\emph{covered}
@@ -80,10 +82,13 @@ on roofline-graded kernels with a full generation$+$verification$+$training comp
 \textbf{coverage gap} --- a 14B teacher harvests $\sim$10$\times$ more verified-correct kernels than a sub-2B
 student on the same tasks, and the sub-2B ``correctness wall'' is a \emph{pass@k artifact} (low per-sample $p$,
 not zero coverage), so self-training \emph{sharpens} what the model already covers rather than expanding it ---
-the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not full RL/GRPO). \textbf{Optimizer-agnosticism (preliminary):} a denser-reward variant (A1: speedup-weighted rejection sampling --- keep only the top-quartile-by-roofline correct kernels for SFT) shows the \emph{same} null (pooled lineage$-$reset $+0.017$, $n{=}9$ round-comparisons over 2 seeds), consistent with rejection-sampling SFT: shaping the reward denser does not manufacture compounding, evidence the null is not an artifact of the weakest selection rule. \textbf{Scale test:} the same 3-arm protocol at 7B holds the
-null --- lineage$-$reset $=-0.05,-0.01$ over rounds 0--1 with $C\approx0.70$ near the held ceiling ($0.80$), and
-lineage again loses to best-of-$N$ --- so no compounding through 7B, though the near-ceiling headroom at 7B is
-itself limiting (consistent with the mid-scale-headroom mechanism). 14B is queued (needs a 2-GPU reset shard).
+the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not full RL/GRPO). \textbf{Optimizer-agnosticism (preliminary):} a denser-reward variant (A1: speedup-weighted rejection sampling --- keep only the top-quartile-by-roofline correct kernels for SFT) shows the \emph{same} null (pooled lineage$-$reset $+0.017$, $n{=}9$ round-comparisons over 2 seeds), consistent with rejection-sampling SFT: shaping the reward denser does not manufacture compounding, evidence the null is not an artifact of the weakest selection rule. \textbf{Scale test (7B/14B, accumulating):} the same 3-arm protocol at 7B holds the
+null --- pooled lineage$-$reset $+0.024\,[-0.065,+0.113]$ over $n{=}5$ round-comparisons (5 seeds), $C\approx0.70$
+near the held ceiling ($0.80$), and lineage again loses to best-of-$N$ --- so no compounding \emph{signal} through
+7B, though at $n{=}5$ this scale is not yet individually powered and each round costs ${\sim}64$\,min; the
+near-ceiling headroom at 7B is itself limiting (consistent with the mid-scale-headroom mechanism). 14B is now
+running (reset-shard fix validated, no OOM), first seed within the equivalence bounds. Both fold into the pooled
+$n{=}228$ equivalence above; we will report per-scale 7B/14B TOST once each reaches $\ge3$ seeds.
 \paragraph{(historical) Compounding before the fix --- artifact, not a null.}
 A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
 null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}

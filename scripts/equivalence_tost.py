@@ -47,7 +47,7 @@ def bf01_bic(vals):
 # pollutes the pooled estimate toward a spurious large-negative "finding". The post-fix seed naming is
 # compounding_q{05,15,3}{new|sN}. Pass --all to override (e.g. to audit the broken runs deliberately).
 import re
-_CLEAN = re.compile(r"^compounding_q(05|15|3)(new|s\d+)$")
+_CLEAN = re.compile(r"^compounding_q(05|15|3|7|14)(new|s\d+)$")
 
 
 def load_dir(d, allow_all=False):

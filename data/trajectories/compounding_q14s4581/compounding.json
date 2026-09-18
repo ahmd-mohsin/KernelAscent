@@ -1,0 +1,25 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "seed": 4581,
+  "C0": 0.5993399132985854,
+  "held_family": "l3",
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.533,
+      "n_ex": 60,
+      "loss": 0.028,
+      "C_lineage": 0.532,
+      "C_reset": 0.501,
+      "C_bestofN": 0.661,
+      "C_retrieval": 0.514,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": -0.067,
+      "gain_vs_C0_lineage": -0.067,
+      "marginal_gain_reset": -0.099,
+      "lineage_minus_reset": 0.032,
+      "lineage_minus_bestofN": -0.129,
+      "round_sec": 3975.8
+    }
+  ]
+}
