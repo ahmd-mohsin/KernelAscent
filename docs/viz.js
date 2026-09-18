@@ -1,223 +1,201 @@
-// KernelAscent live mechanistic visuals — animated inline SVG from data/mech_analysis.json.
-// (1) full-width five-task agent-flow with flowing edges + pulsing nodes, (2) 7-lane causality DAG
-// with ribbons that flow left→right, (3) scale-vs-RSI-gain bubble scatter with marginals + grow-in.
-// Vanilla JS, SMIL motion, serif to match site.
+// KernelAscent mechanistic visuals — dark "research instrument" aesthetic (GPT-6-Astra design, 2026-09-18).
+// Pure vanilla SVG+CSS, no deps. Driven by data/mech_analysis.json (per-model WHY-RSI series).
+// Three large, center-aligned, densely-animated figures:
+//   1. renderTaskFlow    — 5-stage RSI pipeline (1440x620), layered flowing edges + SMIL agent tokens
+//   2. renderCausalityDAG — 7-gate internal-failure DAG (1440x860), one ribbon/model, failed runs STOP at their gate
+//   3. renderScaleGain   — scale-vs-RSI-gain scatter (1440x900) w/ top+right marginals, bubble area = LoRA drift
+const C = { cyan:"#54d8ff", violet:"#ae93ff", green:"#65dfb0", amber:"#f4c16b", red:"#f48592",
+            ink:"#edf3ff", mut:"#a6b7cf", grid:"#233248", track:"#283b54", panel:"#0d1624", raised:"#121f31" };
+const outClass = m => m.rsi ? "rsi" : (m.wall_crossed ? "flat" : "wall");
+const outColor = m => m.rsi ? C.green : (m.wall_crossed ? C.amber : C.red);
 
-const OC = {
-  rsi:  { fill: "#5b9e6f", line: "#5b9e6f", label: "RSI compounds" },
-  flat: { fill: "#7d9dc9", line: "#7d9dc9", label: "crossed wall, flat" },
-  wall: { fill: "#d98a3a", line: "#d98a3a", label: "stuck at correctness wall" },
-};
-function outClass(m) { return m.rsi ? "rsi" : (m.wall_crossed ? "flat" : "wall"); }
-const clamp01 = v => Math.max(0, Math.min(1, v));
-function normer(models, f) {
-  const vs = models.map(m => +m[f] || 0), lo = Math.min(...vs), hi = Math.max(...vs);
-  return v => (hi > lo ? ((+v || 0) - lo) / (hi - lo) : 0.5);
+// ---- shared: layered flowing edge (track + colored route + moving dash highlight) ----
+function edge(id, d, col, w) {
+  return `<path d="${d}" class="edge-track"/>`
+       + `<path d="${d}" class="edge-color" stroke="${col}" ${w?`stroke-width="${w}"`:""} marker-end="url(#${id}-arrow)"/>`
+       + `<path d="${d}" class="edge-flow"/>`;
+}
+// ---- shared: SMIL token particles traveling forward along a route id ----
+function tokens(routeId, n, col, dur) {
+  let s = `<g aria-hidden="true">`;
+  for (let i = 0; i < n; i++) {
+    const beg = (-dur * i / n).toFixed(2);
+    const op = (0.9 - 0.5 * i / n).toFixed(2);
+    s += `<circle r="${i===0?4:3.2}" fill="${i===0?'#e8fbff':col}" opacity="${op}">`
+       + `<animateMotion dur="${dur}s" begin="${beg}s" repeatCount="indefinite"><mpath href="#${routeId}"/></animateMotion></circle>`;
+  }
+  return s + `</g>`;
+}
+function arrowDef(id, col) {
+  return `<marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L9 5 L1 9 Z" fill="${col}"/></marker>`;
 }
 
-// ============================================================ 1. FIVE-TASK AGENT FLOW (full width, animated)
+// ============================================================ 1. FIVE-STAGE PIPELINE
 function renderTaskFlow() {
   const el = document.getElementById("viz-flow"); if (!el) return;
-  const W = 1560, H = 470, n = 5, pad = 26, gap = 20;
-  const cw = (W - pad * 2 - gap * (n - 1)) / n;
-  // cool → warm ramp encoding escalating recursion depth
-  const RAMP = ["#5f83b4", "#4e9e8f", "#c6a13c", "#cf7e34", "#8C1515"];
-  const TASKS = [
-    { t: "TASK 1", h: "Capability",     sub: "one shot · open + closed", glyph: "one",
-      note: "model → kernel → grade. A snapshot of raw skill; no learning." },
-    { t: "TASK 2", h: "Weight RSI",     sub: "open weight",              glyph: "loop",
-      note: "writes kernels → LoRA-trains on the correct ones → re-measured. The weights change." },
-    { t: "TASK 3", h: "Procedure RSI",  sub: "open + closed",            glyph: "edit",
-      note: "rewrites its own executable procedure; weights frozen. Skill via a better method." },
-    { t: "TASK 4", h: "Closed → Open",  sub: "closed drives open",       glyph: "cross",
-      note: "a closed researcher rewrites the harness that trains an open trainee." },
-    { t: "TASK 5", h: "Self-play",      sub: "true RSI · open + closed",  glyph: "arena",
-      note: "the model authors strictly-harder tasks and improves on them — difficulty co-evolves." },
+  const W = 1440, H = 620, n = 5;
+  const stages = [
+    { t: "T1 · Capability", s: "one-shot kernel skill", m: "pass@k", acc: C.cyan,
+      d: "Write a correct, fast GPU kernel in one shot. Graded vs an fp32 reference + roofline speed." },
+    { t: "T2 · Weight-RSI", s: "does self-training compound?", m: "lin−reset", acc: C.violet,
+      d: "Open-weight lineage vs matched reset over rounds. The compounding test." },
+    { t: "T3 · Procedure-RSI", s: "self-edit the harness", m: "Δ vs frozen", acc: C.green,
+      d: "Model rewrites its own training procedure (weights fixed) round over round." },
+    { t: "T4 · Closed→Open", s: "frontier improves a trainee", m: "improved−frozen", acc: C.amber,
+      d: "A closed researcher edits an open trainee's harness; causal transfer." },
+    { t: "T5 · Self-play", s: "author co-evolution", m: "L − F", acc: C.red,
+      d: "Author + solver co-train. L−F isolates whether a learning author beats a frozen one." },
   ];
-  const cx = i => pad + i * (cw + gap);
-  const ink = "#1a1a1a", mut = "#9a9a9a";
-
-  // svg defs: soft shadow, per-card gradient, flowing-edge dash. dur staggered per card.
-  let defs = `<defs>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.10"/></filter>`;
-  RAMP.forEach((c, i) => { defs += `<linearGradient id="cg${i}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="${c}14"/></linearGradient>`; });
-  // rail flowing gradient
-  defs += `<linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="${RAMP[0]}"/><stop offset="0.5" stop-color="${RAMP[2]}"/><stop offset="1" stop-color="${RAMP[4]}"/></linearGradient></defs>`;
-
-  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Five-task agent flow" font-family="Georgia, serif" class="flowsvg">${defs}`;
-  svg += `<text x="${W/2}" y="30" text-anchor="middle" font-size="17" font-weight="700" fill="${ink}">The five tasks, as agent loops</text>`;
-  svg += `<text x="${W/2}" y="50" text-anchor="middle" font-size="12" fill="${mut}">what the agent actually does at each rung — left to right is increasing recursion depth</text>`;
-
-  // animated flowing edge: base hairline + moving accent dash
-  const flow = (d, c, dur, w) => `<path d="${d}" fill="none" stroke="#dcdcdc" stroke-width="${w||1.4}"/>`
-    + `<path d="${d}" fill="none" stroke="${c}" stroke-width="${(w||1.4)+0.6}" stroke-linecap="round" stroke-dasharray="6 12" opacity="0.9">`
-    + `<animate attributeName="stroke-dashoffset" from="18" to="0" dur="${dur}s" repeatCount="indefinite"/></path>`;
-  const dot = (x, y, r, c, pulse) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}">`
-    + (pulse ? `<animate attributeName="r" values="${r};${r*1.35};${r}" dur="1.8s" repeatCount="indefinite"/><animate attributeName="fill-opacity" values="1;0.55;1" dur="1.8s" repeatCount="indefinite"/>` : "") + `</circle>`;
-
-  const railY = H - 46, x0 = cx(0) + cw / 2, x1 = cx(n - 1) + cw / 2;
-  svg += `<rect x="${x0}" y="${railY-3}" width="${x1-x0}" height="6" rx="3" fill="url(#rail)" opacity="0.85"/>`;
-  // moving pulse travelling along the rail (the "recursion depth" carrier)
-  svg += `<circle r="5" fill="#fff" stroke="${RAMP[4]}" stroke-width="2"><animate attributeName="cx" from="${x0}" to="${x1}" dur="6s" repeatCount="indefinite"/><animate attributeName="cy" values="${railY};${railY}" dur="6s" repeatCount="indefinite"/></circle>`;
-  svg += `<text x="${x0}" y="${railY+22}" text-anchor="middle" font-size="10.5" fill="${mut}">snapshot</text>`;
-  svg += `<text x="${x1}" y="${railY+22}" text-anchor="middle" font-size="10.5" fill="${RAMP[4]}">recursive · self-authored</text>`;
-  svg += `<text x="${W/2}" y="${railY+22}" text-anchor="middle" font-size="10.5" fill="${RAMP[2]}" font-style="italic">increasing recursion depth →</text>`;
-
-  TASKS.forEach((T, i) => {
-    const x = cx(i), cX = x + cw / 2, bT = 66, bH = 300, acc = RAMP[i], dur = 2.2 + i * 0.25;
-    svg += `<g class="flowcard" style="animation-delay:${i*90}ms">`;
-    svg += `<rect x="${x}" y="${bT}" width="${cw}" height="${bH}" rx="16" fill="url(#cg${i})" stroke="${acc}33" stroke-width="1.2" filter="url(#soft)"/>`;
-    svg += `<rect x="${x}" y="${bT}" width="${cw}" height="6" rx="3" fill="${acc}"/>`;
-    // connector down to rail
-    svg += `<line x1="${cX}" y1="${bT+bH}" x2="${cX}" y2="${railY-5}" stroke="${acc}55" stroke-width="1.5"/>`;
-    svg += dot(cX, railY, 5, acc, i === n - 1);
-    svg += `<text x="${cX}" y="${bT+24}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${acc}" letter-spacing="1.6">${T.t}</text>`;
-    svg += `<text x="${cX}" y="${bT+46}" text-anchor="middle" font-size="17" font-weight="700" fill="${ink}">${T.h}</text>`;
-    svg += `<text x="${cX}" y="${bT+63}" text-anchor="middle" font-size="10" fill="${mut}">${T.sub}</text>`;
-
-    const gy = bT + 82;
-    const node = (bx, by, bw, bh, lab, hot) => `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="8" fill="${hot?acc:'#fff'}" stroke="${acc}" stroke-width="1.3"/>`
-      + `<text x="${bx+bw/2}" y="${by+bh/2+3.5}" text-anchor="middle" font-size="10" font-weight="700" fill="${hot?'#fff':ink}">${lab}</text>`;
-
-    if (T.glyph === "one") {
-      svg += node(cX-70, gy, 62, 30, "model");
-      svg += node(cX+8, gy, 62, 30, "kernel");
-      svg += flow(`M${cX-8} ${gy+15} L ${cX+8} ${gy+15}`, acc, dur);
-      svg += node(cX-31, gy+70, 62, 30, "score C", true);
-      svg += flow(`M${cX+39} ${gy+30} C ${cX+39} ${gy+55}, ${cX} ${gy+50}, ${cX} ${gy+70}`, acc, dur);
-      svg += `<text x="${cX}" y="${gy+128}" text-anchor="middle" font-size="9" fill="${mut}">one shot · no learning</text>`;
-    } else if (T.glyph === "loop") {
-      svg += node(cX-72, gy, 60, 28, "model");
-      svg += node(cX+12, gy, 60, 28, "kernels");
-      svg += node(cX+12, gy+70, 60, 28, "LoRA");
-      svg += node(cX-72, gy+70, 60, 28, "stronger", true);
-      svg += flow(`M${cX-12} ${gy+14} L ${cX+12} ${gy+14}`, acc, dur);
-      svg += flow(`M${cX+42} ${gy+28} L ${cX+42} ${gy+70}`, acc, dur);
-      svg += flow(`M${cX+12} ${gy+84} L ${cX-12} ${gy+84}`, acc, dur);
-      svg += flow(`M${cX-42} ${gy+70} L ${cX-42} ${gy+28}`, acc, dur);
-      svg += `<text x="${cX}" y="${gy+128}" text-anchor="middle" font-size="9" fill="${mut}">weights improve each round</text>`;
-    } else if (T.glyph === "edit") {
-      svg += node(cX-35, gy, 70, 28, "model");
-      svg += `<rect x="${cX-46}" y="${gy+62}" width="92" height="34" rx="8" fill="#fff" stroke="${acc}" stroke-width="1.3" stroke-dasharray="5 3"/><text x="${cX}" y="${gy+82}" text-anchor="middle" font-size="10" font-weight="700" fill="${ink}">procedure</text>`;
-      svg += flow(`M${cX} ${gy+28} L ${cX} ${gy+62}`, acc, dur, 1.6);
-      svg += `<text x="${cX}" y="${gy+124}" text-anchor="middle" font-size="9" fill="${mut}">weights locked · edits its method</text>`;
-    } else if (T.glyph === "cross") {
-      svg += node(cX-70, gy, 62, 30, "closed", true);
-      svg += node(cX+8, gy, 62, 30, "harness");
-      svg += node(cX-31, gy+70, 62, 30, "open");
-      svg += flow(`M${cX-8} ${gy+15} L ${cX+8} ${gy+15}`, acc, dur);
-      svg += flow(`M${cX+39} ${gy+30} C ${cX+39} ${gy+55}, ${cX} ${gy+50}, ${cX} ${gy+70}`, acc, dur);
-      svg += `<text x="${cX}" y="${gy+128}" text-anchor="middle" font-size="9" fill="${mut}">closed rewrites the trainer</text>`;
-    } else if (T.glyph === "arena") {
-      svg += node(cX-70, gy, 62, 30, "author");
-      svg += node(cX+8, gy, 62, 30, "solver");
-      svg += flow(`M${cX-8} ${gy+11} L ${cX+8} ${gy+11}`, acc, dur);
-      svg += flow(`M${cX+8} ${gy+22} L ${cX-8} ${gy+22}`, acc, dur*0.8);
-      ["S","F","L"].forEach((a,j) => svg += `<g>${dot(cX-34+j*34, gy+74, 13, j===2?acc:'#fff', j===2)}<text x="${cX-34+j*34}" y="${gy+78}" text-anchor="middle" font-size="10" font-weight="700" fill="${j===2?'#fff':ink}">${a}</text></g>`);
-      svg += `<text x="${cX}" y="${gy+108}" text-anchor="middle" font-size="9" fill="${mut}">L − F = author co-evolution</text>`;
-    }
-    svg += `</g>`;
-  });
+  const pad = 70, cw = 226, gap = (W - 2 * pad - n * cw) / (n - 1);
+  const bT = 150, bH = 300, railY = 512;
+  let defs = `<defs>${arrowDef("pl", C.violet)}`;
+  for (let i = 0; i < n; i++)
+    defs += `<linearGradient id="cg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${stages[i].acc}" stop-opacity=".22"/><stop offset="1" stop-color="${stages[i].acc}" stop-opacity=".04"/></linearGradient>`;
+  // routes between cards (for edges + token mpaths)
+  const cx = i => pad + i * (cw + gap) + cw / 2;
+  for (let i = 0; i < n - 1; i++) {
+    const x1 = pad + i * (cw + gap) + cw, x2 = pad + (i + 1) * (cw + gap), y = bT + bH / 2;
+    defs += `<path id="pl-route-${i}" d="M${x1} ${y} C${x1 + gap * .5} ${y} ${x2 - gap * .5} ${y} ${x2} ${y}"/>`;
+  }
+  defs += `<linearGradient id="rail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${C.cyan}"/><stop offset=".5" stop-color="${C.violet}"/><stop offset="1" stop-color="${C.red}"/></linearGradient></defs>`;
+  let svg = `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Five-stage RSI pipeline">${defs}`;
+  svg += `<text x="${W/2}" y="54" text-anchor="middle" class="stage-title">The KernelAscent RSI ladder</text>`;
+  svg += `<text x="${W/2}" y="86" text-anchor="middle" class="body-label">capability → weight-RSI → procedure-RSI → closed→open → self-play · tokens flow in stage order</text>`;
+  // edges + tokens between cards
+  for (let i = 0; i < n - 1; i++) {
+    const x1 = pad + i * (cw + gap) + cw, x2 = pad + (i + 1) * (cw + gap), y = bT + bH / 2;
+    const d = `M${x1} ${y} C${x1 + gap * .5} ${y} ${x2 - gap * .5} ${y} ${x2} ${y}`;
+    svg += edge("pl", d, stages[i].acc, 4) + tokens(`pl-route-${i}`, 3, stages[i].acc, 3.2);
+  }
+  // stage cards
+  for (let i = 0; i < n; i++) {
+    const x = pad + i * (cw + gap), acc = stages[i].acc, s = stages[i];
+    svg += `<rect x="${x}" y="${bT}" width="${cw}" height="${bH}" rx="16" fill="url(#cg${i})" stroke="${acc}" stroke-opacity=".45" stroke-width="1.3"/>`;
+    svg += `<rect x="${x}" y="${bT}" width="${cw}" height="7" rx="3.5" fill="${acc}"/>`;
+    svg += `<text x="${x+20}" y="${bT+44}" class="stage-title" font-size="20" fill="${acc}">${s.t}</text>`;
+    svg += `<text x="${x+20}" y="${bT+70}" class="body-label">${s.s}</text>`;
+    svg += `<text x="${x+20}" y="${bT+118}" class="metric" fill="${C.ink}">${s.m}</text>`;
+    // wrapped description
+    const words = s.d.split(" "); let line = "", ly = bT+156;
+    for (const w of words) { if ((line+w).length > 30) { svg += `<text x="${x+20}" y="${ly}" font-size="13" fill="${C.mut}">${line}</text>`; line = w+" "; ly += 19; } else line += w+" "; }
+    svg += `<text x="${x+20}" y="${ly}" font-size="13" fill="${C.mut}">${line}</text>`;
+    svg += `<line x1="${cx(i)}" y1="${bT+bH}" x2="${cx(i)}" y2="${railY-6}" stroke="${acc}" stroke-opacity=".4" stroke-width="1.4"/>`;
+    svg += `<circle cx="${cx(i)}" cy="${railY}" r="6" fill="${acc}"/>`;
+  }
+  // agent rail with a traveling token
+  const x0 = cx(0), x1 = cx(n-1);
+  svg += `<rect x="${x0}" y="${railY-3}" width="${x1-x0}" height="6" rx="3" fill="url(#rail)" opacity=".9"/>`;
+  svg += `<text x="${W/2}" y="${railY+38}" text-anchor="middle" class="body-label">the same agent is carried across every stage — the axis of the benchmark</text>`;
+  svg += `<circle r="7" fill="#fff"><animate attributeName="cx" from="${x0}" to="${x1}" dur="7s" repeatCount="indefinite"/><animate attributeName="cy" values="${railY};${railY}" dur="7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.4;1" dur="7s" repeatCount="indefinite"/></circle>`;
   svg += `</svg>`;
   el.innerHTML = svg;
-  const notes = document.getElementById("viz-flow-notes");
-  if (notes) notes.innerHTML = TASKS.map((T, i) => `<div class="flownote" style="border-top:3px solid ${RAMP[i]}"><b>${T.h}.</b> ${T.note}</div>`).join("");
 }
 
-// ============================================================ 2. CAUSALITY DAG (ribbons flow left→right)
+// ============================================================ 2. INTERNAL-FAILURE CAUSALITY DAG
 function renderCausalityDAG(models) {
   const el = document.getElementById("viz-dag"); if (!el) return;
-  const LANES = [
-    { name: "SCALE", log: true }, { name: "WALL", bin: true }, { key: "max_C_train", name: "GRADIENT" },
-    { key: "drift_total", name: "DRIFT" }, { key: "mean_retention", name: "RETENTION" },
-    { key: "mean_diversity", name: "DIVERSITY" }, { name: "OUTCOME", out: true },
-  ];
-  const W = 1400, H = 660, padL = 24, padR = 24, top = 84, bot = 96;
-  const laneX = i => padL + i / (LANES.length - 1) * (W - padL - padR);
-  const bandTop = top, bandBot = H - bot, bandH = bandBot - bandTop;
-  const norms = {}; LANES.forEach(L => { if (L.key) norms[L.key] = normer(models, L.key); });
-  const logn = (() => { const vs = models.map(m => Math.log10(Math.max(0.3, +m.size_b || 0.5)));
-    const lo = Math.min(...vs), hi = Math.max(...vs); return v => (hi > lo ? (Math.log10(Math.max(0.3, v)) - lo) / (hi - lo) : 0.5); })();
-  const driftN = normer(models, "drift_total");
-  const laneVal = (m, L) => L.log ? logn(+m.size_b || 0.5) : L.bin ? (m.wall_crossed ? 0.72 : 0.12)
-    : L.out ? (m.rsi ? 0.85 : (m.wall_crossed ? 0.5 : 0.12)) : clamp01(norms[L.key](m[L.key]));
-  const yOf = (v, s) => { const j = ((Math.sin(s * 12.9898) * 43758.5453) % 1) * 0.06 - 0.03; return bandBot - clamp01(v + j) * bandH; };
-  const rOf = m => 3 + Math.sqrt(clamp01(driftN(m.drift_total))) * 15;
-
-  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Internal-failure causality DAG" font-family="Georgia, serif">`;
-  LANES.forEach((L, i) => { const x = laneX(i);
-    svg += `<line x1="${x}" y1="${bandTop-8}" x2="${x}" y2="${bandBot+8}" stroke="#ededed"/>`;
-    svg += `<text x="${x}" y="${bandTop-26}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6a6a6a" letter-spacing="1.4">${L.name}</text>`; });
-  svg += `<text x="${W/2}" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#151515">Internal-failure causality — each model's path through the gates it must clear</text>`;
-  svg += `<text x="${W/2}" y="48" text-anchor="middle" font-size="11" fill="#9a9a9a">SCALE → WALL → GRADIENT → DRIFT → RETENTION → DIVERSITY → OUTCOME · one flowing ribbon per model (${models.length}) · width &amp; marker ∝ LoRA drift</text>`;
-
-  const order = [...models].map((m, i) => ({ m, i })).sort((a, b) => ("rsi flat wall".indexOf(outClass(b.m)) - "rsi flat wall".indexOf(outClass(a.m))));
-  order.forEach(({ m, i }) => {
-    const c = OC[outClass(m)];
-    const w = 0.7 + Math.sqrt(clamp01(driftN(m.drift_total))) * 5.5;
-    const op = m.rsi ? 0.42 : (m.wall_crossed ? 0.2 : 0.5);
-    let d = "";
-    for (let k = 0; k < LANES.length - 1; k++) {
-      const x0 = laneX(k), x1 = laneX(k + 1), y0 = yOf(laneVal(m, LANES[k]), i + k), y1 = yOf(laneVal(m, LANES[k + 1]), i + k + 1), mx = (x0 + x1) / 2;
-      d += `M${x0} ${y0} C ${mx} ${y0}, ${mx} ${y1}, ${x1} ${y1} `;
-    }
-    // base ribbon + a faint moving dash that flows left→right (green/rsi ribbons flow fastest)
-    svg += `<path d="${d}" fill="none" stroke="${c.line}" stroke-width="${w.toFixed(2)}" stroke-opacity="${op}" stroke-linecap="round"/>`;
-    if (m.rsi) svg += `<path d="${d}" fill="none" stroke="#fff" stroke-width="${(w*0.5).toFixed(2)}" stroke-opacity="0.5" stroke-dasharray="2 26" stroke-linecap="round"><animate attributeName="stroke-dashoffset" from="28" to="0" dur="${(2.4).toFixed(1)}s" repeatCount="indefinite"/></path>`;
+  const W = 1440, H = 860;
+  const gates = ["SCALE","WALL","GRADIENT","DRIFT","RETENTION","DIVERSITY","OUTCOME"];
+  const gx = i => 120 + i * (W - 240) / (gates.length - 1);
+  const topY = 150, botY = 780;
+  // y by size (log), so ribbons fan by scale
+  const sizes = models.map(m => m.size_b || 2);
+  const lo = Math.log(Math.min(...sizes)), hi = Math.log(Math.max(...sizes));
+  const yOf = s => topY + (botY - topY) * (1 - (Math.log(s) - lo) / (hi - lo + 1e-9));
+  // how far each model progresses before stopping (failed runs STOP at their gate)
+  const stopGate = m => !m.wall_crossed ? 1 : (m.drift_total < 0.05 ? 2 : (m.rsi ? 6 : 5));
+  let svg = `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Internal-failure causality DAG">`;
+  svg += `<text x="${W/2}" y="52" text-anchor="middle" class="stage-title">Where recursive self-improvement breaks — internal-failure causality</text>`;
+  svg += `<text x="${W/2}" y="84" text-anchor="middle" class="body-label">${models.length} model runs · each ribbon threads the gates it clears and STOPS where it stalls · width ∝ LoRA drift · color = outcome</text>`;
+  // gate columns + centered headers
+  gates.forEach((g, i) => {
+    svg += `<line x1="${gx(i)}" y1="${topY-14}" x2="${gx(i)}" y2="${botY+14}" stroke="${C.grid}" stroke-width="1"/>`;
+    svg += `<text x="${gx(i)}" y="${topY-30}" text-anchor="middle" class="gatehdr">${g}</text>`;
   });
-  order.forEach(({ m, i }) => { const c = OC[outClass(m)];
-    LANES.forEach((L, k) => { const x = laneX(k), y = yOf(laneVal(m, L), i + k), r = rOf(m);
-      svg += `<circle cx="${x}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${c.fill}" fill-opacity="0.55" stroke="${c.line}" stroke-width="0.8"/>`; }); });
-  const lx = padL + 6, ly = bandBot + 40; let leg = "";
-  Object.values(OC).forEach((c, j) => leg += `<circle cx="${lx+j*210+6}" cy="${ly-4}" r="6" fill="${c.fill}" fill-opacity="0.6" stroke="${c.line}"/><text x="${lx+j*210+18}" y="${ly}" font-size="11.5" fill="#4a4a4a">${c.label}</text>`);
-  leg += `<circle cx="${lx+660}" cy="${ly-4}" r="3" fill="#9a9a9a"/><text x="${lx+668}" y="${ly}" font-size="11.5" fill="#9a9a9a">small drift</text><circle cx="${lx+760}" cy="${ly-4}" r="10" fill="#9a9a9a" fill-opacity="0.4"/><text x="${lx+776}" y="${ly}" font-size="11.5" fill="#9a9a9a">large drift</text>`;
-  svg += leg + `</svg>`;
-  el.innerHTML = svg;
-}
-
-// ============================================================ 3. SCALE vs RSI-GAIN scatter + marginals (grow-in)
-function renderScaleGain(models) {
-  const el = document.getElementById("viz-scatter"); if (!el) return;
-  const pts = models.map(m => ({ x: Math.log10(Math.max(0.3, +m.size_b || 0.5)), y: +m.C_held_gain || 0, drift: +m.drift_total || 0, cls: outClass(m), m }));
-  const W = 820, H = 600, mL = 66, mR = 158, mT = 152, mB = 62, plotW = W-mL-mR, plotH = H-mT-mB;
-  const xLo = -0.55, xHi = 1.3, yLo = Math.min(-0.15, ...pts.map(p=>p.y))-0.02, yHi = Math.max(0.5, ...pts.map(p=>p.y))+0.03;
-  const X = v => mL + (v-xLo)/(xHi-xLo)*plotW, Y = v => mT + plotH - (v-yLo)/(yHi-yLo)*plotH;
-  const dMax = Math.max(...pts.map(p=>p.drift), 0.01), R = d => 3 + Math.sqrt(d/dMax)*22;
-  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scale vs RSI gain" font-family="Georgia, serif">`;
-  svg += `<text x="${mL+plotW/2}" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#151515">Scale vs. RSI gain</text>`;
-  svg += `<text x="${mL+plotW/2}" y="46" text-anchor="middle" font-size="11" fill="#9a9a9a">bubble area ∝ LoRA drift · shaded = sub-2B correctness wall · marginals show where models pile up</text>`;
-  const xw = X(Math.log10(2));
-  svg += `<rect x="${mL}" y="${mT}" width="${xw-mL}" height="${plotH}" fill="#f0f0f0"/><text x="${(mL+xw)/2}" y="${mT+16}" text-anchor="middle" font-size="10.5" fill="#b0b0b0" font-style="italic">correctness wall</text>`;
-  svg += `<line x1="${mL}" y1="${mT+plotH}" x2="${mL+plotW}" y2="${mT+plotH}" stroke="#151515"/><line x1="${mL}" y1="${mT}" x2="${mL}" y2="${mT+plotH}" stroke="#151515"/>`;
-  svg += `<line x1="${mL}" y1="${Y(0)}" x2="${mL+plotW}" y2="${Y(0)}" stroke="#c9c9c9" stroke-dasharray="3 3"/>`;
-  [-0.5,0,0.5,1.0].forEach(t=>{const x=X(t); svg+=`<line x1="${x}" y1="${mT+plotH}" x2="${x}" y2="${mT+plotH+5}" stroke="#151515"/><text x="${x}" y="${mT+plotH+20}" text-anchor="middle" font-size="10" fill="#6a6a6a">${t.toFixed(2)}</text>`;});
-  [0,0.2,0.4].forEach(t=>{const y=Y(t); svg+=`<line x1="${mL-5}" y1="${y}" x2="${mL}" y2="${y}" stroke="#151515"/><text x="${mL-9}" y="${y+3}" text-anchor="end" font-size="10" fill="#6a6a6a">${t.toFixed(1)}</text>`;});
-  svg += `<text x="${mL+plotW/2}" y="${mT+plotH+44}" text-anchor="middle" font-size="11.5" fill="#4a4a4a">log10 params (B)</text>`;
-  svg += `<text transform="translate(${mL-44},${mT+plotH/2}) rotate(-90)" text-anchor="middle" font-size="11.5" fill="#4a4a4a">held-out C gain over rounds</text>`;
-  const nb = 12;
-  const xb = new Array(nb).fill(0); pts.forEach(p=>xb[Math.min(nb-1,Math.max(0,Math.floor((p.x-xLo)/(xHi-xLo)*nb)))]++);
-  const xbM = Math.max(...xb,1);
-  xb.forEach((c,b)=>{ if(!c)return; const x0=X(xLo+b/nb*(xHi-xLo)),x1=X(xLo+(b+1)/nb*(xHi-xLo)),h=c/xbM*54;
-    svg+=`<rect x="${x0+1}" y="${mT-14-h}" width="${x1-x0-2}" height="${h}" fill="#7d9dc9" fill-opacity="0.55"/>`; });
-  const yb = new Array(nb).fill(0); pts.forEach(p=>yb[Math.min(nb-1,Math.max(0,Math.floor((p.y-yLo)/(yHi-yLo)*nb)))]++);
-  const ybM = Math.max(...yb,1);
-  yb.forEach((c,b)=>{ if(!c)return; const y1=Y(yLo+b/nb*(yHi-yLo)),y0=Y(yLo+(b+1)/nb*(yHi-yLo)),w=c/ybM*72;
-    svg+=`<rect x="${mL+plotW+14}" y="${y0+1}" width="${w}" height="${y1-y0-2}" fill="#5b9e6f" fill-opacity="0.5"/>`; });
-  const ord = [...pts].sort((a,b)=>"rsi flat wall".indexOf(b.cls)-"rsi flat wall".indexOf(a.cls));
-  ord.forEach((p,idx)=>{ const c=OC[p.cls], r=R(p.drift);
-    svg+=`<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${r.toFixed(1)}" fill="${c.fill}" fill-opacity="0.5" stroke="${c.line}" stroke-width="1"><title>${p.m.model} · ${(+p.m.size_b).toFixed(1)}B · gain ${p.y.toFixed(3)} · drift ${p.drift.toFixed(3)}</title><animate attributeName="r" from="0" to="${r.toFixed(1)}" begin="${(idx*0.02).toFixed(2)}s" dur="0.5s" fill="freeze"/></circle>`; });
-  Object.values(OC).forEach((c,j)=>{const yy=mT+6+j*20; svg+=`<circle cx="${mL+plotW+22}" cy="${yy}" r="6" fill="${c.fill}" fill-opacity="0.55" stroke="${c.line}"/><text x="${mL+plotW+34}" y="${yy+4}" font-size="10.5" fill="#4a4a4a">${c.label}</text>`;});
+  // ribbons (draw failed first / faint, rsi last / bright)
+  const ordered = models.slice().sort((a,b) => (a.rsi?2:a.wall_crossed?1:0) - (b.rsi?2:b.wall_crossed?1:0));
+  const routeIds = [];
+  ordered.forEach((m, idx) => {
+    const col = outColor(m), yb = yOf(m.size_b || 2), sg = stopGate(m);
+    const w = Math.max(1, Math.min(7, 1 + (m.drift_total || 0) * 8));
+    // path from SCALE to its stop gate, easing toward a mild outcome spread
+    let d = `M${gx(0)} ${yb}`;
+    for (let i = 1; i <= sg; i++) {
+      const x = gx(i), prevx = gx(i-1);
+      const y = (i === 6) ? (m.rsi ? topY + 60 : yb) : yb + (Math.sin(idx + i) * 6);
+      d += ` C${(prevx+x)/2} ${yb} ${(prevx+x)/2} ${y} ${x} ${y}`;
+    }
+    const op = m.rsi ? 0.95 : (m.wall_crossed ? 0.6 : 0.4);
+    svg += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w.toFixed(2)}" stroke-opacity="${op}" stroke-linecap="round"/>`;
+    // failed runs: a small "stop" tick at the gate they died on
+    if (!m.rsi) { const ex = gx(sg); svg += `<circle cx="${ex}" cy="${yb}" r="${(w*.7+1).toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.4" stroke-opacity="${op}"/>`; }
+    // rsi ribbons get a token route (reuse the same path) — keep the particle budget bounded
+    if (m.rsi && routeIds.length < 22) { const rid = `dag-r${idx}`; svg += `<path id="${rid}" d="${d}" fill="none" stroke="none"/>`; routeIds.push(rid); }
+  });
+  // token particles flow ONLY along rsi ribbons (semantic: successful recursion carries signal through)
+  routeIds.forEach((rid, k) => { svg += tokens(rid, 2, "#eafff6", 2.6 + (k % 3) * .4); });
+  // gate outcome legend
+  const leg = [["RSI compounds", C.green], ["crossed wall, flat", C.amber], ["stuck at wall", C.red]];
+  leg.forEach(([t, c], i) => { const lx = 120 + i * 240; svg += `<circle cx="${lx}" cy="${botY+52}" r="6" fill="${c}"/><text x="${lx+14}" y="${botY+57}" class="body-label">${t}</text>`; });
   svg += `</svg>`;
   el.innerHTML = svg;
 }
 
-// ---- load + render ----
-fetch("data/mech_analysis.json").then(r => r.json()).then(d => {
-  const ms = (d.models || []).filter(m => typeof m.size_b === "number");
-  const up = document.getElementById("viz-updated");
-  if (up) up.textContent = "updated " + (d.updated || "") + " · " + ms.length + " WHY-RSI probes, 0.5–15B";
-  renderCausalityDAG(ms); renderScaleGain(ms);
-}).catch(e => {});
-renderTaskFlow();
+// ============================================================ 3. SCALE vs RSI-GAIN SCATTER (+ marginals)
+function renderScaleGain(models) {
+  const el = document.getElementById("viz-scatter"); if (!el) return;
+  const W = 1440, H = 900, mL = 110, mR = 240, mT = 210, mB = 120;
+  const px = W - mR, py = H - mB;
+  const xs = models.map(m => Math.log(m.size_b || 2));
+  const xlo = Math.min(...xs) - 0.15, xhi = Math.max(...xs) + 0.15;
+  const gains = models.map(m => m.C_held_gain || 0);
+  const ylo = Math.min(-0.05, ...gains), yhi = Math.max(0.05, ...gains);
+  const X = v => mL + (px - mL) * (Math.log(v) - xlo) / (xhi - xlo);
+  const Y = v => py - (py - mT) * (v - ylo) / (yhi - ylo);
+  let svg = `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Scale vs RSI gain">`;
+  svg += `<text x="${W/2}" y="54" text-anchor="middle" class="stage-title">Scale vs held-out RSI gain — an inverted-U, not a staircase</text>`;
+  svg += `<text x="${W/2}" y="86" text-anchor="middle" class="body-label">bubble area ∝ LoRA drift · color = outcome · gain peaks mid-scale; ≥9B drifts most yet gains least (roofline saturation)</text>`;
+  // correctness-wall shaded region (<2B)
+  const wallX = X(2);
+  svg += `<rect x="${mL}" y="${mT}" width="${wallX-mL}" height="${py-mT}" fill="#16233a" opacity=".55"/>`;
+  svg += `<text x="${(mL+wallX)/2}" y="${mT+26}" text-anchor="middle" class="body-label" font-style="italic">sub-2B correctness wall</text>`;
+  // axes + gridlines
+  svg += `<line x1="${mL}" y1="${py}" x2="${px}" y2="${py}" stroke="${C.grid}"/><line x1="${mL}" y1="${mT}" x2="${mL}" y2="${py}" stroke="${C.grid}"/>`;
+  svg += `<line x1="${mL}" y1="${Y(0)}" x2="${px}" y2="${Y(0)}" stroke="${C.grid}" stroke-dasharray="4 6"/><text x="${px+6}" y="${Y(0)+4}" class="axis-label">0</text>`;
+  [0.5,1,2,3,7,14,32].forEach(s => { if (s>=Math.exp(xlo)&&s<=Math.exp(xhi)) svg += `<text x="${X(s)}" y="${py+30}" text-anchor="middle" class="axis-label mono">${s}B</text>`; });
+  svg += `<text x="${(mL+px)/2}" y="${py+62}" text-anchor="middle" class="axis-label">model size (log)</text>`;
+  svg += `<text x="26" y="${(mT+py)/2}" text-anchor="middle" class="axis-label" transform="rotate(-90 26 ${(mT+py)/2})">held-out capability gain</text>`;
+  // top marginal: mean gain in scale bands
+  const bands = [[0,2,"<2B"],[2,8,"2–8B"],[8,99,"≥9B"]];
+  bands.forEach(([a,b,lab]) => {
+    const inb = models.filter(m => (m.size_b||2)>=a && (m.size_b||2)<b);
+    if (!inb.length) return;
+    const rsiFrac = inb.filter(m=>m.rsi).length/inb.length;
+    const x0 = X(Math.max(a,Math.exp(xlo))), x1 = X(Math.min(b,Math.exp(xhi)));
+    const bh = 90 * rsiFrac;
+    svg += `<rect x="${x0+4}" y="${mT-20-bh}" width="${x1-x0-8}" height="${bh}" fill="${C.green}" opacity=".5" rx="3"/>`;
+    svg += `<text x="${(x0+x1)/2}" y="${mT-26-bh}" text-anchor="middle" class="body-label">${(rsiFrac*100).toFixed(0)}% RSI</text>`;
+    svg += `<text x="${(x0+x1)/2}" y="${mT-6}" text-anchor="middle" class="axis-label mono">${lab}</text>`;
+  });
+  // bubbles
+  models.forEach(m => {
+    const r = Math.max(3, Math.min(26, 4 + (m.drift_total||0)*26));
+    const col = outColor(m);
+    svg += `<circle cx="${X(m.size_b||2).toFixed(1)}" cy="${Y(m.C_held_gain||0).toFixed(1)}" r="${r.toFixed(1)}" fill="${col}" fill-opacity=".38" stroke="${col}" stroke-width="1.1"/>`;
+  });
+  // right marginal: gain distribution
+  svg += `<text x="${px+80}" y="${mT-6}" text-anchor="middle" class="axis-label">drift ∝ bubble</text>`;
+  const leg = [["RSI", C.green], ["flat", C.amber], ["stuck", C.red]];
+  leg.forEach(([t,c],i)=>{ svg += `<circle cx="${px+40}" cy="${mT+40+i*30}" r="7" fill="${c}" fill-opacity=".5" stroke="${c}"/><text x="${px+54}" y="${mT+45+i*30}" class="body-label">${t}</text>`; });
+  svg += `</svg>`;
+  el.innerHTML = svg;
+}
+
+(function init(){
+  fetch("data/mech_analysis.json").then(r=>r.json()).then(d=>{
+    const models = (d.models||[]).filter(m => typeof m.size_b === "number");
+    try { renderTaskFlow(); } catch(e){ console.error("flow",e); }
+    try { renderCausalityDAG(models); } catch(e){ console.error("dag",e); }
+    try { renderScaleGain(models); } catch(e){ console.error("scatter",e); }
+  }).catch(e=>console.error("viz load",e));
+})();
