@@ -279,34 +279,26 @@ body{font-feature-settings:"ss01","ss02"}
 .flownote b{color:#151515}
 
 /* ============================================================
-   VIZ INSTRUMENT THEME (GPT-6-Astra design, 2026-09-18)
-   Dark, large, center-aligned animated figures.
+   VIZ THEME — white + red, small, centered, vertical (2026-09-18)
    ============================================================ */
 .viz-frame{
-  --vbg:#080d16; --vpanel:#0d1624; --vraised:#121f31;
-  --vink:#edf3ff; --vmut:#a6b7cf; --vgrid:#233248;
-  --cyan:#54d8ff; --violet:#ae93ff; --green:#65dfb0; --amber:#f4c16b; --red:#f48592;
-  position:relative; overflow:hidden; border:1px solid #26374d; border-radius:20px;
-  background:radial-gradient(1200px 600px at 50% -10%, #16243a 0%, transparent 60%), var(--vpanel);
-  box-shadow:0 24px 70px rgba(0,0,0,.45); padding:8px 8px 4px; margin:0 auto;
+  --vink:#1a1a1a; --vmut:#6b6b6b; --vgrid:#e4e4e7; --vpaper:#ffffff; --vwash:#faf7f7;
+  --red:#c1121f; --red2:#e5484d; --redwash:#fdecec; --gold:#9a7b1f; --slate:#2b3b52;
+  position:relative; border:1px solid #ecdcdc; border-radius:14px;
+  background:var(--vpaper); box-shadow:0 8px 30px rgba(120,0,0,.06);
+  padding:14px 14px 6px; margin:22px auto 0; max-width:820px;
 }
-.viz-frame .viz-svg{display:block;width:100%;height:auto;margin-inline:auto}
-.viz-frame text{font-family:var(--sans,Inter,ui-sans-serif,system-ui,sans-serif);fill:var(--vink)}
-.viz-frame .stage-title{font-size:23px;font-weight:650;letter-spacing:-.02em}
-.viz-frame .metric{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums}
-.viz-frame .body-label,.viz-frame .axis-label{font-size:15px;fill:var(--vmut)}
+.viz-frame .viz-svg{display:block;width:100%;height:auto;margin-inline:auto;max-width:820px}
+.viz-frame text{font-family:var(--serif,Georgia,serif);fill:var(--vink)}
+.viz-frame .stage-title{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.viz-frame .metric{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;fill:var(--red)}
+.viz-frame .body-label,.viz-frame .axis-label{font-size:11.5px;fill:var(--vmut)}
+.viz-frame .gatehdr{font-size:11px;font-weight:600;letter-spacing:.03em;fill:var(--vmut)}
 .viz-frame .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
-.viz-frame .gatehdr{font-size:15px;font-weight:650;letter-spacing:.02em;fill:var(--vmut)}
-/* layered flowing edges */
-.edge-track{fill:none;stroke:#283b54;stroke-width:12;opacity:.5;stroke-linecap:round}
-.edge-color{fill:none;stroke-width:4;opacity:.9;stroke-linecap:round}
-.edge-flow{fill:none;stroke:#e1faff;stroke-width:2;stroke-dasharray:5 13;opacity:.85;stroke-linecap:round;
-  animation:edge-flow 900ms linear infinite}
-@keyframes edge-flow{to{stroke-dashoffset:-18}}
-.pulse-halo{transform-box:fill-box;transform-origin:center;animation:halo 2.4s ease-in-out infinite}
-@keyframes halo{0%,100%{opacity:.15;r:9}50%{opacity:.5;r:15}}
-@media(prefers-reduced-motion:reduce){.edge-flow,.pulse-halo{animation:none}}
-/* full-width breakout for the big figures */
-.vizwide{width:min(1560px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%);margin:34px auto}
-.vizwide figcaption{max-width:1000px;margin:16px auto 0;text-align:center;color:var(--sub)}
-.viz-frame .viz-svg{max-width:none}   /* override the 780px figure cap for the big instruments */
+.edge-track{fill:none;stroke:#e6e6ea;stroke-width:2.5}
+.edge-flow{fill:none;stroke:var(--red);stroke-width:1.6;stroke-dasharray:4 10;opacity:.85;stroke-linecap:round;animation:edge-flow 1s linear infinite}
+@keyframes edge-flow{to{stroke-dashoffset:-14}}
+@media(prefers-reduced-motion:reduce){.edge-flow{animation:none}}
+/* figures render centered in the normal column width, stacked vertically */
+.vizwide{width:100%;max-width:820px;margin:22px auto 0;left:auto;transform:none;position:static}
+.vizwide figcaption{max-width:64ch;margin:12px auto 0;text-align:center}
