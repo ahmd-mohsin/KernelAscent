@@ -23,6 +23,12 @@
   "harness_commit": "REPLACE_WITH_GIT_SHA",
   "seeds": [0, 1, 2],
   "split": "public",
-  "command": "python -m kernelascent.v3.lab_transplant --recipe octocat/ka-search-amplified-ei --trainee Qwen/Qwen2.5-Coder-1.5B-Instruct --rounds 6"
+  "command": "python -m kernelascent.v3.lab_transplant --recipe octocat/ka-search-amplified-ei --trainee Qwen/Qwen2.5-Coder-1.5B-Instruct --rounds 6",
+  "budget": {
+   "starting_checkpoint": "Qwen/Qwen2.5-Coder-1.5B-Instruct@main",
+   "total_budget": "6 rounds x 32 candidates/task x 40 tasks = 7680 generations + 6x12 SFT steps",
+   "candidate_count": 32,
+   "selection_rule": "verifier-passing, then max decomposition-diversity within accepted set"
+  }
  }
 }

@@ -6,7 +6,7 @@
 <title>KernelAscent</title>
 <meta name="description" content="KernelAscent is a benchmark for compounding kernel optimization. Models write GPU kernels graded for correctness and speed. Open and closed models compete on capability. Open weight models test recursive self improvement." />
 <link rel="icon" href="logo.png" />
-<link rel="stylesheet" href="style.css?v=09181615">
+<link rel="stylesheet" href="style.css?v=09181655">
 </head>
 <body>
 <header class="nav">
@@ -24,6 +24,12 @@
   </div>
 </header>
 
+<div class="anchorbar" id="anchorbar">
+  <a href="#findings">Findings</a>
+  <a href="#capability">Results</a>
+  <a href="#submit">Submit</a>
+</div>
+
 <div class="wrap">
 <section class="hero" id="top" style="border:none">
   <div class="eyebrow">Compounding kernel optimization</div>
@@ -35,6 +41,7 @@
     <div><div class="kpi-n">9</div><div class="kpi-l">model families</div></div>
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
   </div>
+  <p class="finding-strip"><b>The finding:</b> verified self-training did not compound &mdash; under our tested GPU-kernel protocol. <span class="ev">213 evaluations · lineage ≈ reset · BF₀₁ ≈ 14.5 · search &gt; training</span> <a href="#findings">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
 </section>
 
 <section id="findings">
@@ -261,7 +268,7 @@ python3 scripts/validate_submission.py submissions/capability/your-model.json
   <p class="small">Full guide: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">submissions/README.md</a>. Prefer not to write JSON? Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model submission issue</a>.</p>
 
   <h3 style="margin-top:30px">Community board <span id="comm-updated" class="tiny"></span></h3>
-  <p class="small sub">Rows submitted through GitHub. <span class="pill good">verified</span> = re-run by a maintainer on the held-out split; <span class="pill flat">self-reported</span> = submitter numbers, pending verification.</p>
+  <p class="small sub">Rows move through three honest states: <span class="state selfrep">self-reported</span> (schema-valid submitter numbers) → <span class="state repro">↻ reproduced</span> (a maintainer re-ran it) → <span class="state verified">✓ held-out verified</span> (re-run on the private held-out split). Model and recipe rows are never merged into one ranking; external models, tools, and human input must be disclosed. For RSI/harness rows we meter training <i>and</i> search against a declared budget and run matched reset + search-only controls, so a gain can't be faked by spending more compute.</p>
   <div class="tablewrap">
     <table id="comm-lb"><thead><tr>
       <th>Track</th><th>Model / recipe</th><th>Kind</th><th class="num">headline</th><th>status</th><th>by</th>
@@ -274,7 +281,7 @@ python3 scripts/validate_submission.py submissions/capability/your-model.json
   KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. Weight RSI runs an open weight self training loop. Procedure RSI lets open and closed models improve their own executable research procedure with weights fixed. Everything is GPU graded.
 </footer>
 
-<script src="app.js?v=09181615"></script>
-<script src="viz.js?v=09181615"></script>
+<script src="app.js?v=09181655"></script>
+<script src="viz.js?v=09181655"></script>
 </body>
 </html>

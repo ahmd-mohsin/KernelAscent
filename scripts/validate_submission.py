@@ -25,6 +25,10 @@ TRACK_METRICS = {
 }
 KINDS = {"api", "open_weight"}
 SPLITS = {"public", "heldout"}
+# tracks where "gain" can be faked by pouring in search/compute -> require a metered budget
+# manifest so reset/search-only controls can be run and gains ranked paired (Astra P0).
+BUDGET_TRACKS = {"weight_rsi", "selfplay", "harness"}
+BUDGET_FIELDS = ("starting_checkpoint", "total_budget", "candidate_count", "selection_rule")
 
 
 def _err(errs, msg):
@@ -107,6 +111,14 @@ def validate_obj(d, path):
         h = d.get("self_improve_harness")
         if not isinstance(h, dict) or not h.get("repo") or not h.get("entrypoint"):
             _err(errs, "harness track requires self_improve_harness.{repo,entrypoint}")
+
+    # anti-gaming budget manifest: a "gain" that just spent more search/compute is not RSI.
+    # These fields let the evaluator run matched reset + search-only controls and rank paired gains.
+    if track in BUDGET_TRACKS and isinstance(r, dict):
+        budget = r.get("budget") if isinstance(r.get("budget"), dict) else r
+        for bf in BUDGET_FIELDS:
+            if bf not in budget:
+                _err(errs, f"repro.budget.{bf} is required for '{track}' (meters training+search so gain can't be faked by compute; see submissions/README.md)")
 
     return errs
 

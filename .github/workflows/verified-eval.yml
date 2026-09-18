@@ -3,6 +3,17 @@ name: Verified held-out eval (maintainer)
 # GATED tier. Manually dispatched by a maintainer only. Runs a submitted model on the
 # PRIVATE held-out split on the self-hosted Greenland cluster runner, then marks the row
 # verified. Never triggered by external PRs.
+#
+# SECURITY MANDATE (Astra P0 — treat recipe execution as hostile code execution):
+#   * Run on an EPHEMERAL, ISOLATED worker: no long-lived secrets, no unrestricted network
+#     egress, no persistent writable shared cache, hard CPU/GPU/mem/time limits.
+#   * The private evaluator OWNS the held-out inputs + scoring. NEVER hand the held-out
+#     split to submitter/recipe code — the recipe runs on the fixed open trainee only; the
+#     evaluator scores its output. Held-out data must not be readable by the recipe process.
+#   * Never run PR-controlled code in this privileged workflow: a maintainer checks out the
+#     specific reviewed submission commit; recipe repos are pinned by sha and sandboxed.
+#   * Meter training AND search (incl. any teacher/API assistance) against the declared
+#     repro.budget; run matched reset + search-only controls before ranking a gain.
 on:
   workflow_dispatch:
     inputs:

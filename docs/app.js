@@ -255,7 +255,10 @@ fetch("data/open_rsi.json").then(r => r.json()).then(d => {
       (d.tracks && d.tracks[t] || []).forEach(m=>{
         const [k,lbl] = HEADLINE[t];
         const val = (typeof m[k]==="number") ? (Math.round(m[k]*1000)/1000).toFixed(3) : "—";
-        const status = m.verified ? `<span class="pill good">verified</span>` : `<span class="pill flat">self-reported</span>`;
+        const st = m.state || (m.verified ? "verified" : "self-reported");
+        const status = st==="verified" ? `<span class="state verified">✓ held-out verified</span>`
+                     : st==="reproduced" ? `<span class="state repro">↻ reproduced</span>`
+                     : `<span class="state selfrep">self-reported</span>`;
         const kind = (m.kind==="open_weight") ? "open weight" : (m.kind==="api" ? "closed / API" : m.kind||"");
         rows.push(`<tr><td>${TRACK_LABEL[t]}</td><td><b>${m.model||"?"}</b></td><td><span class="pill kind">${kind}</span></td>`
           + `<td class="num">${val} <span class="mid small">${lbl}</span></td><td>${status}</td><td class="small">${m.submitter||""}</td></tr>`);

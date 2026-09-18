@@ -44,12 +44,18 @@ def load_all():
         if t not in out:
             continue
         m = d.get("model", {})
+        # honest three-state pipeline (Astra P1): schema-valid self-report -> maintainer
+        # reproduced -> re-run on the private held-out split (verified). "verified" alone overpromises.
+        verified = bool(d.get("verified", False))
+        state = "verified" if verified else ("reproduced" if d.get("reproduced") else "self-reported")
         row = {
             "model": pretty(m.get("name", "?")),
             "kind": m.get("kind", "?"),
             "org": m.get("org", ""),
             "params_b": m.get("params_b"),
-            "verified": bool(d.get("verified", False)),
+            "verified": verified,
+            "state": state,
+            "evaluator_version": d.get("evaluator_version", ""),
             "submitter": (d.get("submitter") or {}).get("name", ""),
             "date": d.get("date", ""),
             "source_file": os.path.relpath(fp, ROOT),

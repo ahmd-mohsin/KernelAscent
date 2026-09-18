@@ -312,3 +312,27 @@ body{font-feature-settings:"ss01","ss02"}
 #comm-lb .pill.good{background:#fff;color:var(--red,#b4232c);border-color:var(--red,#b4232c);font-weight:600}
 #comm-lb td{vertical-align:middle}
 #comm-updated{color:var(--sub)}
+
+/* --- Astra pass: honest state chips, editorial hero strip, sticky anchors, calm motion --- */
+.state{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.state.verified{color:#1f7a4d;background:#eef7f1;border:1px solid #cfe8da;font-weight:600}
+.state.repro{color:#8a6d1f;background:#fbf6e9;border:1px solid #ece0c3}
+.state.selfrep{color:var(--sub);background:#f4f4f4;border:1px solid #e7e7e7}
+
+.finding-strip{margin:22px 0 0;font-size:16px;line-height:1.5;max-width:640px}
+.finding-strip .ev{display:block;margin:8px 0;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--sub)}
+.finding-strip a{color:var(--red,#b4232c);font-weight:600;text-decoration:none;border-bottom:1px solid #e2cfcf}
+.finding-strip a:hover{border-bottom-color:var(--red,#b4232c)}
+
+.anchorbar{position:sticky;top:0;z-index:40;display:flex;gap:22px;justify-content:center;
+  padding:9px 0;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--hair)}
+.anchorbar a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--sub);text-decoration:none;transition:color 150ms ease}
+.anchorbar a:hover{color:var(--red,#b4232c)}
+
+/* Astra #5: quiet interaction — cap transitions, honor reduced motion */
+a,button,.pill,.state,tr{transition-duration:150ms}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .edge-flow{animation:none!important}
+}
