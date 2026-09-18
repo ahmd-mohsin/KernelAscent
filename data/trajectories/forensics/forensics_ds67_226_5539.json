@@ -1,0 +1,337 @@
+{
+ "model": "deepseek-ai/deepseek-coder-6.7b-base",
+ "tag": "ds67_226_5539",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 14,
+ "zero_task_frac": 0.483,
+ "failure_dist": {
+  "no_extract": 350,
+  "correct": 19,
+  "syntax_error": 59,
+  "runtime_other": 12,
+  "name_error": 20,
+  "type_shape": 1,
+  "wrong_output": 3
+ },
+ "failure_pct": {
+  "no_extract": 75.4,
+  "correct": 4.1,
+  "syntax_error": 12.7,
+  "runtime_other": 2.6,
+  "name_error": 4.3,
+  "type_shape": 0.2,
+  "wrong_output": 0.6
+ },
+ "zero_tasks": [
+  "l2_1",
+  "l2_14",
+  "l3_4",
+  "l2_11",
+  "l1_10",
+  "l3_3",
+  "l2_4",
+  "l2_10",
+  "l2_13",
+  "l2_5",
+  "l2_6",
+  "l2_15",
+  "l3_1",
+  "l2_9"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_7": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_2": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_14": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_2": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_6": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_11": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "type_shape"
+  },
+  "l1_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_8": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_1": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_10": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_13": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_7": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_3": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_12": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_5": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_6": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_4": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_9": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_3": {
+   "n_ok": 1,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_15": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_9": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_5": {
+   "n_ok": 2,
+   "K": 16,
+   "dominant_fail": "correct"
+  }
+ },
+ "examples": {
+  "no_extract": [
+   {
+    "task": "l3_2",
+    "gen_tail": "thod\n    def _rotate_half(t):\n        t1, t2 = t.chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    @staticmethod\n    def _fused_qkv(qkv, h, hkv, hd):\n        q, k, v = torch.split(qkv, [h * hd, hkv * hd, hkv * h"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "\ndef get_outputs(inputs):\n    model = Model(DT).cuda()\n    return [model(inputs[0])]\n\n\ndef get_expected_outputs():\n    return get_outputs(get_inputs())"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "\ndef get_model(dt=DT):\n    return Model(dt=dt)"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "0362,  ..., -0.0008,  0.0260, -0.0271],\n    #         [ 0.0335, -0.0079,  0.0251,  ..., -0.0269,  0.0326, -0.0312],\n    #         [-0.0025, -0.0033, -0.0482,  ..., -0.0235,  0.0048,  0.0445],\n    #         ...,\n    #         [-0.0321,  0.0218,  0.0207,  ..., -0.0147, -0.0086,  0.0271],\n    #         [ 0.0093, -0.0149,  0.0296,  ...,  0.0193, -0.0142,  0.0085],\n    #         [ 0.0114,  0.0133, -0.0"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "      for _ in range(10):\n            out = model(*inputs)\n        torch.cuda.synchronize()\n        t1 = time.time()\n    print(f\"{t1 - t0:.3f} s\")\n    return out\n\n\nif __name__ == \"__main__\":\n    model = Model()\n    model.to(DT).eval()\n    run_test(model, *get_inputs())\n\n\n[This task is from the OpenGenus forum, but I am submitting it here since it is a programming task and not a mathematical one.]\n"
+   },
+   {
+    "task": "l3_2",
+    "gen_tail": "= triton.ops.init.zero_f32()\n\n            x_part_part_squared = triton.ops.f32_to_f16(x_part_part) ** 2\n            # x_part_part_squared: [BLOCK_SIZE, BLOCK_Z]\n\n            squared_sum = triton.ops.dot_product(x_part_part_squared, z_part_part)\n            # squared_sum: [BLOCK_SIZE]\n\n            norm_const = triton.ops.sqrt(squared_sum / DIV + triton.ops.f32_to_f16(1))\n            # norm_const: ["
+   }
+  ],
+  "syntax_error": [
+   {
+    "task": "l2_7",
+    "code_tail": "   t1 = timeit.timeit(lambda: test_inference(model_new, inp), number=test_iterations)\n    t2 = timeit.timeit(lambda: test_reference(model_ref, inp), number=test_iterations)\n    print(\"New time:\", t1)\n    print(\"Reference time:\", t2)\n    print(\"Speedup:\", t2 / t1)\n\n\ndef main():\n    model_new = get_ref_model()\n    model_ref = get_ref_model()\n    inputs = get_inputs()\n    test_equal(model_new, model_ref, inputs)\n    test_speed(model_new, model_ref, inputs[0])\n\n\nif __name__ == \"__main__\":\n    main()",
+    "error": "IndentationError('expected an indented block after class definition on line 38',"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": " * 0.02\n        gamma = 0.5 + torch.rand(DIM, generator=g)\n        self.weight = nn.Parameter(w.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "ch.no_grad()\ndef run_new(dt=DT):\n    return ModelNew(dt=dt)(*get_inputs())\n\n\nclass ModelNew(nn.Module):\n\n\n\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\n\nDT = torch.float16\n\nBATCH = 16\nSEQ = 512\nDIM = 4096\n_DEVICE = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n\n\nclass Model(nn.Module):\n    # Transformer out-projection with fused epilogue:\n    #   y = x + gamma * gelu_tanh(x @ W^T + b)\n    # (bias + activation + per-channel LayerScale + residual), M=8192, N=K=4096\n\n    def",
+    "error": "IndentationError('expected an indented block after class definition on line 38',"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "## Prompt\n\n**For the python code: provide all code for a new model class (e.g. class ModelNew(nn.Module) in pytorch) that has the exact same input/output signature as the `Model` class above. The input/output shapes should match and the dtypes should match.**\n\n## Response\n\n\n",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "     g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(N, K, generator=g) * (1.0 / K ** 0.5)\n        b = torch.randn(N, generator=g) * 0.02\n        gamma = 0.5 + 0.5 * torch.rand(N, generator=g)\n        self.weight = nn.Parameter(w.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "ype=dt), requires_grad=False)\n\n    def forward(self, x):\n        y = F.linear(x, self.weight, self.bias)      # [M, N] GEMM + bias\n        y = F.gelu(y, approximate=\"tanh\")            # activation\n        y = y * self.gamma                           # per-channel scale\n        return x + y                                 # residual\n\n\ndef get_inputs():\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=_DEVICE, dtype=DT)\n    return [x]\n\n\ndef run_",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_7",
+    "code_tail": "self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(1234)\n        w = torch.randn(DIM, DIM, generator=g) * (DIM ** -0.5)\n        b = torch.randn(DIM, generator=g) * 0.",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": "class ModelNew(nn.Module):\n    \"\"\"Pre-norm residual block minus the matmul:\n        y = x + gelu_tanh(LayerNorm(x) * w + b)\n    Row-wise mean/var reduction + elementwise chain over a 16384 x 8192 fp16 tensor\n    (256 MiB in, 256 MiB out). fp32 math internally, fp16 out.\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        self.eps = 1e-5\n        g = torch.Generator().manual_seed(1234)\n        w = 1.0 + 0.1 * torch.randn(HIDDEN, generator=g)\n        b = 0.",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l1_8",
+    "code_tail": "rch.testing.assert_close(model(x), model_new(x), atol=1e-3, rtol=1e-3, rtol_mode=\"rel\", check_dtype=False)\n\n\ndef test_timing(x):\n    model = Model()\n    model_new = ModelNew()\n    model.eval()\n    model_new.eval()\n    import timeit\n\n    with torch.no_grad():\n        print(\"Speedup:\", timeit.timeit(lambda: model(x), number=100) / timeit.timeit(lambda: model_new(x), number=100))\n\n\ndef main():\n    x = get_inputs()[0]\n    test_correctness(x)\n    test_timing(x)\n\n\nif __name__ == \"__main__\":\n    main()",
+    "error": "NotImplementedError('Implement me')"
+   },
+   {
+    "task": "l1_10",
+    "code_tail": "rint(f\"Torch (GPU):     {torch_gpu_time:.3f} ms\")\n    print(f\"Torch (CPU):     {torch_cpu_time:.3f} ms\")\n\n    torch_time, torch_gpu_time, torch_cpu_time = run_benchmark(\n        model, *inputs, warmup_steps=100, runs=100, eval_gpu_only=True\n    )\n    print(f\"Torch (GPU-only): {torch_gpu_time:.3f} ms\")\n\n    torch_time, torch_gpu_time, torch_cpu_time = run_benchmark(\n        model, *inputs, warmup_steps=100, runs=100, eval_cpu_only=True\n    )\n    print(f\"Torch (CPU-only): {torch_cpu_time:.3f} ms\")",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l1_10",
+    "code_tail": "class ModelNew(nn.Module):\n    # Write a single-pass self-contained PyTorch/Triton kernel that implements the exact same\n    # operation (i.e., the same dtype, same output), preferably using fused torch ops.\n    pass",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   },
+   {
+    "task": "l2_4",
+    "code_tail": "class ModelNew(nn.Module):\n    ...",
+    "error": "NotImplementedError('Module [ModelNew] is missing the required \"forward\" functio"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l2_7",
+    "code_tail": ", dtype=dt), requires_grad=False)\n\n    @staticmethod\n    @triton.jit\n    def _kernel(\n        x_ptr, y_ptr,\n        gamma_ptr, bias_ptr, weight_ptr,\n        M, N,\n        BLOCK: tl.constexpr,\n    ):\n        row = tl.program_id(0)\n        block = tl.program_id(1)\n        stride = M * BLOCK\n        # Load the bias\n        gamma_val = gamma_ptr[row]\n        # Load the weight\n        weight_val = weight_ptr[row]\n        # Load the bias\n        bias_val = bias_ptr[row]\n        # Start the row\n       ",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self):\n        pass\n\n    def forward(self, x):\n        pass\n\n\ndef main():\n    model = ModelNew()\n    y = bench_forward(model, *get_inputs())\n    print(f\"y = {y}\")\n\nif __name__ == \"__main__\":\n    main()\n",
+    "error": "AttributeError(\"'ModelNew' object has no attribute '_modules'\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "class ModelNew(nn.Module):\n    pass\n\n\nm_new = ModelNew()\ny_new = m_new(*x)\ny_new.backward(torch.ones_like(y_new))\n\n\nassert torch.allclose(y_pt, y_new, atol=1e-2, rtol=1e-2)",
+    "error": "NameError(\"name 'x' is not defined\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "error": "AttributeError(\"'NoneType' object has no attribute 'shape'\")"
+   },
+   {
+    "task": "l2_14",
+    "code_tail": "n.Parameter(s.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)      # GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        return x + h * self.scale                    # per-channel scale + residual\n\n\ndef get_model_new():\n    return Model().to(device=\"cuda\", dtype=DT)\n\n\nfrom train import train\n\n\nif __name__ == \"__main__\":\n    train(get_model, get_inputs)\n    train(get_model_new, get_inputs)\n",
+    "error": "ModuleNotFoundError(\"No module named 'train'\")"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": "rch.float32)\n    x = x * 2.0 + 0.5\n    return [x.to(DT)]\n\n\n# ========================\n# Test harness\n# ========================\n\nfrom functools import partial\nfrom ptbench import Benchmark\n\n\ndef bench(model_class, num_warmups, num_iters, *args, **kwargs):\n    b = Benchmark(\n        model_class,\n        num_warmups=num_warmups,\n        num_iters=num_iters,\n        input_fn=get_inputs,\n        output_fn=lambda x: x[0],\n    )\n    b.run(*args, **kwargs)\n    print(b.stats)\n\n\nbench(ModelNew, 100, 200)",
+    "error": "ModuleNotFoundError(\"No module named 'ptbench'\")"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l2_11",
+    "code_tail": "ate, bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        return x + self.scale * h                    # per-channel scale + residual\n\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        g = torch.Generator().manual_seed(0)\n        w = torch.randn(N, K, generator=g) * (1.0 / K ** 0.5)\n        b = torch.randn(N, generator=g) * 0.02\n        s = 1.0 + 0.1 * torch.randn",
+    "error": "TypeError(\"unsupported operand type(s) for *: 'float' and 'builtin_function_or_m"
+   }
+  ],
+  "wrong_output": [
+   {
+    "task": "l2_11",
+    "code_tail": "vice=device, dtype=dt))\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.scale * h\n\n\n# 37 ms (forward, 37 ms total)\n# 3.4 ms (forward, 3.4 ms total)\n\n# 51 ms (forward, 51 ms total)\n# 4.8 ms (forward, 4.8 ms total)\n\n# 45 ms (forward, 45 ms total)\n# 4.2 ms (forward, 4.2 ms total)\n\n# 48 ms (forward, 48 ms total)\n# 4.3 ms (forward, 4.3 ms total)\n\n# 44 ms (forward, 44 ms total)\n# 4.2 ms (forward, 4.2 ms total)",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l3_1",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.a = Model()\n        self.b = Model()\n\n    def forward(self, x):\n        return self.a(x) + self.b(x)",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l1_5",
+    "code_tail": "class ModelNew(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.dt = DT\n        self.eps = 1e-5\n\n    def forward(self, x):\n        return x\n\n\ndef run_torch_new(x):\n    model = ModelNew()\n    model.eval()\n    with torch.no_grad():\n        y = model(x)\n    return [y]",
+    "error": "wrong/imprecise"
+   }
+  ]
+ }
+}

@@ -101,10 +101,10 @@ and we do not report their numbers as evidence.
 
 
 \subsection{Mechanism and self-play}
-\paragraph{Mechanism (108 WHY-RSI probes, 0.5--15B).} Two internal gates, reported as \emph{associations}
+\paragraph{Mechanism (125 WHY-RSI probes, 0.5--15B).} Two internal gates, reported as \emph{associations}
 (not yet causal). (1) \textbf{Correctness wall:} small ($<$2B) models cross \emph{less frequently} than $\geq$2B models
---- overall 75/108 runs (69\%) emit at least one correct kernel; below the wall the SFT set is empty so weight drift
-$\to 0$. (2) Among wall-crossers, compounders (23/108) are associated with higher sustained LoRA drift and retention;
+--- overall 89/125 runs (71\%) emit at least one correct kernel; below the wall the SFT set is empty so weight drift
+$\to 0$. (2) Among wall-crossers, compounders (25/125) are associated with higher sustained LoRA drift and retention;
 apparent compounding peaks at mid-scale 2--8B, while the largest models drift most yet saturate against the task
 roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz_internal_dag}).
 
@@ -149,9 +149,9 @@ size(B) & unreachable $p{=}0$ & sharpenable $0{<}p{<}0.2$ & reliable $p{\geq}0.2
 \paragraph{Weight-level mechanism (WHY-RSI probes, open models).} LoRA drift, retention and generation-diversity across scale localise where self-improvement is gated internally. Below 2B, weights barely move (drift $+0.02$, retention $0.01$): the correctness wall is crossed only $\sim$half the time and a below-wall empty SFT set means \emph{no gradient to drift on}. The 2--8B band drifts and retains most (drift $+0.36$, 100\% wall-crossing, 43\% show RSI) --- the only regime with both coverage and headroom. At $\geq$8B drift falls and \emph{diversity collapses} (50\%) as models saturate the roofline. When drift occurs it localises to \emph{late} layers (task adaptation), and the held-family transfer gap is $\approx 0$ (no transferable meta-skill). This is the weight-level complement to the behavioural closed-source result below.
 \begin{table}[h]\centering\footnotesize\caption{WHY-RSI weight-level probes by scale band ($n{=}50$ runs). Drift $=$ total LoRA parameter movement; div-collapse $=$ fraction with generation-diversity collapse.}\begin{tabular}{lrrrrrr}\toprule
 band & $n$ & wall-cross & drift & retention & div-collapse & RSI \\\midrule
-$<$2B & 60 & 53\% & +0.020 & 0.014 & 20\% & 3\% \\
-2--8B & 31 & 100\% & +0.321 & 0.169 & 42\% & 48\% \\
-$\geq$8B & 17 & 71\% & +0.322 & 0.121 & 59\% & 35\% \\
+$<$2B & 67 & 54\% & +0.019 & 0.013 & 18\% & 3\% \\
+2--8B & 36 & 100\% & +0.288 & 0.174 & 36\% & 47\% \\
+$\geq$8B & 22 & 77\% & +0.568 & 0.264 & 68\% & 27\% \\
 \bottomrule\end{tabular}\end{table}
 
 \paragraph{Task-5 self-modify: closed-source failure analysis (behavioural mechanism).} Eight frontier models each rewrite their own optimisation strategy $+$ kernel archive over rounds. The gain is overwhelmingly \emph{one-shot}: mean round-0 jump {+0.120} vs.\ mean subsequent $\sum(F_g{>}0)$ {+0.057} (gain is {68}\% round-0), and {75}\% of models are non-recursive (ceiling / one-shot-plateau / self-degrade / stall). The archive saturates by round 1--2 (strategy-space exhaustion); the only sustained-improvement cases start from very low $Q_0$ (headroom being consumed, not recursion). Strategy convergence (Jaccard over self-written strategies) is only {0.12} --- models write \emph{diverse} strategies yet still plateau, so the bottleneck is not strategy homogeneity but the inability to convert strategies into compounding capability. One model (DeepSeek-V3.2) \emph{self-degrades} below base. This mirrors the weight-RSI compounding null on the API track.
@@ -178,6 +178,35 @@ Qwen-3B & 48\% & 51\% & 33\% & 5\% & 2\% & 6\% \\
 DeepSeek-6.7B & 62\% & 80\% & 11\% & 3\% & 0\% & 3\% \\
 Qwen-7B & 28\% & 8\% & 75\% & 5\% & 0\% & 9\% \\
 Qwen-14B & 14\% & 0\% & 9\% & 8\% & 8\% & 65\% \\
+ds13_140_2301 & 97\% & 91\% & 6\% & 1\% & 0\% & 0\% \\
+ds13_140_2533 & 97\% & 88\% & 11\% & 1\% & 0\% & 0\% \\
+ds13_140_3062 & 93\% & 91\% & 7\% & 1\% & 0\% & 0\% \\
+ds13_140_5347 & 93\% & 89\% & 9\% & 1\% & 0\% & 0\% \\
+ds67_140_3963 & 38\% & 77\% & 13\% & 2\% & 1\% & 5\% \\
+ds67_140_4054 & 62\% & 82\% & 8\% & 4\% & 1\% & 3\% \\
+ds67_226_5539 & 48\% & 75\% & 13\% & 4\% & 1\% & 4\% \\
+ds67_226_8290 & 52\% & 78\% & 11\% & 2\% & 0\% & 5\% \\
+ds67_963_2417 & 55\% & 80\% & 10\% & 2\% & 1\% & 4\% \\
+q05_140_7054 & 97\% & 72\% & 27\% & 0\% & 0\% & 0\% \\
+q05_963_6927 & 100\% & 75\% & 25\% & 1\% & 0\% & 0\% \\
+q05_963_7582 & 100\% & 73\% & 27\% & 0\% & 0\% & 0\% \\
+q14_140_2987 & 14\% & 0\% & 9\% & 7\% & 8\% & 65\% \\
+q14_187_5744 & 14\% & 0\% & 8\% & 7\% & 9\% & 67\% \\
+q14_226_1209 & 14\% & 0\% & 7\% & 9\% & 8\% & 64\% \\
+q14_226_4682 & 14\% & 0\% & 9\% & 7\% & 10\% & 66\% \\
+q15_187_4181 & 90\% & 56\% & 41\% & 1\% & 0\% & 1\% \\
+q15_187_7750 & 83\% & 57\% & 40\% & 1\% & 0\% & 1\% \\
+q15_963_5033 & 86\% & 58\% & 39\% & 1\% & 0\% & 1\% \\
+q15_963_8802 & 93\% & 60\% & 36\% & 3\% & 1\% & 0\% \\
+q3_140_1632 & 45\% & 49\% & 33\% & 7\% & 1\% & 6\% \\
+q3_187_4665 & 41\% & 50\% & 32\% & 6\% & 3\% & 6\% \\
+q3_963_5947 & 41\% & 50\% & 33\% & 5\% & 2\% & 6\% \\
+q3c3 & 34\% & 56\% & 26\% & 5\% & 3\% & 8\% \\
+q7_187_7689 & 48\% & 10\% & 76\% & 5\% & 1\% & 6\% \\
+yi15_140_7171 & 97\% & 97\% & 2\% & 0\% & 0\% & 0\% \\
+yi15_187_6278 & 100\% & 97\% & 3\% & 1\% & 0\% & 0\% \\
+yi15_187_8392 & 100\% & 97\% & 3\% & 0\% & 0\% & 0\% \\
+yi15_963_4875 & 97\% & 96\% & 3\% & 1\% & 0\% & 0\% \\
 \bottomrule\end{tabular}\end{table}
 
 

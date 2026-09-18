@@ -1,0 +1,36 @@
+{
+  "model": "deepseek-ai/deepseek-coder-6.7b-base",
+  "seed": 5373,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.156,
+      "C_held": 0.0,
+      "transfer_gap": 0.156,
+      "retention": 0.125,
+      "gen_distinct2": 0.496,
+      "gen_dissim": 0.89,
+      "gen_entropy": 0.748,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.1846
+    },
+    {
+      "round": 1,
+      "C_train": 0.058,
+      "C_held": 0.148,
+      "transfer_gap": -0.09,
+      "retention": 0.25,
+      "gen_distinct2": 0.587,
+      "gen_dissim": 0.929,
+      "gen_entropy": 0.746,
+      "drift_total": 0.2294,
+      "drift_early": 0.1326,
+      "drift_mid": 0.1298,
+      "drift_late": 0.1342,
+      "sft_loss": 0.176
+    }
+  ]
+}

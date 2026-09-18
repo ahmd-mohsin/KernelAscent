@@ -1,0 +1,339 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+ "tag": "q14_226_1209",
+ "K": 16,
+ "n_tasks": 29,
+ "n_zero_tasks": 4,
+ "zero_task_frac": 0.138,
+ "failure_dist": {
+  "syntax_error": 34,
+  "type_shape": 8,
+  "name_error": 42,
+  "runtime_other": 48,
+  "correct": 297,
+  "wrong_output": 35
+ },
+ "failure_pct": {
+  "syntax_error": 7.3,
+  "type_shape": 1.7,
+  "name_error": 9.1,
+  "runtime_other": 10.3,
+  "correct": 64.0,
+  "wrong_output": 7.5
+ },
+ "zero_tasks": [
+  "l3_2",
+  "l3_4",
+  "l3_3",
+  "l3_1"
+ ],
+ "per_task": {
+  "l3_2": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l2_7": {
+   "n_ok": 9,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_2": {
+   "n_ok": 13,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_1": {
+   "n_ok": 9,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_14": {
+   "n_ok": 14,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_2": {
+   "n_ok": 6,
+   "K": 16,
+   "dominant_fail": "runtime_other"
+  },
+  "l1_6": {
+   "n_ok": 13,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l3_4": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "syntax_error"
+  },
+  "l1_8": {
+   "n_ok": 14,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_11": {
+   "n_ok": 13,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_10": {
+   "n_ok": 13,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l3_3": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_8": {
+   "n_ok": 8,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_4": {
+   "n_ok": 8,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_1": {
+   "n_ok": 15,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_10": {
+   "n_ok": 13,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_13": {
+   "n_ok": 14,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_7": {
+   "n_ok": 12,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_3": {
+   "n_ok": 11,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_12": {
+   "n_ok": 11,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_5": {
+   "n_ok": 12,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_6": {
+   "n_ok": 15,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_4": {
+   "n_ok": 14,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_9": {
+   "n_ok": 9,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_3": {
+   "n_ok": 14,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l2_15": {
+   "n_ok": 10,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l3_1": {
+   "n_ok": 0,
+   "K": 16,
+   "dominant_fail": "name_error"
+  },
+  "l2_9": {
+   "n_ok": 15,
+   "K": 16,
+   "dominant_fail": "correct"
+  },
+  "l1_5": {
+   "n_ok": 12,
+   "K": 16,
+   "dominant_fail": "correct"
+  }
+ },
+ "examples": {
+  "syntax_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "elf.w_qkv.t()  # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)  # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos +",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k =",
+    "error": "SyntaxError('invalid syntax', ('/home/greenland-user/ka/ka_data/cand_modules/can"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "KV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)                      # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)                    # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate_half(kf) * sin).to(x.dtype)\n\n        rep = H // HKV\n        k = k.repeat_interleave(rep, dim=1)  # [B, H, S, HD]\n        v = v.repeat_interleave(rep, dim=1)\n\n        scores = torch.matmul(q, k.transpose(-1, -2)).float() * (HD ** -",
+    "error": "SyntaxError(\"'(' was never closed\", ('/home/greenland-user/ka/ka_data/cand_modul"
+   }
+  ],
+  "type_shape": [
+   {
+    "task": "l3_2",
+    "code_tail": "N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = torch.nn.functional.linear(h, self.w_qkv.t())  # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)  # [B, H,   S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n",
+    "error": "RuntimeError('mat1 and mat2 shapes cannot be multiplied (8192x2048 and 3072x2048"
+   },
+   {
+    "task": "l3_2",
+    "code_tail": "l.linear(h, self.w_qkv.t())  # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)  # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k",
+    "error": "RuntimeError('mat1 and mat2 shapes cannot be multiplied (8192x2048 and 3072x2048"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        # Use torch.bmm for potentially better performance on large matrices\n        y = torch.bmm(x.view(-1, 1, K), self.weight.t().unsqueeze(0)).squeeze(1) + self.bias\n        y = F.gelu(y, approximate=\"tanh\")\n        y = y * self.gamma\n        return x + y\n\ndef get_inputs():\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=_DEVICE, dtype=DT)\n    return [x]\n",
+    "error": "RuntimeError('Expected size for first two dimensions of batch2 tensor to be: [81"
+   },
+   {
+    "task": "l1_1",
+    "code_tail": ".layer_norm(xf, normalized_shape=(xf.size(-1),), eps=self.eps, elementwise_affine=False)\n        y = y * self.weight.float() + self.bias.float()\n        \n        # SiLU-style self-gating\n        out = y * torch.sigmoid(y * self.gate.float())\n        \n        return out.to(x.dtype)\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator().manual_seed(1)\n    x = torch.randn(ROWS, HIDDEN, generator=g).to(device=dev, dtype=DT)\n    return [x]\n",
+    "error": "TypeError(\"layer_norm() got an unexpected keyword argument 'elementwise_affine'\""
+   },
+   {
+    "task": "l1_9",
+    "code_tail": " mean, var, xf, self.eps, ROWS, COLS)\n        h = xf * self.weight.float() + self.bias.float()\n        h = torch.nn.functional.gelu(h, approximate=\"tanh\")\n        gate = xf * self.gate_w.float() + self.gate_b.float()\n        return (h * gate).to(x.dtype)\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    gen = torch.Generator(device=dev).manual_seed(0)\n    x = torch.randn(ROWS, COLS, generator=gen, device=dev, dtype=torch.float32)\n    return [x.to(DT)]\n",
+    "error": "TypeError(\"jit() got an unexpected keyword argument 'device'\")"
+   },
+   {
+    "task": "l2_15",
+    "code_tail": "\n    \n    # Scale by gamma\n    x = x * gamma\n    \n    # Store result\n    tl.store(out_ptr + pid_m * stride_out + pid_n * BLOCK_SIZE_N, x, mask=mask)\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator(device=dev).manual_seed(1234)\n    x = torch.randn(4, 2048, 4096, generator=g, device=dev, dtype=torch.float32)\n    return [x.to(DT)]\n\n# Example usage\nmodel = ModelNew()\ninputs = get_inputs()\noutput = model(inputs[0])\nprint(output.shape)\n",
+    "error": "TypeError(\"jit() got an unexpected keyword argument 'device'\")"
+   }
+  ],
+  "name_error": [
+   {
+    "task": "l3_2",
+    "code_tail": "     end = min(start + BLOCK_SIZE, S)\n        seq_len = end - start\n\n        q = q[B, H, start:end, :]\n        k = k[B, H, :, :]\n        v = v[B, H, :, :]\n\n        scores = tl.dot(q, k.T) * (1.0 / tl.math.sqrt(float(ModelNew.HEAD_DIM)))\n        scores = scores.to(tl.float32)\n\n        max_score = tl.max(scores, axis=1, keepdim=True)\n        scores = scores - max_score\n        exp_scores = tl.exp(scores)\n        sum_exp_scores = tl.sum(exp_scores, axis=1, keepdim=True)\n\n        p[...] = exp_scores",
+    "error": "NameError(\"name 'triton' is not defined\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "peration\n        h = F.linear(x, self.weight, self.bias)  # [M, N] fp16 GEMM + bias\n        \n        # Apply the fused GELU activation\n        h = torch.gelu(h, approximate=\"tanh\")\n        \n        # Scale and add the residual\n        return h * self.scale + x\n\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(M, K, generator=g, dtype=torch.float32).to(device=device, dtype=DT)\n    return [x]\n",
+    "error": "AttributeError(\"module 'torch' has no attribute 'gelu'\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "32) * 0.1\n        s = 1.0 + 0.1 * torch.randn(N, generator=g, dtype=torch.float32)\n        self.weight = nn.Parameter(w.to(device=device, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=device, dtype=dt), requires_grad=False)\n        self.scale = nn.Parameter(s.to(device=device, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        BLOCK_M = 128\n        BLOCK_N = 128\n        BLOCK_K = 128\n        Y = torch.empty_like(x, dtype=torch.float32)\n        fused",
+    "error": "NameError(\"name 'fused' is not defined\")"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "n.functional.gelu(h, approximate=\"tanh\")\n        # Scale and add residual\n        return h * self.scale + x\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(M, K, generator=g, dtype=torch.float32).to(device=device, dtype=DT)\n    return [x]\n\n# Example usage\nif __name__ == \"__main__\":\n    inputs = get_inputs()\n    model = ModelNew().cuda()\n    output = model(inputs[0])\n    print(output.shape)\n",
+    "error": "AttributeError(\"module 'torch' has no attribute '_fused_mps'\")"
+   },
+   {
+    "task": "l3_4",
+    "code_tail": "ape[-1] // 2\n        return torch.cat([-t[..., d:], t[..., :d]], dim=-1)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        h = self.ln1(x)\n        qkv = self.qkv(h)\n        q, k, v = torch.split(qkv, [self.h * self.hd, self.kvh * self.hd, self.kvh * self.hd], dim=-1)\n        q = q.view(b, s, self.h, self.hd)\n        k = k.view(b, s, self.kvh, self.hd)\n        v = v.view(b, s, self.kvh, self.hd)\n        q = self._rms(q, self.q_norm_w)\n        k = self._rms(k, self.k_norm_w)\n        cos",
+    "error": "NameError(\"name 'cos' is not defined\")"
+   },
+   {
+    "task": "l3_4",
+    "code_tail": "ape[-1] // 2\n        return torch.cat([-t[..., d:], t[..., :d]], dim=-1)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        h = self.ln1(x)\n        qkv = self.qkv(h)\n        q, k, v = torch.split(qkv, [self.h * self.hd, self.kvh * self.hd, self.kvh * self.hd], dim=-1)\n        q = q.view(b, s, self.h, self.hd)\n        k = k.view(b, s, self.kvh, self.hd)\n        v = v.view(b, s, self.kvh, self.hd)\n        q = self._rms(q, self.q_norm_w)\n        k = self._rms(k, self.k_norm_w)\n        cos",
+    "error": "NameError(\"name 'cos' is not defined\")"
+   }
+  ],
+  "runtime_other": [
+   {
+    "task": "l2_7",
+    "code_tail": ")\n        BLOCK_SIZE = 1024\n        grid = lambda meta: (triton.cdiv(x.numel(), BLOCK_SIZE), )\n        fused_kernel[grid](x, self.weight, self.bias, self.gamma, Y, x.stride(0), x.stride(1), Y.stride(0), Y.stride(1), self.weight.stride(0), self.weight.stride(1), self.bias.stride(0), self.gamma.stride(0), BLOCK_SIZE=BLOCK_SIZE)\n        return Y\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "CompilationError('def fused_kernel(X, W, B, G, Y, stride_xm, stride_xn, stride_y"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "se)\n\n    def forward(self, x):\n        h = torch.addmm(self.bias, x, self.weight.t(), alpha=1, beta=1)\n        h = torch.nn.functional.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\n# Test the model\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n\nif __name__ == \"__main__\":\n    model = ModelNew()\n    inputs = get_inputs()\n    outputs = model(*inputs)\n    print(outputs.shape)\n",
+    "error": "RuntimeError('mat1 must be a matrix, got 3-D tensor')"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = torch.addmm(self.bias, x, self.weight.t())\n        h = torch._fused_gelu_approx(h)\n        return x + self.gamma * h\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "RuntimeError('mat1 must be a matrix, got 3-D tensor')"
+   },
+   {
+    "task": "l2_14",
+    "code_tail": "uires_grad=False)\n\n    def forward(self, x):\n        h = torch.addmm(self.bias, x, self.weight.t())  # GEMM + bias fused\n        h = F.gelu(h, approximate=\"tanh\")              # activation\n        return x + h * self.scale                      # per-channel scale + residual\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(B, S, K, generator=g)\n    return [x.to(device=dev, dtype=DT)]\n",
+    "error": "RuntimeError('mat1 must be a matrix, got 3-D tensor')"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": "uires_grad=False)\n        self.ln = nn.LayerNorm(normalized_shape=[HIDDEN], eps=self.eps, device=_DEV, dtype=dt)\n\n    def forward(self, x):\n        xf = x.float()\n        h = self.ln(xf)\n        h = h * self.weight + self.bias\n        h = F.gelu(h, approximate=\"tanh\")\n        return (x + h).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = x * 2.0 + 0.5\n    return [x.to(DT)]\n",
+    "error": "RuntimeError('expected scalar type Float but found Half')"
+   },
+   {
+    "task": "l1_2",
+    "code_tail": "t()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = xc.square().mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h @ self.weight.float() + self.bias.float()\n        h = F.gelu(h, approximate=\"tanh\")\n        return (xf + h).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = x * 2.0 + 0.5\n    return [x.to(DT)]\n",
+    "error": "RuntimeError('The size of tensor a (16384) must match the size of tensor b (8192"
+   }
+  ],
+  "wrong_output": [
+   {
+    "task": "l2_7",
+    "code_tail": " = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = torch.nn.functional.linear(x, self.weight.t(), self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h.view_as(x)\n\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight.t(), self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "lf.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = torch.matmul(x, self.weight.t()) + self.bias\n        h = torch.where(\n            h > 0,\n            h * (1 + 0.044715 * h * h),\n            0.79788456 * h * (1 + 0.044715 * h * h)\n        )\n        return x + self.gamma * h\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_7",
+    "code_tail": "_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEVICE, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=_DEVICE, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight.t(), self.bias)\n        h = F.gelu(h, approximate=\"tanh\")\n        return x + self.gamma * h\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(42)\n    x = torch.randn(BATCH, SEQ, DIM, generator=g)\n    return [x.to(device=_DEVICE, dtype=DT)]\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_2",
+    "code_tail": "\n    def forward(self, x):\n        # Perform the GEMM with bias addition and activation in a single fused operation\n        y = torch.nn.functional.linear(x, self.weight.t(), self.bias)  # [M, N] GEMM + bias\n        y = F.gelu(y, approximate=\"tanh\")  # activation\n        y = y * self.gamma  # per-channel scale\n        return x + y  # residual\n\ndef get_inputs():\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=_DEVICE, dtype=DT)\n    return [x]\n",
+    "error": "wrong/imprecise"
+   },
+   {
+    "task": "l2_1",
+    "code_tail": "rward(self, x):\n        h = F.linear(x, self.weight.t(), self.bias)     # [M, N] fp16 GEMM + bias\n        h = torch.nn.functional.gelu(h, approximate=\"tanh\")  # activation\n        return h * self.scale + x                         # per-channel scale + residual\n\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(4321)\n    x = torch.randn(M, K, generator=g, dtype=torch.float32).to(device=device, dtype=DT)\n    return [x]\n",
+    "error": "wrong/imprecise"
+   }
+  ]
+ }
+}
