@@ -38,8 +38,15 @@ def _families(names):
 def run(args):
     random.seed(args.seed); torch.manual_seed(args.seed)
     gpus = [int(x) for x in str(args.gpus).split(",") if x != ""]
-    tok, mdl = W.build(args.model, tuple(gpus))                     # LINEAGE learner
-    tok_r, reset = W.build(args.model, tuple(gpus[-1:] or [0]))     # RESET learner (shares last GPU if only 1)
+    # split GPUs between lineage and reset arms; with >=4 GPUs each arm gets its own multi-GPU shard so
+    # 7B/14B reset no longer OOMs on a single GPU (the historical large-scale blocker).
+    if len(gpus) >= 4:
+        half = len(gpus) // 2
+        lin_g, res_g = gpus[:half], gpus[half:]
+    else:
+        lin_g, res_g = gpus, (gpus[-1:] or [0])
+    tok, mdl = W.build(args.model, tuple(lin_g))                    # LINEAGE learner
+    tok_r, reset = W.build(args.model, tuple(res_g))               # RESET learner (own shard if >=4 GPUs)
     reset_init = {k: v.detach().cpu().clone() for k, v in get_peft_model_state_dict(reset).items()}  # fresh LoRA snapshot
 
     names = list(LK.TASKS); random.Random(1).shuffle(names)
