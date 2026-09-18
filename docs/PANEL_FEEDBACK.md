@@ -1300,3 +1300,337 @@ Probe-as-intervention → appendix. P3 as-is → lessons learned. Current author
 7. **Artifacts**: the hardened harness (grader deadlock fix, NaN guard), p-maps, and all S3 lineage artifacts released. The grader-hardening alone is a contribution people will use.
 
 The framing that ties it together: *"Self-training sharpens; it does not explore. In kernel optimization, compounding is coverage-limited, and coverage is not self-generated."* Lead with the law and the transplant result; the null becomes the corollary rather than the headline.
+
+
+---
+
+# Round 6 feedback (2026-09-18, GPT-6-Astra, 24h final push)
+
+**The highest-leverage move is a causal “coverage rescue” experiment—not another confirmation of the null.**
+
+You already have substantial evidence that the tested self-training procedures do not compound. What is still missing, based on your summary, is the experiment that separates:
+
+> “These training recipes do not work”
+
+from:
+
+> “We can identify the bottleneck, intervene on it, and predict what happens next.”
+
+That is the difference between an interesting negative-results paper and a compelling benchmark paper with an explanatory result.
+
+**My recommendation: spend the marginal GPU budget on a controlled injection of frontier-opening training examples, then test whether it produces a one-time improvement or sustained endogenous discovery.** Keep the large-scale lineage-versus-reset runs; deprioritize additional descriptive mech-interp seeds and T5 breadth.
+
+No result guarantees an award. But this most directly addresses the skeptical reviewer’s strongest remaining objection.
+
+## 1. The key weakness to fix
+
+Your results support three claims at different strengths:
+
+| Claim | Current support, from your summary |
+|---|---|
+| These self-training methods do not produce meaningful compounding at the tested scales and budgets. | **Strong**, especially if equivalence bounds are defensible. |
+| At matched compute, search is a better allocation than these training methods. | **Strong**, assuming full cost and selection accounting. |
+| Limited proposal coverage *causes* the absence of compounding. | **Suggestive, not yet established causally.** |
+
+P-maps, formation-failure forensics, and sharpening geometry make a coherent mechanism. But they do not alone exclude alternatives: insufficient training signal, poor optimization, destructive updates, finite sampling, or an inadequate self-training recipe.
+
+The reviewer objection is:
+
+> “You observed low coverage and unsuccessful training. How do you know coverage is the operative bottleneck rather than a correlated symptom?”
+
+A rescue experiment answers that much more convincingly than additional null seeds.
+
+Also, your existing evidence does **not** justify “self-training does not explore” as an unrestricted statement. With finite sampling, apparent zero-probability tasks may simply have very low probability. The defensible object is **coverage at a specified sampling budget**, not mathematical support.
+
+---
+
+## 2. The single experiment I would run
+
+### A frontier-opening pulse, followed by endogenous recursion
+
+**Question:** If we give the system useful examples beyond its current empirical frontier, can it learn from them—and does that unlock continued discovery after external assistance stops?
+
+Use **one scale with both demonstrable trainability and substantial remaining headroom**. From your summary, 7B is a plausible candidate. Do not choose it just because it is larger; choose it using existing calibration evidence about headroom and responsiveness.
+
+### The intervention
+
+Construct two equally sized seed buffers from the **same source of validated kernels**, ideally existing cached artifacts:
+
+- **Frontier-opening buffer:** examples from training tasks or training strata with low baseline coverage.
+- **Coverage-redundant buffer:** examples from training tasks or strata the baseline already covers.
+
+Match, as far as feasible:
+
+- Number of examples and training-token budget.
+- Correctness and reward distributions.
+- Kernel length and task-family composition.
+- Collection and validation costs.
+- The training procedure and seed-buffer replay policy.
+
+Use a separate calibration set to define the frontier. **Do not select seed examples using final evaluation outcomes.** Evaluate on untouched instances under the paper’s declared generalization regime.
+
+This is a causal test of a **data-selection intervention**, not a perfectly isolated manipulation of abstract “support.” Be explicit about that limitation, particularly if difficulty cannot be well matched.
+
+### The design
+
+Cross the seed intervention with ancestry:
+
+| | Coverage-redundant seed pulse | Frontier-opening seed pulse |
+|---|---:|---:|
+| **Reset** | Restart from the original checkpoint each round | Restart from the original checkpoint each round |
+| **Lineage** | Continue from the previous checkpoint | Continue from the previous checkpoint |
+
+After the pulse, **no new external examples enter**. Subsequent new data must come from the benchmark’s endogenous procedure. Both ancestry conditions get the same access to the fixed seed buffer, with the same replay policy.
+
+Your existing unassisted runs provide useful context, but **they do not replace the redundant-seed control**: otherwise any rescue could simply reflect receiving more good training data.
+
+Use independent paired runs, not one trajectory with many tasks presented as independent training replicates.
+
+### Why the reset factor matters
+
+An immediate improvement after adding good examples is not recursive improvement.
+
+The central comparison remains:
+
+\[
+\Delta_r =
+\operatorname{Score}(\text{lineage at round }r)
+-
+\operatorname{Score}(\text{reset at round }r),
+\]
+
+under matched budgets and the same external-data allowance, with the score oriented so positive means lineage helps.
+
+The question is whether the pulse creates:
+
+1. A **level change**: the system learns newly supplied competence.
+2. A **growing ancestry advantage**: retaining the previous generation enables continued gains beyond resetting.
+3. **Further frontier expansion without additional external help**.
+
+Those are different phenomena. Your paper becomes stronger by separating them.
+
+### The most compelling outcome
+
+The cleanest result for your current story would be:
+
+> Frontier-opening examples produce a measurable held-out improvement; redundant examples produce mostly sharpening; after the external pulse ends, frontier expansion stalls and lineage remains equivalent to reset.
+
+That would show:
+
+- The model is not simply untrainable.
+- Your pipeline can transmit useful new competence.
+- Which examples enter training matters.
+- Learning supplied competence does not automatically create a self-sustaining discovery loop.
+
+Crucially, it still would **not** prove that coverage is the only limiting factor. It would substantiate the narrower and stronger claim that **coverage expansion is actionable, while endogenous recursion fails to sustain it under the tested conditions**.
+
+And if the pulse *does* unlock sustained lineage gains? That is potentially an even better paper:
+
+> Recursive improvement emerges only after crossing an identifiable coverage threshold.
+
+Do not design the analysis so that only the null is a success.
+
+---
+
+## 3. The one figure most likely to flip a reviewer
+
+### **“Learning new competence is not the same as generating the next frontier.”**
+
+One figure, three panels, all from the same intervention.
+
+### Panel A — The intervention works
+
+Plot held-out task coverage at a **fixed probe budget \(Q\)** against round.
+
+- Frontier-opening pulse versus redundant pulse.
+- Lineage versus reset.
+- Mark when external assistance stops.
+- Show uncertainty across independent runs.
+
+The key visual is whether the frontier intervention actually lifts coverage. If it does not, there is no successful rescue, and you should not sell it as one.
+
+Use fresh, equally sized probe batches at each checkpoint. **Do not plot cumulative “ever solved” coverage as evidence of exploration**: it rises mechanically with repeated attempts.
+
+### Panel B — Level gain versus compounding
+
+Plot lineage-minus-reset against round, including your equivalence band.
+
+This distinguishes “the seed helped” from “recursion helped.”
+
+A visible coverage increase in Panel A alongside equivalence in Panel B is much more informative than either result alone.
+
+### Panel C — Where gains come from
+
+Decompose improvements into:
+
+- Increased success on already-covered tasks.
+- Newly covered tasks under the fixed-\(Q\) definition.
+- Correctness improvements after extraction.
+- Performance improvements after correctness.
+
+This links the causal intervention to your existing failure-locus story.
+
+**The persuasive pattern is:**
+
+> We can move the frontier externally; the model can absorb that movement; the subsequent endogenous loop mostly concentrates probability within the resulting frontier rather than extending it further.
+
+That is a mechanism-backed result, not merely an unsuccessful training run.
+
+---
+
+## 4. Ranked next moves
+
+### **1. Run the frontier-opening pulse experiment**
+
+**Highest marginal scientific value.**
+
+Scope it narrowly: one scale, one trusted training recipe, paired seeds, enough rounds to distinguish an immediate jump from subsequent growth.
+
+Do not spend the entire day constructing a perfect donor dataset. This is attractive specifically if your existing artifacts make the intervention cheap.
+
+**Go/no-go condition:** launch a small pilot early. If you cannot obtain a valid, leakage-free seed buffer and demonstrate that the pipeline can learn from it, fall back rather than burn the remaining window.
+
+### **2. Finish the 7B/14B lineage-versus-reset extension**
+
+**Highest defensive value.**
+
+It closes the obvious “everything below 3B is below the capability threshold” objection.
+
+But interpret it in conjunction with headroom:
+
+- A null near a saturated score ceiling is weak evidence about recursion.
+- A null with substantial remaining task headroom is more informative.
+- Adequate sample size is not a substitute for a meaningful equivalence margin.
+
+If compute forces a choice, prioritize a well-powered run at a scale with headroom over two underpowered scale points. Your stated 14B coverage of 86% makes the ceiling issue especially worth handling carefully, though coverage saturation need not imply performance saturation.
+
+### **3. Turn the existing artifacts into a fixed-budget frontier-transition analysis**
+
+**Best fallback if the new intervention is infeasible; probably worth doing regardless.**
+
+For each round and ancestry condition, estimate:
+
+- Probability mass shifted onto existing successes.
+- Newly covered tasks under an explicit fixed sampling budget.
+- Covered tasks subsequently lost.
+- Which failure stage changed.
+
+Compare against repeated sampling from the frozen starting model at the same total proposal budget.
+
+The important question is:
+
+> Does training discover tasks faster than additional sampling would have discovered them anyway?
+
+This sharpens your p-map story and prevents “newly observed success” from being mistaken for training-generated novelty.
+
+Treat low-probability classifications carefully. A task with zero observed successes is **unobserved at this budget**, not proven unreachable.
+
+### **4. Complete A1, but only as a targeted alternative-explanation test**
+
+A stronger reward is useful if it demonstrably improves some intermediate outcome while compounding remains absent.
+
+The valuable result is:
+
+> “The alternative objective improves immediate learning or sharpening, but not lineage advantage.”
+
+A second optimizer that changes nothing is less informative: reviewers can still say both recipes failed to learn.
+
+Call this **robustness to the tested objective**, not optimizer-agnosticism in general.
+
+### **5. Freeze the protocol and make the benchmark independently usable**
+
+Low GPU cost; high benchmark-paper value.
+
+The final artifact should make it easy for someone to submit a method and obtain:
+
+1. A best-of-\(N\) search baseline.
+2. A lineage-versus-reset comparison.
+3. A coverage/sharpening decomposition.
+4. A compute ledger and uncertainty report.
+
+Provide a clean split between development/calibration and final evaluation, plus frozen seeds and documented selection rules where appropriate.
+
+A benchmark paper wins on what it enables others to measure, not just on the number of experiments its authors ran.
+
+### **6. Additional WHY-RSI seeds and T5 self-play breadth**
+
+Finish cheap jobs already near completion, but these are my first candidates for GPU reallocation.
+
+More precision on “large weight movement can coexist with little gain” is unlikely to resolve the core causal objection. Unless the weight analysis localizes and intervenes on a mechanism, describe it as a **weight-space diagnostic**, not the central mechanistic explanation.
+
+T5 is useful as an external-validity case study. It should not compete with the controlled core for the paper’s main narrative.
+
+---
+
+## 5. How I would use the remaining GPUs
+
+**Keep the large-scale null extension. Reallocate from descriptive breadth, not from the essential control experiment.**
+
+A reasonable target, conditional on your measured runtimes:
+
+- **About two-thirds:** finish the important 7B/14B and already-valuable A1 runs.
+- **About one-third:** the focused frontier-pulse study.
+- **CPU/analysis effort in parallel:** fixed-budget frontier accounting, figure construction, and protocol audit.
+
+For illustration, 24 GPUs could support twelve concurrent two-GPU jobs—four cells with three paired seeds—**only if the full trajectories fit your actual runtime**. Three seeds would still give limited precision on training-run variability; do not hide that behind hundreds of task observations.
+
+Prefer fewer scales and adequate trajectories over a larger grid that cannot distinguish a one-round jump from a continuing trend.
+
+Before launching, write down the interpretation table:
+
+| Observation | Interpretation |
+|---|---|
+| Frontier pulse helps; lineage does not | Exogenous competence transfer without demonstrated recursive advantage |
+| Frontier pulse helps; lineage advantage grows | Evidence for a conditional route to compounding |
+| Both seed buffers help similarly | Generic data benefit; frontier specificity not established |
+| Neither helps | Failed rescue or insufficient dose; no causal coverage conclusion |
+
+That prevents an ambiguous result from turning into an overclaimed story.
+
+---
+
+## 6. Your framing: sharpen it, and reduce its scope
+
+Your proposed framing—
+
+> “Self-training sharpens, does not explore; compounding is coverage-limited and not self-generated”
+
+—is memorable but currently more categorical than the evidence warrants.
+
+Problems:
+
+- “Does not explore” sounds universal.
+- “Coverage-limited” sounds causally established.
+- “Not self-generated” can sound like a claim about recursive improvement generally.
+
+### My preferred headline now
+
+**KernelAscent: Separating Search, Learning, and Recursive Improvement**
+
+Main takeaway:
+
+> **At matched compute, search outperforms the tested self-training methods; training primarily sharpens existing successes rather than producing a growing lineage advantage.**
+
+This makes the **measurement distinction** the benchmark’s durable contribution. The paper remains valuable even when a future method compounds.
+
+### Stronger headline if the rescue works
+
+**KernelAscent: Learning New Skills Does Not Guarantee Recursive Improvement**
+
+Main takeaway:
+
+> **External frontier expansion yields learnable gains, but those gains do not become self-sustaining under the tested recursive procedures.**
+
+I would avoid making the paper’s identity “RSI is impossible” or even “self-training cannot explore.” The strongest benchmark invites someone to break its empirical conclusion using a well-defined test.
+
+---
+
+## Bottom line
+
+**You have enough null evidence to make the paper credible. The next unit of effort should make it explanatory.**
+
+The reviewer-converting result is not simply a larger-scale null. It is:
+
+> **A positive control that moves the hypothesized bottleneck, visibly improves capability, and then cleanly separates that improvement from recursive advantage.**
+
+Finish the large-scale extension for credibility. Run the frontier pulse for causal leverage. Build the paper around **search versus learning versus compounding**, with coverage as the tested explanatory axis—not an assumed universal law.

@@ -32,6 +32,32 @@ self-benchmarking and research; the leaderboard is scored on a private held-out 
 
 *Held-out capability gain vs model size, bubble area ∝ LoRA drift. Shaded = sub-2B correctness wall; positive gain concentrates at mid-scale. Interactive versions on the [project site](https://ahmd-mohsin.github.io/KernelAscent/).*
 
+## Key findings (updated 2026-09-18)
+
+**Headline: self-training *sharpens* what a model already covers; it does not *explore*. In GPU-kernel
+optimization, compounding is coverage-limited, and coverage is not self-generated.**
+
+- **No compounding (strong, well-powered null).** Lineage vs.\ matched-reset over multi-round rejection-sampling
+  SFT: pooled lineage$-$reset $=+0.001\,[-0.015,+0.018]$ ($n{=}213$), **TOST-equivalent at $\delta{=}0.05$,
+  Bayes factor $\mathrm{BF}_{01}\approx14.5$** (strong evidence *for* the null); every scale 0.5–3B individually
+  equivalent. 7B/14B extension in progress.
+- **Search beats training (significant).** At matched compute, best-of-$N$ search beats lineage self-training:
+  lineage$-$bestof$N=-0.113\,[-0.153,-0.074]$ (CI excludes 0); search wins 70% of rounds.
+- **Coverage-vs-scale curve (0.5B→14B).** Coverage 14%→86%; below the wall pass@$K\gg$pass@1 (12–17×) — the
+  sub-2B "correctness wall" is a *sampling* artifact, not absent capability.
+- **0-score failure forensics (8 model families).** The sub-3B wall is a kernel-**formation** failure
+  (`no_extract` 57–96%: the model never emits a valid kernel), not a correctness failure; the failure locus
+  marches *downstream* with scale (incoherence → truncation → API-hallucination → wrong-output → correct).
+- **Weight-level mechanism (WHY-RSI, $n{=}133$).** RSI is an **inverted-U in scale**: peaks at 2–8B (49%),
+  while ≥9B shows the *lowest* RSI (19%) despite the *highest* LoRA drift (0.73) — large models churn weights
+  without compounding (roofline saturation). Drift localizes to late layers.
+- **Task-5 self-play (closed-source frontier models).** Self-modification gain is one-shot (68% at round 0),
+  75% of models non-recursive; one model self-degrades.
+
+Raw per-run trajectories (compounding histories, WHY-RSI series, forensics reasoning-chains, closed-source
+self-modify) are in [`data/trajectories/`](https://github.com/ahmd-mohsin/KernelAscent/tree/main/data/trajectories)
+for independent analysis.
+
 ## What is in a task
 
 Each task is a self-contained, seeded PyTorch `Model` whose `forward` is a fused op-graph;
