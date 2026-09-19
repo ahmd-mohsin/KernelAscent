@@ -1,59 +1,45 @@
 #!/usr/bin/env python3
-"""Formal equivalence stats for the compounding null (panel #6: Astra "narrow the claim", Fable "say equivalence
-formally"). Reads compounding_*/compounding.json lineage_minus_reset values (from S3-synced docs/data or a dir),
-and reports, per model + pooled:
-  * mean, 95% CI
-  * TOST equivalence test at margin +/- delta (default 0.05): equivalent if the 90% CI lies within [-d,+d]
-  * a JZS-style Bayes factor BF01 (H0: mu=0 vs H1: mu~Cauchy) via BIC approximation as a robust fallback
-Prints a LaTeX-ready line. Pure stdlib (no scipy dependency on the cluster)."""
-import json, glob, os, math, argparse, statistics as st
+"""Formal equivalence stats for the compounding null, at the TRAJECTORY level (P0.1).
 
+Reads compounding_*/compounding.json `lineage_minus_reset` and reports, per model + pooled:
+  * PRIMARY   trajectory-level mean (one number per run/seed), t-based 95% CI, TOST, BF01
+  * secondary cluster-robust SE on the round-level data (clustered on trajectory)
+  * legacy    naive round-level pooling -- reported ONLY so the correction is auditable
 
-def tost(vals, delta, alpha=0.05):
-    n = len(vals)
-    if n < 2:
-        return None
-    m = st.mean(vals); sd = st.stdev(vals); se = sd / math.sqrt(n)
-    # 90% CI (1-2alpha) for TOST at alpha each side
-    z = 1.645  # ~ t_{0.95} for moderate n; conservative-ish. (normal approx; note df in paper)
-    lo, hi = m - z * se, m + z * se
-    equiv = (lo > -delta) and (hi < delta)
-    # two one-sided test statistics
-    t_lower = (m - (-delta)) / se   # H0: mu <= -delta
-    t_upper = ((delta) - m) / se    # H0: mu >= +delta
-    return {"n": n, "mean": m, "se": se, "ci90": (lo, hi), "equivalent": equiv,
-            "t_lower": t_lower, "t_upper": t_upper, "delta": delta}
+WHY THE CHANGE. The previous version pooled every round as an independent observation. Rounds
+within a trajectory share a base checkpoint, seed, held split and an accumulated adapter, so the
+naive n (228) massively overstated the evidence and inflated BF01. The independent replicate is
+the trajectory. We now report the ICC and the effective sample size so the size of that overstatement
+is visible rather than buried in a caveat.
 
+  python3 scripts/equivalence_tost.py --dir data/trajectories
+  python3 scripts/equivalence_tost.py --dir data/trajectories --min-rounds 3   # drop singletons
+"""
+import json, glob, os, argparse, re, sys
 
-def bf01_bic(vals):
-    """BIC approximation to BF01 (evidence for H0: mu=0 vs H1: mu!=0) for a one-sample mean.
-    BF01 = sqrt(n) if the effect is null-ish; via BIC: BF01 = exp((BIC_H1 - BIC_H0)/2) inverse.
-    Uses the one-sample t stat. >3 = moderate evidence for null, >10 = strong."""
-    n = len(vals)
-    if n < 2:
-        return None
-    m = st.mean(vals); sd = st.stdev(vals); se = sd / math.sqrt(n)
-    if se == 0:
-        return float("inf")
-    t = m / se
-    # BIC approximation (Wagenmakers 2007, eq. 11): BF01 = sqrt(n) * (1 + t^2/(n-1))^(-n/2).
-    # t->0 gives BF01 -> sqrt(n) (evidence for the null grows with n); large |t| drives BF01 -> 0.
-    bf01 = math.sqrt(n) * (1 + t * t / (n - 1)) ** (-n / 2.0)
-    return bf01
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from clustered_stats import analyze, fmt_row, HEADER   # noqa: E402
 
-
-# CRITICAL: only canonical POST-FIX seeds count. Older/broken runs (qwen7, qwen3, *fix, *gentle, *min, q7)
-# predate the SFT NaN-gradient fix and show lineage collapse-to-0 (C_lineage=0, n_ex=0 from round 1) which
-# pollutes the pooled estimate toward a spurious large-negative "finding". The post-fix seed naming is
-# compounding_q{05,15,3}{new|sN}. Pass --all to override (e.g. to audit the broken runs deliberately).
-import re
+# CRITICAL: only canonical POST-FIX seeds count. Older/broken runs (qwen7, qwen3, *fix, *gentle,
+# *min, q7) predate the SFT NaN-gradient fix and show lineage collapse-to-0 (C_lineage=0, n_ex=0
+# from round 1) which pollutes the pooled estimate toward a spurious large-negative "finding".
+# The post-fix seed naming is compounding_q{05,15,3,7,14}{new|sN}. Pass --all to override.
 _CLEAN = re.compile(r"^compounding_q(05|15|3|7|14)(new|s\d+)$")
 
+SIZE = {"0.5B": 0.5, "1.5B": 1.5, "3B": 3.0, "7B": 7.0, "14B": 14.0}
 
-def load_dir(d, allow_all=False):
+
+def _size_of(model):
+    for k, v in SIZE.items():
+        if k in model:
+            return v
+    return 999.0
+
+
+def load_clusters(d, field="lineage_minus_reset", allow_all=False, min_rounds=1):
+    """-> {model: [[round values] per trajectory]}.  One inner list == one independent run."""
     groups = {}
-    for f in sorted(glob.glob(os.path.join(d, "compounding_*", "compounding.json")) +
-                    glob.glob(os.path.join(d, "*.json"))):
+    for f in sorted(glob.glob(os.path.join(d, "compounding_*", "compounding.json"))):
         tag = os.path.basename(os.path.dirname(f))
         if not allow_all and not _CLEAN.match(tag):
             continue
@@ -62,38 +48,99 @@ def load_dir(d, allow_all=False):
         except Exception:
             continue
         model = (j.get("model") or tag).split("/")[-1]
-        vals = [h["lineage_minus_reset"] for h in j.get("history", []) if h.get("lineage_minus_reset") is not None]
-        groups.setdefault(model, []).extend(vals)
+        vals = [h[field] for h in j.get("history", []) if h.get(field) is not None]
+        if len(vals) < min_rounds:
+            continue
+        groups.setdefault(model, []).append(vals)
     return groups
+
+
+def report(groups, delta, title, field):
+    print("\n=== %s ===" % title)
+    print("contrast: %s   equivalence margin delta=%.2f" % (field, delta))
+    pooled = []
+    per_model = {}
+    for g in sorted(groups, key=lambda m: (_size_of(m), m)):
+        cl = groups[g]
+        pooled += cl
+        a = analyze(cl, delta=delta)
+        per_model[g] = a
+    print("\n" + HEADER)
+    for g in sorted(per_model, key=lambda m: (_size_of(m), m)):
+        a = per_model[g]
+        print(fmt_row(g + "  [PRIMARY traj]", a["trajectory"]))
+        print(fmt_row("   legacy round-level", a["round"]))
+        if a["icc"]:
+            print("   %-27s ICC=%.3f  design_effect=%.2f  n_eff=%.1f" %
+                  ("", a["icc"]["icc"], a["icc"]["design_effect"], a["icc"]["n_eff"]))
+    ap = analyze(pooled, delta=delta)
+    print("-" * 92)
+    for k, lab in (("trajectory", "POOLED [PRIMARY trajectory]"),
+                   ("crve", "POOLED [cluster-robust]"),
+                   ("round", "POOLED [legacy round-level]")):
+        print(fmt_row(lab, ap[k]))
+    if ap["icc"]:
+        print("%-30s ICC=%.3f  design_effect=%.2f  n_eff=%.1f  (naive n=%d)" %
+              ("", ap["icc"]["icc"], ap["icc"]["design_effect"], ap["icc"]["n_eff"], ap["round"]["n"]))
+    return per_model, ap
+
+
+def to_json(per_model, pooled, delta, field):
+    def pack(a):
+        if not a:
+            return None
+        out = {}
+        for k in ("trajectory", "crve", "round"):
+            e = a[k]
+            if not e:
+                out[k] = None
+                continue
+            out[k] = {"n": e["n"], "G": e["G"], "mean": round(e["mean"], 5),
+                      "n_rounds": e.get("n_rounds", e["n"]),
+                      "se": round(e["se"], 5), "df": e["df"],
+                      "ci95": [round(x, 5) for x in e["ci"]],
+                      "ci90_tost": [round(x, 5) for x in e["tost"]["ci90"]],
+                      "equivalent": e["tost"]["equivalent"],
+                      "p_tost": round(e["tost"]["p_tost"], 5),
+                      "bf01": (round(e["bf01"], 3) if e["bf01"] is not None else None)}
+        if a["icc"]:
+            out["icc"] = {k: round(v, 4) for k, v in a["icc"].items()}
+        return out
+    return {"contrast": field, "delta": delta,
+            "primary_estimand": "trajectory",
+            "note": ("Trajectory is the independent replicate: rounds within a run share a base "
+                     "checkpoint, seed, held split and accumulated adapter. Round-level pooling is "
+                     "reported only to make the correction auditable."),
+            "models": {m: pack(a) for m, a in per_model.items()},
+            "pooled": pack(pooled)}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data"))
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ap.add_argument("--dir", default=os.path.join(root, "data", "trajectories"))
     ap.add_argument("--delta", type=float, default=0.05)
-    ap.add_argument("--all", action="store_true", help="include non-canonical/broken runs (default: post-fix seeds only)")
+    ap.add_argument("--field", default="lineage_minus_reset")
+    ap.add_argument("--min-rounds", type=int, default=1,
+                    help="drop trajectories with fewer than this many rounds (sensitivity check)")
+    ap.add_argument("--all", action="store_true", help="include non-canonical/broken runs")
+    ap.add_argument("--out", default=None, help="write the full result as JSON")
     a = ap.parse_args()
-    groups = load_dir(a.dir, allow_all=a.all)
+    groups = load_clusters(a.dir, a.field, a.all, a.min_rounds)
     if not groups:
-        print("no compounding data found under", a.dir); return
-    pooled = []
-    print("model                         n   mean      90%%CI            TOST(d=%.2f)  BF01" % a.delta)
-    for g in sorted(groups):
-        v = groups[g]; pooled += v
-        r = tost(v, a.delta); bf = bf01_bic(v)
-        if r:
-            print("%-28s %3d  %+.3f  [%+.3f,%+.3f]  %-9s  %.1f" %
-                  (g[:28], r["n"], r["mean"], r["ci90"][0], r["ci90"][1],
-                   "EQUIV" if r["equivalent"] else "not-equiv", bf if bf != float("inf") else 999))
-    r = tost(pooled, a.delta); bf = bf01_bic(pooled)
-    print("-" * 78)
-    print("%-28s %3d  %+.3f  [%+.3f,%+.3f]  %-9s  %.1f" %
-          ("POOLED", r["n"], r["mean"], r["ci90"][0], r["ci90"][1],
-           "EQUIV" if r["equivalent"] else "not-equiv", bf if bf != float("inf") else 999))
-    print("\nInterpretation: TOST EQUIV at delta=%.2f => compounding advantage is statistically bounded within +/-%.2f."
-          % (a.delta, a.delta))
-    print("BF01>3 => moderate evidence FOR the null (no effect) over a delta-sized effect.")
+        print("no compounding data found under", a.dir)
+        return 1
+    title = "Lineage - reset (compounding)" + (" [min_rounds=%d]" % a.min_rounds if a.min_rounds > 1 else "")
+    per_model, pooled = report(groups, a.delta, title, a.field)
+    print("\nPRIMARY estimand = trajectory. TOST EQUIV at delta=%.2f means the compounding advantage "
+          "is bounded within +/-%.2f." % (a.delta, a.delta))
+    print("BF01 > 3 = moderate, > 10 = strong evidence for the null. Computed at the estimand's own n,")
+    print("so the trajectory-level BF01 is the one that may be quoted.")
+    if a.out:
+        json.dump(to_json(per_model, pooled, a.delta, a.field), open(a.out, "w"), indent=1)
+        print("\nwrote", a.out)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

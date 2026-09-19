@@ -1,0 +1,403 @@
+#!/usr/bin/env python3
+"""Cross-artifact consistency audit (P0.2).
+
+A number that appears in the paper, the website data and the README must agree, or be explicitly
+labelled as a different estimand. This script recomputes the canonical value of every
+cross-referenced quantity FROM THE DATA, then checks the prose artifacts against it:
+
+  * paper/results_auto.tex      (auto-generated -- should always agree by construction)
+  * paper/kernelascent_full.tex (hand-written -- the usual source of drift)
+  * paper/discussion.tex
+  * README.md
+  * docs/data/*.json            embedded `claim` / `note` strings that the website renders
+
+Checks are of three kinds:
+  CANON   a canonical value recomputed from data, with the stale values that must no longer appear
+  DIRECT  an embedded claim string whose DIRECTION contradicts the numbers in its own file
+  ORPHAN  a prose citation of a data file for a conclusion that file does not contain
+
+Exit status is non-zero if any check fails, so this can gate `make figures` or CI.
+
+  python3 scripts/consistency_audit.py            # report
+  python3 scripts/consistency_audit.py --quiet    # only failures
+"""
+import json, os, re, sys, glob, argparse
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+D = os.path.join(ROOT, "docs", "data")
+PROSE = {
+    "results_auto.tex": os.path.join(ROOT, "paper", "results_auto.tex"),
+    "kernelascent_full.tex": os.path.join(ROOT, "paper", "kernelascent_full.tex"),
+    "discussion.tex": os.path.join(ROOT, "paper", "discussion.tex"),
+    "README.md": os.path.join(ROOT, "README.md"),
+}
+
+FAILS, WARNS, PASSES = [], [], []
+
+
+def load(name):
+    try:
+        return json.load(open(os.path.join(D, name)))
+    except Exception:
+        return {}
+
+
+def read(path):
+    try:
+        return open(path, encoding="utf-8").read()
+    except Exception:
+        return ""
+
+
+def fail(check, msg):
+    FAILS.append((check, msg))
+
+
+def warn(check, msg):
+    WARNS.append((check, msg))
+
+
+def ok(check, msg):
+    PASSES.append((check, msg))
+
+
+def find_stale(pattern, label, allow=()):
+    """Report every prose file containing `pattern`, except files listed in `allow`."""
+    hits = []
+    for name, path in PROSE.items():
+        if name in allow:
+            continue
+        txt = read(path)
+        for m in re.finditer(pattern, txt):
+            line = txt[:m.start()].count("\n") + 1
+            hits.append("%s:%d  %r" % (name, line, m.group(0)[:90]))
+    if hits:
+        fail(label, "stale value still present:\n      " + "\n      ".join(hits))
+    else:
+        ok(label, "no stale occurrences")
+
+
+# ---------------------------------------------------------------------------------------
+# CANON checks -- recompute from data, then assert the prose agrees
+# ---------------------------------------------------------------------------------------
+
+def check_compounding():
+    d = load("compounding_tost.json")
+    if not d:
+        fail("compounding/canon", "docs/data/compounding_tost.json missing -- run equivalence_tost.py --out")
+        return
+    tr = d["pooled"]["trajectory"]
+    rd = d["pooled"]["round"]
+    ok("compounding/canon",
+       "PRIMARY trajectory-level: n=%d traj (%d rounds) mean=%+.4f BF01=%.1f EQUIV=%s | legacy round-level n=%d BF01=%.1f"
+       % (tr["n"], tr["n_rounds"], tr["mean"], tr["bf01"], tr["equivalent"], rd["n"], rd["bf01"]))
+
+    # The old headline quoted BF01=14.7 at n=228 as if those were independent observations.
+    # It may now appear ONLY inside results_auto.tex, and only in the labelled "naive" contrast.
+    txt = read(PROSE["results_auto.tex"])
+    ctx = re.search(r"naive round-level pooling would report.{0,120}?BF\}_\{01\}\{=\}%.1f"
+                    % rd["bf01"], txt, re.S)
+    if not ctx:
+        warn("compounding/naive-label",
+             "results_auto.tex no longer labels BF01=14.7 as the naive contrast -- verify wording")
+    else:
+        ok("compounding/naive-label", "BF01=14.7 appears only as the explicitly-labelled naive contrast")
+
+    # any OTHER file still asserting the old strong-evidence framing is stale
+    find_stale(r"\\bfz\{\}?\s*\$?\\?approx\}?\s*\{?14\.[57]|BF_\{01\}\}?\s*\\approx\s*14\.[57]|BF01\s*[=≈]\s*14\.[57]",
+               "compounding/stale-BF01", allow=("results_auto.tex",))
+    find_stale(r"n\{=\}229|\$n\{=\}228\$ round-comparisons\)\s*,\s*\\lmr",
+               "compounding/stale-n", allow=("results_auto.tex",))
+
+
+def check_search():
+    d = load("search_vs_train.json")
+    p = d.get("pooled")
+    if not p:
+        fail("search/canon", "docs/data/search_vs_train.json missing or has no pooled block")
+        return
+    ok("search/canon", "trajectory-level: n=%d traj (%d rounds) mean=%+.4f [%+.4f,%+.4f] wins %.0f%% of runs"
+       % (p["n_trajectories"], p["n_rounds"], p["mean"], p["lo"], p["hi"], 100 * p["traj_wins_frac"]))
+    if not p.get("ci_excludes_zero"):
+        fail("search/significance",
+             "the trajectory-level CI no longer excludes zero -- the 'search beats training' positive "
+             "must be downgraded everywhere it is claimed")
+    else:
+        ok("search/significance", "trajectory-level CI still excludes zero")
+    # the stale round-level number from the earlier, smaller sweep
+    find_stale(r"-0\.113\s*\\,\[-0\.153,-0\.074\]|n\{=\}83", "search/stale-83",
+               allow=("results_auto.tex",))
+
+
+def check_mech():
+    d = load("mech_analysis.json")
+    ms = d.get("models", [])
+    if not ms:
+        fail("mech/canon", "docs/data/mech_analysis.json missing models")
+        return
+    n = len(ms)
+    nrsi = sum(1 for m in ms if m.get("rsi"))
+    ncross = sum(1 for m in ms if m.get("wall_crossed"))
+    ok("mech/canon", "n=%d runs, wall-crossers=%d, compounders(rsi=True)=%d" % (n, ncross, nrsi))
+
+    # the paper body once said 11/133 compounded; ground truth is nrsi/133
+    for name, path in PROSE.items():
+        txt = read(path)
+        for m in re.finditer(r"(\d+)\s*/\s*%d runs compounded" % n, txt):
+            got = int(m.group(1))
+            if got != nrsi:
+                fail("mech/compounder-count",
+                     "%s says %d/%d runs compounded; mech_analysis.json says %d/%d"
+                     % (name, got, n, nrsi, n))
+    if not any(f[0] == "mech/compounder-count" for f in FAILS):
+        ok("mech/compounder-count", "compounder count agrees with data (%d/%d)" % (nrsi, n))
+
+    # band-count table consistency: every band table in the prose must sum to n
+    for name, path in PROSE.items():
+        txt = read(path)
+        for tbl in re.finditer(r"\$<\$2B\s*&\s*(\d+).*?2--8B\s*&\s*(\d+).*?\\geq\}?\$?\s*[89]B\s*&\s*(\d+)",
+                               txt, re.S):
+            tot = sum(int(g) for g in tbl.groups())
+            if tot != n:
+                fail("mech/band-sum",
+                     "%s has a scale-band table summing to %d, but mech_analysis.json has n=%d "
+                     "(band cutoffs differ between tables)" % (name, tot, n))
+    if not any(f[0] == "mech/band-sum" for f in FAILS):
+        ok("mech/band-sum", "all scale-band tables sum to n=%d" % n)
+
+    # caption n must not be a hardcoded literal that disagrees
+    txt = read(PROSE["results_auto.tex"])
+    for m in re.finditer(r"WHY-RSI weight-level probes by scale band\s*\(\$n\{=\}(\d+)\$", txt):
+        if int(m.group(1)) != n:
+            fail("mech/caption-n", "results_auto.tex mech caption says n=%s, data says n=%d" % (m.group(1), n))
+    if not any(f[0] == "mech/caption-n" for f in FAILS):
+        ok("mech/caption-n", "mech table caption n agrees with data")
+
+
+def check_wall_phrasing():
+    """The panel flagged 'sub-2B almost never cross' as contradicting the measured 54% rate.
+    Any prose asserting sub-2B models NEVER emit a correct kernel is an overstatement."""
+    d = load("mech_analysis.json").get("findings", {}).get("correctness_wall", {})
+    lt2 = d.get("frac_cross_if_lt2B")
+    if lt2 is None:
+        return
+    pat = re.compile(r"(sub-?2B|below 2B|<\s*2B|Sub-2B)[^.]{0,160}?(never (?:emit|produce|cross)|almost never)",
+                     re.I | re.S)
+    hits = []
+    for name, path in PROSE.items():
+        txt = read(path)
+        for m in pat.finditer(txt):
+            hits.append("%s:%d  %r" % (name, txt[:m.start()].count("\n") + 1, m.group(0)[:100]))
+    if hits:
+        fail("wall/overstatement",
+             "prose says sub-2B models never cross, but the measured rate is %.0f%%:\n      %s"
+             % (100 * lt2, "\n      ".join(hits)))
+    else:
+        ok("wall/overstatement", "no 'never crosses the wall' overstatement (measured %.0f%%)" % (100 * lt2))
+
+
+def check_score_anchor():
+    """The scoring rule must be described the same way everywhere: headroom-normalised against the
+    per-task roofline ceiling, NOT a fixed 1.5x anchor (which the pre-registration replaced)."""
+    hits = []
+    for name, path in PROSE.items():
+        txt = read(path)
+        for m in re.finditer(r"1\.5\s*x?\s*(?:eager )?speedup|at a 1\.5x eager", txt, re.I):
+            hits.append("%s:%d  %r" % (name, txt[:m.start()].count("\n") + 1, m.group(0)[:80]))
+    if hits:
+        fail("score/anchor",
+             "prose still describes the score with a fixed 1.5x anchor; PREREGISTRATION.md defines it as "
+             "headroom-normalised against the per-task roofline ceiling:\n      " + "\n      ".join(hits))
+    else:
+        ok("score/anchor", "scoring rule described consistently (headroom-normalised, no 1.5x anchor)")
+
+
+def check_unverifiable_probe():
+    """Two probe figures (within-task AUC ~0.67, matched-verification yield +0.01) are quoted in earlier
+    drafts but the run that produced them is not in this repository, and per-candidate probe scores were
+    never retained. They may be MENTIONED as unverifiable, never asserted as measured."""
+    pat = re.compile(r"(within-task[^.]{0,80}?0\.67|0\.67[^.]{0,40}?within-task|"
+                     r"harvesting (?:yield|advantage)[^.]{0,40}?0\.01)", re.I | re.S)
+    MARK = r"unverifi|not in this repositor|not retained|cannot be recomputed|unmeasured|do not rely"
+    hits = []
+    for name, path in PROSE.items():
+        txt = read(path)
+        for m in pat.finditer(txt):
+            window = txt[max(0, m.start() - 500):m.end() + 500]
+            if not re.search(MARK, window, re.I):
+                hits.append("%s:%d  %r" % (name, txt[:m.start()].count("\n") + 1, m.group(0)[:80]))
+    if hits:
+        fail("probe/unverifiable",
+             "prose asserts a probe number whose source data are not in the repo, without marking it "
+             "unverifiable:\n      " + "\n      ".join(hits))
+    else:
+        ok("probe/unverifiable", "unverifiable probe figures are either absent or explicitly marked")
+
+
+def check_probe_clustered():
+    """The probe lift must be reported at the checkpoint-clustered level, matching probe_rigor.json."""
+    d = load("probe_rigor.json")
+    c = d.get("clustered")
+    if not c:
+        return
+    ok("probe/canon", "clustered lift n=%d checkpoints mean=%+.3f CI[%+.3f,%+.3f] excludes_zero=%s "
+       "(n_test per run %d-%d)" % (c["n"], c["mean"], c["ci95"][0], c["ci95"][1],
+                                   c["excludes_zero"], d["n_test_min"], d["n_test_max"]))
+
+
+def check_roofline_arch():
+    """The roofline peaks set the DENOMINATOR of the headroom score, so a result graded on
+    one GPU architecture is not comparable to one graded on another. agent_bench must keep
+    the constants configurable (they were once a hardcoded A100 dict) and default to the
+    architecture the published results were measured on."""
+    ab = os.path.join(ROOT, "kernelascent", "agent_bench.py")
+    txt = read(ab)
+    if not txt:
+        return
+    if re.search(r"^_ROOF_PEAK = \{\s*\"fp16\": \d", txt, re.M):
+        fail("roofline/hardcoded",
+             "agent_bench.py _ROOF_PEAK is a hardcoded dict again — H100/other-arch runs would be "
+             "silently miscalibrated and an operator cannot fix it without editing code")
+        return
+    ok_env = all(v in txt for v in ("KA_PEAK_BF16_TFLOPS", "KA_PEAK_HBM_GBPS", "KA_ROOF_ARCH"))
+    if not ok_env:
+        fail("roofline/env", "agent_bench.py no longer honours KA_ROOF_ARCH / KA_PEAK_* overrides")
+        return
+    m = re.search(r'ROOF_ARCH_DEFAULT = "(\w+)"', txt)
+    if m and m.group(1) != "a100":
+        fail("roofline/default",
+             "agent_bench default arch is '%s'; published results are A100-measured, so the "
+             "default must stay a100 or every historical number silently rescales" % m.group(1))
+    else:
+        ok("roofline/arch", "peaks are env-configurable (KA_ROOF_ARCH/KA_PEAK_*), default a100 "
+                            "matching the published results")
+
+
+def check_selfplay():
+    op = load("selfplay.json").get("models", [])
+    cl = load("selfplay_closed.json").get("models", [])
+    if not op:
+        fail("selfplay/canon", "docs/data/selfplay.json missing models")
+        return
+    def prop(m):
+        return m.get("total_model_proposed") or 0
+    top = sorted(op, key=lambda m: -(m.get("final_L_minus_F") or 0))[:2]
+    ok("selfplay/canon", "open=%d runs (max accepted proposals on any run=%d), closed=%d runs (%d exactly 0.0)"
+       % (len(op), max(prop(m) for m in op), len(cl),
+          sum(1 for m in cl if abs(m.get("final_L_minus_F") or 0) <= 1e-9)))
+    for m in top:
+        if (m.get("final_L_minus_F") or 0) > 0.05 and prop(m) < 5:
+            ok("selfplay/underpowered",
+               "%s L-F=%+.3f rests on %d accepted authored task(s) -- must be flagged, not headlined"
+               % (m.get("model"), m.get("final_L_minus_F"), prop(m)))
+
+    # README must not still advertise the stale 'emerging positives'
+    find_stale(r"Claude-Sonnet-5\s*\|\s*\+0\.045|GPT-5\.6-sol\s*\|\s*\+0\.041",
+               "selfplay/stale-readme")
+
+    # ORPHAN: prose citing selfplay_diag.json for the bimodality conclusion it does not contain
+    diag = load("selfplay_diag.json").get("models", [])
+    has_rates = any(any(x is not None for x in (m.get("authored_solve_rate") or [])) for m in diag)
+    if not has_rates:
+        # A mention is only a violation if the bimodality is ASSERTED. Prose that names the file and
+        # then retracts/limits the conclusion is exactly what we want, so look for a retraction marker
+        # inside the same window before failing.
+        RETRACT = r"retract|not in the data|unable to test|do not draw|hypothesis|authored \\textbf\{zero\}|undefined"
+        for name, path in PROSE.items():
+            txt = read(path)
+            for m in re.finditer(r"selfplay\\?_diag[^)]*\).{0,900}?(trivial|unsolvable)", txt, re.S | re.I):
+                window = txt[m.start():m.end() + 600]
+                if not re.search(RETRACT, window, re.I):
+                    fail("selfplay/orphan-diag",
+                         "%s attributes the trivial/unsolvable bimodality to selfplay_diag.json without "
+                         "retraction, but every authored_solve_rate in that file is null (the run authored "
+                         "zero tasks)" % name)
+        if not any(f[0] == "selfplay/orphan-diag" for f in FAILS):
+            ok("selfplay/orphan-diag",
+               "no prose attributes a bimodality conclusion to the empty selfplay_diag.json")
+
+
+def check_trackc():
+    ms = load("trackc.json").get("models", [])
+    if not ms:
+        return
+    thin = [m for m in ms if (m.get("rounds") or 0) < 3]
+    ok("trackc/canon", "%d rows; %d with <3 rounds (%s) must be flagged, not interpreted"
+       % (len(ms), len(thin), ", ".join("%s r=%s" % (m["model"], m.get("rounds")) for m in thin)))
+    # the DeepSeek self-degrade must be labelled an artifact wherever its number appears
+    for name, path in PROSE.items():
+        txt = read(path)
+        if re.search(r"-0\.23[34]", txt) and not re.search(r"artifact|not a finding|not interpreted", txt, re.I):
+            fail("trackc/selfdegrade",
+                 "%s quotes the DeepSeek-V3.2 -0.233/-0.234 self-degrade without labelling it a "
+                 "single-round artifact" % name)
+    if not any(f[0] == "trackc/selfdegrade" for f in FAILS):
+        ok("trackc/selfdegrade", "self-degrade number is labelled an artifact wherever it appears")
+
+
+# ---------------------------------------------------------------------------------------
+# DIRECT checks -- an embedded claim string contradicted by numbers in its own file
+# ---------------------------------------------------------------------------------------
+
+def check_embedded_claims():
+    d = load("mech_analysis.json")
+    f = d.get("findings", {})
+    # (1) diversity direction
+    awc = f.get("among_wall_crossers", {})
+    pair = awc.get("rsi_vs_flat_diversity")
+    claim = (awc.get("claim") or "")
+    if pair and len(pair) == 2:
+        rsi_div, flat_div = pair
+        says_higher = re.search(r"higher (?:sustained )?generation diversity|sustain.{0,20}higher.{0,20}diversity",
+                                claim, re.I)
+        if says_higher and rsi_div < flat_div:
+            fail("mech/claim-diversity",
+                 "mech_analysis.json among_wall_crossers.claim says compounders sustain HIGHER diversity, "
+                 "but its own numbers are rsi=%.3f < flat=%.3f (the website renders this string)"
+                 % (rsi_div, flat_div))
+        else:
+            ok("mech/claim-diversity", "diversity claim string matches its numbers (rsi=%.3f vs flat=%.3f)"
+               % (rsi_div, flat_div))
+    # (2) 'almost never cross' vs the actual sub-2B crossing rate
+    cw = f.get("correctness_wall", {})
+    lt2 = cw.get("frac_cross_if_lt2B")
+    cclaim = cw.get("claim") or ""
+    if lt2 is not None:
+        if re.search(r"almost never cross", cclaim, re.I) and lt2 > 0.2:
+            fail("mech/claim-wall",
+                 "mech_analysis.json correctness_wall.claim says sub-2B 'almost never cross', but "
+                 "frac_cross_if_lt2B=%.2f -- state it as 'less frequently than >=2B' with counts" % lt2)
+        else:
+            ok("mech/claim-wall", "correctness-wall claim string is consistent with %.2f crossing rate" % lt2)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--quiet", action="store_true", help="print failures only")
+    a = ap.parse_args()
+    for fn in (check_compounding, check_search, check_mech, check_selfplay,
+               check_trackc, check_embedded_claims, check_wall_phrasing, check_score_anchor,
+               check_unverifiable_probe, check_probe_clustered, check_roofline_arch):
+        fn()
+    if not a.quiet:
+        print("=" * 100)
+        print("CANONICAL VALUES (recomputed from docs/data)")
+        print("=" * 100)
+        for c, m in PASSES:
+            print("  [ok]   %-28s %s" % (c, m))
+    if WARNS:
+        print("\n" + "=" * 100 + "\nWARNINGS\n" + "=" * 100)
+        for c, m in WARNS:
+            print("  [warn] %-28s %s" % (c, m))
+    print("\n" + "=" * 100)
+    print("FAILURES (%d)" % len(FAILS))
+    print("=" * 100)
+    for c, m in FAILS:
+        print("  [FAIL] %-28s %s" % (c, m))
+    if not FAILS:
+        print("  none -- all cross-referenced numbers agree")
+    return 1 if FAILS else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

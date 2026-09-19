@@ -336,3 +336,41 @@ a,button,.pill,.state,tr{transition-duration:150ms}
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   .edge-flow{animation:none!important}
 }
+
+/* ---------------------------------------------------------------------------
+   Prose tables inside .note callouts
+   The global `th,td{white-space:nowrap}` exists so leaderboard numbers stay on
+   one line and scroll horizontally inside .tablewrap. A table placed directly in
+   a .note has no .tablewrap, so nowrap pushed its min-content width past the
+   callout's 64ch and it spilled over the right border. Inside a .note we instead
+   let cells wrap and fix the column layout, so the table always fits the box.
+--------------------------------------------------------------------------- */
+.note{overflow-wrap:anywhere}
+.note table{table-layout:fixed;width:100%;max-width:100%;margin-top:10px;font-size:13px}
+.note th,.note td{white-space:normal;overflow-wrap:break-word;word-break:normal;
+  padding:7px 10px;vertical-align:top;line-height:1.45}
+.note thead th{position:static}            /* sticky headers make no sense in a short prose table */
+.note table td:first-child,.note table th:first-child{width:23%}
+.note table td:nth-child(2),.note table th:nth-child(2){width:36%}
+.note .lab{white-space:nowrap}             /* keep the "open track" badge intact */
+@media(max-width:560px){
+  .note table{font-size:12px}
+  .note th,.note td{padding:6px 7px}
+  .note table td:first-child,.note table th:first-child{width:26%}
+  .note table td:nth-child(2),.note table th:nth-child(2){width:34%}
+}
+
+/* A metric that is not interpretable at the current evidence level is rendered greyed and
+   struck-through rather than as a confident bar, so the table cannot imply a measurement
+   the run did not make. Used for L-F rows below the accepted-authored-task floor. */
+.undef{color:#a89a9a;text-decoration:line-through;text-decoration-thickness:1px;font-variant-numeric:tabular-nums}
+
+/* ---------------------------------------------------------------------------
+   Kill the stray horizontal page scroll.
+   .fullbleed uses width:100vw + margin-left:-50vw to break out of the measure.
+   100vw INCLUDES the vertical scrollbar, but the document's client width does
+   not, so the figure overhangs by the scrollbar width (~15px) and the whole page
+   gains a horizontal scrollbar. `clip` (not `hidden`) is used deliberately: it
+   does not establish a scroll container, so the sticky .nav keeps working.
+--------------------------------------------------------------------------- */
+html,body{overflow-x:clip}

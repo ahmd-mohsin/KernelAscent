@@ -366,14 +366,27 @@ def _tab_rows(models, cols, keyfn, n=12):
 
 def make_tables():
     tex = []
-    # T5 open L-F leaderboard
+    # T5 open L-F leaderboard. The ACCEPTED-PROPOSAL denominator is part of the table, not a footnote:
+    # an L-F computed over <MINPROP accepted model-authored tasks is undefined, not a small effect.
+    MINPROP = 5
     r5 = _tab_rows(M("selfplay"), None, lambda m: m.get("final_L_minus_F"))
     if r5:
-        t = ["\\begin{tabular}{lrrr}", "\\toprule", "Model & tier & rounds & $L-F$ \\\\", "\\midrule"]
+        t = ["\\begin{tabular}{lrrrrl}", "\\toprule",
+             "Model & tier & rounds & accepted & $L-F$ & status \\\\", "\\midrule"]
         for m in r5:
-            t.append("%s & %s & %d & %.3f \\\\" % (short(m["model"]).replace("_", "\\_"), m.get("tier", "-"),
-                     len(m.get("rounds") or []), m.get("final_L_minus_F")))
-        t += ["\\bottomrule", "\\end{tabular}"]; tex.append(("tab:t5", "Task 5 open self-play: author co-evolution $L-F$ leaderboard.", "\n".join(t)))
+            np_ = m.get("total_model_proposed") or 0
+            t.append("%s & %s & %d & %d & %.3f & %s \\\\" % (
+                short(m["model"]).replace("_", "\\_"), m.get("tier", "-"),
+                len(m.get("rounds") or []), np_, m.get("final_L_minus_F"),
+                "interpretable" if np_ >= MINPROP else "\\emph{undefined}"))
+        t += ["\\bottomrule", "\\end{tabular}"]
+        tex.append(("tab:t5",
+                    "Task 5 open self-play: author co-evolution $L-F$. \"accepted\" counts model-authored "
+                    "tasks that passed the validity/novelty gate; $L-F$ is only defined when the live author "
+                    "actually produced a frontier, so rows with fewer than %d accepted tasks are marked "
+                    "\\emph{undefined} and must not be read as measured zeros (or as positives -- the "
+                    "largest value in this table rests on a single accepted task)." % MINPROP,
+                    "\n".join(t)))
     # T3 procedure-RSI
     r3 = _tab_rows(M("trackc"), None, lambda m: m.get("delta_vs_base"))
     if r3:

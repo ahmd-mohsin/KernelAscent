@@ -46,88 +46,141 @@ model / run & size(B) & $K$ & AUC & random & probe & oracle & lift \\
 """ % (len(ms), len(bases), rows))
 
 def compounding_note():
-    cm = load("compounding.json").get("models", [])
-    return (r"""\paragraph{Compounding (lineage vs.\ matched reset) --- measurable after the fix; NO sustained compounding.}
-Fixing the SFT NaN-gradient bug (grad-finiteness guard $+$ lr $10^{-5}$) and hardening the grader (process-group
-kill on a per-kernel timeout) makes the lineage-vs-reset test measurable for the first time. The result is a
-\textbf{transient early advantage that does not persist}: lineage$-$reset is positive at rounds 1--2 (Qwen-3B
-$+0.10,+0.10$; Qwen-1.5B $+0.10,+0.20$) but \textbf{collapses to $\approx 0$ by round 3} (both models
-lineage $\approx$ reset; Qwen-3B $C_{\text{lin}}$ even falls $0.51\!\to\!0.30$), and lineage loses to best-of-$N$
-search in most rounds. Averaged over rounds, accumulated self-training does \emph{not} beat a matched-compute
-fresh reset --- consistent with a one-step (data-channel) gain, not recursive compounding, on small models.
-\textbf{Multi-seed confirmation (up to 6 seeds $\times$ 6 rounds):} the mean lineage$-$reset with a TOST
-$90\%%$ CI \emph{spans zero at every well-powered scale} and tightens toward zero as seeds accumulate --- Qwen-0.5B
-$-0.018\,[-0.052,+0.016]$ ($n{=}51$), Qwen-1.5B $+0.009\,[-0.013,+0.031]$ ($n{=}93$), Qwen-3B
-$-0.007\,[-0.034,+0.020]$ ($n{=}78$); pooled ($n{=}228$, incl.\ early 7B/14B) $\mathbf{-0.002\,[-0.017,+0.013]}$.
-\textbf{Formal equivalence (TOST):} at margin $\delta{=}0.05$ the pooled $90\%%$ CI lies well inside
-$[-\delta,+\delta]$ with $\mathrm{BF}_{01}\!\approx\!14.7$ --- \emph{strong} evidence for the null,
-strengthening monotonically with seeds ($\mathrm{BF}_{01}$: $5.8$ at $n{=}45\to14.7$ at $n{=}228$). The 1.5B
-and 3B scales are individually TOST-equivalent ($\mathrm{BF}_{01}$ $7.7$, $8.1$); the noisiest 0.5B scale is
-marginal (CI just crosses $-\delta$, $\mathrm{BF}_{01}$ $4.8$), the only residue of any effect and negative if
-anything; the 7B extension is still underpowered ($n{=}5$, ${\sim}64$\,min/round, CI $[-0.065,+0.113]$ spanning
-zero). \textbf{No scale in $0.5$--$3$B shows a compounding \emph{advantage}, and the early 7B/14B points fall
-within the equivalence bounds.} We state the estimand as an
-\emph{average-across-scale} equivalence and treat correlated rounds conservatively (per-trajectory seeds are
-the binding constraint). \textbf{Coverage mechanism (established via $p$-maps, not the transplant).} We
-implemented a randomized coverage-transplant $2\times2$ (lineage $\pm$ teacher kernels on student-\emph{covered}
-vs.\ \emph{uncovered} tasks, token-matched, $\ge3$ self-only rounds); however it proved \emph{computationally
-infeasible} on the isolated-grading harness --- a single round requires repeated $k_0$-sample coverage
-evaluations at ${\sim}12$s per crash-isolated kernel-grade, so round~0 alone exceeded 2.5\,h and no arm
-completed. We therefore establish the coverage mechanism \emph{directly and more cheaply} from the per-task
-$p$-maps and forensics: (i) the coverage curve (14\%%$\to$86\%% across scale); (ii)
-the sharpening geometry (self-training can only move the thin ``sharpenable'' band); and (iii) the 0-score
-forensics showing sub-3B failure is kernel-\emph{formation}, not correctness. These jointly show coverage is
-formation-gated and not self-generated, without needing the (infeasible) transplant. A tractable 1-round
-coverage-injection variant is left to future work.
-So the small early-round lift is \emph{not} statistically distinguishable from zero --- a \textbf{bounded null}
-(effect $\lesssim 0.09$ absolute), not proof of no compounding; we frame it as an equivalence result, and note
-the pooled interval treats correlated rounds as independent so per-trajectory uncertainty (2--3 seeds) is the
-binding constraint. \textbf{The two positive findings are the headline, not the null:} (i) at matched compute,
-\textbf{best-of-$N$ search beats lineage self-training} in most rounds (lineage$-$bestofN $<0$ throughout) ---
-on roofline-graded kernels with a full generation$+$verification$+$training compute ledger; and (ii) the
-\textbf{coverage gap} --- a 14B teacher harvests $\sim$10$\times$ more verified-correct kernels than a sub-2B
-student on the same tasks, and the sub-2B ``correctness wall'' is a \emph{pass@k artifact} (low per-sample $p$,
-not zero coverage), so self-training \emph{sharpens} what the model already covers rather than expanding it ---
-the mechanism for the null. \emph{Scope:} rejection-sampling SFT (not full RL/GRPO). \textbf{Optimizer-agnosticism (preliminary):} a denser-reward variant (A1: speedup-weighted rejection sampling --- keep only the top-quartile-by-roofline correct kernels for SFT) shows the \emph{same} null (pooled lineage$-$reset $+0.017$, $n{=}9$ round-comparisons over 2 seeds), consistent with rejection-sampling SFT: shaping the reward denser does not manufacture compounding, evidence the null is not an artifact of the weakest selection rule. \textbf{Scale test (7B/14B, accumulating):} the same 3-arm protocol at 7B holds the
-null --- pooled lineage$-$reset $+0.024\,[-0.065,+0.113]$ over $n{=}5$ round-comparisons (5 seeds), $C\approx0.70$
-near the held ceiling ($0.80$), and lineage again loses to best-of-$N$ --- so no compounding \emph{signal} through
-7B, though at $n{=}5$ this scale is not yet individually powered and each round costs ${\sim}64$\,min; the
-near-ceiling headroom at 7B is itself limiting (consistent with the mid-scale-headroom mechanism). 14B is now
-running (reset-shard fix validated, no OOM), first seed within the equivalence bounds. Both fold into the pooled
-$n{=}228$ equivalence above; we will report per-scale 7B/14B TOST once each reaches $\ge3$ seeds.
-\paragraph{(historical) Compounding before the fix --- artifact, not a null.}
-A controlled diagnostic isolates the cause and shows the apparent ``collapse'' is \emph{not} a scientific
-null. On the same model: frozen base (adapter off) held-out $C=0.319$; a freshly-attached \textbf{zero-update}
-LoRA generates normally (train $C=0.259$, held $C=0.388$); but after a single SFT step \textbf{both} train and
-held-out $C$ drop to exactly $0.000$. Because a zero-step adapter evaluates correctly and the collapse hits the
-\emph{training} tasks too (not just held-out), this is a \textbf{generation-after-SFT bug} (candidate causes:
-bf16 LoRA/optimizer instability, generation-config or pad/eos handling post-training), not catastrophic
-forgetting or overfitting. The %d compounding runs are therefore \emph{uninterpretable, not nulls}; the
-lineage-vs-reset title-claim test (and the SFT half of the wall-breaking experiment) are blocked on this fix
-and we do not report their numbers as evidence.
-""" % len(cm))
+    d = load("compounding_tost.json")
+    if not d or not d.get("pooled"):
+        return "% no compounding_tost.json -- run scripts/equivalence_tost.py --out docs/data/compounding_tost.json\n"
+    P = d["pooled"]
+    tr, cr, rd, icc = P["trajectory"], P["crve"], P["round"], P.get("icc", {})
+    delta = d.get("delta", 0.05)
+
+    def ci(e, key="ci95"):
+        return "$%+.3f\\,[%+.3f,%+.3f]$" % (e["mean"], e[key][0], e[key][1])
+
+    # per-scale rows, ordered by size, trajectory-level (PRIMARY)
+    order = {"0.5B": 0.5, "1.5B": 1.5, "3B": 3.0, "7B": 7.0, "14B": 14.0}
+    def sz(m):
+        for k, v in order.items():
+            if k in m:
+                return v
+        return 99.0
+    rows, powered, underp = "", [], []
+    for m in sorted(d.get("models", {}), key=sz):
+        a = d["models"][m]
+        t = a.get("trajectory")
+        short = m.replace("Qwen2.5-Coder-", "Qwen-").replace("-Instruct", "")
+        if not t:
+            underp.append(short)
+            continue
+        verdict = "EQUIV" if t["equivalent"] else "not equiv."
+        if t["n"] < 5:
+            verdict += " (underpowered)"
+            underp.append(short)
+        else:
+            powered.append(short)
+        rows += "%s & %d & %d & %s & %s & %.1f \\\\\n" % (
+            esc(short), t["n"], t["n_rounds"], ci(t), verdict,
+            (t["bf01"] if t["bf01"] is not None else float("nan")))
+    rows += r"\midrule" + "\n"
+    rows += "\\textbf{Pooled} & \\textbf{%d} & \\textbf{%d} & \\textbf{%s} & \\textbf{%s} & \\textbf{%.1f} \\\\\n" % (
+        tr["n"], tr["n_rounds"], ci(tr), "EQUIV" if tr["equivalent"] else "not equiv.", tr["bf01"])
+
+    body = (
+        r"\paragraph{Compounding (lineage vs.\ matched reset): a bounded null at the trajectory level.}" "\n"
+        r"\textbf{Estimand and unit of replication.} The independent replicate is a \emph{trajectory} (one seed, "
+        r"one base checkpoint, one held split, one accumulated adapter), \emph{not} a round: rounds inside a run "
+        r"share all of those and are serially dependent. We therefore report the trajectory-level mean as the "
+        r"primary estimand, a cluster-robust (CRVE) estimate on the round-level data clustered on trajectory as a "
+        r"secondary check, and the naive round-level pooling only so the correction is auditable. Measured "
+        r"intra-trajectory correlation is ICC${=}$ICCV (design effect DEFF, so the naive $n{=}NR$ rounds carry the "
+        r"evidence of roughly NEFF independent observations)." "\n"
+        r"\textbf{Result.} Pooled over NTRAJ trajectories (NR round-comparisons), lineage$-$reset ${=}$ POOLT, "
+        r"TOST-equivalent at $\delta{=}DELTA$ with $\mathrm{BF}_{01}{=}BFT$ --- \emph{moderate} evidence for the "
+        r"null. The cluster-robust estimate agrees (POOLC, $\mathrm{BF}_{01}{=}BFC$). For contrast, the naive "
+        r"round-level pooling would report POOLR with $\mathrm{BF}_{01}{=}BFR$; that number is an artifact of "
+        r"treating correlated rounds as independent and we do not claim it. The conclusion is unchanged in sign "
+        r"and verdict, but the strength of evidence is \emph{moderate}, not strong." "\n"
+        r"\textbf{Robustness.} Restricting to trajectories with $\geq3$ rounds (36 runs) and to full-length "
+        r"$\geq6$-round trajectories (29 runs) leaves the pooled verdict EQUIV with "
+        r"$\mathrm{BF}_{01}\!\approx\!5.9$ and $4.9$ respectively, so the null is not an artifact of short or "
+        r"interrupted runs." "\n"
+        r"\textbf{Per round}, lineage$-$reset shows a \emph{transient} early advantage (rounds 1--2) that decays "
+        r"to $\approx0$ by round 3 --- consistent with a one-step data-channel gain rather than recursive "
+        r"compounding." "\n"
+        r"\emph{Scope:} rejection-sampling SFT (not full RL/GRPO); Qwen2.5-Coder family; the bank and budgets "
+        r"described above. A denser-reward variant (speedup-weighted rejection sampling, top-quartile-by-roofline "
+        r"kernels only) shows the same null on 2 seeds, so the result is not an artifact of the weakest "
+        r"selection rule --- but at that $n$ it is an indication, not a test." "\n"
+        r"\textbf{What this null does and does not license.} It is a \emph{bounded} null: the compounding "
+        r"advantage is contained within $\pm DELTA$ at the tested scales. It is \textbf{not} yet evidence that "
+        r"the harness \emph{could} have registered compounding, because the positive control (coverage-injected "
+        r"lineage) has not been run --- see the limitations. The randomized coverage-transplant $2\times2$ we "
+        r"designed proved computationally infeasible on the crash-isolated grader (${\sim}12$\,s per kernel-grade "
+        r"put round~0 alone beyond 2.5\,h), so the coverage \emph{mechanism} is established indirectly from the "
+        r"$p$-maps, the sharpening geometry and the 0-score forensics; a tractable 1-round coverage-injection "
+        r"positive control remains the decisive outstanding experiment." "\n"
+        r"\begin{table}[h]\centering\footnotesize\caption{Lineage vs.\ matched reset, \textbf{trajectory-level} "
+        r"(primary estimand). $n$ = independent trajectories; rounds = round-comparisons those trajectories "
+        r"contain. CI is a $t$-interval on the trajectory means; $\mathrm{BF}_{01}$ is evaluated at the "
+        r"trajectory $n$. Scales with $n{<}5$ trajectories are marked underpowered and are not interpreted "
+        r"individually.}\begin{tabular}{lrrlcr}\toprule" "\n"
+        r"scale & $n$ traj. & rounds & lineage$-$reset (95\% CI) & TOST & $\mathrm{BF}_{01}$ \\\midrule" "\n"
+        + rows + r"\bottomrule\end{tabular}\end{table}" "\n"
+    )
+    repl = {
+        "ICCV": "%.3f" % (icc.get("icc", 0)), "DEFF": "%.2f" % (icc.get("design_effect", 1)),
+        "NEFF": "%.0f" % (icc.get("n_eff", 0)), "NTRAJ": str(tr["n"]), "NR": str(rd["n"]),
+        "POOLT": ci(tr), "POOLC": ci(cr), "POOLR": ci(rd),
+        "BFT": "%.1f" % tr["bf01"], "BFC": "%.1f" % cr["bf01"], "BFR": "%.1f" % rd["bf01"],
+        "DELTA": "%.2f" % delta,
+    }
+    for k, v in repl.items():
+        body = body.replace(k, v)
+
+    body += (
+        r"\paragraph{(methods) Pre-fix runs are excluded as uninterpretable, not counted as nulls.}" "\n"
+        r"An early diagnostic isolated a generation-after-SFT failure: on the same model, the frozen base "
+        r"(adapter off) scored held-out $C{=}0.319$ and a freshly-attached \textbf{zero-update} LoRA generated "
+        r"normally ($C_{\text{train}}{=}0.259$, $C_{\text{held}}{=}0.388$), but after a single SFT step "
+        r"\emph{both} train and held-out $C$ fell to exactly $0.000$. A zero-step adapter evaluating correctly, "
+        r"plus the collapse hitting the \emph{training} tasks too, identifies this as a harness fault (SFT "
+        r"NaN-gradient path) rather than catastrophic forgetting. Runs predating the fix (grad-finiteness guard "
+        r"$+$ lr $10^{-5}$, plus a process-group kill on per-kernel timeout) are therefore excluded by a "
+        r"canonical-seed allowlist and contribute to no statistic in this paper; they are uninterpretable, not "
+        r"nulls." "\n"
+    )
+    return body
 
 def search_note():
     d = load("search_vs_train.json"); p = d.get("pooled")
     if not p:
         return "% no search_vs_train data\n"
-    ms = d.get("models", [])
-    per = ", ".join("%s $%+.3f$" % (m["model"].replace("Qwen2.5-Coder-", "").replace("-Instruct", ""), m["mean"]) for m in ms)
-    # built with .format (no %-format string) to avoid LaTeX % / $ escaping hazards
-    return (r"\paragraph{Finding (i): at matched compute, best-of-$N$ search beats lineage self-training "
-            r"(significant).} lab\_compounding compares, each round, the lineage model against frozen-base "
-            r"best-of-$N$ at the \emph{matched cumulative} generation budget $k(r{+}1)$. Pooled over the clean "
-            r"post-fix seeds ($n{=}NPOOL$ round-comparisons), lineage$-$bestof$N = MEANP\,[LOP,HIP]$ --- the 95\% "
-            r"CI \emph{excludes zero} --- and search strictly wins in FRACP of matched-budget rounds. Per scale: "
-            r"PERSCALE (all negative, all CIs below zero). Unlike the compounding null (which spans zero), this is "
-            r"a \emph{significant positive} result: verified search converts a fixed generation budget into "
+    ms = [m for m in d.get("models", []) if not m.get("underpowered") and m.get("mean") is not None]
+    under = [m for m in d.get("models", []) if m.get("underpowered")]
+    per = ", ".join("%s $%+.3f\\,[%+.3f,%+.3f]$" % (
+        m["model"].replace("Qwen2.5-Coder-", "").replace("-Instruct", ""), m["mean"], m["lo"], m["hi"])
+        for m in ms)
+    tail = ""
+    if under:
+        tail = (r" Scales with $<5$ trajectories (%s) are reported but not interpreted individually." %
+                ", ".join(esc(m["model"].replace("Qwen2.5-Coder-", "").replace("-Instruct", "")) for m in under))
+    return (r"\paragraph{Finding (i): at matched compute, best-of-$N$ search beats lineage self-training.} "
+            r"lab\_compounding compares, each round, the lineage model against frozen-base best-of-$N$ at the "
+            r"\emph{matched cumulative} generation budget $k(r{+}1)$, so the contrast is compute-matched by "
+            r"construction. Analysed at the \textbf{trajectory} level (the independent replicate; see the "
+            r"compounding estimand above), pooled over NTRAJ trajectories comprising NR round-comparisons, "
+            r"lineage$-$bestof$N = MEANP\,[LOP,HIP]$ --- the 95\% CI \emph{excludes zero} --- and verified "
+            r"search beats lineage in FRACRUN of \emph{runs} (FRACRND of rounds). The cluster-robust estimate "
+            r"agrees ($[CRLO,CRHI]$). Per scale: PERSCALE.TAIL Unlike the compounding result (a bounded null), "
+            r"this is a \emph{significant positive}: verified search converts a fixed generation budget into "
             r"capability more efficiently than distilling that same budget into weights. The practical corollary "
             r"(with the coverage gap) is that in domains with cheap dense verification and low cross-task "
             r"transfer, compute is better spent on search than on self-training."
-            .replace("NPOOL", str(p["n"]))
+            .replace("NTRAJ", str(p["n_trajectories"])).replace("NR", str(p["n_rounds"]))
             .replace("MEANP", "%+.3f" % p["mean"]).replace("LOP", "%+.3f" % p["lo"]).replace("HIP", "%+.3f" % p["hi"])
-            .replace("FRACP", "{:.0f}".format(100 * p["search_wins_frac"]) + r"\%")
-            .replace("PERSCALE", per) + "\n")
+            .replace("CRLO", "%+.3f" % p["crve_lo"]).replace("CRHI", "%+.3f" % p["crve_hi"])
+            .replace("FRACRUN", "{:.0f}".format(100 * p["traj_wins_frac"]) + r"\%")
+            .replace("FRACRND", "{:.0f}".format(100 * p["round_wins_frac"]) + r"\%")
+            .replace("PERSCALE", per).replace("TAIL", tail) + "\n")
 
 
 def pmap_curve():
@@ -195,70 +248,123 @@ def mech_interp_table():
     if not ms:
         return "% no mech_analysis\n"
     import statistics as _st
-    bands = {"$<$2B": [], "2--8B": [], "$\\geq$8B": []}
-    for m in ms:
-        s = m.get("size_b", 0) or 0
-        bands["$<$2B" if s < 2 else ("2--8B" if s < 8 else "$\\geq$8B")].append(m)
+    # Band cutoffs are fixed here and reused by every mechanism table/figure so the paper cannot
+    # carry two different band definitions (an earlier draft used <8B in one table and <9B in another).
+    BANDS = [("$<$2B", 0, 2), ("2--8B", 2, 8), ("$\\geq$8B", 8, 1e9)]
+    bands = {lab: [m for m in ms if lo <= (m.get("size_b") or 0) < hi] for lab, lo, hi in BANDS}
 
     def av(xs, k):
         v = [x.get(k) for x in xs if isinstance(x.get(k), (int, float))]
         return _st.mean(v) if v else 0.0
-    body = ""
-    for b, xs in bands.items():
+
+    def frac(xs, k):
+        return (sum(1 for x in xs if x.get(k)) / len(xs)) if xs else 0.0
+
+    body, stat = "", {}
+    for lab, xs in bands.items():
         if not xs:
             continue
-        nn = len(xs)
-        wall = 100 * sum(1 for x in xs if x.get("wall_crossed")) / nn
-        dc = 100 * sum(1 for x in xs if x.get("diversity_collapse")) / nn
-        rsi = 100 * sum(1 for x in xs if x.get("rsi")) / nn
+        stat[lab] = {"n": len(xs), "wall": frac(xs, "wall_crossed"), "drift": av(xs, "drift_total"),
+                     "ret": av(xs, "mean_retention"), "dc": frac(xs, "diversity_collapse"),
+                     "rsi": frac(xs, "rsi")}
+        b = stat[lab]
         body += "{} & {} & {:.0f}\\% & {:+.3f} & {:.3f} & {:.0f}\\% & {:.0f}\\% \\\\\n".format(
-            b, nn, wall, av(xs, "drift_total"), av(xs, "mean_retention"), dc, rsi)
-    return (r"\paragraph{Weight-level mechanism (WHY-RSI probes, open models).} LoRA drift, retention and "
-            r"generation-diversity across scale localise where self-improvement is gated internally. Below 2B, "
-            r"weights barely move (drift $+0.02$, retention $0.01$): the correctness wall is crossed only "
-            r"$\sim$half the time and a below-wall empty SFT set means \emph{no gradient to drift on}. The 2--8B "
-            r"band drifts and retains most (drift $+0.36$, 100\% wall-crossing, 43\% show RSI) --- the only "
-            r"regime with both coverage and headroom. At $\geq$8B drift falls and \emph{diversity collapses} "
-            r"(50\%) as models saturate the roofline. When drift occurs it localises to \emph{late} layers "
-            r"(task adaptation), and the held-family transfer gap is $\approx 0$ (no transferable meta-skill). "
-            r"This is the weight-level complement to the behavioural closed-source result below." + "\n"
-            r"\begin{table}[h]\centering\footnotesize\caption{WHY-RSI weight-level probes by scale band "
-            r"($n{=}50$ runs). Drift $=$ total LoRA parameter movement; div-collapse $=$ fraction with "
-            r"generation-diversity collapse.}\begin{tabular}{lrrrrrr}\toprule" + "\n"
-            r"band & $n$ & wall-cross & drift & retention & div-collapse & RSI \\\midrule" + "\n"
-            + body + r"\bottomrule\end{tabular}\end{table}" + "\n")
+            lab, b["n"], 100 * b["wall"], b["drift"], b["ret"], 100 * b["dc"], 100 * b["rsi"])
+    lo_, mid, hi_ = stat.get("$<$2B", {}), stat.get("2--8B", {}), stat.get("$\\geq$8B", {})
+    # diversity: state the DIRECTION the data actually shows rather than a remembered claim
+    crossers = [m for m in ms if m.get("wall_crossed")]
+    div_rsi = _st.mean([m["mean_diversity"] for m in crossers
+                        if m.get("rsi") and isinstance(m.get("mean_diversity"), (int, float))] or [0])
+    div_flat = _st.mean([m["mean_diversity"] for m in crossers
+                         if not m.get("rsi") and isinstance(m.get("mean_diversity"), (int, float))] or [0])
+    prose = (
+        r"\paragraph{Weight-level mechanism (WHY-RSI probes, open models).} LoRA drift, retention and "
+        r"generation diversity across scale localise where self-improvement is gated internally, reported as "
+        r"\emph{associations} rather than established causal gates. Below 2B, weights barely move "
+        r"(drift $DLO$, retention $RLO$): the correctness wall is crossed only WLO\% of the time, and below the "
+        r"wall an empty SFT set means \emph{no gradient to drift on}. The 2--8B band crosses almost always "
+        r"(WMID\%) and shows the highest rate of apparent compounding (RMID\% of runs) --- the only regime with "
+        r"both coverage and headroom. At $\geq$8B drift is \emph{largest} ($DHI$) yet the compounding rate falls "
+        r"to RHI\% and diversity collapse reaches DCHI\%: motion without progress near the task roofline. When "
+        r"drift occurs it localises to \emph{late} layers (task adaptation) and the held-family transfer gap is "
+        r"$\approx0$ (no transferable meta-skill). \textbf{Note on diversity:} among wall-crossers, compounders "
+        r"have \emph{lower} mean generation diversity than flat runs (DIVR vs.\ DIVF), so on this bank "
+        r"``diversity collapse causes the null'' is \emph{not} supported --- compounding here looks like "
+        r"productive convergence onto a good basin. Diversity contraction remains a plausible cross-round "
+        r"option-value lock (Discussion), but it is an association whose clean test is a diversity-preserving "
+        r"intervention we have not run." "\n"
+        r"\begin{table}[h]\centering\footnotesize\caption{WHY-RSI weight-level probes by scale band "
+        r"($n{=}NTOT$ runs; bands $<$2B / 2--8B / $\geq$8B used consistently throughout). Drift $=$ total LoRA "
+        r"parameter movement; div-collapse $=$ fraction of runs with generation-diversity collapse; RSI $=$ "
+        r"fraction meeting the compounding criterion.}\begin{tabular}{lrrrrrr}\toprule" "\n"
+        r"band & $n$ & wall-cross & drift & retention & div-collapse & RSI \\\midrule" "\n"
+        + body + r"\bottomrule\end{tabular}\end{table}" "\n")
+    for k, v in (("NTOT", str(len(ms))),
+                 ("DLO", "%+.3f" % lo_.get("drift", 0)), ("RLO", "%.3f" % lo_.get("ret", 0)),
+                 ("WLO", "%.0f" % (100 * lo_.get("wall", 0))), ("WMID", "%.0f" % (100 * mid.get("wall", 0))),
+                 ("RMID", "%.0f" % (100 * mid.get("rsi", 0))), ("DHI", "%+.3f" % hi_.get("drift", 0)),
+                 ("RHI", "%.0f" % (100 * hi_.get("rsi", 0))), ("DCHI", "%.0f" % (100 * hi_.get("dc", 0))),
+                 ("DIVR", "%.2f" % div_rsi), ("DIVF", "%.2f" % div_flat)):
+        prose = prose.replace(k, v)
+    return prose
 
 
 def selfplay_mech_note():
+    """T3 self-modify. Rows with <MINR completed rounds cannot separate 'ceiling' from 'run stopped
+    early' and are segregated into an explicitly non-interpreted block (P0.3)."""
     d = load("selfplay_mech.json"); ms = d.get("models", {})
     if not ms:
         return "% no selfplay_mech\n"
-    rows = ""
-    order = sorted(ms.items(), key=lambda x: -x[1].get("r0_jump", 0))
-    for nm, r in order:
-        rows += "{} & {:.3f} & {:+.3f} & {:+.3f} & r{} & {} \\\\\n".format(
-            nm.replace("_", "\\_"), r.get("Q0", 0), r.get("r0_jump", 0), r.get("recursive_gain", 0),
-            r.get("sat_round", 0), r.get("cls", "").replace("_", "-"))
-    conv = d.get("strategy_convergence", 0); r0 = d.get("mean_r0_jump", 0)
-    rec = d.get("mean_recursive_gain", 0); frac = 100 * d.get("frac_nonrecursive", 0)
+    MINR = 3
+    ok = {k: v for k, v in ms.items() if (v.get("rounds") or 0) >= MINR}
+    under = {k: v for k, v in ms.items() if (v.get("rounds") or 0) < MINR}
+
+    def rowify(items, mark=""):
+        out = ""
+        for nm, r in sorted(items.items(), key=lambda x: -x[1].get("r0_jump", 0)):
+            out += "{}{} & {} & {:.3f} & {:+.3f} & {:+.3f} & r{} & {} \\\\\n".format(
+                nm.replace("_", "\\_"), mark, r.get("rounds", "--"), r.get("Q0", 0),
+                r.get("r0_jump", 0), r.get("recursive_gain", 0), r.get("sat_round", 0),
+                r.get("cls", "").replace("_", "-"))
+        return out
+
+    rows = rowify(ok)
+    if under:
+        rows += r"\midrule \multicolumn{7}{l}{\emph{$<$%d completed rounds --- reported, not interpreted}} \\" % MINR
+        rows += "\n" + rowify(under, r"$^\dagger$")
+    import statistics as _st
+    r0 = _st.mean([v.get("r0_jump", 0) for v in ok.values()]) if ok else 0
+    rec = _st.mean([v.get("recursive_gain", 0) for v in ok.values()]) if ok else 0
+    nonrec = sum(1 for v in ok.values() if v.get("cls") in ("CEILING", "ONE-SHOT-PLATEAU", "STALL", "SELF-DEGRADE"))
+    frac = 100.0 * nonrec / len(ok) if ok else 0
     pct_r0 = 100 * r0 / (r0 + rec + 1e-9)
-    return (r"\paragraph{Task-5 self-modify: closed-source failure analysis (behavioural mechanism).} Eight "
-            r"frontier models each rewrite their own optimisation strategy $+$ kernel archive over rounds. The "
-            r"gain is overwhelmingly \emph{one-shot}: mean round-0 jump {R0} vs.\ mean subsequent "
-            r"$\sum(F_g{>}0)$ {REC} (gain is {PCT}\% round-0), and {FRAC}\% of models are non-recursive "
-            r"(ceiling / one-shot-plateau / self-degrade / stall). The archive saturates by round 1--2 "
-            r"(strategy-space exhaustion); the only sustained-improvement cases start from very low $Q_0$ "
-            r"(headroom being consumed, not recursion). Strategy convergence (Jaccard over self-written "
-            r"strategies) is only {CONV} --- models write \emph{diverse} strategies yet still plateau, so the "
-            r"bottleneck is not strategy homogeneity but the inability to convert strategies into compounding "
-            r"capability. One model (DeepSeek-V3.2) \emph{self-degrades} below base. This mirrors the weight-RSI "
-            r"compounding null on the API track."
+    conv = d.get("strategy_convergence", 0)
+    under_names = ", ".join(esc(k) + " (%d round%s)" % (v.get("rounds", 0), "" if v.get("rounds") == 1 else "s")
+                            for k, v in sorted(under.items()))
+    return (r"\paragraph{Task-3 procedure self-modify: closed-source failure analysis (behavioural mechanism).} "
+            r"Frontier models each rewrite their own optimisation strategy library $+$ verified kernel archive "
+            r"over rounds. Restricting to the NOK runs with $\geq$MINR completed rounds, the gain is "
+            r"overwhelmingly \emph{one-shot}: mean round-0 jump R0 vs.\ mean subsequent $\sum(F_g{>}0)$ REC "
+            r"(PCT\% of total gain arrives at round 0), and FRAC\% of those runs are non-recursive "
+            r"(ceiling / one-shot-plateau / stall). The archive saturates by round 1--2 (strategy-space "
+            r"exhaustion); the only sustained-improvement cases start from low $Q_0$, i.e.\ they consume "
+            r"headroom rather than demonstrate recursive self-insight. Strategy convergence (Jaccard over "
+            r"self-written strategies) is only CONV --- models write \emph{diverse} strategies yet still "
+            r"plateau, so the bottleneck is not strategy homogeneity but the inability to convert strategies "
+            r"into compounding capability. \textbf{Not interpreted:} UNDERNAMES did not complete enough rounds "
+            r"to distinguish a genuine ceiling or self-degradation from an interrupted run; in particular the "
+            r"apparent DeepSeek-V3.2 ``self-degrade'' is a single-round artifact and is not a finding. This "
+            r"mirrors the weight-RSI compounding null on the API track."
+            .replace("NOK", str(len(ok))).replace("MINR", str(MINR))
             .replace("R0", "%+.3f" % r0).replace("REC", "%+.3f" % rec)
-            .replace("PCT", "%.0f" % pct_r0).replace("FRAC", "%.0f" % frac).replace("CONV", "%.2f" % conv) + "\n"
-            r"\begin{table}[h]\centering\footnotesize\caption{Closed-source Task-5 self-modify trajectories. "
+            .replace("PCT", "%.0f" % pct_r0).replace("FRAC", "%.0f" % frac).replace("CONV", "%.2f" % conv)
+            .replace("UNDERNAMES", under_names) + "\n"
+            r"\begin{table}[h]\centering\footnotesize\caption{Task-3 self-modify trajectories. "
             r"r0-jump $=Q_{g,0}-Q_0$; recursive $=\sum$ positive round-over-round gains; sat $=$ archive-"
-            r"saturation round.}\begin{tabular}{lrrrrl}\toprule" + "\n"
-            r"model & $Q_0$ & r0-jump & recursive & sat & class \\\midrule" + "\n"
+            r"saturation round. $^\dagger$ marks runs with $<$%d completed rounds, which are reported for "
+            r"completeness and excluded from every summary statistic.}"
+            r"\begin{tabular}{lrrrrrl}\toprule" % MINR + "\n"
+            r"model & rounds & $Q_0$ & r0-jump & recursive & sat & class \\\midrule" + "\n"
             + rows + r"\bottomrule\end{tabular}\end{table}" + "\n")
 
 
@@ -313,12 +419,67 @@ roofline (no-headroom). See the internal-failure causality DAG (Fig.~\ref{fig:cz
 """ % (len(rows), ncross, len(rows), pct, nrsi, len(rows)))
 
 def selfplay_note():
-    op = load("selfplay.json").get("models", []); cl = load("selfplay_closed.json").get("models", [])
-    return (r"""\paragraph{T5 self-play (true-RSI, 3-arm S/F/L).} Primary metric $L-F$ (author co-evolution).
-Open-weight arm: %d models; closed/API arm: %d models. Diagnosis runs showed the live author can degenerate
-to emitting no valid tasks (curriculum collapse $\Rightarrow L-F\approx0$); a fresh matched-budget run is in flight
-to obtain a clean per-round $L-F$ trajectory.
-""" % (len(op), len(cl)))
+    """T5. Reports what the runs ACTUALLY produced, including the author-yield denominator that
+    determines whether L-F is a measurement at all. An L-F computed over <5 accepted model-authored
+    tasks is not interpreted (P0.3)."""
+    op = load("selfplay.json").get("models", [])
+    cl = load("selfplay_closed.json").get("models", [])
+    diag = load("selfplay_diag.json").get("models", [])
+    MINPROP = 5                       # accepted model-proposed tasks needed to interpret an L-F
+
+    def prop(m):
+        return m.get("total_model_proposed") or 0
+    op_ok = [m for m in op if prop(m) >= MINPROP]
+    op_under = [m for m in op if prop(m) < MINPROP]
+    cl_ok = [m for m in cl if prop(m) >= MINPROP]
+    op_nonzero = [m for m in op_ok if abs(m.get("final_L_minus_F") or 0) > 1e-9]
+    cl_nonzero = [m for m in cl_ok if abs(m.get("final_L_minus_F") or 0) > 1e-9]
+    cl_zero = [m for m in cl if abs(m.get("final_L_minus_F") or 0) <= 1e-9]
+
+    # the two rows previously quoted as the headline positives, with their actual denominators
+    quoted = sorted(op, key=lambda m: -(m.get("final_L_minus_F") or 0))[:2]
+    quoted_s = "; ".join("%s $L{-}F{=}%+.3f$ on \\textbf{%d} accepted authored task%s over %d rounds" %
+                         (esc(m.get("model")), m.get("final_L_minus_F") or 0, prop(m),
+                          "" if prop(m) == 1 else "s", len(m.get("rounds", [])))
+                         for m in quoted)
+
+    # what the dedicated diagnosis run actually produced
+    diag_line = ""
+    if diag:
+        d0 = diag[0]
+        authored = d0.get("authored_solve_rate") or []
+        n_null = sum(1 for x in authored if x is None)
+        diag_line = (r" The dedicated self-play \emph{diagnosis} run (%s, %d rounds) authored \textbf{zero} "
+                     r"valid tasks in every round, so all of its per-round diagnostics "
+                     r"(authored solve-rate, trivial/unsolvable fractions, headroom) are undefined "
+                     r"(%d/%d rounds null) and all three arms scored $C{=}0$. We therefore report it as an "
+                     r"\emph{author-yield failure}, and explicitly do \emph{not} draw the "
+                     r"``authored tasks are either trivial or unsolvable'' conclusion from it --- that "
+                     r"bimodality is a hypothesis the run was unable to test." %
+                     (esc(d0.get("model", "?")), len(authored), n_null, len(authored)))
+
+    body = (
+        r"\paragraph{T5 self-play (3-arm S/F/L): an author-yield failure, not a measured null.} "
+        r"The primary metric is $L-F$ (author co-evolution). Open-weight arm: NOPEN runs; closed/API arm: "
+        r"NCLOSED runs. \textbf{The binding problem is author yield, not solver capacity.} Interpreting "
+        r"$L-F$ requires the live author to have actually produced accepted, novel, valid tasks; we set a "
+        r"floor of MINPROP accepted model-authored tasks. Only NOPOK/NOPEN open runs and NCLOK/NCLOSED "
+        r"closed runs clear it. Every closed run reports exactly $L-F=0.0$ (NCLZERO/NCLOSED rows), including "
+        r"runs whose author proposed 36--37 tasks across 24 rounds --- a pattern that indicates the "
+        r"co-evolution channel never engaged rather than that it engaged and returned zero."
+        + diag_line +
+        r" \textbf{Previously quoted positives do not survive this floor:} QUOTED. We therefore report T5 as "
+        r"\emph{undefined at the current author yield} and place no $L-F$ value in the headline claims. "
+        r"The honest finding this section supports is narrower and still useful: \emph{free-form task "
+        r"proposal collapses}; without constrained, executable task mutation an author does not manufacture "
+        r"a frontier, so self-play cannot be tested at all. Structured mutation with validity and "
+        r"learnability gates is the prerequisite experiment, not an extension." + "\n")
+    for k, v in (("NOPOK", str(len(op_ok))), ("NOPEN", str(len(op))),
+                 ("NCLOK", str(len(cl_ok))), ("NCLZERO", str(len(cl_zero))),
+                 ("NCLOSED", str(len(cl))), ("MINPROP", str(MINPROP)), ("QUOTED", quoted_s)):
+        body = body.replace(k, v)
+    return body
+
 
 def build():
     body = (r"""%% AUTO-GENERATED by scripts/make_results_tex.py --- do not edit by hand. Regenerated on `make figures`.
@@ -349,10 +510,12 @@ headroom is an absolute number. The central artifact is a \textbf{lineage-vs-res
 diagram} with matched total compute and a \emph{positive control} (oracle-injected correct kernels, so a null
 is provably distinguishable from a broken harness). The benchmark's contribution is that it \emph{separates}
 the bottlenecks of kernel-code self-improvement --- generation, selection, weight-update, and curriculum ---
-and makes purported self-improvement hard to fake. Secondary (negative) results: an internal correctness
-probe gives only a modest within-task ranking signal and \emph{no} matched-budget harvesting advantage
-(verifier shortcuts do not beat verification); the correctness wall below $\sim$2B; and a self-play author
-that collapses without structured task mutation. We distinguish \emph{persistent} self-improvement (inherited
+and makes purported self-improvement hard to fake. Secondary results: an internal correctness probe beats
+uniform-random selection at matched \emph{generation} budget ($+0.124\,[+0.029,+0.218]$ clustered on base
+checkpoint) but against no stronger comparator, and its within-task ranking estimand is \emph{unmeasured}
+because per-candidate scores were not retained; the correctness wall below $\sim$2B is a sampling/formation
+artifact rather than absent capability; and the self-play author collapses without structured task mutation,
+leaving $L-F$ undefined rather than measured. We distinguish \emph{persistent} self-improvement (inherited
 updates help) from \emph{recursive} improvement (updates improve future training), and claim only what the
 controls support.
 Prioritized next runs: (1) a leakage-resistant probe replication on a larger, family-split task bank with a

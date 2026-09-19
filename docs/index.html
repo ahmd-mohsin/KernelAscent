@@ -6,7 +6,7 @@
 <title>KernelAscent</title>
 <meta name="description" content="KernelAscent is a benchmark for compounding kernel optimization. Models write GPU kernels graded for correctness and speed. Open and closed models compete on capability. Open weight models test recursive self improvement." />
 <link rel="icon" href="logo.png" />
-<link rel="stylesheet" href="style.css?v=09181655">
+<link rel="stylesheet" href="style.css?v=09190243">
 </head>
 <body>
 <header class="nav">
@@ -37,24 +37,27 @@
   <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1, Capability</b> measures raw skill in one shot. <b>Task 2, Weight RSI</b> measures recursive self improvement through weight training, for open weight models. <b>Task 3, Procedure RSI</b> lets open and closed models improve their own executable research procedure, weights fixed. Open and closed models both compete on Tasks 1 and 3. Task 2 needs weight access.</p>
   <div class="kpis">
     <div><div class="kpi-n">5</div><div class="kpi-l">tasks: capability + 4 RSI tracks incl. open-ended</div></div>
-    <div><div class="kpi-n">19</div><div class="kpi-l">open models on RSI</div></div>
+    <div><div class="kpi-n">133</div><div class="kpi-l">weight-RSI mechanism runs, 0.5–15B</div></div>
     <div><div class="kpi-n">9</div><div class="kpi-l">model families</div></div>
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
   </div>
-  <p class="finding-strip"><b>The finding:</b> verified self-training did not compound &mdash; under our tested GPU-kernel protocol. <span class="ev">228 evaluations · lineage ≈ reset · BF₀₁ ≈ 14.7 · search &gt; training</span> <a href="#findings">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
+  <p class="finding-strip"><b>The finding:</b> verified self-training did not compound &mdash; under our tested GPU-kernel protocol. <span class="ev">57 independent trajectories · lineage ≈ reset · BF₀₁ = 5.6 · search &gt; training</span> <a href="#findings">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
 </section>
 
 <section id="findings">
   <div class="snum">00 / Key findings</div>
   <h2>What we found</h2>
   <p class="small sub"><b>Self-training sharpens what a model already covers; it does not explore. In GPU-kernel optimization, compounding is coverage-limited — and coverage is not self-generated.</b></p>
+  <div class="note" style="margin:14px 0 18px"><b>How these numbers are counted.</b> The independent replicate is a <b>trajectory</b> — one seed, one base checkpoint, one held split, one accumulated adapter — <i>not</i> a round. Rounds inside a run are serially dependent, so pooling them as independent overstates the evidence (it is what an earlier version of this page did). Every interval below is computed at the trajectory level, with a cluster-robust check; the naive round-level figure is shown only where it makes the correction auditable.</div>
   <ul class="small">
-    <li><b>No compounding (strong null).</b> Lineage vs. matched-reset over multi-round rejection-sampling SFT: pooled lineage−reset = −0.002 [−0.017, +0.013] (n=228, incl. early 7B/14B), TOST-equivalent at δ=0.05, Bayes factor BF₀₁≈14.7; every scale 0.5–3B individually equivalent, 7B/14B early points within the equivalence bounds (still accumulating, ~64 min/round).</li>
-    <li><b>Search beats training (significant).</b> At matched compute, best-of-N search beats lineage self-training: lineage−bestofN = −0.113 [−0.153, −0.074] (CI excludes 0); search wins 70% of rounds.</li>
-    <li><b>Coverage-vs-scale (0.5B→14B).</b> Coverage 14%→86%; below the wall pass@K ≫ pass@1 (12–17×) — the sub-2B "correctness wall" is a sampling artifact, not absent capability.</li>
+    <li><b>No compounding — a bounded null.</b> Lineage vs. matched reset over multi-round rejection-sampling SFT: pooled lineage−reset = <b>-0.010 [-0.035, +0.016]</b> over <b>57 independent trajectories</b> (228 round-comparisons), TOST-equivalent at δ=0.05, Bayes factor <b>BF₀₁ = 5.6</b> — <i>moderate</i> evidence for the null. Robust to dropping short runs (≥3 rounds: 5.9; ≥6 rounds: 4.9). The naive round-level pooling would report BF₀₁ = 14.7; that figure is an artifact of the clustering and we do not claim it.</li>
+    <li><b>Search beats training (significant).</b> At matched cumulative generation budget, best-of-N search beats lineage self-training: lineage−bestofN = <b>-0.111 [-0.138, -0.083]</b> over 57 trajectories — CI excludes zero — and search wins <b>84% of runs</b>. Unlike the null, this positive <i>strengthens</i> under the clustering correction, because the contrast is made within a round.</li>
+    <li><b>Coverage-vs-scale (0.5B→14B).</b> Coverage 14%→86%; below the wall pass@K ≫ pass@1 (12–17×) — the sub-2B "correctness wall" is a low per-sample success probability, not absent capability. The <i>sharpenable</i> band (0&lt;p&lt;0.2, the only mass rejection-sampling SFT can act on) is 14/28/59/79/0% at 0.5/1.5/3/7/14B: thin below the wall, absent above it.</li>
     <li><b>0-score forensics (8 families).</b> The sub-3B wall is a kernel-<i>formation</i> failure (no_extract 57–96%), not correctness; failure marches downstream with scale: incoherence → truncation → API-hallucination → wrong-output → correct.</li>
-    <li><b>Weight-level mechanism (WHY-RSI, n=133).</b> RSI is an inverted-U in scale — peaks at 2–8B (49%), while ≥9B shows the lowest RSI (19%) despite the highest LoRA drift (0.73): large models churn weights without compounding (roofline saturation).</li>
-    <li><b>Task-5 self-play (closed frontier models).</b> Self-modification gain is one-shot (68% at round 0); 75% non-recursive; one model self-degrades.</li>
+    <li><b>Weight-level mechanism (WHY-RSI, n=133).</b> Reported as <i>associations</i>, not causal gates. Wall-crossing is 54% below 2B vs 92% at ≥2B — less frequent, <b>not</b> "never". RSI is an inverted-U in scale: it peaks at 2–8B (50%) and falls to 23% at ≥8B despite the largest LoRA drift (0.60) — motion without progress near the roofline. Among wall-crossers the discriminators are drift and retention; compounders show <b>lower</b> generation diversity (0.41 vs 0.52), so "diversity collapse causes the null" is <i>not</i> supported on this bank.</li>
+    <li><b>Task-3 procedure self-modify (closed frontier models).</b> Restricted to runs with ≥3 completed rounds, the gain is overwhelmingly one-shot: 76% of it arrives at round 0 and 60% of runs are non-recursive. Runs with 1–2 rounds are reported but not interpreted — the apparent DeepSeek-V3.2 "self-degrade" is a single-round artifact, not a finding.</li>
+    <li><b>Task-5 self-play — undefined, not null.</b> L−F needs the live author to produce accepted valid tasks; requiring ≥5, only 6/24 open and 5/11 closed runs qualify, and 10/11 closed rows are exactly 0.0. The dedicated diagnosis run authored <b>zero</b> tasks in all 8 rounds. The supported finding is narrower: <b>free-form task proposal collapses</b>.</li>
+    <li><b>Probe-as-intervention (secondary).</b> Clustered on base checkpoint, probe-guided reranking beats <i>uniform random</i> selection at matched generation budget (+0.124 [+0.029, +0.218], 12 checkpoints), recovering 36% of the oracle headroom. But random is the weakest comparator, denominators are 5–12 tasks per run, and the within-task ranking AUC — the only estimand that explains a selection gain — was never logged, so it is <b>unmeasured</b>.</li>
   </ul>
 </section>
 
@@ -123,7 +126,8 @@
       <th class="num">correct</th><th class="num">compiled x</th><th class="num">delta vs frozen</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>What the board shows, read honestly.</b> Models with headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B). Models that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Per-scale banks remove the headroom confound.</b> This first board used a single bank filtered against a frozen 7B, which saturated models of 7B and up (correct-rate near 1.0) and made them look flat. That is fixed. Each model now runs on a bank difficulty-filtered against a frozen anchor of ITS OWN scale (small 1.5B, mid 7B, large 14B), scored on speed vs torch.compile where every size has room. On that per-scale speed board, DeepSeek-1.3B compounds with self vs fresh-frozen near +0.26. The score is a thermometer, not a cheerleader. Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
+  <div class="note"><b>What the board shows, read honestly.</b> Models with headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B). Models that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Per-scale banks remove the headroom confound.</b> This first board used a single bank filtered against a frozen 7B, which saturated models of 7B and up (correct-rate near 1.0) and made them look flat. That is fixed. Each model now runs on a bank difficulty-filtered against a frozen anchor of ITS OWN scale (small 1.5B, mid 7B, large 14B), scored on speed vs torch.compile where every size has room. On that per-scale speed board, DeepSeek-1.3B reaches self vs fresh-frozen near +0.26. The score is a thermometer, not a cheerleader.
+  <p style="margin:10px 0 0"><b>But read this column with the fork control.</b> A positive self−fresh-frozen says the self-trained producer beats a frozen one; it does <i>not</i> establish compounding. The recursion-interruption control (clone the lineage, freeze the <i>producer</i> at a checkpoint, continue both at equal budget) dissolves it: for DeepSeek-1.3B, continued-self minus checkpoint-frozen is <b>−0.001</b> — a <b>one-time producer upgrade, not compounding</b>. The decisive longitudinal test is lineage vs. matched reset, and that is TOST-equivalent to zero (see <a href="#findings">Key findings</a>). Treat the rows below as a producer-quality snapshot, not evidence of recursion.</p> Full numbers and protocol live in <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/RSI_LEADERBOARD_REPORT.md">RSI_LEADERBOARD_REPORT.md</a>.</div>
 </section>
 
 <section id="perscale">
@@ -135,7 +139,7 @@
       <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C0 (speed)</th><th class="num">C final</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>The fair test.</b> On the speed dimension with a size-matched bank, small models compound (DeepSeek-1.3B self vs fresh-frozen near +0.26). Mid and large tiers run on harder banks (up to deep ULTRA transformer-block fusions) so they too start correct-but-slow with room to improve. No size is saturated by construction.</div>
+  <div class="note"><b>The fair test.</b> On the speed dimension with a size-matched bank, small models show a positive self vs fresh-frozen (DeepSeek-1.3B near +0.26). Mid and large tiers run on harder banks (up to deep ULTRA transformer-block fusions) so they too start correct-but-slow with room to improve. No size is saturated by construction. <b>Caveat:</b> this contrast is one-step — it compares an improved producer against a frozen one at a single point. It is not a compounding measurement, and the recursion-interruption fork shows the advantage does not persist once the producer is frozen at a checkpoint.</div>
 </section>
 
 <section id="closed">
@@ -171,6 +175,7 @@
       <th>Model</th><th>Mode</th><th class="num">rounds</th><th class="num">Q0</th><th class="num">Q final</th><th class="num">Q gain vs frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
+  <div class="note"><b>Read this board as one-shot improvement, not compounding.</b> The Q-gain vs a frozen procedure is real and sometimes large, but restricted to runs with ≥3 completed rounds, <b>76% of the total gain arrives at round 0</b> and 60% of runs are non-recursive — the archive saturates by round 1–2 (strategy-space exhaustion) while the self-written strategies stay diverse (Jaccard 0.12), so the bottleneck is converting strategies into capability, not strategy homogeneity. The models with sustained per-round gain are the ones that started from <i>low</i> Q₀, i.e. they are consuming headroom rather than demonstrating recursive self-insight. Rows with 1–2 completed rounds are shown but marked <span class="pill flat">not interpreted</span> — a genuine ceiling cannot be separated from an interrupted run at that length, which is why the apparent DeepSeek-V3.2 "self-degrade" is a single-round artifact and not a finding.</div>
   <div class="note"><b>How API models join the RSI axis.</b> A closed model cannot change its weights, but it can improve the procedure that drives its next attempts. Fable-5.1, Nova-Pro, and Llama-3.3-70B all run here; a positive Q gain is recursive self-improvement with weights fixed.</div>
 </section>
 
@@ -178,6 +183,7 @@
   <div class="snum">03f / Task 5 — Self-play, the true-RSI metric</div>
   <h2>The aggressively-recursive task: the model authors the frontier that fights it</h2>
   <p class="small sub">Fixed-task self-training only delivers a one-time upgrade (our recursion-interruption control shows continued-self ≈ checkpoint-frozen once the bank is fit). Task 5 removes that ceiling: the <b>model itself</b> authors strictly-harder tasks and solves+improves on them, so difficulty and capability co-evolve. To separate a harder curriculum from a co-evolving author we run <b>three arms</b> at equal budget on one fixed held-out ladder — <b>S STATIC</b> (fixed frontier), <b>F FROZEN-AUTHOR</b> (frontier escalates, author is the frozen base), <b>L LIVE-AUTHOR</b> (author is the current, evolving model). Only the author role differs between F and L. <span id="open-updated" class="tiny"></span></p>
+  <div class="note" style="margin:14px 0;border-left-color:#8c1515"><b>Status: undefined, not null.</b> In the runs below the live authors did not yield enough accepted valid tasks for L−F to be a measurement. We report the rung as an <b>author-yield failure</b> and place no L−F value in the headline claims. The design below is what the instrument was built to test; the data do not yet test it.</div>
   <div class="note" style="margin:14px 0"><b>The decomposition.</b> <b>L−S</b> = total adaptive-curriculum benefit · <b>F−S</b> = benefit without updating the author · <b>L−F = benefit of author co-evolution</b>, the self-referential signal and the primary metric. Sustained <b>L−F &gt; 0</b> with model-authored tasks accepted is genuine recursive compounding; <b>L ≈ F</b> means "adaptive curriculum only." Every authored task passes an anti-reward-hacking gate (no constant / identity / no-op / trivial-runtime tasks), is deduplicated, and its provenance is logged. Runs for open-weight (weight channel) and closed API (procedure channel) models.</div>
   <div class="mechgrid">
     <figure class="mechpanel"><figcaption><span class="fnum">Held-out capability: S / F / L</span></figcaption><div id="open-C_frontier" class="linechart"></div></figure>
@@ -201,7 +207,8 @@
       <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C live</th><th class="num">C frozen-auth</th><th class="num">C static</th><th class="num">L − F</th><th class="num">F − S</th><th class="num">authored</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>Reading the self-play boards.</b> <b>L−F &gt; 0</b> with tasks authored is the true-RSI signal: an evolving author helps beyond any harder curriculum. <b>L ≈ F</b> is "adaptive curriculum only"; a large <b>F−S</b> with L−F ≈ 0 means the escalating frontier helps but author co-evolution does not — the pattern seen so far for open models ≤15B. Closed rows populate as the API self-play rounds land.</div>
+  <div class="note"><b>Reading the self-play boards — start with the <i>authored</i> column.</b> L−F is only defined if the LIVE author actually produced accepted, valid, novel tasks. We require <b>≥5</b>; below that a row is greyed and marked <span class="pill flat">undefined · author yield</span>, because the co-evolution channel never engaged — that is not the same as engaging and returning zero. On the current data only <b>6/24</b> open and <b>5/11</b> closed runs clear the floor, and every closed row is exactly 0.0 (including authors that proposed 36–37 tasks across 24 rounds). The largest open L−F on this board (+0.232) rests on a <b>single</b> accepted authored task and is not a positive result.
+  <p style="margin:10px 0 0"><b>What Task 5 currently shows</b> is therefore a narrower but real finding: <b>free-form task proposal collapses</b>. Without constrained, executable task mutation — a DSL over verified seed tasks, with validity and learnability gates applied identically to the F and L arms — the author never manufactures a frontier, so co-evolution cannot be tested at all. That makes structured mutation a prerequisite experiment, not an extension.</p></div>
 </section>
 
 <section id="mech">
@@ -225,7 +232,7 @@
     <figure class="mechpanel"><figcaption><span class="fnum">Self minus fresh-frozen</span> (causal RSI)</figcaption><div id="mech-self_minus_fresh" class="linechart"></div></figure>
   </div>
   <div id="mech-legend" class="chart-legend"></div>
-  <div class="note"><b>The mechanistic finding.</b> Compounding is not about scale per se — it tracks the health of the self-training signal. A model compounds only while its own correct kernels stay diverse and it does not forget; diversity collapse and forgetting are the failure mode behind large-model overfit.</div>
+  <div class="note"><b>The mechanistic finding — and one correction.</b> Compounding is not about scale per se; among models that clear the correctness wall, the discriminators are <b>sustained LoRA drift and retention</b> (~5× higher in compounders). <b>Diversity is not one of them.</b> On this bank compounders show <i>lower</i> mean generation diversity than flat runs (0.41 vs 0.52), so "diversity collapse causes the null" is <b>not supported</b> — what compounding looks like here is productive convergence onto a good basin, not preserved exploration. Diversity contraction remains a plausible cross-round option-value lock, but that is an association whose clean test is a diversity-preserving intervention we have not run. All of these are associations, not established causal gates.</div>
 </section>
 
 <section id="data">
@@ -237,10 +244,19 @@
     <tbody>
       <tr><td><b>Capability</b></td><td>GPU kernel bank</td><td>L1 memory, L2 matmul epilogue, L3 attention and norm</td><td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a>, <code>dataset/kernel_bank/</code></td><td>disjoint kernel set, unreleased</td></tr>
       <tr><td><b>RSI</b></td><td>Standardized hard bank, Fable curated and GPU validated</td><td>L1, L2, L3, filtered to hard but learnable</td><td><code>dataset/kernel_bank/rsi_bank_hard.json</code></td><td>held out kernels re-scored each round</td></tr>
+      <tr><td><b>Transfer</b></td><td>Mutation-DSL bank, 456 tasks over 16 op families</td><td>family × shape × dtype × variant; CPU semantic gate</td><td><code>dataset/kernel_bank/kernel_tasks_dsl_validated.json</code></td><td>family-disjoint: 228 out-of-family + 108 in-family cells</td></tr>
     </tbody></table>
   </div>
+  <div class="note"><b>Why a family-disjoint bank.</b> The 29-task bank behind the p-maps and the probe is too small for per-task statistics — probe AUC swings 0.71–1.00 across draws and a "+0.45 lift" is about five problems. The mutation-DSL bank crosses <b>16 op families</b> × shape × dtype × variant and splits <i>at the level of the computation</i>: <code>heldout_family</code> families (grouped reductions, cumulative scans, top-k gating, rotary pairing, log-sum-exp, softmax→matmul) never appear in training, while <code>heldin_cell</code> holds out unseen dtype/shape cells of seen families. A renamed template or a nearby shape is not a new family, so the <i>family</i> count — not the task count — bounds any transfer claim.
+  <p style="margin:10px 0 0">Every task passes a CPU gate (builds, finite, non-constant, not an identity/no-op) before it can cost GPU time, and the gate itself must first pass a self-test on nine known-degenerate tasks — a gate that never rejects anything is indistinguishable from a broken gate. <b>Status: generated and semantically valid, not yet difficulty-calibrated</b>; the roofline ceiling and learnability filter still need a GPU pass, so this bank does not yet produce headline scores.</p></div>
   <pre><code>from datasets import load_dataset
-ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier</code></pre>
+ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier
+
+# family-disjoint transfer bank (regenerate + revalidate locally)
+python3 scripts/gen_task_dsl.py --out dataset/kernel_bank/kernel_tasks_dsl.json
+python3 scripts/validate_bank_cpu.py --selftest        # prove the gate can fail
+python3 scripts/validate_bank_cpu.py --in dataset/kernel_bank/kernel_tasks_dsl.json \
+    --out dataset/kernel_bank/kernel_tasks_dsl_validated.json</code></pre>
 </section>
 
 <section id="submit">
@@ -281,7 +297,7 @@ python3 scripts/validate_submission.py submissions/capability/your-model.json
   KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. Weight RSI runs an open weight self training loop. Procedure RSI lets open and closed models improve their own executable research procedure with weights fixed. Everything is GPU graded.
 </footer>
 
-<script src="app.js?v=09181655"></script>
-<script src="viz.js?v=09181655"></script>
+<script src="app.js?v=09190243"></script>
+<script src="viz.js?v=09190243"></script>
 </body>
 </html>

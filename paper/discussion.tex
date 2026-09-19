@@ -4,7 +4,8 @@
 
 \paragraph{The mechanism: a discovery$\to$assimilation bottleneck (sharpening, not exploration).}
 Our two strongest results jointly localise the failure. Best-of-$N$ search beating lineage training at matched
-compute (lineage$-$bestof$N=-0.113\,[-0.153,-0.074]$), together with the large pass@$K\!\gg\!$pass@1 gap, shows
+compute (lineage$-$bestof$N=-0.111\,[-0.138,-0.083]$ over 57 independent trajectories), together with the
+large pass@$K\!\gg\!$pass@1 gap, shows
 that \emph{useful solutions are already present in the sampling tail} but are not reliably produced in one
 sample. The limiting pipeline is therefore
 \[
@@ -74,8 +75,9 @@ entropy cannot fix formation; off-policy replay of redundant winners adds no fro
 
 \paragraph{Scope --- claims we do \emph{not} make.} We do not claim the models' reachable set is mathematically
 invariant, that the weights sit at a genuine local optimum, or that RL/RLVR cannot expand capability. We claim,
-with strong evidence: under verified rejection-sampling SFT at the tested scales/budget, carrying the lineage
-forward does not beat a matched reset (equivalence, $\mathrm{BF}_{01}\approx14.5$); verified search is a better
-use of the same compute; and the binding internal signals are coverage/formation (small), a mid-scale learnable
+with \emph{moderate} evidence for the null and a significant positive respectively: under verified
+rejection-sampling SFT at the tested scales/budget, carrying the lineage forward does not beat a matched reset
+(trajectory-level TOST equivalence at $\delta{=}0.05$, $\mathrm{BF}_{01}{=}5.6$ over 57 independent
+trajectories); verified search is a better use of the same compute (CI excludes zero); and the binding internal signals are coverage/formation (small), a mid-scale learnable
 frontier, and drift-without-gain plus diversity contraction (large). The synthesis: \emph{expert iteration
 without sufficient expert amplification, plus incomplete retention of the apprentice's useful tail.}

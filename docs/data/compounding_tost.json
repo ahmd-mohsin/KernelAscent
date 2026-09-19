@@ -1,0 +1,332 @@
+{
+ "contrast": "lineage_minus_reset",
+ "delta": 0.05,
+ "primary_estimand": "trajectory",
+ "note": "Trajectory is the independent replicate: rounds within a run share a base checkpoint, seed, held split and accumulated adapter. Round-level pooling is reported only to make the correction auditable.",
+ "models": {
+  "Qwen2.5-Coder-0.5B-Instruct": {
+   "trajectory": {
+    "n": 12,
+    "G": 12,
+    "mean": -0.01408,
+    "n_rounds": 51,
+    "se": 0.01982,
+    "df": 11,
+    "ci95": [
+     -0.05771,
+     0.02954
+    ],
+    "ci90_tost": [
+     -0.04968,
+     0.02151
+    ],
+    "equivalent": true,
+    "p_tost": 0.04867,
+    "bf01": 2.646
+   },
+   "crve": {
+    "n": 51,
+    "G": 12,
+    "mean": -0.01825,
+    "n_rounds": 51,
+    "se": 0.02766,
+    "df": 11,
+    "ci95": [
+     -0.07913,
+     0.04262
+    ],
+    "ci90_tost": [
+     -0.06792,
+     0.03141
+    ],
+    "equivalent": false,
+    "p_tost": 0.1377,
+    "bf01": 2.744
+   },
+   "round": {
+    "n": 51,
+    "G": 12,
+    "mean": -0.01825,
+    "n_rounds": 51,
+    "se": 0.02077,
+    "df": 50,
+    "ci95": [
+     -0.05997,
+     0.02346
+    ],
+    "ci90_tost": [
+     -0.05306,
+     0.01655
+    ],
+    "equivalent": false,
+    "p_tost": 0.06636,
+    "bf01": 4.831
+   },
+   "icc": {
+    "icc": 0.0807,
+    "m_bar": 4.25,
+    "design_effect": 1.2621,
+    "n_eff": 40.4076
+   }
+  },
+  "Qwen2.5-Coder-1.5B-Instruct": {
+   "trajectory": {
+    "n": 20,
+    "G": 20,
+    "mean": -0.00079,
+    "n_rounds": 93,
+    "se": 0.01726,
+    "df": 19,
+    "ci95": [
+     -0.03692,
+     0.03534
+    ],
+    "ci90_tost": [
+     -0.03064,
+     0.02906
+    ],
+    "equivalent": true,
+    "p_tost": 0.00511,
+    "bf01": 4.467
+   },
+   "crve": {
+    "n": 93,
+    "G": 20,
+    "mean": 0.00898,
+    "n_rounds": 93,
+    "se": 0.01563,
+    "df": 19,
+    "ci95": [
+     -0.02374,
+     0.0417
+    ],
+    "ci90_tost": [
+     -0.01806,
+     0.03601
+    ],
+    "equivalent": true,
+    "p_tost": 0.00836,
+    "bf01": 3.765
+   },
+   "round": {
+    "n": 93,
+    "G": 20,
+    "mean": 0.00898,
+    "n_rounds": 93,
+    "se": 0.01359,
+    "df": 92,
+    "ci95": [
+     -0.01801,
+     0.03596
+    ],
+    "ci90_tost": [
+     -0.0136,
+     0.03156
+    ],
+    "equivalent": true,
+    "p_tost": 0.00164,
+    "bf01": 7.738
+   },
+   "icc": {
+    "icc": 0.0771,
+    "m_bar": 4.65,
+    "design_effect": 1.2813,
+    "n_eff": 72.5845
+   }
+  },
+  "Qwen2.5-Coder-3B-Instruct": {
+   "trajectory": {
+    "n": 19,
+    "G": 19,
+    "mean": -0.02712,
+    "n_rounds": 78,
+    "se": 0.02795,
+    "df": 18,
+    "ci95": [
+     -0.08584,
+     0.03161
+    ],
+    "ci90_tost": [
+     -0.07559,
+     0.02135
+    ],
+    "equivalent": false,
+    "p_tost": 0.21183,
+    "bf01": 2.686
+   },
+   "crve": {
+    "n": 78,
+    "G": 19,
+    "mean": -0.00677,
+    "n_rounds": 78,
+    "se": 0.01931,
+    "df": 18,
+    "ci95": [
+     -0.04734,
+     0.0338
+    ],
+    "ci90_tost": [
+     -0.04026,
+     0.02672
+    ],
+    "equivalent": true,
+    "p_tost": 0.01903,
+    "bf01": 4.086
+   },
+   "round": {
+    "n": 78,
+    "G": 19,
+    "mean": -0.00677,
+    "n_rounds": 78,
+    "se": 0.01656,
+    "df": 77,
+    "ci95": [
+     -0.03975,
+     0.02622
+    ],
+    "ci90_tost": [
+     -0.03435,
+     0.02081
+    ],
+    "equivalent": true,
+    "p_tost": 0.00544,
+    "bf01": 8.116
+   },
+   "icc": {
+    "icc": 0.1623,
+    "m_bar": 4.1053,
+    "design_effect": 1.5039,
+    "n_eff": 51.8665
+   }
+  },
+  "Qwen2.5-Coder-7B-Instruct": {
+   "trajectory": {
+    "n": 5,
+    "G": 5,
+    "mean": 0.024,
+    "n_rounds": 5,
+    "se": 0.0541,
+    "df": 4,
+    "ci95": [
+     -0.12621,
+     0.17421
+    ],
+    "ci90_tost": [
+     -0.09134,
+     0.13934
+    ],
+    "equivalent": false,
+    "p_tost": 0.32796,
+    "bf01": 1.983
+   },
+   "crve": {
+    "n": 5,
+    "G": 5,
+    "mean": 0.024,
+    "n_rounds": 5,
+    "se": 0.0541,
+    "df": 4,
+    "ci95": [
+     -0.12621,
+     0.17421
+    ],
+    "ci90_tost": [
+     -0.09134,
+     0.13934
+    ],
+    "equivalent": false,
+    "p_tost": 0.32796,
+    "bf01": 1.983
+   },
+   "round": {
+    "n": 5,
+    "G": 5,
+    "mean": 0.024,
+    "n_rounds": 5,
+    "se": 0.0541,
+    "df": 4,
+    "ci95": [
+     -0.12621,
+     0.17421
+    ],
+    "ci90_tost": [
+     -0.09134,
+     0.13934
+    ],
+    "equivalent": false,
+    "p_tost": 0.32796,
+    "bf01": 1.983
+   }
+  },
+  "Qwen2.5-Coder-14B-Instruct": {
+   "trajectory": null,
+   "crve": null,
+   "round": null
+  }
+ },
+ "pooled": {
+  "trajectory": {
+   "n": 57,
+   "G": 57,
+   "mean": -0.00961,
+   "n_rounds": 228,
+   "se": 0.01259,
+   "df": 56,
+   "ci95": [
+    -0.03483,
+    0.0156
+   ],
+   "ci90_tost": [
+    -0.03067,
+    0.01144
+   ],
+   "equivalent": true,
+   "p_tost": 0.00111,
+   "bf01": 5.619
+  },
+  "crve": {
+   "n": 228,
+   "G": 57,
+   "mean": -0.00207,
+   "n_rounds": 228,
+   "se": 0.01105,
+   "df": 56,
+   "ci95": [
+    -0.02421,
+    0.02006
+   ],
+   "ci90_tost": [
+    -0.02055,
+    0.01641
+   ],
+   "equivalent": true,
+   "p_tost": 3e-05,
+   "bf01": 7.416
+  },
+  "round": {
+   "n": 228,
+   "G": 57,
+   "mean": -0.00207,
+   "n_rounds": 228,
+   "se": 0.00924,
+   "df": 227,
+   "ci95": [
+    -0.02027,
+    0.01613
+   ],
+   "ci90_tost": [
+    -0.01733,
+    0.01319
+   ],
+   "equivalent": true,
+   "p_tost": 0.0,
+   "bf01": 14.724
+  },
+  "icc": {
+   "icc": 0.0932,
+   "m_bar": 4.0,
+   "design_effect": 1.2795,
+   "n_eff": 178.1938
+  }
+ }
+}

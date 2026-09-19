@@ -89,8 +89,58 @@ def extract_modelnew(text):
     return None
 
 
-_ROOF_PEAK = {"fp16": 312e12, "bf16": 312e12, "fp32": 19.5e12, "tf32": 156e12}
-_ROOF_BW = float(os.environ.get("KA_PEAK_HBM_GBPS", "1555")) * 1e9
+# Roofline hardware constants. These set the per-task achievable ceiling, which is the
+# DENOMINATOR of the headroom-normalized score, so getting them wrong silently rescales every
+# result. They used to be a hardcoded A100 dict while _ROOF_BW was env-overridable, which meant
+# an operator could only fix half of it -- running on anything but an A100 produced quietly
+# miscalibrated headroom.
+#
+# Resolution order: explicit env var  ->  auto-detect from the device name  ->  A100.
+# Env names match kernelascent/v3/lab_roofline.py so one setting configures both.
+# All figures are DENSE (non-sparse) tensor-core peaks in TFLOP/s, and HBM bandwidth in GB/s.
+_ROOF_SPECS = {
+    "a100": {"fp16": 312.0, "bf16": 312.0, "fp32": 19.5, "tf32": 156.0, "bw": 1555.0},
+    "h100": {"fp16": 989.0, "bf16": 989.0, "fp32": 67.0, "tf32": 495.0, "bw": 3350.0},
+    "h200": {"fp16": 989.0, "bf16": 989.0, "fp32": 67.0, "tf32": 495.0, "bw": 4800.0},
+    "l40s": {"fp16": 362.0, "bf16": 362.0, "fp32": 91.6, "tf32": 183.0, "bw": 864.0},
+    "a6000": {"fp16": 155.0, "bf16": 155.0, "fp32": 38.7, "tf32": 77.4, "bw": 768.0},
+}
+ROOF_ARCH_DEFAULT = "a100"          # what the published KernelAscent results were measured on
+
+
+def _detect_arch():
+    """Best-effort GPU family from the device name. KA_ROOF_ARCH overrides; unknown -> default."""
+    forced = os.environ.get("KA_ROOF_ARCH", "").strip().lower()
+    if forced:
+        return forced if forced in _ROOF_SPECS else ROOF_ARCH_DEFAULT
+    try:
+        name = torch.cuda.get_device_name(0).lower() if torch.cuda.is_available() else ""
+    except Exception:
+        name = ""
+    for key in ("h200", "h100", "l40s", "a100", "a6000"):
+        if key in name.replace("-", "").replace(" ", ""):
+            return key
+    return ROOF_ARCH_DEFAULT
+
+
+ROOF_ARCH = _detect_arch()
+_spec = _ROOF_SPECS[ROOF_ARCH]
+
+
+def _peak(key, env):
+    return float(os.environ.get(env, _spec[key])) * 1e12
+
+
+_ROOF_PEAK = {"fp16": _peak("fp16", "KA_PEAK_FP16_TFLOPS"), "bf16": _peak("bf16", "KA_PEAK_BF16_TFLOPS"),
+              "fp32": _peak("fp32", "KA_PEAK_FP32_TFLOPS"), "tf32": _peak("tf32", "KA_PEAK_TF32_TFLOPS")}
+_ROOF_BW = float(os.environ.get("KA_PEAK_HBM_GBPS", _spec["bw"])) * 1e9
+
+
+def roofline_config():
+    """The constants actually in force, for logging into a run's provenance. A result graded
+    on one architecture is not comparable to one graded on another, so record this."""
+    return {"arch": ROOF_ARCH, "detected_from": os.environ.get("KA_ROOF_ARCH") and "KA_ROOF_ARCH" or "device-name",
+            "peak_tflops": {k: v / 1e12 for k, v in _ROOF_PEAK.items()}, "peak_hbm_gbps": _ROOF_BW / 1e9}
 
 
 def _roofline_ceiling(ref, x, dt, tbase_compiled):

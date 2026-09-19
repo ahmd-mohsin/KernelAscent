@@ -4,7 +4,6 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{amsmath}
-\usepackage{amssymb}
 \graphicspath{{figures/}}
 \title{KernelAscent: RSI benchmark --- figure atlas}
 \author{}
@@ -14,25 +13,25 @@
 \noindent Auto-generated figure atlas (regenerate: \texttt{python3 scripts/make\_paper\_figures.py}). Pick the figures that matter; each has a \texttt{label} for cross-referencing.\par
 \section{Leaderboards}
 \begin{table}[H]\centering
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrl}
 \toprule
-Model & tier & rounds & $L-F$ \\
+Model & tier & rounds & accepted & $L-F$ & status \\
 \midrule
-starcoder2-15b & large & 6 & 0.232 \\
-deepseek-coder-6.7b-base & mid & 3 & 0.154 \\
-starcoder2-15b & large & 5 & 0.071 \\
-deepseek-coder-1.3b-base & small & 12 & 0.039 \\
-deepseek-coder-1.3b-base & small & 8 & 0.038 \\
-deepseek-coder-1.3b-base & small & 4 & 0.038 \\
-deepseek-coder-1.3b-base & small & 24 & 0.001 \\
-Qwen2.5-Coder-3B & small & 8 & 0.000 \\
-Qwen2.5-Coder-14B & large & 4 & -0.000 \\
-Qwen2.5-Coder-1.5B & small & 3 & 0.000 \\
-Qwen2.5-Coder-1.5B & small & 3 & 0.000 \\
-Qwen2.5-Coder-1.5B & small & 12 & 0.000 \\
+starcoder2-15b & large & 6 & 1 & 0.232 & \emph{undefined} \\
+deepseek-coder-6.7b-base & mid & 3 & 3 & 0.154 & \emph{undefined} \\
+starcoder2-15b & large & 5 & 0 & 0.071 & \emph{undefined} \\
+deepseek-coder-1.3b-base & small & 12 & 6 & 0.039 & interpretable \\
+deepseek-coder-1.3b-base & small & 4 & 2 & 0.038 & \emph{undefined} \\
+deepseek-coder-1.3b-base & small & 24 & 0 & 0.001 & \emph{undefined} \\
+Qwen2.5-Coder-3B & small & 8 & 0 & 0.000 & \emph{undefined} \\
+Qwen2.5-Coder-14B & large & 4 & 14 & -0.000 & interpretable \\
+Qwen2.5-Coder-1.5B & small & 3 & 10 & 0.000 & interpretable \\
+Qwen2.5-Coder-1.5B & small & 3 & 8 & 0.000 & interpretable \\
+Qwen2.5-Coder-3B & small & 2 & 0 & 0.000 & \emph{undefined} \\
+Qwen2.5-Coder-1.5B & small & 12 & 1 & 0.000 & \emph{undefined} \\
 \bottomrule
 \end{tabular}
-\caption{Task 5 open self-play: author co-evolution $L-F$ leaderboard.}
+\caption{Task 5 open self-play: author co-evolution $L-F$. "accepted" counts model-authored tasks that passed the validity/novelty gate; $L-F$ is only defined when the live author actually produced a frontier, so rows with fewer than 5 accepted tasks are marked \emph{undefined} and must not be read as measured zeros (or as positives -- the largest value in this table rests on a single accepted task).}
 \label{tab:t5}
 \end{table}
 \begin{table}[H]\centering
@@ -40,17 +39,17 @@ Qwen2.5-Coder-1.5B & small & 12 & 0.000 \\
 \toprule
 Model & $Q_0$ & $Q_g$ & $\Delta$ vs base \\
 \midrule
-us.openai.gpt-6-astra & 0.298 & 0.854 & 0.556 \\
-us.anthropic.claude-sonnet-5 & 0.493 & 0.894 & 0.401 \\
-mistral.mistral-large-3-675b & 0.359 & 0.669 & 0.310 \\
-Nova-Pro & 0.401 & 0.490 & 0.089 \\
-us.openai.gpt-5.6-sol & 0.813 & 0.889 & 0.075 \\
-Kimi-K2.5 & 0.752 & 0.813 & 0.062 \\
+GPT-6 Astra & 0.298 & 0.854 & 0.556 \\
+Claude Sonnet 5 & 0.493 & 0.894 & 0.401 \\
+Mistral Large 3 & 0.359 & 0.669 & 0.310 \\
+Nova Pro & 0.401 & 0.490 & 0.089 \\
+GPT-5.6 Sol & 0.813 & 0.889 & 0.075 \\
+Kimi K2.5 & 0.752 & 0.813 & 0.062 \\
 Claude-Opus-5 & 0.878 & 0.910 & 0.032 \\
 Fable-5.1 & 0.732 & 0.741 & 0.009 \\
-us.openai.gpt-5.6-terra & 0.851 & 0.850 & -0.001 \\
+GPT-5.6 Terra & 0.851 & 0.850 & -0.001 \\
 Llama-3.3-70B & 0.458 & 0.455 & -0.004 \\
-deepseek.v3.2 & 0.847 & 0.614 & -0.234 \\
+DeepSeek V3.2 & 0.847 & 0.614 & -0.234 \\
 \bottomrule
 \end{tabular}
 \caption{Task 3 procedure-RSI: held-out $Q$ gain vs.\ frozen procedure.}
@@ -61,9 +60,9 @@ deepseek.v3.2 & 0.847 & 0.614 & -0.234 \\
 \toprule
 Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \midrule
-<2B & 26 & 0.54 & 0.04 & 0.024 \\
-2-8B & 17 & 0.94 & 0.41 & 0.299 \\
->=9B & 7 & 0.71 & 0.29 & 0.396 \\
+<2B & 67 & 0.54 & 0.03 & 0.019 \\
+2-8B & 40 & 1.00 & 0.50 & 0.271 \\
+>=8B & 26 & 0.81 & 0.23 & 0.596 \\
 \bottomrule
 \end{tabular}
 \caption{Scale $\to$ RSI gates: correctness-wall crossing and compounding by size band.}
@@ -190,7 +189,7 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \end{figure}
 \begin{figure}[H]\centering
 \includegraphics[width=0.98\linewidth]{cz_causal_flow.pdf}
-\caption{Causal attrition of 50 open-weight runs: most are lost at Gate~1 (the correctness wall -- no verified kernel, no gradient); among wall-crossers only a minority compound, the rest going flat via drift-saturation and forgetting (Gate~2).}
+\caption{Causal attrition of 133 open-weight runs: most are lost at Gate~1 (the correctness wall -- no verified kernel, no gradient); among wall-crossers only a minority compound, the rest going flat via drift-saturation and forgetting (Gate~2).}
 \label{fig:cz_causal_flow}
 \end{figure}
 \begin{figure}[H]\centering
@@ -292,9 +291,4 @@ Size band & $n$ & P(cross wall) & P(RSI) & mean drift \\
 \label{fig:iv_ksweep}
 \end{figure}
 % <<< INTERVENE (auto)
-
-\clearpage
-\input{results_auto}
-\clearpage
-\input{discussion}
 \end{document}

@@ -30,8 +30,8 @@
 \newcommand{\intuition}[1]{\medskip\noindent\textbf{Intuition.}\ \emph{#1}\medskip}
 
 \title{\textbf{KernelAscent: The Complete Report}\\[2mm]
-\large Three weeks of recursive self-improvement experiments in GPU-kernel optimization ---\\
-results, mechanism, and intuition}
+\large Separating search, selection and learning in verified GPU-kernel self-optimization ---\\
+does \emph{persistent} self-improvement compound? (results, mechanism, and intuition)}
 \author{KernelAscent}
 \date{\today}
 
@@ -47,10 +47,22 @@ open-ended self-play where a model authors the very frontier it must then beat) 
 72-GPU cluster across model scales from 0.5B to 14B and a panel of frontier API models. This report is the full
 synthesis: the design rationale for each rung, every quantitative result with its uncertainty, the mechanistic
 account of \emph{why} verified self-training does not compound in this domain, and the accumulated intuition and
-operational lessons of the run. Our headline is a rigorously-powered null: at matched compute, carrying a
-self-training lineage forward does not beat a matched reset (a statistically equivalent result, \bfz{}
-$\approx$ 14.7), while verified \emph{search} at the same budget does better --- localizing the failure to a
-discovery$\to$assimilation bottleneck rather than to an absence of capability.
+operational lessons of the run. Our headline is a bounded null, analysed at the level of the
+independent replicate (the trajectory, not the round): at matched compute, carrying a self-training lineage
+forward does not beat a matched reset (TOST-equivalent at $\delta{=}0.05$ over 57 trajectories,
+\bfz{}$\,{=}\,$5.6 --- \emph{moderate} evidence for the null, robust to restricting to full-length runs),
+while verified \emph{search} at the same budget does strictly better ($-0.111\,[-0.138,-0.083]$, CI excludes
+zero) --- localizing the failure to a discovery$\to$assimilation bottleneck rather than to an absence of
+capability.
+\textbf{We are precise about which claim we test.} \emph{Persistent} self-improvement asks whether inherited
+updates improve future performance; \emph{recursive} self-improvement asks whether those updates improve the
+system's ability to generate its own future training signal or curriculum. This report tests persistence
+directly (lineage vs.\ reset) and finds it equivalent to a reset. The only rung that probes recursion --- the
+recursion-interruption fork, in which the producer is frozen at a checkpoint while its descendant continues
+--- returns a one-time producer upgrade, not compounding. The self-play rung, which was designed to test
+recursion through an endogenous curriculum, did not reach a testable state: its live authors failed to yield
+enough accepted, valid tasks for $L-F$ to be defined. We therefore make no recursive-self-improvement claim in
+either direction, and we do not treat our persistence null as evidence about recursion.
 \end{abstract}
 
 \tableofcontents
@@ -60,7 +72,11 @@ discovery$\to$assimilation bottleneck rather than to an absence of capability.
 \section{Thesis: recursion, not capability}
 % =====================================================================================
 The central intellectual commitment of KernelAscent is that the interesting axis of ``self-improvement'' is
-\textbf{recursion}, not the raw height of a single-shot score. A model that writes an excellent kernel once has
+\textbf{recursion}, not the raw height of a single-shot score. \emph{What this report actually measures is the
+weaker of the two claims} --- \textbf{persistence} --- because that is the one the data can support; the
+recursion rungs either return a one-time upgrade (the fork) or never became measurable (self-play). We keep
+the framing because it is what the instrument was built to falsify, and we mark throughout which claim each
+result licenses. A model that writes an excellent kernel once has
 demonstrated capability; a model whose \emph{next} kernel is better \emph{because of} the last one has
 demonstrated something qualitatively different. Most benchmarks conflate the two because they measure a fixed
 model against a fixed test. We instead measure the \emph{derivative}: does an improvement, once made, become
@@ -203,27 +219,35 @@ which is why ``where $C$ moves, it moves via correctness acquisition, not speed'
 The title claim is where the strongest evidence lives, and it is a \emph{null}. Over multi-round rejection-sampling
 SFT, carrying the lineage forward does not beat a matched reset.
 
-\finding{Pooled across scales (0.5B--14B, $n{=}229$ round-comparisons), \lmr{}\ $=-0.002\,[-0.017,+0.013]$,
-TOST-equivalent at $\delta{=}0.05$ with $\bfz \approx 14.7$ --- \emph{strong} evidence for the null. The 1.5B and
-3B scales are individually equivalent ($\bfz$ 7.7, 8.1); 0.5B is marginal and negative if anything; 7B/14B are
-still accumulating (${\sim}64$\,min/round) but their early points fall inside the equivalence bounds.}
+\finding{The independent replicate is the \emph{trajectory} (one seed, one base checkpoint, one held
+split, one accumulated adapter), not the round: rounds within a run are serially dependent, and an earlier
+draft of this report pooled them as if independent. Pooled across scales (0.5B--14B) over
+\textbf{57 trajectories} comprising 228 round-comparisons, \lmr{}\ $=-0.010\,[-0.035,+0.016]$, TOST-equivalent
+at $\delta{=}0.05$ with $\bfz{=}5.6$ --- \emph{moderate} evidence for the null. A cluster-robust estimate
+clustered on trajectory agrees ($-0.002\,[-0.024,+0.020]$, $\bfz{=}7.4$). The naive round-level pooling would
+have reported $\bfz{=}14.7$; that figure is an artifact of the clustering and we do not claim it. The verdict
+is robust: restricting to trajectories with $\geq3$ rounds ($n{=}36$) gives $\bfz\,{\approx}\,5.9$ and to
+full-length $\geq6$-round trajectories ($n{=}29$) gives $\bfz\,{\approx}\,4.9$, both EQUIV.}
 
 \begin{table}[H]\centering\small
-\begin{tabular}{lccc}
+\begin{tabular}{lccccc}
 \toprule
-Scale & $n$ & \lmr{} (TOST 90\% CI) & \bfz{} \\
+Scale & traj.\ $n$ & rounds & \lmr{} (95\% CI) & TOST & \bfz{} \\
 \midrule
-Qwen2.5-Coder-0.5B & 51 & $-0.018\,[-0.052,+0.016]$ & 4.8 (marginal) \\
-Qwen2.5-Coder-1.5B & 93 & $+0.009\,[-0.013,+0.031]$ & 7.7 (EQUIV) \\
-Qwen2.5-Coder-3B   & 78 & $-0.007\,[-0.034,+0.020]$ & 8.1 (EQUIV) \\
-Qwen2.5-Coder-7B   & 5  & $+0.024\,[-0.065,+0.113]$ & 2.2 (underpowered) \\
+Qwen2.5-Coder-0.5B & 12 & 51 & $-0.014\,[-0.058,+0.030]$ & EQUIV & 2.6 \\
+Qwen2.5-Coder-1.5B & 20 & 93 & $-0.001\,[-0.037,+0.035]$ & EQUIV & 4.5 \\
+Qwen2.5-Coder-3B   & 19 & 78 & $-0.027\,[-0.086,+0.032]$ & not equiv. & 2.7 \\
+Qwen2.5-Coder-7B   & 5  & 5  & $+0.024\,[-0.126,+0.174]$ & underpowered & 2.0 \\
 \midrule
-\textbf{Pooled}    & 229 & $\mathbf{-0.002\,[-0.017,+0.013]}$ & \textbf{14.7 (EQUIV)} \\
+\textbf{Pooled}    & \textbf{57} & \textbf{228} & $\mathbf{-0.010\,[-0.035,+0.016]}$ & \textbf{EQUIV} & \textbf{5.6} \\
 \bottomrule
 \end{tabular}
-\caption{Lineage vs.\ matched reset, per scale and pooled (\texttt{equivalence\_tost.py}). Per-round, \lmr{}
-shows a \emph{transient} early advantage (rounds 1--2, e.g.\ Qwen-3B/1.5B $+0.10$) that \textbf{collapses to
-$\approx0$ by round 3} --- so accumulated self-training does not beat a fresh reset averaged over rounds.}
+\caption{Lineage vs.\ matched reset at the \textbf{trajectory} level (primary estimand;
+\texttt{equivalence\_tost.py}). $n$ counts independent trajectories; ``rounds'' counts the round-comparisons
+they contain. Intra-trajectory ICC${=}0.093$ (design effect $1.28$), so the naive $n{=}228$ rounds carry the
+evidence of ${\approx}178$ independent observations. Individual scales are now only moderately powered --- 3B
+is \emph{not} individually equivalent once clustering is respected, and 7B ($n{=}5$) is not interpreted.
+Per-round, \lmr{} shows a \emph{transient} early advantage (rounds 1--2) decaying to $\approx0$ by round 3.}
 \end{table}
 
 \noindent The uncontrolled T2 boards (\texttt{rsi\_leaderboard.json}, \texttt{tier\_speed\_rsi.json}) do show
@@ -266,23 +290,37 @@ own weights can still cause a better open model. But it is brittle and trainee-s
 ``the researcher discovered a better training recipe'' and more like ``it happened to match this trainee's
 correctness headroom.'' Transmitted improvement is real but not yet a reliable, general channel.}
 
-\subsection{T5 --- Self-play (open and closed)}
-The primary signal is \lf{} (extra gain from a co-evolving author beyond an escalating curriculum).
-\textbf{Open} (\texttt{selfplay.json}, 24 runs): most models $\le$15B show $\lf\approx0$ (adaptive curriculum
-only). The clearest positive is starcoder2-15b $\lf=+0.232$ --- but on only \emph{one} accepted model-proposed
-task, so it is suggestive at best; deepseek-coder-6.7b-base reaches $+0.154$ (3 proposed).
-\textbf{Closed} (\texttt{selfplay\_closed.json}, procedure channel, 11 runs): \emph{every} row is $\lf=0.0$
-except Mistral Large 3 at $-0.584$, even though GPT-5.6 Sol/Terra and Sonnet-5 each proposed 36--37 tasks.
-\textbf{Open-ended} (\texttt{open\_rsi.json}, 16 runs): \emph{all} verdicts are ``one-time (open $=$ fixed)''.
+\subsection{T5 --- Self-play: an author-yield failure, not a measured null}
+The primary signal is \lf{} (extra gain from a co-evolving author beyond an escalating curriculum). \lf{} is
+only defined if the live author actually produced accepted, valid, novel tasks. \textbf{It did not, at the
+yield needed to measure anything.}
 
-\finding{The self-play diagnosis (\texttt{selfplay\_diag.json}) explains the near-universal
-$\lf\approx0$: the learned author suffers an \textbf{authored-task solve-rate collapse} --- proposed tasks are
-either trivial (solver $\ge$90\%) or unsolvable ($\le$10\%), rarely in the learnable 20--80\% band --- and the
-``goldilocks'' rescue did not fire. Open-endedness is a one-time upgrade here, not a compounding engine,
-because the author cannot reliably manufacture in-band difficulty.}
+\textbf{Open} (\texttt{selfplay.json}, 24 runs): most models $\le$15B report $\lf\approx0$. Requiring at least
+five accepted model-authored tasks before a row is interpreted, only 6/24 open runs qualify.
+\textbf{Closed} (\texttt{selfplay\_closed.json}, procedure channel, 11 runs): 10/11 rows are \emph{exactly}
+$\lf=0.0$ --- including runs whose authors proposed 36--37 tasks across 24 rounds. An exact zero across 24
+rounds with non-zero proposal counts indicates the co-evolution channel never engaged, not that it engaged and
+returned nothing. \textbf{Open-ended} (\texttt{open\_rsi.json}, 16 runs): all verdicts are ``one-time
+(open $=$ fixed)''.
+
+\finding{The two rows previously quoted as positives do not survive the yield floor: starcoder2-15b
+$\lf=+0.232$ rests on \textbf{one} accepted authored task over 6 rounds, and deepseek-coder-6.7b-base
+$\lf=+0.154$ on \textbf{three} over 3 rounds. Their per-round \lf{} traces oscillate in sign. We therefore
+withdraw both from the headline claims and report T5 as \emph{undefined at the current author yield}.}
+
+\noindent\textbf{What the dedicated diagnosis run actually shows.} The self-play diagnosis
+(\texttt{selfplay\_diag.json}, Qwen2.5-Coder-3B, 8 rounds) authored \textbf{zero} valid tasks in every round.
+Consequently every per-round diagnostic in that file --- authored solve-rate, trivial and unsolvable
+fractions, authored headroom --- is \texttt{null}, and all three arms scored $C{=}0$. An earlier draft of this
+report read that run as showing a \emph{bimodal} authored-difficulty distribution (tasks either trivial or
+unsolvable, rarely in a learnable band). \textbf{That conclusion is not in the data and we retract it}: the
+bimodality is a plausible hypothesis the run was unable to test, because nothing was authored to measure. The
+supported statement is narrower: \emph{free-form task proposal collapses}. Without constrained, executable
+task mutation, the author does not manufacture a frontier, so self-play cannot be tested at all --- which
+makes structured mutation with validity and learnability gates a prerequisite experiment, not an extension.
 
 \noindent (Note: an earlier README listed closed Sonnet-5 $+0.045$ / GPT-5.6-Sol $+0.041$ as ``emerging
-positives''; these are \emph{not} in the current data and are treated as stale.)
+positives''; these are \emph{not} in the current data and have been removed.)
 
 % =====================================================================================
 \section{Cross-cutting analyses: the mechanism}
@@ -331,14 +369,17 @@ correct to train on. As scale rises the bottleneck migrates from ``can it write 
 right'' to ``is it fast.''}
 
 \subsection{Search beats training at matched compute}
-Pooled over 83 round-comparisons (\texttt{search\_vs\_train.json}), lineage$-$bestof$N = -0.113\,[-0.153,-0.074]$
-(CI excludes zero), and verified search wins 69.9\% of rounds; every scale is individually negative (0.5B
-$-0.140$, 1.5B $-0.080$, 3B $-0.145$). A separate matched-budget baseline sweep (\texttt{baselines.json},
+Analysed at the trajectory level over 57 trajectories / 228 round-comparisons
+(\texttt{search\_vs\_train.json}), lineage$-$bestof$N = -0.111\,[-0.138,-0.083]$ (CI excludes zero; the
+cluster-robust interval $[-0.163,-0.120]$ agrees), and verified search beats lineage in \textbf{84\% of runs}
+(76\% of rounds); every well-powered scale is individually negative (0.5B $-0.123$, 1.5B $-0.114$,
+3B $-0.123$; 7B $-0.018$ at $n{=}5$ is not interpreted). Unlike the compounding null, this positive
+\emph{strengthens} under the clustering correction, because the contrast is made within a round. A separate matched-budget baseline sweep (\texttt{baselines.json},
 budget 20) is weaker and mixed --- Qwen-1.5B recursion\_gain $+0.055$ over its best non-recursive baseline, but
 starcoder2-3b $-0.073$ --- so the strong, consistent statement is the search-vs-lineage one.
 
 \finding{At a matched compute ledger, best-of-$N$ verified search beats lineage self-training (lineage$-$bestof$N
-= -0.113\,[-0.153,-0.074]$, CI excludes zero). The useful solutions are \emph{already reachable by sampling};
+= -0.111\,[-0.138,-0.083]$ over 57 trajectories, CI excludes zero). The useful solutions are \emph{already reachable by sampling};
 search exploits them directly, while training must compress them into shared weights and have the gain survive.}
 
 \subsection{WHY-RSI: the weight-level mechanism and the inverted-U in scale}
@@ -356,8 +397,8 @@ $\ge$9B & 21 & 0.81 & \textbf{0.726} & 0.339 & 0.19 \\
 \bottomrule
 \end{tabular}
 \caption{The inverted-U (\texttt{mech\_analysis.json}, $n{=}133$). RSI peaks at 2--8B; the largest models drift
-\emph{most} in weight space yet compound \emph{least} --- motion without progress near the roofline. Only
-11/133 runs compounded (stable-code-3b recurs). When drift occurs it localizes to \emph{late} layers (task
+\emph{most} in weight space yet compound \emph{least} --- motion without progress near the roofline. 28/133
+runs met the compounding criterion (stable-code-3b recurs). When drift occurs it localizes to \emph{late} layers (task
 adaptation) and the held-family transfer gap is $\approx0$ (no transferable meta-skill).}
 \end{table}
 
@@ -378,17 +419,32 @@ The binding constraint slides from \emph{formation} (small) to \emph{headroom} (
 \subsection{Probe-as-intervention: correctness is represented better than it is generated}
 A linear probe reads ``is this kernel correct'' out of mid-to-late layers at high AUC (Qwen-3B best\_auc
 \textbf{0.985} at depth 0.86, while its actual correctness rate is 0.105) --- the model \emph{represents}
-correctness far better than it \emph{generates} it (\texttt{interp.json}). Using the probe to select at equal
-budget (\texttt{probe\_intervene.json}) shows large lifts on some checkpoints (Qwen-0.5B PROBE$-$RANDOM
-$+0.42$, Qwen-3B $+0.40$) but negatives on others (Qwen-7B $-0.27$) and noise across repeated draws on the
-small bank.
+correctness far better than it \emph{generates} it (\texttt{interp.json}).
 
-\finding{We report this carefully. The high \emph{pooled} AUC partly reflects the probe separating easy tasks
-from hard ones, \emph{not} ranking candidates within a task; the within-task ranking signal is only modest
-($\approx0.67$) and there is \textbf{no clean matched-budget harvesting advantage} yet. The defensible claim is
-qualitative --- correctness is internally decodable well above generation success --- which is the
-discovery$\to$assimilation gap seen from the inside, not a deployable self-verification win. A leave-task-out,
-within-task ranking evaluation on a larger task bank is the needed follow-up.}
+\finding{Analysed at the right unit, probe-guided selection \emph{does} beat uniform-random selection at
+matched \emph{generation} budget. Clustering the 19 usable runs on their 12 distinct base checkpoints (rows
+sharing a checkpoint are repeated draws, not distinct models), the mean lift is
+$\mathbf{+0.124\,[+0.029,+0.218]}$ --- the 95\% CI excludes zero --- recovering $36\%\,[11\%,60\%]$ of the
+oracle$-$random headroom. An earlier draft read the same rows as ``no advantage'' because it looked at the
+spread of individual runs ($-0.27$ to $+0.45$) rather than the clustered mean. See
+Appendix~\ref{app:probe}.}
+
+\noindent\textbf{Three reasons this is a modest secondary result, not a headline.} (i) \emph{Uniform random is
+the weakest possible comparator}: the informative ones --- length-normalised log-likelihood reranking, a
+compile/run validity filter, execution agreement --- were not run, so we cannot say the probe is the best use
+of the same compute. (ii) \emph{The denominators are tiny}: each run's lift is computed over 5--12 test tasks,
+so a ``$+0.45$'' is about five problems, and the clustered interval is correspondingly wide. (iii)
+\emph{Matched-generation selection is not matched-verification harvesting}: a gain in top-1 correct rate from
+reranking an existing pool does not imply the probe makes a verification-constrained search cheaper.
+
+\noindent\textbf{What we cannot verify from the released artifacts.} Two figures quoted in earlier drafts --- a
+within-task ranking AUC of ${\approx}0.67$ and a matched-verification harvesting yield of ${+}0.01$ --- come
+from a probe-baselines run whose per-candidate outputs are \emph{not} in this repository. Per-candidate probe
+scores were not retained anywhere, so the within-task AUC cannot be recomputed from what we release. We
+therefore do not rely on either number, and we state the within-task estimand as \textbf{unmeasured} rather
+than as measured-and-small. This is the single most important gap in the probe story: only a within-task
+ranking metric can explain a selection gain mechanistically, and the pooled AUC cannot substitute for it ---
+as the runs with pooled $\mathrm{AUC}{=}1.000$ and lifts anywhere from $+0.000$ to $+0.250$ demonstrate.
 
 \intuition{A linear probe can read ``is this kernel correct'' out of mid-to-late layers at high AUC, yet the
 model emits a correct kernel far less often than it can internally recognize one. The model \emph{knows} more
@@ -469,5 +525,8 @@ the coverage it would need to keep going. The result is a strong, honest null fl
 (search beats training; the correctness wall is a sampling artifact) that together localize the failure and
 point at the intervention most likely to break it. KernelAscent ships that intervention as an open, automated
 submission track, so the community can try to turn the null into a curve.
+
+\appendix
+\input{probe_appendix}
 
 \end{document}

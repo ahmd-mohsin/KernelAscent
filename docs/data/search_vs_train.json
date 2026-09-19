@@ -1,35 +1,71 @@
 {
+ "contrast": "lineage_minus_bestofN",
+ "primary_estimand": "trajectory",
+ "note": "Trajectory is the independent replicate. Round-level pooling is reported only to make the clustering correction auditable.",
  "models": [
   {
    "model": "Qwen2.5-Coder-0.5B-Instruct",
-   "n": 16,
-   "mean": -0.1399375,
-   "lo": -0.22210577896676048,
-   "hi": -0.05776922103323949,
-   "search_wins_frac": 0.6875
+   "n_trajectories": 12,
+   "n_rounds": 51,
+   "mean": -0.12324,
+   "lo": -0.19079,
+   "hi": -0.05568,
+   "underpowered": false,
+   "round_wins_frac": 0.7647,
+   "traj_wins_frac": 0.8333
   },
   {
    "model": "Qwen2.5-Coder-1.5B-Instruct",
-   "n": 39,
-   "mean": -0.0797948717948718,
-   "lo": -0.13704935034942256,
-   "hi": -0.02254039324032102,
-   "search_wins_frac": 0.6410256410256411
+   "n_trajectories": 20,
+   "n_rounds": 93,
+   "mean": -0.11405,
+   "lo": -0.15735,
+   "hi": -0.07074,
+   "underpowered": false,
+   "round_wins_frac": 0.7204,
+   "traj_wins_frac": 0.9
   },
   {
    "model": "Qwen2.5-Coder-3B-Instruct",
-   "n": 28,
-   "mean": -0.14525,
-   "lo": -0.21219954760862839,
-   "hi": -0.0783004523913716,
-   "search_wins_frac": 0.7857142857142857
+   "n_trajectories": 19,
+   "n_rounds": 78,
+   "mean": -0.1229,
+   "lo": -0.17914,
+   "hi": -0.06667,
+   "underpowered": false,
+   "round_wins_frac": 0.8205,
+   "traj_wins_frac": 0.8947
+  },
+  {
+   "model": "Qwen2.5-Coder-7B-Instruct",
+   "n_trajectories": 5,
+   "n_rounds": 5,
+   "mean": -0.0184,
+   "lo": -0.12214,
+   "hi": 0.08534,
+   "underpowered": false,
+   "round_wins_frac": 0.4,
+   "traj_wins_frac": 0.4
+  },
+  {
+   "model": "Qwen2.5-Coder-14B-Instruct",
+   "n_trajectories": 1,
+   "n_rounds": 1,
+   "underpowered": true,
+   "round_wins_frac": 1.0,
+   "traj_wins_frac": 1.0
   }
  ],
  "pooled": {
-  "n": 83,
-  "mean": -0.11346987951807229,
-  "lo": -0.15260340874133155,
-  "hi": -0.07433635029481303,
-  "search_wins_frac": 0.6987951807228916
+  "n_trajectories": 57,
+  "n_rounds": 228,
+  "mean": -0.1108,
+  "lo": -0.13845,
+  "hi": -0.08316,
+  "crve_lo": -0.16313,
+  "crve_hi": -0.12009,
+  "round_wins_frac": 0.7588,
+  "traj_wins_frac": 0.8421,
+  "ci_excludes_zero": true
  }
 }

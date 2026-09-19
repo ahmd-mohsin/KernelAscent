@@ -1,15 +1,24 @@
 {
-  "updated": "2026-09-18",
+  "updated": "2026-09-19",
   "note": "WHY larger models compound RSI and smaller don't: scale -> correctness-wall crossing -> training gradient -> LoRA drift (by depth) + sustained self-data diversity -> held-out compounding. Re-derived from per-round WHY-RSI probe series.",
   "findings": {
     "n_models": 133,
     "correctness_wall": {
       "frac_cross_if_ge2B": 0.92,
       "frac_cross_if_lt2B": 0.54,
-      "claim": "Sub-2B almost never cross the correctness wall (C_train=0) -> zero SFT gradient -> drift=0 -> RSI impossible. This is the primary gate."
+      "n_cross_if_ge2B": [
+        61,
+        66
+      ],
+      "n_cross_if_lt2B": [
+        36,
+        67
+      ],
+      "claim": "Sub-2B models cross the correctness wall LESS FREQUENTLY than >=2B models (36/67 = 54% vs 61/66 = 92%), not 'almost never'. Below the wall C_train=0, so the SFT set is empty, there is no gradient and drift -> 0. Association, not an established causal gate."
     },
     "among_wall_crossers": {
       "n": 97,
+      "n_rsi": 28,
       "frac_rsi": 0.29,
       "rsi_vs_flat_diversity": [
         0.413,
@@ -23,7 +32,7 @@
         0.224,
         0.149
       ],
-      "claim": "Among models that DO produce correct kernels, compounders sustain higher generation diversity and larger sustained drift; flat ones show diversity collapse + drift saturation."
+      "claim": "Among the 97 runs that DO produce correct kernels, 28 compound. Compounders show higher sustained LoRA drift (0.465 vs 0.211) and higher retention (0.224 vs 0.149) than flat runs. Generation diversity is lower in compounders (0.413 vs 0.515), so on this bank diversity collapse does NOT discriminate compounding -- the discriminators are drift and retention. Associations, not causal gates."
     },
     "scale_trend": {
       "<2B": {
@@ -35,20 +44,20 @@
         "mean_diversity": 0.46
       },
       "2-8B": {
-        "n": 45,
-        "frac_cross_wall": 0.98,
-        "frac_rsi": 0.49,
-        "mean_C_train": 0.188,
-        "mean_drift": 0.246,
-        "mean_diversity": 0.516
+        "n": 40,
+        "frac_cross_wall": 1.0,
+        "frac_rsi": 0.5,
+        "mean_C_train": 0.208,
+        "mean_drift": 0.271,
+        "mean_diversity": 0.56
       },
-      ">=9B": {
-        "n": 21,
+      ">=8B": {
+        "n": 26,
         "frac_cross_wall": 0.81,
-        "frac_rsi": 0.19,
-        "mean_C_train": 0.277,
-        "mean_drift": 0.726,
-        "mean_diversity": 0.342
+        "frac_rsi": 0.23,
+        "mean_C_train": 0.229,
+        "mean_drift": 0.596,
+        "mean_diversity": 0.309
       }
     }
   },

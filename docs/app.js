@@ -59,6 +59,9 @@ function verdictPill(v) {
   return `<span class="pill flat">flat</span>`;
 }
 function num(v){ return (v===null||v===undefined||v==="") ? "—" : (typeof v==="number" ? (Math.round(v*1000)/1000).toFixed(3) : v); }
+// Counts are integers: rendering a round count as "6.000" or an authored-task count as "1.000"
+// reads like a measurement with three significant figures when it is a tally.
+function cnt(v){ return (v===null||v===undefined||v==="") ? "—" : (typeof v==="number" ? String(Math.round(v)) : v); }
 function deltaBar(v) {
   if (typeof v !== "number") return "—";
   const w = Math.min(100, Math.abs(v) * 100);
@@ -72,7 +75,7 @@ fetch("data/rsi_leaderboard.json").then(r => r.json()).then(d => {
   const ms = d.models || [];
   tb.innerHTML = ms.map(m => `<tr>
     <td><b>${m.model}</b></td><td><span class="pill kind">${m.family}</span></td>
-    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.Cfinal)}</td>
+    <td class="num">${cnt(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.Cfinal)}</td>
     <td class="num">${num(m.correct_rate)}</td><td class="num mono">${num(m.compiled_sp)}</td>
     <td class="num">${deltaBar(m.delta_frozen)}</td><td class="num">${deltaBar(m.self_minus_fresh)}</td>
     <td>${verdictPill(m.verdict)}</td></tr>`).join("");
@@ -120,7 +123,7 @@ fetch("data/tier_speed_rsi.json").then(r => r.json()).then(d => {
   const ms = [...(d.models||[])].sort((a,b)=>(b.self_minus_fresh??-9)-(a.self_minus_fresh??-9));
   tb.innerHTML = ms.map(m => `<tr>
     <td><b>${m.model}</b></td><td><span class="pill kind">${m.tier}</span></td>
-    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_self)}</td>
+    <td class="num">${cnt(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_self)}</td>
     <td class="num">${deltaBar(m.self_minus_fresh)}</td><td>${verdictPill(m.verdict)}</td></tr>`).join("");
 }).catch(e => {});
 
@@ -131,13 +134,19 @@ fetch("data/combined_rsi.json").then(r => r.json()).then(d => {
   const ms = [...(d.models || [])].sort((a, b) => (b.peak ?? -9) - (a.peak ?? -9));
   tb.innerHTML = ms.map(m => `<tr>
     <td><b>${m.researcher}</b></td><td><span class="pill kind">${m.trainee}</span></td>
-    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_improved)}</td>
+    <td class="num">${cnt(m.rounds)}</td><td class="num">${num(m.C0)}</td><td class="num">${num(m.C_improved)}</td>
     <td class="num">${num(m.C_frozen)}</td><td class="num">${deltaBar(m.impr_minus_frozen)}</td><td class="num mono">${num(m.peak)}</td>
     <td>${verdictPill(m.verdict==="harness helps"?"compounds":(m.verdict==="hurts"?"overfits":"flat"))}</td></tr>`).join("");
 }).catch(e => {});
 
 // Task 5 self-play dense boards (open weight + closed API), sorted by final L-F desc
-function selfplayVerdict(v){
+// L-F is only defined when the LIVE author actually produced accepted, valid, novel tasks.
+// Below this floor a row is an author-yield failure, not a measurement -- so it must not render
+// as a green "co-evolves" pill (the largest L-F on the open board rests on ONE accepted task).
+const MIN_AUTHORED = 5;
+function selfplayVerdict(v, authored){
+  if ((authored || 0) < MIN_AUTHORED)
+    return `<span class="pill flat" title="Only ${authored||0} accepted model-authored task(s): the live author never produced a frontier, so L−F is undefined rather than measured.">undefined · author yield</span>`;
   v = (v || "").toLowerCase();
   if (v.includes("co-evolution")) return `<span class="pill good">co-evolves</span>`;
   if (v.includes("adaptive")) return `<span class="pill gain">curriculum only</span>`;
@@ -152,10 +161,12 @@ function selfplayBoard(file, tbSel, upId){
     if (!ms.length){ tb.innerHTML = `<tr><td colspan="10" class="mid">Runs in progress — rows populate as rounds land.</td></tr>`; return; }
     tb.innerHTML = ms.map(m => `<tr>
       <td><b>${m.model}</b></td><td><span class="pill kind">${m.tier}</span></td>
-      <td class="num">${num((m.rounds||[]).length)}</td>
+      <td class="num">${cnt((m.rounds||[]).length)}</td>
       <td class="num">${num(lastNum(m.C_held_live))}</td><td class="num">${num(lastNum(m.C_held_frozen_author))}</td><td class="num">${num(lastNum(m.C_held_static))}</td>
-      <td class="num">${deltaBar(m.final_L_minus_F)}</td><td class="num mono">${num(lastNum(m.F_minus_S))}</td>
-      <td class="num mono">${num(m.total_model_proposed)}</td><td>${selfplayVerdict(m.verdict)}</td></tr>`).join("");
+      <td class="num">${(m.total_model_proposed||0) < MIN_AUTHORED
+          ? `<span class="undef" title="not interpretable at this author yield">${num(m.final_L_minus_F)}</span>`
+          : deltaBar(m.final_L_minus_F)}</td><td class="num mono">${num(lastNum(m.F_minus_S))}</td>
+      <td class="num mono">${cnt(m.total_model_proposed)}</td><td>${selfplayVerdict(m.verdict, m.total_model_proposed)}</td></tr>`).join("");
   }).catch(e => {
     const tb = document.querySelector(tbSel); if (tb) tb.innerHTML = `<tr><td colspan="10" class="mid">Serve over HTTP to load results.</td></tr>`;
   });
@@ -181,9 +192,13 @@ fetch("data/trackc.json").then(r => r.json()).then(d => {
   const ms = [...(d.models || [])].sort((a, b) => (b.delta_vs_base ?? -9) - (a.delta_vs_base ?? -9));
   tb.innerHTML = ms.map(m => `<tr>
     <td><b>${m.model}</b></td><td><span class="pill kind">${m.mode}</span></td>
-    <td class="num">${num(m.rounds)}</td><td class="num">${num(m.Q0)}</td><td class="num">${num(m.Qg)}</td>
+    <td class="num">${cnt(m.rounds)}</td><td class="num">${num(m.Q0)}</td><td class="num">${num(m.Qg)}</td>
     <td class="num">${deltaBar(m.delta_vs_base)}</td>
-    <td>${verdictPill(m.verdict === "improves" ? "compounds" : (m.verdict === "degrades" ? "overfits" : "flat"))}</td></tr>`).join("");
+    <td>${(m.rounds||0) < 3
+        ? `<span class="pill flat" title="Only ${cnt(m.rounds)} completed round(s): a genuine ceiling or self-degradation cannot be separated from an interrupted run.">not interpreted · ${cnt(m.rounds)}r</span>`
+        : (m.verdict === "improves"
+            ? `<span class="pill gain" title="Q-gain vs the frozen procedure. Mostly one-shot: ~76% of the gain arrives at round 0 and the archive saturates by round 1-2, so this is an improvement, not demonstrated compounding.">improves (one-shot)</span>`
+            : verdictPill(m.verdict === "degrades" ? "overfits" : "flat"))}</td></tr>`).join("");
 }).catch(e => {});
 
 // Mechanism dense multi-curve panels

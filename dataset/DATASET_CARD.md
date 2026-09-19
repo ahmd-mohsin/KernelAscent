@@ -127,6 +127,73 @@ proves the instrument distinguishes a repeating recursive positive control from 
 upgrade, best-of-N, and nulls before any model is judged. Full design in the project repo
 `docs/RSI_V3_PLAN.md`. The private held-out split is not released.
 
+## Mutation-DSL bank with family-disjoint splits (`kernel_tasks_dsl_validated.json`)
+
+The 29-task bank used for the p-maps and the probe is too small to support per-task statistics: probe AUC
+swings 0.71–1.00 across draws and a "+0.45 lift" is about five problems. This bank replaces it for any
+analysis that needs task-level power or a leakage-resistant split.
+
+**456 tasks over 16 op families**, generated parametrically by crossing family × shape × dtype × variant
+(`scripts/gen_task_dsl.py`), then passed through a CPU semantic gate (`scripts/validate_bank_cpu.py`).
+
+### Splits — disjoint at the level of the *computation*, not the example
+
+| split | n | what it tests |
+|---|--:|---|
+| `train` | 120 | fittable / trainable cells |
+| `heldin_cell` | 108 | **in-family generalisation** — unseen dtype (float32) or unseen shape (16384×2048) of a *seen* family |
+| `heldout_family` | 228 | **out-of-family transfer** — families that never appear in training at all |
+
+Train families: `fused_elemwise`, `gelu_mlp`, `layernorm_affine`, `matmul_bias`, `rmsnorm_gate`, `sigmoid_gate`, `softmax_row`, `softplus_norm`
+
+Held-out families: `cumsum_scale`, `groupnorm_rows`, `logsumexp_norm`, `rope_pair`, `softmax_matmul`, `swiglu_mlp`, `topk_mask`, `var_gate`
+
+Held-out families are chosen for structurally distinct access/reduction patterns (grouped reductions,
+cumulative scans, top-k gating, rotary pairing, log-sum-exp, softmax→matmul), **not** renamed twins of the
+train families. A renamed template or a nearby shape is not a new family, and synthetic variants raise
+coverage without raising the number of independent families — so the family count, not the task count, is
+the unit that bounds a transfer claim.
+
+The split is a fixed table in `gen_task_dsl.py`, never drawn at random, so it is stable and auditable across
+regenerations.
+
+### The CPU gate, and why it runs before any GPU time
+
+Speed grading needs a GPU; **semantics do not** — shape and device are parameters of a task, not properties
+of its computation. Every task is re-materialised at 64×128 on CPU and must build, produce finite output,
+produce *non-constant* output, and not be an identity/no-op. These are the same anti-reward-hacking
+conditions a self-authored task must satisfy, applied at bank-build time. Each degenerate task that instead
+reaches the cluster costs ~12 s per crash-isolated grade × K candidates × rounds.
+
+The gate ships with a **self-test that must pass before it will validate anything** (`--selftest`): nine
+known-degenerate tasks — constant output, identity, NaN, Inf, non-tensor return, raising forward — must all
+be rejected. A gate that never rejects anything is indistinguishable from a broken gate, so it is not
+trusted until it demonstrates it can fail.
+
+Current status: **456/456 tasks pass the CPU gate.**
+
+### Still required before these tasks score anything (needs a GPU)
+
+1. **Roofline ceiling** per task (`lab_roofline.py`) — the headroom-normalized score is undefined without it.
+2. **Learnability / difficulty gate** (`difficulty_filter.py`, `learnability_gate.py`) — keep only tasks the
+   frozen anchor sometimes solves but does not already run fast (`correct_rate > 0`, `best_score ≤ 0.75`,
+   `ceiling ≥ 1.3×`), so a flat result reflects the model and not a saturated bank.
+3. **Timing validation** — the CPU gate says a task *computes something*, not that it is non-trivial to
+   optimise on an A100.
+
+Until those run, this bank is **generated-and-semantically-valid, not difficulty-calibrated**, and it should
+not be used to produce headline scores.
+
+```bash
+python3 scripts/gen_task_dsl.py --out dataset/kernel_bank/kernel_tasks_dsl.json
+python3 scripts/validate_bank_cpu.py --selftest            # prove the gate can fail
+python3 scripts/validate_bank_cpu.py \
+    --in  dataset/kernel_bank/kernel_tasks_dsl.json \
+    --out dataset/kernel_bank/kernel_tasks_dsl_validated.json \
+    --report dataset/kernel_bank/kernel_tasks_dsl.validation.json
+export KA_KERNEL_BANK=dataset/kernel_bank/kernel_tasks_dsl_validated.json
+```
+
 ## Families (6) and tiers
 
 `matmul` (L2), `norm-act` (L1), `attention` (L3), `rope-attention` (L3),

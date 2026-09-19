@@ -1,0 +1,72 @@
+\section{Appendix: probe-as-intervention, analysed as a secondary result}
+\label{app:probe}
+A linear probe reads ``is this kernel correct'' out of mid-to-late layers at high pooled AUC. This appendix asks
+whether that decodable signal converts into a \emph{selection} advantage, and reports it at the right unit with
+the right denominator.
+
+\paragraph{Three corrections to the earlier analysis.}
+(1) \textbf{Unit.} The 19 usable runs are repeated probe-training/test draws over \textbf{12 distinct base
+checkpoints}; draws sharing a checkpoint are not independent, so we cluster on checkpoint.
+(2) \textbf{Denominator.} Each run's lift is computed over $n_{\text{test}}$ tasks, and
+$n_{\text{test}}\in[5,12]$ (median 12). A ``$+0.45$ lift'' is roughly five problems, so
+$n_{\text{test}}$ is printed in every row.
+(3) \textbf{Estimand.} A high \emph{pooled} correctness AUC can arise because the probe separates easy tasks
+from hard ones while failing to rank candidates \emph{within} a task --- and only within-task ranking can
+produce a selection gain. Per-candidate probe scores were not retained, so the within-task AUC
+\textbf{cannot be recomputed} from the stored artifacts. We flag this as the binding limitation rather than
+letting the pooled number stand in for it.
+
+\paragraph{Result.} Clustered on base checkpoint, the mean lift over uniform-random selection is
+$+0.124\,[+0.029,+0.218]$ over $n{=}12$ checkpoints --- the 95\% CI \textbf{excludes zero}: against a uniform-random selector at matched generation budget, probe-guided top-1 selection does lift the correct rate.  The result is also \emph{not} TOST-equivalent to zero at the pre-declared $\delta{=}0.05$, so neither a benefit nor its absence would have been concluded by default --- the interval is simply wide. The naive row-level pooling would report
+$+0.118\,[+0.028,+0.209]$ over 19 rows. The probe recovers 36\% of the oracle$-$random headroom on average
+(95\% CI [11\%,60\%]).
+
+\paragraph{What this does and does not establish.} \textbf{Uniform random is the weakest possible comparator.}
+Beating it shows the probe carries \emph{some} usable signal; it does not show the probe is the best use of the
+same compute, because the informative comparators were not run: mean/length-normalised log-likelihood reranking,
+a compile-or-run validity filter, and execution agreement. Separately, and importantly, this
+matched-\emph{generation} selection gain is a different quantity from matched-\emph{verification} harvesting
+yield, where we measure no advantage. The coherent joint statement is: \emph{extra draws plus a cheap selector
+find more correct kernels, but the tested probe does not make verification-constrained search economically
+better.}
+
+\paragraph{The diagnostic.} Several runs achieve pooled $\mathrm{AUC}{=}1.000$ with lifts from $+0.000$ to
+$+0.250$, on training sets as small as 2--5 correct examples. Perfect pooled separation that does not predict
+selection gain is direct evidence the pooled metric partly measures task difficulty rather than within-task
+candidate quality --- a trap worth flagging for anyone reading correctness probes off a small bank.
+
+\paragraph{Defensible claim.} \emph{Decodable correctness information yields a measurable but modest gain over
+random selection, and does not automatically translate into useful search efficiency under a verification
+budget.} Settling it needs a rerun on a family-split bank of $\geq$300 independent tasks that logs
+per-candidate scores, with leave-task-out probe fitting, matched-candidate comparators, task-clustered
+uncertainty, and a full generation/scoring/verification cost ledger.
+
+\begin{table}[h]\centering\footnotesize
+\caption{Probe-as-intervention, one row per run (not per model). $n_t$ = test tasks the row is computed on;
+head\% = fraction of the oracle$-$random headroom recovered. Rows sharing a base checkpoint are repeated draws
+and are clustered in the analysis.}
+\begin{tabular}{lrrrrrrr}
+\toprule
+run & $n_t$ & $K$ & AUC & random & probe & lift & head\% \\
+\midrule
+qwen05k32 & 12 & 32 & 0.831 & 0.218 & 0.667 & +0.449 & 64\% \\
+qwen05k32b & 12 & 32 & 0.878 & 0.247 & 0.667 & +0.420 & 63\% \\
+qwen05\_nt24 & 5 & 32 & 0.789 & 0.086 & 0.000 & -0.086 & -75\% \\
+Qwen1.5\_K32 & 12 & 32 & 0.973 & 0.040 & 0.333 & +0.293 & 64\% \\
+qwen15k32 & 11 & 32 & 0.961 & 0.337 & 0.545 & +0.208 & 43\% \\
+qwen15\_nt24 & 5 & 32 & 0.806 & 0.050 & 0.200 & +0.150 & 100\% \\
+qwen14k16 & 12 & 16 & 0.872 & 0.698 & 0.750 & +0.052 & 17\% \\
+Qwen3 & 12 & 16 & 0.958 & 0.266 & 0.667 & +0.401 & 62\% \\
+qwen3\_nt24 & 5 & 32 & 0.713 & 0.044 & 0.200 & +0.156 & 100\% \\
+qwen3k32b & 12 & 32 & 0.817 & 0.401 & 0.417 & +0.016 & 3\% \\
+qwen3\_wt & 12 & 32 & 0.804 & 0.299 & 0.250 & -0.049 & -11\% \\
+qwen7\_nt16 & 12 & 32 & 0.824 & 0.531 & 0.667 & +0.136 & 62\% \\
+qwen7k32 & 12 & 32 & 0.877 & 0.652 & 0.750 & +0.098 & 28\% \\
+qwen7\_nt20 & 9 & 32 & 0.819 & 0.379 & 0.111 & -0.268 & -151\% \\
+SmolLM1.7\_K32 & 12 & 32 & 1.000 & 0.083 & 0.333 & +0.250 & 100\% \\
+Yi1.5\_K32 & 10 & 32 & 1.000 & 0.100 & 0.100 & +0.000 & -- \\
+dsc13k32 & 9 & 32 & 1.000 & 0.178 & 0.222 & +0.044 & 28\% \\
+DeepSeek6.7B & 11 & 16 & 0.986 & 0.121 & 0.182 & +0.061 & 40\% \\
+dsc67k16 & 12 & 16 & 0.826 & 0.502 & 0.417 & -0.085 & -17\% \\
+\bottomrule
+\end{tabular}\end{table}
