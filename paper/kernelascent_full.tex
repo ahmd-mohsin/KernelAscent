@@ -1,0 +1,473 @@
+% =====================================================================================
+% KernelAscent: The Complete Report
+% A comprehensive synthesis of three weeks of experiments, results, and intuition on
+% recursive self-improvement (RSI) in GPU-kernel optimization.
+%
+% This is the "everything we learned" document: it weaves the auto-generated statistical
+% results (results_auto.tex) and the mechanistic discussion (discussion.tex) into a single
+% narrative that also records the hard-won intuition, the dead ends, the surprises, and the
+% operational lessons that do not fit in a conference paper but are the real yield of the run.
+%
+% Build: pdflatex kernelascent_full.tex   (twice for refs)
+% =====================================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+
+\newcommand{\lmr}{\ensuremath{L\!-\!R}}      % lineage minus reset
+\newcommand{\lf}{\ensuremath{L\!-\!F}}        % live minus frozen author
+\newcommand{\bfz}{\ensuremath{\mathrm{BF}_{01}}}
+\definecolor{kaRed}{HTML}{B4232C}
+\newcommand{\finding}[1]{\medskip\noindent\textcolor{kaRed}{\textbf{Finding.}}\ #1\medskip}
+\newcommand{\intuition}[1]{\medskip\noindent\textbf{Intuition.}\ \emph{#1}\medskip}
+
+\title{\textbf{KernelAscent: The Complete Report}\\[2mm]
+\large Three weeks of recursive self-improvement experiments in GPU-kernel optimization ---\\
+results, mechanism, and intuition}
+\author{KernelAscent}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+KernelAscent asks a question that raw capability benchmarks cannot: not \emph{how good} a model is at
+writing GPU kernels, but whether it can \emph{make itself better} at writing them --- and whether that
+improvement \emph{compounds}. We built a five-rung ladder of recursion (one-shot capability; weight-level
+self-training; frozen-weight procedure self-editing; a closed model rewriting an open trainee's harness; and
+open-ended self-play where a model authors the very frontier it must then beat) and ran it for three weeks on a
+72-GPU cluster across model scales from 0.5B to 14B and a panel of frontier API models. This report is the full
+synthesis: the design rationale for each rung, every quantitative result with its uncertainty, the mechanistic
+account of \emph{why} verified self-training does not compound in this domain, and the accumulated intuition and
+operational lessons of the run. Our headline is a rigorously-powered null: at matched compute, carrying a
+self-training lineage forward does not beat a matched reset (a statistically equivalent result, \bfz{}
+$\approx$ 14.7), while verified \emph{search} at the same budget does better --- localizing the failure to a
+discovery$\to$assimilation bottleneck rather than to an absence of capability.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+% =====================================================================================
+\section{Thesis: recursion, not capability}
+% =====================================================================================
+The central intellectual commitment of KernelAscent is that the interesting axis of ``self-improvement'' is
+\textbf{recursion}, not the raw height of a single-shot score. A model that writes an excellent kernel once has
+demonstrated capability; a model whose \emph{next} kernel is better \emph{because of} the last one has
+demonstrated something qualitatively different. Most benchmarks conflate the two because they measure a fixed
+model against a fixed test. We instead measure the \emph{derivative}: does an improvement, once made, become
+part of the improver, so that improvements accumulate?
+
+GPU-kernel optimization is an unusually clean substrate for this question. Correctness is checkable against an
+fp32 reference with no ambiguity; speed is measurable against a roofline; the task space is procedurally
+generable at controlled difficulty; and there is a genuine, unbounded frontier (there is always a faster
+kernel). A verifier this crisp removes the usual confound of a noisy reward, so any failure to compound cannot
+be blamed on the grader.
+
+\intuition{If self-improvement is real anywhere, it should be visible where the reward is a clean, programmatic
+verifier and the frontier is real. Kernels are that place. So a \emph{null} here is informative in a way a null
+on a fuzzy task would not be: it cannot be explained away by reward noise.}
+
+% =====================================================================================
+\section{The RSI ladder: five rungs of recursion}
+% =====================================================================================
+Each rung isolates a different \emph{channel} through which improvement could feed back into the improver, in
+increasing order of recursion depth. The design principle throughout is the \emph{matched control}: every
+``recursive'' arm is paired with a non-recursive arm at identical compute, so a positive result cannot be
+attributed to simply spending more.
+
+\begin{description}[leftmargin=1.4em]
+\item[T1 --- Capability (one shot).] Can the model write a correct, fast kernel in a single attempt? No
+recursion; this is the baseline skill that gates everything above it. Metric: correct rate, fast rate, mean
+bounded attainment $C$.
+
+\item[T2 --- Weight-RSI (the title claim).] Across rounds, the model generates kernels, keeps the verified-correct
+ones, and trains its own weights on them, then is re-scored on a held-out split. Because the weights change, the
+\emph{improver itself} changes. The decisive control is \textbf{lineage vs.\ matched reset}: does carrying the
+accumulated weights forward beat restarting from base each round at equal compute? Metric: \lmr{} per round.
+Open-weight only.
+
+\item[T3 --- Procedure-RSI (recursion without weights).] A frozen-weight model edits its own \emph{executable
+research procedure} --- a strategy library, a solver prompt, and an archive of verified kernels --- from the
+evidence of the last round. This is how a closed API model can sit on the RSI axis at all. Metric: held-out
+procedure quality $Q$, gain vs.\ the frozen procedure.
+
+\item[T4 --- Closed$\to$Open (improvement through tooling).] A closed frontier ``researcher'' rewrites the
+\emph{training harness} (data selection, LoRA hyperparameters, curriculum) of an open-weight trainee. The closed
+model never changes its own weights; the improvement is transmitted through the tooling it authors. Metric:
+open-trainee $C$ under the improved vs.\ frozen harness.
+
+\item[T5 --- Self-play (the true-RSI metric).] The model \emph{authors its own strictly-harder tasks} and
+solves-and-improves on them, so difficulty and capability co-evolve. To separate ``a harder curriculum'' from
+``a co-evolving author'' we run three arms at equal budget on one fixed held-out ladder: \textbf{S} (static
+frontier), \textbf{F} (escalating frontier, frozen author), \textbf{L} (escalating frontier, live/evolving
+author). The primary signal is \lf{} --- the extra gain from letting the author evolve --- with anti-reward-hacking
+gates rejecting degenerate self-authored tasks.
+\end{description}
+
+\intuition{The ladder is deliberately ordered by how ``expensive'' the feedback channel is to fake. A one-shot
+score (T1) says nothing about recursion. A weight update (T2) is the strongest possible feedback --- it modifies
+the model itself --- so it is the title claim. Procedure editing (T3) and harness authoring (T4) are weaker,
+externalized channels that a frozen model can still use. Self-play (T5) is the only rung where the \emph{problem
+distribution itself} is endogenous, which is the real definition of open-ended improvement. We expected the
+strongest evidence at T2 and the most fragile at T5; the data inverted our expectation about where gains would
+even appear.}
+
+% =====================================================================================
+\section{Infrastructure: three weeks on 72 GPUs}
+% =====================================================================================
+The experiments ran on a 9-node, 72-GPU cluster (A100-class), continuously for three weeks. A few
+infrastructure decisions shaped what was learnable, and several operational lessons are worth recording because
+they materially affected the results.
+
+\paragraph{Compute discipline.} Every rung's recursive arm is compute-matched to its control by a full ledger
+that counts generation \emph{and} verification \emph{and} training tokens/steps. Without this, ``self-training
+helped'' is unfalsifiable --- it may just be more sampling. The matched ledger is what turns T2 from a demo into
+a test.
+
+\paragraph{Resumability.} All runs checkpoint to S3 on a 300\,s daemon so an instance death never loses more
+than one interval, and pods push independently of the operator's credentials. This is what made a three-week
+run survive tunnel drops, credential expiry, and node churn.
+
+\paragraph{Operational lessons (recorded because they bit us).}
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{Grading dominates wall-clock.} Crash-isolated per-kernel grading (each candidate graded in its own
+process so a segfaulting kernel cannot take down the harness) costs ${\sim}12$\,s/kernel. For coverage-style
+experiments requiring hundreds of grades per evaluation, a single round can exceed 2.5 hours --- which made the
+randomized coverage-transplant experiment \emph{computationally infeasible} and forced us to establish the
+coverage mechanism more cheaply from $p$-maps and forensics instead.
+\item \textbf{Large-model rounds are slow.} A 7B compounding round costs ${\sim}64$ minutes. At six rounds per
+seed that is ${\sim}6.4$ hours per seed, so the large-scale arms accumulate statistical power slowly and are
+sensitive to any run reset from node churn --- the reason our 7B/14B equivalence is pooled-significant but not
+yet individually powered.
+\item \textbf{Measurement hygiene is a result-integrity issue.} We twice caught inflated counts caused by stale
+local caches masking a silently-failed sync, and once caught a ``fleet collapse'' that was merely a dropped
+port-forward tunnel hiding two dozen busy GPUs. Every headline number in this report is taken from a
+\emph{verified} re-read of canonical storage, not a convenience cache.
+\item \textbf{A single silent bug can fabricate a finding.} An early ``compounding collapse'' (both train and
+held-out $C$ dropping to exactly $0.000$ after one SFT step) was a generation-after-SFT bug, not a scientific
+null; a zero-update adapter evaluated correctly, which is how we distinguished the two. Pre-fix runs are
+therefore \emph{uninterpretable} and are excluded from every statistic by a canonical-seed allowlist.
+\end{itemize}
+
+\intuition{The most dangerous failure mode in an autonomous, long-horizon run is not a crash --- it is a
+\emph{plausible wrong number}. Crashes announce themselves; a stale cache or a contaminated seed quietly shifts
+an estimate. The single highest-leverage habit of the whole run was refusing to trust any number that had not
+been re-derived from canonical storage with the broken seeds excluded.}
+
+% =====================================================================================
+\section{Results by rung}
+% =====================================================================================
+% NOTE: the precise per-model tables are generated in results_auto.tex and the figure atlas
+% (figures.tex). This section states the headline numbers and, crucially, the interpretation.
+
+\subsection{T1 --- Capability}
+On the E0 gate (15 fixed Medium procedural tasks, $k{=}5$, 75 trials/model, 95\% Wilson CIs), capability
+separates into \emph{two walls}: correctness ranks the low/mid band, while \emph{speed}
+(\texttt{fast\_rate}, the fraction beating the $\min(\text{eager},\texttt{torch.compile})$ roofline by
+$\ge1.10\times$) is the frontier discriminator.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+Model & correct & fast & mean $C$ \\
+\midrule
+GPT-5.6 Terra (api) & 0.920 & 0.667 & 0.793 \\
+GPT-5.6 Sol (api)   & 0.907 & 0.600 & 0.753 \\
+Kimi K2.5           & 0.387 & 0.240 & 0.313 \\
+Fable 5.1           & 0.360 & 0.227 & 0.293 \\
+Palmyra-X5          & 0.533 & 0.040 & 0.287 \\
+gpt-oss-120b        & 0.467 & 0.080 & 0.273 \\
+Qwen2.5-Coder-7B (open) & 0.280 & 0.000 & 0.140 \\
+\bottomrule
+\end{tabular}
+\caption{T1 capability (top rows). \emph{Every} open model $\le$14B has $\texttt{fast\_rate}=0$: they can
+sometimes write a correct kernel but essentially never a frontier-fast one; Coder-14B and Gemma-3-27B
+additionally hallucinate \texttt{torch} internals. Source: \texttt{leaderboard.json}.}
+\end{table}
+
+\intuition{The two walls matter for everything above: T1 shows that below the frontier, models are
+\emph{correctness}-limited long before they are \emph{speed}-limited. So the RSI rungs are mostly testing
+whether a model can compound its way \emph{up the correctness wall}, not whether it can shave microseconds ---
+which is why ``where $C$ moves, it moves via correctness acquisition, not speed'' recurs throughout.}
+
+\subsection{T2 --- Weight-RSI: a rigorously-powered compounding null}
+The title claim is where the strongest evidence lives, and it is a \emph{null}. Over multi-round rejection-sampling
+SFT, carrying the lineage forward does not beat a matched reset.
+
+\finding{Pooled across scales (0.5B--14B, $n{=}229$ round-comparisons), \lmr{}\ $=-0.002\,[-0.017,+0.013]$,
+TOST-equivalent at $\delta{=}0.05$ with $\bfz \approx 14.7$ --- \emph{strong} evidence for the null. The 1.5B and
+3B scales are individually equivalent ($\bfz$ 7.7, 8.1); 0.5B is marginal and negative if anything; 7B/14B are
+still accumulating (${\sim}64$\,min/round) but their early points fall inside the equivalence bounds.}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+Scale & $n$ & \lmr{} (TOST 90\% CI) & \bfz{} \\
+\midrule
+Qwen2.5-Coder-0.5B & 51 & $-0.018\,[-0.052,+0.016]$ & 4.8 (marginal) \\
+Qwen2.5-Coder-1.5B & 93 & $+0.009\,[-0.013,+0.031]$ & 7.7 (EQUIV) \\
+Qwen2.5-Coder-3B   & 78 & $-0.007\,[-0.034,+0.020]$ & 8.1 (EQUIV) \\
+Qwen2.5-Coder-7B   & 5  & $+0.024\,[-0.065,+0.113]$ & 2.2 (underpowered) \\
+\midrule
+\textbf{Pooled}    & 229 & $\mathbf{-0.002\,[-0.017,+0.013]}$ & \textbf{14.7 (EQUIV)} \\
+\bottomrule
+\end{tabular}
+\caption{Lineage vs.\ matched reset, per scale and pooled (\texttt{equivalence\_tost.py}). Per-round, \lmr{}
+shows a \emph{transient} early advantage (rounds 1--2, e.g.\ Qwen-3B/1.5B $+0.10$) that \textbf{collapses to
+$\approx0$ by round 3} --- so accumulated self-training does not beat a fresh reset averaged over rounds.}
+\end{table}
+
+\noindent The uncontrolled T2 boards (\texttt{rsi\_leaderboard.json}, \texttt{tier\_speed\_rsi.json}) do show
+apparent per-model ``compounding'' --- the strongest being \textbf{stable-code-3b}, self$-$fresh-frozen
+$+0.226$, sign-consistent across 2 seeds; and starcoder2-15b $+0.074$ across 3 seeds. But the decisive
+recursion-interruption fork (A1, \texttt{fork.json}) dissolves it: for deepseek-1.3b, continuing to self-train
+vs.\ freezing the producer at the fork gives self$-$ckpt $=-0.001$ --- a \textbf{one-time upgrade, not
+compounding}. Where $C$ does move it is almost entirely \emph{correctness acquisition}, not speed
+(\texttt{decomp.json}: deepseek-1.3b $\Delta_{\text{correct}}+0.89$ vs $\Delta_{\text{speed}}+0.38$).
+
+\intuition{The lineage-vs-reset null is the cleanest single fact in the project, and it is stronger than
+``updates are small.'' If updates were merely small, lineage and reset would both drift slowly but lineage would
+still inch ahead. Instead they are \emph{indistinguishable} --- which means the accumulated weight state carries
+\emph{no useful cumulative information} beyond what one round of fresh self-training recovers. That is a
+statement about the \emph{state}, not the step size.}
+
+\subsection{T3 --- Procedure-RSI}
+When a frozen-weight model rewrites its own executable procedure, frontier models improve it substantially
+(\texttt{trackc.json}): GPT-6 Astra $Q$ $0.298\!\to\!0.854$ (\textbf{+0.556}, growing over 6 rounds), Claude
+Sonnet 5 \textbf{+0.401}, Mistral Large 3 \textbf{+0.310}; a frozen-procedure control (Fable-5.1) sits at
+$+0.009$. But the self-modify mechanism (\texttt{selfplay\_mech.json}) shows the gain is
+\textbf{68\% realized at round~0} (one-shot), \textbf{75\% non-recursive}, with the archive saturating by
+round 1--2 and strategy sets already diverse (Jaccard 0.12).
+
+\finding{The only models with \emph{sustained} per-round procedure gain (Astra, Mistral) are the ones that
+started from \emph{low} $Q_0$ --- i.e.\ they are consuming headroom, not demonstrating recursive self-insight.
+DeepSeek-V3.2's $-0.234$ ``self-degrade'' is a 1-round interrupted-run artifact and should not be read as a
+finding.}
+
+\subsection{T4 --- Closed$\to$Open}
+A closed researcher rewriting an open trainee's training harness can help substantially
+(\texttt{combined\_rsi.json}): Fable-5.1 $\to$ Qwen-1.5B reaches improved$-$frozen \textbf{+0.472} (peak 0.472,
+$C$ $0.147\!\to\!0.501$ vs frozen 0.029), and Fable-5.1 $\to$ Qwen-7B \textbf{+0.313}. But the sign is
+\emph{pair-dependent}: the same researcher \emph{hurts} other trainees (Fable$\to$OpenCoder-1.5B $-0.265$,
+Fable$\to$DeepSeek-1.3B $-0.444$), and many researcher rows are flat. As with T4's cousin T2, an open question
+(ROADMAP A4) is whether the $+0.472$ is correctness rather than speed.
+
+\intuition{Improvement \emph{does} transmit through authored tooling --- a closed model that cannot change its
+own weights can still cause a better open model. But it is brittle and trainee-specific, which reads less like
+``the researcher discovered a better training recipe'' and more like ``it happened to match this trainee's
+correctness headroom.'' Transmitted improvement is real but not yet a reliable, general channel.}
+
+\subsection{T5 --- Self-play (open and closed)}
+The primary signal is \lf{} (extra gain from a co-evolving author beyond an escalating curriculum).
+\textbf{Open} (\texttt{selfplay.json}, 24 runs): most models $\le$15B show $\lf\approx0$ (adaptive curriculum
+only). The clearest positive is starcoder2-15b $\lf=+0.232$ --- but on only \emph{one} accepted model-proposed
+task, so it is suggestive at best; deepseek-coder-6.7b-base reaches $+0.154$ (3 proposed).
+\textbf{Closed} (\texttt{selfplay\_closed.json}, procedure channel, 11 runs): \emph{every} row is $\lf=0.0$
+except Mistral Large 3 at $-0.584$, even though GPT-5.6 Sol/Terra and Sonnet-5 each proposed 36--37 tasks.
+\textbf{Open-ended} (\texttt{open\_rsi.json}, 16 runs): \emph{all} verdicts are ``one-time (open $=$ fixed)''.
+
+\finding{The self-play diagnosis (\texttt{selfplay\_diag.json}) explains the near-universal
+$\lf\approx0$: the learned author suffers an \textbf{authored-task solve-rate collapse} --- proposed tasks are
+either trivial (solver $\ge$90\%) or unsolvable ($\le$10\%), rarely in the learnable 20--80\% band --- and the
+``goldilocks'' rescue did not fire. Open-endedness is a one-time upgrade here, not a compounding engine,
+because the author cannot reliably manufacture in-band difficulty.}
+
+\noindent (Note: an earlier README listed closed Sonnet-5 $+0.045$ / GPT-5.6-Sol $+0.041$ as ``emerging
+positives''; these are \emph{not} in the current data and are treated as stale.)
+
+% =====================================================================================
+\section{Cross-cutting analyses: the mechanism}
+% =====================================================================================
+The rung-by-rung results tell us \emph{whether} improvement compounds. The following analyses tell us
+\emph{why} it does not, and together they form the mechanistic core of the report.
+
+\subsection{Coverage vs.\ scale, and the ``correctness wall'' as a sampling artifact}
+Per-task $p$-maps on a fixed 29-task bank (\texttt{pmap\_curve.json}) trace coverage (tasks with $\ge1$
+verified-correct sample) from 13.8\% at 0.5B to 86.2\% at 14B, and show that below the wall pass@$K$ dwarfs
+pass@1:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Size & $K$ & coverage & pass@1 & pass@$K$ & $K$-ratio \\
+\midrule
+0.5B & 64 & 13.8\% & 0.009 & 0.109 & ${\sim}12\times$ \\
+1.5B & 64 & 27.6\% & 0.014 & 0.235 & ${\sim}17\times$ \\
+3B   & 64 & 82.8\% & 0.112 & 0.777 & ${\sim}7\times$ \\
+7B   & 48 & 82.8\% & 0.079 & 0.799 & ${\sim}10\times$ \\
+14B  & 24 & 86.2\% & \textbf{0.655} & 0.862 & ${\sim}1\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Coverage and sharpening across scale. The sharpening geometry (results\_auto.tex): the
+\emph{sharpenable} band ($0{<}p{<}0.2$) is 14\%/28\%/59\%/79\%/0\% at 0.5/1.5/3/7/14B --- it peaks mid-scale
+and collapses at 14B, where all mass is already \emph{reliable} ($p\ge0.2$).}
+\end{table}
+
+\intuition{The sub-2B ``correctness wall'' is not an inability --- it is a \emph{low per-sample success
+probability}. Give a small model enough draws and correct kernels appear (pass@$K \gg$ pass@1). This reframes
+the entire problem: self-training does not need to \emph{learn to be correct}, it needs to \emph{reliably
+reproduce} a correctness that is already latent in the sampling tail. That is a sharpening problem, not an
+exploration problem.}
+
+\subsection{Zero-score forensics: the wall is a formation failure}
+Classifying \emph{why} each 0-score candidate failed (\texttt{forensics\_summary.json}) shows the sub-3B wall is
+a \textbf{kernel-formation} wall (no parseable \texttt{ModelNew}), not runnable-but-wrong code: \texttt{no\_extract}
+dominates at 0.5B (72\%), DeepSeek-1.3B (90\%), Yi-1.5B (96\%). The failure \emph{locus marches downstream with
+scale}: incoherence $\to$ truncation/syntax (Qwen-7B: 75\% syntax) $\to$ API-hallucination $\to$ wrong-output
+$\to$ correct (Qwen-14B: 65\% correct, only 0.2\% \texttt{no\_extract}).
+
+\intuition{Small models do not fail by writing subtly-wrong kernels --- they fail by not producing a
+well-formed kernel at all. That is why coverage is so low and why self-training starves: there is nothing
+correct to train on. As scale rises the bottleneck migrates from ``can it write a kernel'' to ``is the kernel
+right'' to ``is it fast.''}
+
+\subsection{Search beats training at matched compute}
+Pooled over 83 round-comparisons (\texttt{search\_vs\_train.json}), lineage$-$bestof$N = -0.113\,[-0.153,-0.074]$
+(CI excludes zero), and verified search wins 69.9\% of rounds; every scale is individually negative (0.5B
+$-0.140$, 1.5B $-0.080$, 3B $-0.145$). A separate matched-budget baseline sweep (\texttt{baselines.json},
+budget 20) is weaker and mixed --- Qwen-1.5B recursion\_gain $+0.055$ over its best non-recursive baseline, but
+starcoder2-3b $-0.073$ --- so the strong, consistent statement is the search-vs-lineage one.
+
+\finding{At a matched compute ledger, best-of-$N$ verified search beats lineage self-training (lineage$-$bestof$N
+= -0.113\,[-0.153,-0.074]$, CI excludes zero). The useful solutions are \emph{already reachable by sampling};
+search exploits them directly, while training must compress them into shared weights and have the gain survive.}
+
+\subsection{WHY-RSI: the weight-level mechanism and the inverted-U in scale}
+Across 133 weight-RSI runs (\texttt{mech\_analysis.json}) the correctness wall is the primary gate: crossing
+rises from 54\% below 2B to 92\% at $\ge$2B. Among the 97 wall-crossers, RSI is an \textbf{inverted-U in scale}:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Band & $n$ & wall-cross & LoRA drift & retention & frac RSI \\
+\midrule
+$<$2B  & 67 & 0.54 & 0.019 & 0.013 & 0.03 \\
+2--8B  & 45 & 0.98 & 0.246 & 0.180 & \textbf{0.49} \\
+$\ge$9B & 21 & 0.81 & \textbf{0.726} & 0.339 & 0.19 \\
+\bottomrule
+\end{tabular}
+\caption{The inverted-U (\texttt{mech\_analysis.json}, $n{=}133$). RSI peaks at 2--8B; the largest models drift
+\emph{most} in weight space yet compound \emph{least} --- motion without progress near the roofline. Only
+11/133 runs compounded (stable-code-3b recurs). When drift occurs it localizes to \emph{late} layers (task
+adaptation) and the held-family transfer gap is $\approx0$ (no transferable meta-skill).}
+\end{table}
+
+\finding{A subtle and important nuance: on this bank, compounders have \emph{lower} generation diversity than
+flat runs (0.41 vs 0.52), not higher. The discriminator between compounding and flat among wall-crossers is
+\textbf{sustained LoRA drift + retention} (${\sim}5\times$ higher in compounders), \emph{not} diversity
+preservation. So ``diversity collapse causes the null'' is \emph{not} supported by our weight-RSI data ---
+compounding here looks like \emph{productive convergence onto a good basin}. Diversity contraction remains a
+plausible \emph{cross-round option-value} lock (see the Discussion) but we flag it as an association whose clean
+test is a diversity-preserving intervention, and we explicitly do \emph{not} claim it as the mechanism.}
+
+\intuition{Scale does not monotonically help RSI --- it is an inverted-U. Small models cannot form correct
+kernels often enough to feed the training set (formation-starved). Mid-scale models sit on the widest
+\emph{learnable frontier} and compound best. Large models cover almost everything already, so their weights
+churn (high LoRA drift) without moving the held-out score --- ``motion without progress'' near the roofline.
+The binding constraint slides from \emph{formation} (small) to \emph{headroom} (large).}
+
+\subsection{Probe-as-intervention: correctness is represented better than it is generated}
+A linear probe reads ``is this kernel correct'' out of mid-to-late layers at high AUC (Qwen-3B best\_auc
+\textbf{0.985} at depth 0.86, while its actual correctness rate is 0.105) --- the model \emph{represents}
+correctness far better than it \emph{generates} it (\texttt{interp.json}). Using the probe to select at equal
+budget (\texttt{probe\_intervene.json}) shows large lifts on some checkpoints (Qwen-0.5B PROBE$-$RANDOM
+$+0.42$, Qwen-3B $+0.40$) but negatives on others (Qwen-7B $-0.27$) and noise across repeated draws on the
+small bank.
+
+\finding{We report this carefully. The high \emph{pooled} AUC partly reflects the probe separating easy tasks
+from hard ones, \emph{not} ranking candidates within a task; the within-task ranking signal is only modest
+($\approx0.67$) and there is \textbf{no clean matched-budget harvesting advantage} yet. The defensible claim is
+qualitative --- correctness is internally decodable well above generation success --- which is the
+discovery$\to$assimilation gap seen from the inside, not a deployable self-verification win. A leave-task-out,
+within-task ranking evaluation on a larger task bank is the needed follow-up.}
+
+\intuition{A linear probe can read ``is this kernel correct'' out of mid-to-late layers at high AUC, yet the
+model emits a correct kernel far less often than it can internally recognize one. The model \emph{knows} more
+than it \emph{generates}. This is the same discovery$\to$assimilation gap seen from the inside: the limiting
+step is turning latent competence into a reliably-produced output.}
+
+% =====================================================================================
+\section{Synthesis: why self-improvement does not compound here}
+% =====================================================================================
+% discussion.tex carries its own \section + \paragraph structure; demote its \section to a
+% subsection locally so it nests cleanly under this Synthesis header.
+{\let\section\subsection \input{discussion}}
+
+% =====================================================================================
+\section{The accumulated intuition (what three weeks taught us)}
+% =====================================================================================
+This section is the part that does not fit in a conference paper: the qualitative model we now carry in our
+heads about RSI in this domain.
+
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{Self-training is a sharpening operator, not an exploration operator.} It concentrates probability
+on already-reachable successes faster than it expands what is reachable. Everything else follows from this.
+
+\item \textbf{Coverage is the currency, and it is not self-generated.} A round of self-training can only reuse
+solutions the model already finds; it cannot manufacture coverage on tasks where the per-sample success
+probability is effectively zero at the evaluated budget. Compounding is coverage-limited, and coverage is
+exogenous to the loop.
+
+\item \textbf{The bottleneck is discovery$\to$assimilation, not knowledge.} The model represents correctness it
+cannot reliably generate (probe result), and search --- which uses discoveries directly --- beats training,
+which must assimilate them into weights and retain them. The lossy step is assimilation-and-retention.
+
+\item \textbf{``Operational plateau,'' not ``local optimum.''} We are careful: the null is a protocol-relative
+fixed point of the tested verified-SFT loop, not a claim that the weights sit at a parameter-space local
+optimum. Finite-budget coverage is \emph{not} invariant; a better loop could still move.
+
+\item \textbf{Diversity contraction is a plausible reinforcing lock.} Selected-sample SFT can raise probability
+on current winners at the cost of the rare decompositions that would enable \emph{later} discoveries. We flag
+this as association, not proof --- the clean test is a diversity-preserving intervention.
+
+\item \textbf{The open contribution is a better \emph{harness}, not a better model.} Because RSI is a protocol
+we run, the way to break the plateau is to change the protocol: inject coverage on undiscovered tasks, preserve
+diversity in the accepted set, amplify the ``expert'' with search before assimilation. This is exactly what the
+public benchmark's harness-submission track exists to surface.
+\end{enumerate}
+
+% =====================================================================================
+\section{What would break the plateau: predictions}
+% =====================================================================================
+Two distinct breakouts are needed and they target different deficits: \emph{accumulation} (retain and express
+more already-discoverable successes --- could make lineage finally beat reset) and \emph{frontier expansion}
+(make genuinely new strategies operationally reachable --- required once the current frontier is exhausted). A
+productive loop needs new discoveries $+$ assimilation $+$ retention $+$ headroom \emph{simultaneously}. Our
+single most informative next experiment is a \textbf{coverage-injection $\times$ diversity-preserving} factorial:
+inject stronger-model / repair / search-generated solutions on \emph{undiscovered} tasks and test whether
+inherited gains then emerge --- separating ``lack of discoveries'' from ``loss of discoveries after learning.''
+
+% =====================================================================================
+\section{Limitations and scope}
+% =====================================================================================
+We claim, with strong evidence: under verified rejection-sampling SFT at the tested scales and budgets, carrying
+the lineage forward does not beat a matched reset; verified search is a better use of the same compute; and the
+binding internal signals are coverage/formation (small scale), a mid-scale learnable frontier, and
+drift-without-gain plus diversity contraction (large scale). We do \emph{not} claim the reachable set is
+mathematically invariant, that the weights sit at a genuine local optimum, or that RL/RLVR (as opposed to
+rejection-sampling SFT) cannot expand capability. The pooled interval treats correlated rounds as independent,
+so per-trajectory (2--3 seed) uncertainty is the binding constraint; the coverage-transplant that would settle
+the mechanism directly proved computationally infeasible and is left to future work.
+
+% =====================================================================================
+\section{Conclusion}
+% =====================================================================================
+Three weeks of clean-verifier, compute-matched experiments across five rungs of recursion and scales from 0.5B
+to 14B converge on one picture: in GPU-kernel optimization, verified self-training \emph{sharpens what a model
+already covers but does not explore}, so improvement does not compound --- not because the models lack
+capability, but because the loop's feedback channel assimilates rare discoveries lossily and cannot manufacture
+the coverage it would need to keep going. The result is a strong, honest null flanked by two positive findings
+(search beats training; the correctness wall is a sampling artifact) that together localize the failure and
+point at the intervention most likely to break it. KernelAscent ships that intervention as an open, automated
+submission track, so the community can try to turn the null into a curve.
+
+\end{document}
