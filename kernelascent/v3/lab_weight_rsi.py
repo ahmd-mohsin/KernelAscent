@@ -148,6 +148,33 @@ class _null:
     def __exit__(self, *a): return False
 
 
+def _grade_gpu():
+    """Which device the grading SUBPROCESS should use.
+
+    This used to default to the literal string "2" -- an assumption that the machine has at
+    least three GPUs and that index 2 is spare. When it is not (a 1- or 2-GPU allocation, which
+    is the normal shape on a busy shared cluster), the subprocess sees NO device, build_ref_c
+    raises, and grade_batch's except-branch returns [False, 0.0, 0.0, 1.5] for every candidate.
+    That is indistinguishable from "the model wrote bad kernels": a silent, uniform C=0.
+
+    Resolution: honour KA_GRADE_GPU if set; otherwise take the LAST device visible to the
+    parent (keeping the earlier ones free for the model, which was the original intent) and
+    fall back to 0. Never point at a device that does not exist.
+    """
+    g = os.environ.get("KA_GRADE_GPU")
+    if g not in (None, ""):
+        return str(g)
+    vis = [d for d in os.environ.get("CUDA_VISIBLE_DEVICES", "").split(",") if d != ""]
+    if vis:
+        return vis[-1] if len(vis) > 1 else vis[0]
+    try:
+        import torch as _t
+        n = _t.cuda.device_count()
+        return str(n - 1) if n > 1 else "0"
+    except Exception:
+        return "0"
+
+
 def _run_grade(path, env, timeout):
     """Run grade_batch.py in its OWN process group; on timeout SIGKILL the WHOLE group so a hung CUDA kernel
     (unkillable via a plain child SIGKILL) can't deadlock the grader. Returns stdout or "" on timeout/error.
@@ -178,7 +205,7 @@ def _grade_isolated(src, codes, timeout=90):
         return []
     fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
     json.dump({"task": src, "codes": codes}, open(path, "w"))
-    env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME; grade on a spare GPU
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES=_grade_gpu())   # inherit PYTHONPATH/KA_*/HF_HOME
     try:
         so = _run_grade(path, env, timeout)
         line = [l for l in so.splitlines() if l.startswith("RESULT")]
@@ -201,7 +228,7 @@ def _grade_isolated_batch(items, chunk=12):
         payload = {"batch": [{"task": s, "codes": c} for s, c in grp]}
         fd, path = tempfile.mkstemp(suffix=".json"); os.close(fd)
         json.dump(payload, open(path, "w"))
-        env = dict(os.environ, CUDA_VISIBLE_DEVICES=os.environ.get("KA_GRADE_GPU", "2"))   # inherit PYTHONPATH/KA_*/HF_HOME
+        env = dict(os.environ, CUDA_VISIBLE_DEVICES=_grade_gpu())   # inherit PYTHONPATH/KA_*/HF_HOME
         res = None
         try:
             so = _run_grade(path, env, 240)                    # process-group-killed on timeout (was 1200s subprocess.run)
