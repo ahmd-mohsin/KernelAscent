@@ -30,12 +30,29 @@ SOLVE_SYS = ("You are an expert GPU performance engineer. You write correct, fas
              "kernels. Import only torch and torch.nn (optionally triton, triton.language). Return ONLY one "
              "class ModelNew(nn.Module) in a python code block.")
 
+# The strategy library's capacity. This used to be a hardcoded 12 in BOTH the prompt that
+# asks for strategies and the slice that shows them back, which meant every healthy run
+# filled all 12 slots in round 0 and stayed pinned there. Model-plateau and harness-ceiling
+# were therefore CONFOUNDED: you could not tell whether a model stopped improving its
+# procedure or the harness stopped letting it. Now configurable (--max-strategies, 0 = no
+# cap) so the confound can be measured instead of assumed.
+MAX_STRATEGIES = int(os.environ.get("KA_MAX_STRATEGIES", "12"))
+N_ARCHIVE_SHOWN = int(os.environ.get("KA_ARCHIVE_SHOWN", "3"))
+
+
+def _cap(n):
+    """0 means unbounded."""
+    return None if n <= 0 else n
+
+
 def _solve_prompt(U, task_src):
-    strat = "\n".join("- " + s for s in U["strategies"][:12]) if U["strategies"] else "(none yet)"
+    lim = _cap(MAX_STRATEGIES)
+    shown = U["strategies"][:lim] if lim else U["strategies"]
+    strat = "\n".join("- " + s for s in shown) if U["strategies"] else "(none yet)"
     arch = ""
     if U["archive"]:
         arch = "\nVERIFIED fast kernels you built before (reuse their techniques):\n" + \
-               "\n".join("# %s\n%s" % (n, s) for n, s in list(U["archive"].items())[:3])
+               "\n".join("# %s\n%s" % (n, s) for n, s in list(U["archive"].items())[:N_ARCHIVE_SHOWN])
     return ("Your current optimization strategy notes:\n%s\n%s\n\nOptimize this module for an A100, numerically "
             "equivalent. Return ONLY class ModelNew(nn.Module).\n%s" % (strat, arch, task_src))
 
@@ -47,8 +64,10 @@ IMPROVE_SYS = ("You are improving your OWN kernel-optimization research procedur
 def _improve_prompt(U, evidence):
     ev = "\n".join(evidence[:24])
     cur = json.dumps(U["strategies"], indent=0)
+    lim = _cap(MAX_STRATEGIES)
+    howmany = ("(<=%d)" % lim) if lim else "(as many as are genuinely useful; do not pad)"
     return ("Current strategy notes (JSON list):\n%s\n\nEvidence from recent attempts:\n%s\n\nReturn ONLY an "
-            "improved JSON list of concise strategy strings (<=12), most useful first." % (cur, ev))
+            "improved JSON list of concise strategy strings %s, most useful first." % (cur, ev, howmany))
 
 
 def _grade(src, codes, grade_gpu="0"):
@@ -114,8 +133,27 @@ def improve(U, evidence, gen):
     return child
 
 
+def _open_gen(model_id, gpus):
+    """Generation backend for an OPEN-WEIGHT model, so procedure-RSI can be measured without
+    any API key. Reuses lab_weight_rsi's loader/sampler; the adapter is never trained here --
+    Track C is the FROZEN-WEIGHT channel, only the procedure changes."""
+    from kernelascent.v3 import lab_weight_rsi as W
+    tok, mdl = W.build(model_id, tuple(int(g) for g in str(gpus).split(",") if g != ""))
+
+    def gen(user, system):
+        # adapter=False keeps the weights frozen: any improvement must come from the procedure
+        outs = W.generate(tok, mdl, user, k=1, adapter=False, max_new=1200)
+        return outs[0] if outs else ""
+    return gen
+
+
 def run(args):
     random.seed(args.seed)
+    if getattr(args, "open_model", None):
+        gen = _open_gen(args.open_model, args.gpus)
+        args.model = args.open_model
+        print("TRACK-C backend: OPEN-WEIGHT %s on gpu(s) %s" % (args.open_model, args.gpus), flush=True)
+        return _run_with(args, gen)
     import curate_bedrock as CB
     _cache = {}
     def gen(user, system):
@@ -129,6 +167,13 @@ def run(args):
             if o.strip() and not o.startswith("BEDROCK_ERROR"):
                 return o
         return o
+    return _run_with(args, gen)
+
+
+def _run_with(args, gen):
+    """The experiment proper, independent of which backend produced `gen`. Splitting this out
+    is what lets Track C run on an open-weight model with no API key -- the docstring always
+    claimed 'open AND closed' but the code only ever had a Bedrock path."""
     from kernelascent.v3 import lab_kernel as LK       # standardized bank via KA_KERNEL_BANK
     tasks = LK.TASKS
     names = list(tasks); random.Random(1).shuffle(names)
@@ -164,7 +209,8 @@ def run(args):
         print("round %d Q=%.3f dBase=%+.3f F=%s strat=%d arch=%d (%.0fs)" %
               (r, Qg, Qg - Q0, ("%+.3f" % Fg if Fg is not None else "-"), len(U["strategies"]), len(U["archive"]), time.time() - t0), flush=True)
         os.makedirs(args.outdir, exist_ok=True)
-        json.dump({"model": args.model, "mode": args.mode, "Q0": Q0, "history": hist},
+        json.dump({"model": args.model, "mode": args.mode, "Q0": Q0,
+                   "max_strategies": MAX_STRATEGIES, "archive_shown": N_ARCHIVE_SHOWN, "history": hist},
                   open(os.path.join(args.outdir, "track_c.json"), "w"), indent=2)
         json.dump({"round": r, "U": U, "hist": hist, "Q0": Q0}, open(statef, "w"))   # resume ckpt (S3-synced) — lets rounds extend
     fs = [h["F_g"] for h in hist if h["F_g"] is not None]
@@ -181,8 +227,22 @@ def main():
     ap.add_argument("--region", default="us-east-1"); ap.add_argument("--rounds", type=int, default=5)
     ap.add_argument("--k", type=int, default=4); ap.add_argument("--n-train", type=int, default=20)
     ap.add_argument("--seed", type=int, default=0); ap.add_argument("--grade-gpu", default="0")
+    ap.add_argument("--open-model", default=None,
+                    help="HF id for an OPEN-WEIGHT backend (no API key needed); overrides --model")
+    ap.add_argument("--gpus", default="0", help="GPUs for the open-weight backend")
+    ap.add_argument("--max-strategies", type=int, default=None,
+                    help="capacity of the strategy library (0 = unbounded). Default 12 was previously "
+                         "hardcoded, which confounded model plateau with harness ceiling.")
+    ap.add_argument("--archive-shown", type=int, default=None,
+                    help="how many archived kernels are shown as exemplars (default 3)")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/track_c")
-    run(ap.parse_args())
+    a = ap.parse_args()
+    global MAX_STRATEGIES, N_ARCHIVE_SHOWN
+    if a.max_strategies is not None: MAX_STRATEGIES = a.max_strategies
+    if a.archive_shown is not None:  N_ARCHIVE_SHOWN = a.archive_shown
+    print("TRACK-C capacity: max_strategies=%s archive_shown=%d"
+          % (MAX_STRATEGIES if MAX_STRATEGIES > 0 else "UNBOUNDED", N_ARCHIVE_SHOWN), flush=True)
+    run(a)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,53 @@ def _families(names):
     return fam
 
 
+def _load_teacher(path):
+    """Verified-correct kernels harvested from a stronger model (scripts/make_teacher_kernels.py)."""
+    if not path:
+        return {}
+    try:
+        d = json.load(open(path))
+    except Exception as e:
+        print("WARN: could not read teacher kernels %r: %r" % (path, e), flush=True)
+        return {}
+    return d.get("kernels", d)
+
+
+def _inject(pairs, solved, train, teacher, per_task, tasks):
+    """E1 POSITIVE CONTROL -- the experiment that makes the compounding null falsifiable.
+
+    Self-training can only reuse what the model already produces, so if coverage is the
+    binding constraint then a lineage that never sees a correct kernel for task T can never
+    learn T, no matter how many rounds it runs. This injects teacher-verified kernels for
+    exactly the tasks the student FAILED this round, i.e. where its own success probability
+    was zero.
+
+    The contrast stays honest because BOTH the lineage and reset arms train on the same
+    augmented set: injection changes what is available to accumulate, while lineage-minus-reset
+    still isolates accumulation itself. If lineage-minus-reset turns positive only under
+    injection, the harness can register compounding and the unaugmented null is a real
+    finding about coverage. If it stays flat even here, the loop is broken and nothing
+    should be published from it.
+
+    Returns (augmented_pairs, n_injected, tasks_injected).
+    """
+    if not teacher:
+        return pairs, 0, []
+    uncovered = [t for t in train if t not in solved]
+    added, used = [], []
+    for t in uncovered:
+        ks = teacher.get(t) or []
+        if not ks:
+            continue
+        src = tasks.get(t)
+        if src is None:
+            continue
+        for kobj in ks[:per_task]:                     # already sorted fastest-first
+            added.append((src, kobj["code"] if isinstance(kobj, dict) else kobj))
+        used.append(t)
+    return pairs + added, len(added), used
+
+
 def run(args):
     random.seed(args.seed); torch.manual_seed(args.seed)
     gpus = [int(x) for x in str(args.gpus).split(",") if x != ""]
@@ -59,6 +106,10 @@ def run(args):
           (args.model, args.seed, len(train), len(held), held_family, len(transfer), args.rounds), flush=True)
     os.makedirs(args.outdir, exist_ok=True)
 
+    teacher = _load_teacher(args.inject_kernels)
+    if teacher:
+        print("E1 POSITIVE CONTROL: injecting up to %d teacher kernel(s) per UNSOLVED train task "
+              "(%d tasks available from %s)" % (args.inject_per_task, len(teacher), args.inject_kernels), flush=True)
     C0, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=False)     # frozen-base held-out baseline
     print("C0 frozen-base held = %.3f" % C0, flush=True)
     hist = []; prevC = C0
@@ -66,6 +117,14 @@ def run(args):
         t0 = time.time()
         # LINEAGE: produce on train (adapter ON), accumulate SFT
         trainC, pairs, _, _, _ = W.eval_tasks(tok, mdl, train, args.k, adapter=True)
+        # which train tasks did the student actually solve this round? pairs carry the source,
+        # so a task with no pair is one it failed -- exactly the uncovered set injection targets.
+        solved = set()
+        for ps, _code in pairs:
+            for t in train:
+                if LK.TASKS.get(t) == ps:
+                    solved.add(t); break
+        pairs, n_inj, inj_tasks = _inject(pairs, solved, train, teacher, args.inject_per_task, LK.TASKS)
         try: loss = W.sft(tok, mdl, pairs, args.sft_steps)
         except torch.cuda.OutOfMemoryError:
             torch.cuda.empty_cache(); loss = float("nan")
@@ -83,7 +142,8 @@ def run(args):
         if BL is not None:
             try: C_ret = BL.retrieval(tok, mdl, train, held, args.k, n_shot=min(3 + r, 8)).get("C")
             except Exception: C_ret = None
-        row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
+        row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs),
+               "n_injected": n_inj, "injected_tasks": len(inj_tasks), "n_solved_self": len(solved), "loss": round(loss, 3),
                "C_lineage": round(C_lin, 3), "C_reset": round(C_reset, 3), "C_bestofN": round(C_bon, 3),
                "C_retrieval": (round(C_ret, 3) if C_ret is not None else None), "transfer_C": round(C_tr, 3),
                "marginal_gain_lineage": round(C_lin - prevC, 3),   # gain THIS round from the accumulated model
@@ -95,7 +155,10 @@ def run(args):
         hist.append(row); prevC = C_lin
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
-        json.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "history": hist},
+        json.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family,
+                   "arm": ("inject" if teacher else "control"),
+                   "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
+                   "history": hist},
                   open(os.path.join(args.outdir, "compounding.json"), "w"), indent=2)
     lr = [h["lineage_minus_reset"] for h in hist]
     print("\n=== COMPOUNDING SUMMARY %s === lineage-minus-reset:" % args.model, lr)
@@ -110,6 +173,12 @@ def main():
     ap.add_argument("--n-train", type=int, default=20); ap.add_argument("--n-held", type=int, default=20)
     ap.add_argument("--sft-steps", type=int, default=40); ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--held-family", default="l3")
+    ap.add_argument("--inject-kernels", default=None,
+                    help="E1 positive control: JSON of teacher-verified kernels "
+                         "(scripts/make_teacher_kernels.py). Injected ONLY for train tasks the "
+                         "student failed that round, into BOTH arms.")
+    ap.add_argument("--inject-per-task", type=int, default=1,
+                    help="how many teacher kernels to inject per uncovered task")
     ap.add_argument("--outdir", default=os.path.join(os.environ.get("KA_DATA_DIR", "/tmp/instance_storage/ka_data"), "compounding"))
     run(ap.parse_args())
 
