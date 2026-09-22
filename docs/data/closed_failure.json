@@ -1,0 +1,110 @@
+{
+ "strategy_cap": 12,
+ "archive_cap": 20,
+ "note": "Harness bounds from lab_track_c.py: the improve prompt asks for <=12 strategies and only 12 are shown back; the archive is bounded by --n-train (default 20) with only 3 exemplars surfaced.",
+ "runs": [
+  {
+   "tag": "astra",
+   "model": "us.openai.gpt-6-astra",
+   "Q0": 0.297926150791129,
+   "rounds": 6,
+   "r0_gain": 0.503,
+   "total_gain": 0.557,
+   "max_strategies": 12,
+   "max_archive": 18,
+   "verdict": "ONE-SHOT",
+   "why": "90% of the gain arrives at round 0 (+0.503 of +0.557); subsequent rounds add +0.054"
+  },
+  {
+   "tag": "dsv32",
+   "model": "deepseek.v3.2",
+   "Q0": 0.8472190933800441,
+   "rounds": 1,
+   "r0_gain": -0.234,
+   "total_gain": -0.234,
+   "max_strategies": 0,
+   "max_archive": 4,
+   "verdict": "PARSE-FAILURE",
+   "why": "n_strategies=0 in every round: the model's output was never parsed into a strategy list, so the self-modification channel never engaged. Not a result."
+  },
+  {
+   "tag": "gpt56sol",
+   "model": "us.openai.gpt-5.6-sol",
+   "Q0": 0.813419722386415,
+   "rounds": 6,
+   "r0_gain": 0.057,
+   "total_gain": 0.077,
+   "max_strategies": 12,
+   "max_archive": 20,
+   "verdict": "HARNESS-CAPPED",
+   "why": "strategy list hit its 12-slot cap at round 0 and later gain is only +0.020. The procedure was FULL before it could grow, so model plateau and harness ceiling are not separable here."
+  },
+  {
+   "tag": "gpt56terra",
+   "model": "us.openai.gpt-5.6-terra",
+   "Q0": 0.851179496824507,
+   "rounds": 6,
+   "r0_gain": 0.001,
+   "total_gain": 0.001,
+   "max_strategies": 12,
+   "max_archive": 19,
+   "verdict": "HARNESS-CAPPED",
+   "why": "strategy list hit its 12-slot cap at round 1 and later gain is only +0.000. The procedure was FULL before it could grow, so model plateau and harness ceiling are not separable here."
+  },
+  {
+   "tag": "kimi",
+   "model": "moonshotai.kimi-k2.5",
+   "Q0": 0.7515242972445516,
+   "rounds": 2,
+   "r0_gain": 0.073,
+   "total_gain": 0.073,
+   "max_strategies": 0,
+   "max_archive": 3,
+   "verdict": "PARSE-FAILURE",
+   "why": "n_strategies=0 in every round: the model's output was never parsed into a strategy list, so the self-modification channel never engaged. Not a result."
+  },
+  {
+   "tag": "mistral3",
+   "model": "mistral.mistral-large-3-675b-instruct",
+   "Q0": 0.3585159733100104,
+   "rounds": 6,
+   "r0_gain": 0.136,
+   "total_gain": 0.422,
+   "max_strategies": 12,
+   "max_archive": 14,
+   "verdict": "SUSTAINED",
+   "why": "gain accumulates across rounds (round-0 share 32%)"
+  },
+  {
+   "tag": "opus5",
+   "model": "us.anthropic.claude-opus-5",
+   "Q0": 0.8784284181158997,
+   "rounds": 1,
+   "r0_gain": 0.032,
+   "total_gain": 0.032,
+   "max_strategies": 12,
+   "max_archive": 19,
+   "verdict": "TOO-SHORT",
+   "why": "only 1 completed round(s); a ceiling cannot be separated from an interrupted run"
+  },
+  {
+   "tag": "sonnet5",
+   "model": "us.anthropic.claude-sonnet-5",
+   "Q0": 0.49309662314986163,
+   "rounds": 6,
+   "r0_gain": 0.394,
+   "total_gain": 0.401,
+   "max_strategies": 12,
+   "max_archive": 20,
+   "verdict": "HARNESS-CAPPED",
+   "why": "strategy list hit its 12-slot cap at round 0 and later gain is only +0.007. The procedure was FULL before it could grow, so model plateau and harness ceiling are not separable here."
+  }
+ ],
+ "verdicts": {
+  "ONE-SHOT": 1,
+  "PARSE-FAILURE": 2,
+  "HARNESS-CAPPED": 3,
+  "SUSTAINED": 1,
+  "TOO-SHORT": 1
+ }
+}
