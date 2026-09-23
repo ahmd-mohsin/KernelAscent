@@ -384,6 +384,14 @@ an identical 2-hour job was estimated 33 hours out. So choose walltime carefully
 and run long work as **short resumable chunks** (`scripts/jobman.sh`) rather than one long
 reservation. Both labs checkpoint per round, so a timeout resumes.
 
+**A shared quota is not yours to fix.** The 32B probe died with
+`OSError [Errno 122] Disk quota exceeded` while *downloading the model* — HF creates a lock
+directory per file, and the group is at 1,167,124 / 512,000 inodes. Our own directories account
+for ~4,000 of those. So no amount of cleaning on our side helps; the constraint is other members
+of the shared allocation. Plan around it (containers, `$HOME`, pre-staged weights) rather than
+treating it as something a `rm` can solve, and check whether a model is already cached before
+designing an experiment that needs a new one.
+
 **Watch inodes, not gigabytes.** The shared group quota is at 2.3× its *file-count* limit
 (1,165,763 / 512,000) while 600 GB of block space sits free. `pip install torch` fails
 intermittently; `os.makedirs` killed 2 of 6 jobs *after* they had loaded the model. Containers
