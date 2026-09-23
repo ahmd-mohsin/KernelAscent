@@ -2164,3 +2164,49 @@ self-authored tightly bounded -> calibrated bounded-negative paper. rejected cha
 confirmed future value -> selection is a mechanism. only injected changes close the loop ->
 opportunity + discovery gap, no autonomous-RSI claim. one link but no repeat -> report finite
 link. repeated links survive rescue+transfer+replication -> bounded causal agent RSI.
+
+---
+
+## 2026-09-23 — H100 session: seven instrument defects, two retractions, one substrate
+
+Full reasoning in `INTUITIONS.md` §2b–§2i; this is the dated record of what was measured.
+
+### Measured
+
+| what | result |
+|---|---|
+| custom-kernel rate, 14B, published prompt | **0 / 86**, replicated **0 / 118** → 0/204 across two harvests |
+| best speedup vs **eager** (not compile), 14B | median **1.00x**, 93% below 1.05x |
+| score distribution, H100 E1 | **76%** of all scores exactly 0.50 = `_score(correct, 1.0)` |
+| reachability, hand-curated bank | **1 / 29 (3.4%)** clear the 1.5x-over-eager anchor |
+| reachability, generated DSL bank (456 tasks, complete) | **57 / 456 (12.5%)**; 180 admitted |
+| Track-C strategy counts, closed frontier | **5/5** runs at 11–12 from round 0; **4/5 never grew** |
+| Track-C, open 7B by cap | mean ΔQ **−0.018** (12) · **−0.003** (48) · **+0.482** (unbounded); round-0 share 0% unbounded |
+| teacher coverage, original vs re-harvest | **14/29** vs **25/29** tasks (strict superset, same model+prompt, fewer samples) |
+| `KA_PROMPT=kernel`, 14B | **0/29 solved** — *not reportable*, see below |
+| hand-written correct triton kernel through the grader | **ok=False** → harness may not be able to verify triton at all |
+
+### Retracted
+
+* **T3 "frontier self-modification is one-shot".** The harness requests "≤12" strategies; the
+  models comply exactly and are pinned from round 0. Gains stay reported as real.
+* **"H100's stronger `torch.compile` closed the headroom".** The default scorer
+  (`KA_SCORE=eager`) never uses the compiled baseline. No claim about `torch.compile` was
+  licensed by those runs.
+
+### Not claimed, pending instrument work
+
+`KA_PROMPT=kernel` returning 0/29 is **not** evidence that models cannot write kernels: a
+hand-written correct triton kernel also fails to verify here. Held until `precheck_triton.py`
+(3-point calibrated: plain-torch must pass, wrong must fail) reports.
+
+### Instrument changes
+
+* grader failure **reasons** now propagate (`grade_batch` was unpacking `msg` and discarding it,
+  so every failure in project history was a bare `False`)
+* `difficulty_filter` resumes instead of restarting at index 0
+* `KA_SCORE=passrate`, pre-registered as Amendment 1, enforced by `score_mode` stamping
+* `KA_PROMPT={safe,kernel}`, default byte-identical to published
+* reachability proposed as a reportable precondition, with a ~10% refusal threshold
+* audit gates for baseline attribution and the custom-kernel rate, **with negative tests**
+* `env` prefix required for env vars (container runs with no shell)
