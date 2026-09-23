@@ -144,6 +144,34 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 
 ---
 
+## 2f. Reachability — the range check, turned into a number I can act on
+
+"Check the metric has range" was the rule I wrote after §2, and it was still too vague to stop
+me. So: **reachability = the fraction of bank tasks where the frozen base already clears the
+scoring anchor.** It costs nothing — it falls straight out of the calibration pass — and it is
+known *before* the experiment runs.
+
+| bank | tasks | admitted | reachability |
+|---|---|---|---|
+| hand-curated | 29 | 23 | **1/29 (3.4%)** |
+| generated DSL | 456 | 180 | **57/456 (12.5%)** |
+
+3.4% means that on 28 of 29 tasks every success landed at parity. One attainable non-zero
+value; the two-arm contrast was pinned before round 0. Four-fold difference between the banks,
+and it would have taken one calibration pass to see it.
+
+**The intuition:** a qualitative gate does not fire. I *had* the rule "check the range" written
+down in §1 and still ran E1 on a bank with 3.4% reachability, because nothing forced me to
+produce a number and compare it to a threshold. A rule you can satisfy by feeling like you
+checked is not a gate. Give every standing rule a statistic and a cut-off, or expect to violate
+it while believing you followed it.
+
+**And the limit of this one:** it is measured against eager at a fixed 1.5x anchor, so it says
+nothing about `torch.compile`, and generated references may be easy to beat for reasons that do
+not transfer. Necessary, not sufficient — see [[route-1-dsl-bank]].
+
+---
+
 ## 2e. The sixth defect was my own explanation of the first five
 
 I diagnosed the 0.50 spike as a hardware effect: `torch.compile` is stronger on H100, so the
@@ -346,8 +374,8 @@ to shell quoting. Write the script file.
 ## 6. Standing rules
 
 1. **Never launch a batch without `precheck_grader.sh` passing on the same allocation shape.**
-2. **Check the score distribution before trusting a contrast** — a spike at one value means a
-   dead dimension.
+2. **Report reachability for every bank and refuse a speed-scored study below ~10%** (§2f).
+   The qualitative version of this rule did not stop me; the number does.
 3. **A clean zero is a bug hypothesis first, a finding second** — but §2e is the counterexample:
    once the bug hypotheses are exhausted, a clean zero can be an accurate report of the models
    doing nothing. Do not stop at "the instrument is dead"; find the mechanism that produced it.

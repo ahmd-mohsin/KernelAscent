@@ -114,6 +114,42 @@ author to produce accepted valid tasks; demanding at least five qualifies only 6
 5 of 11 closed runs. \textbf{A metric computed over zero events is undefined, not zero}, and the
 distinction is invisible in the aggregate.
 
+\paragraph{Reachability: the dynamic-range precondition, made quantitative.}
+``Check the metric has range'' is advice until it is a number, so we propose one.
+\textbf{Reachability} is the fraction of bank tasks on which the \emph{frozen base} already
+produces a submission clearing the scoring anchor. It is cheap --- it falls out of the same
+calibration pass used to admit tasks --- and it is computed before any experiment runs.
+
+Measured on the two banks we calibrated against an identical H100 anchor:
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Bank} & \textbf{Tasks} & \textbf{Admitted} & \textbf{Reachability} \\
+\midrule
+Hand-curated (29-task) & 29 & 23 & 1 / 29 \quad(3.4\%) \\
+Generated DSL (456-task) & 456 & 180 & 57 / 456 \quad(12.5\%) \\
+\bottomrule
+\end{tabular}
+\caption{Reachability = fraction of tasks where the frozen base clears the scoring anchor
+($1.5\times$ over eager). Both banks are bimodal --- parity, or well past the anchor --- but
+they differ four-fold in whether the speed dimension is reachable at all.}
+\label{tab:reach}
+\end{table}
+
+A reachability of 3.4\% means that on 28 of 29 tasks, \emph{every} success the base produced
+landed at parity, so the score had one attainable non-zero value and the contrast between two
+arms was pinned before a single round ran. We would now decline to run a speed-scored
+compounding study on such a bank, and we report the statistic for any bank we publish.
+
+Note what this does \emph{not} say. The measurement above is against eager PyTorch at a fixed
+$1.5\times$ anchor, which is what the default scorer uses; the roofline ceiling does not enter
+it. It therefore licenses no claim about \texttt{torch.compile}, and a bank of \emph{generated}
+references may be easy to beat for reasons that do not transfer --- a naive reference is not a
+strong baseline. Reachability is a necessary condition for a usable substrate, not a sufficient
+one.
+
 \paragraph{What we propose as standard practice.}
 We ship these as executable gates rather than advice, and we recommend them for any
 self-improvement benchmark reporting a null:
@@ -121,9 +157,10 @@ self-improvement benchmark reporting a null:
 \item \textbf{Known-good input, known-good output}, asserted before every batch and run
 \emph{on the same allocation shape as the experiment} --- one of our defects lived entirely in
 the difference between a 1-GPU and a 3-GPU allocation.
-\item \textbf{A dynamic-range precondition}: demonstrate the primary metric takes at least two
-distinguishable values on this hardware and this task bank, \emph{before} interpreting a
-contrast computed from it.
+\item \textbf{A dynamic-range precondition}, reported as \emph{reachability}
+(Table~\ref{tab:reach}): the fraction of tasks on which the frozen base already clears the
+scoring anchor. Publish it beside every bank, and never interpret a contrast computed on a
+bank where it is near zero.
 \item \textbf{A positive control on the causal path}: an intervention known to move the primary
 metric (for us, injecting verified solutions on tasks the student failed). A null is
 interpretable only once the harness has been shown to register a positive.

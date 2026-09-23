@@ -95,11 +95,23 @@
 
   <div class="note" style="margin:16px 0"><b>What is running now.</b> A prompt A/B &mdash; identical tasks, grader, model and seed, only the prompt text differs &mdash; at 14B, plus a 32B cell to test whether scale adds anything once the model is actually asked to optimize. The three outcomes and their thresholds were fixed in code before the runs launched. If the plateau proves substantially prompt-induced, <b>every speed-scored board here has to be re-run before it means anything</b>, and we will say so on this page.</div>
 
+  <h3 style="margin-top:22px">Reachability: the range check, made into a number</h3>
+  <p class="small">&ldquo;Check the metric has range&rdquo; is advice until it is a number. <b>Reachability</b> is the fraction of bank tasks where the <i>frozen base</i> already clears the scoring anchor. It falls out of the calibration pass, costs nothing extra, and is known before any experiment runs.</p>
+  <table class="small prose">
+    <thead><tr><th style="width:44%">Bank</th><th style="width:18%">Tasks</th><th style="width:18%">Admitted</th><th style="width:20%">Reachability</th></tr></thead>
+    <tbody>
+      <tr><td>Hand-curated (29-task)</td><td>29</td><td>23</td><td><b>1 / 29</b> &nbsp;(3.4%)</td></tr>
+      <tr><td>Generated DSL (456-task)</td><td>456</td><td>180</td><td><b>57 / 456</b> &nbsp;(12.5%)</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Reachability of 3.4% means that on 28 of 29 tasks <i>every</i> success the base produced landed at parity &mdash; the score had one attainable non-zero value, and the contrast between two arms was pinned before a single round ran. We would now decline to run a speed-scored compounding study on such a bank, and we publish the statistic for any bank we ship.</p>
+  <p class="small"><b>What this does not say.</b> It is measured against eager PyTorch at a fixed 1.5&times; anchor, which is what the default scorer uses; the roofline ceiling does not enter it. So it licenses no claim about <code>torch.compile</code>, and a bank of <i>generated</i> references may be easy to beat for reasons that do not transfer. Reachability is necessary for a usable substrate, not sufficient.</p>
+
   <h3 style="margin-top:22px">What we propose as standard practice</h3>
   <p class="small sub">Shipped as executable gates in the repo, not as advice. We recommend them for any self-improvement benchmark reporting a null.</p>
   <ol class="small">
     <li><b>Known-good input, known-good output</b>, asserted before every batch and run <i>on the same allocation shape as the experiment</i> &mdash; one defect lived entirely in the difference between a 1-GPU and a 3-GPU allocation.</li>
-    <li><b>A dynamic-range precondition:</b> show the primary metric takes at least two distinguishable values on this hardware and bank <i>before</i> interpreting a contrast from it.</li>
+    <li><b>A dynamic-range precondition, reported as reachability:</b> the fraction of tasks where the frozen base already clears the scoring anchor. Publish it beside every bank, and never interpret a contrast computed on a bank where it is near zero.</li>
     <li><b>A positive control on the causal path:</b> an intervention known to move the metric. A null is interpretable only once the harness has registered a positive.</li>
     <li><b>Mechanism denominators beside every rate</b>, so undefined is distinguishable from zero.</li>
     <li><b>Automated cross-artifact consistency checking</b> &mdash; every number re-derived from the data files at build time.</li>
