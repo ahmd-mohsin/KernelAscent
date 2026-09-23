@@ -18,15 +18,22 @@ CACHE = os.environ.get("KA_COMPILED_CACHE") or os.path.join(
 def grade_one(src, codes):
     try:
         ref, xs, golds, bound, te, tc, ceil = AB.build_ref_c(src, n_inputs=3, compiled_cache=CACHE)
-    except Exception:
-        return [[False, 0.0, 0.0, 1.5] for _ in codes]
+    except Exception as e:
+        # A reference that will not build fails EVERY candidate for this task, which is how a
+        # quota error once read as "the model produced nothing correct for 5 rounds". Say so.
+        return [[False, 0.0, 0.0, 1.5, "REF-BUILD-FAILED " + repr(e)[:100]] for _ in codes]
     out = []
     for code in codes:
         try:
             ok, se, sc, msg = AB.grade_c(src, code, ref, xs, golds, bound, te, tc)
-            out.append([bool(ok), float(se), float(sc), float(ceil)])   # 4th = per-task roofline ceiling
-        except Exception:
-            out.append([False, 0.0, 0.0, float(ceil)])
+            # 5th = WHY. grade_c has always produced this string and it was unpacked and then
+            # dropped here, so every failure in this project has been a bare False with no
+            # reason attached -- which is precisely why "the model writes bad kernels" stayed
+            # unfalsifiable through four separate harness bugs. Appended, not substituted, so
+            # every existing consumer (all of which index g[0..3]) is unaffected.
+            out.append([bool(ok), float(se), float(sc), float(ceil), str(msg)[:120]])
+        except Exception as e:
+            out.append([False, 0.0, 0.0, float(ceil), "GRADER-RAISED " + repr(e)[:100]])
     return out
 
 

@@ -140,13 +140,13 @@ def main():
             r = W._grade_isolated(REFERENCE, [code])
             ok = bool(r and r[0] and r[0][0])
             sp = (r[0][1] if r and r[0] and len(r[0]) > 1 else 0.0)
+            why = (r[0][4] if r and r[0] and len(r[0]) > 4 else "(no reason recorded)")
         except Exception as e:
-            ok, sp, r = False, 0.0, "EXCEPTION %s" % e
+            ok, sp, why, r = False, 0.0, "EXCEPTION %s" % e, None
         got[label.split()[0]] = ok
         flag = "" if expect is None else ("  <-- UNEXPECTED" if ok != expect else "  ok")
         print("  %-28s -> ok=%-5s speedup=%.2fx%s" % (label, ok, sp, flag))
-        if isinstance(r, str) or not r:
-            print("       raw: %r" % (r,))
+        print("       why: %s" % why)
 
     torch_ok, tri_ok, wrong_ok = got["plain-torch"], got["triton"], got["wrong"]
     print("\n" + "=" * 78)

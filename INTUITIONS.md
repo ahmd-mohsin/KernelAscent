@@ -171,6 +171,40 @@ its coverage was a fossil of those bugs, not a property of the model.
 
 ---
 
+## 2h. The grader knew why, and threw it away
+
+Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
+
+```python
+ok, se, sc, msg = AB.grade_c(...)
+out.append([bool(ok), float(se), float(sc), float(ceil)])   # msg dropped
+```
+
+`grade_c` has **always** produced a reason — `"wrong/imprecise"`, or `repr(e)[:80]` for a raised
+exception. It was unpacked into `msg` and then silently discarded on the next line. So every
+kernel failure in this project, across every experiment, has been a bare `False` with no cause
+attached.
+
+That single dropped variable is the reason four separate harness bugs could all masquerade as
+"the model writes bad kernels". Any one of them would have been obvious in a minute if the
+failures had carried `ModuleNotFoundError`, or `CUDA error`, or `EDQUOT`, instead of nothing.
+I spent days on defects that were annotating themselves the whole time.
+
+**The intuition:** a verifier that returns only a boolean is not falsifiable in practice. Pass/
+fail tells you *that* you are wrong, never *how*, and "how" is the entire difference between a
+model failure and a harness failure. **Always propagate the reason to the same place the
+verdict goes** — not to a log file that is rotated, not behind a debug flag, but attached to
+the result row that gets stored and analysed.
+
+Fixed by appending the reason as a 5th field rather than substituting it, since every consumer
+indexes `g[0..3]`. Also padded the short-row case in `_grade_isolated`, where a dead subprocess
+produced a 3-element row that was indistinguishable from a wrong kernel — it now says
+`NO-GRADER-OUTPUT`. And a reference that fails to build now marks all its candidates
+`REF-BUILD-FAILED`, which is exactly the shape of the quota bug that once read as five rounds
+of the model producing nothing.
+
+---
+
 ## 2f. Reachability — the range check, turned into a number I can act on
 
 "Check the metric has range" was the rule I wrote after §2, and it was still too vague to stop

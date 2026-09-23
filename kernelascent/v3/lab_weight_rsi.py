@@ -213,7 +213,9 @@ def _grade_isolated(src, codes, timeout=90):
     except Exception:
         res = []
     os.remove(path)
-    return res + [[False, 0.0, 0.0]] * (len(codes) - len(res))
+    # Pad to the SAME arity the grader emits (ok, se, sc, ceiling, why); a short row here used
+    # to make a lost subprocess indistinguishable from a wrong kernel.
+    return res + [[False, 0.0, 0.0, 1.5, "NO-GRADER-OUTPUT (subprocess died or timed out)"]] * (len(codes) - len(res))
 
 
 def _grade_isolated_batch(items, chunk=12):
