@@ -13,6 +13,7 @@ stats:
 # Non-zero exit fails the build on purpose -- see scripts/consistency_audit.py.
 audit:
 	python3 scripts/consistency_audit.py
+	python3 tests/test_audit_gates.py
 
 figures: stats
 	python3 scripts/make_paper_figures.py

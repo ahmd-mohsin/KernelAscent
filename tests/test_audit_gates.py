@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Negative tests for the consistency-audit gates: plant the error, assert the gate fires.
+
+A gate that only ever passes is indistinguishable from a gate that cannot see its input, and we
+have now hit that twice in one afternoon -- once because PROSE did not include the artifacts the
+claim lived in, and once because a test harness remapped the paths and every read() returned "".
+Both reported "clean". So the gates get negative tests, and the harness gets a sanity assertion
+that it is reading real, non-empty files before it believes any result.
+
+    python3 tests/test_audit_gates.py
+"""
+import os, shutil, sys, tempfile
+
+SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def main():
+    tmp = tempfile.mkdtemp()
+    dst = os.path.join(tmp, "repo")
+    shutil.copytree(SRC, dst, ignore=shutil.ignore_patterns(
+        ".git", "data", "*.pdf", "__pycache__", "node_modules", ".venv"))
+    sys.path.insert(0, os.path.join(dst, "scripts"))
+    import consistency_audit as A
+
+    # The module resolves ROOT from its own location, so importing the COPY is what redirects it.
+    # Never remap A.PROSE by hand: that is what silently produced empty reads and a false pass.
+    assert A.ROOT.startswith(tmp), "audit did not rebase onto the temp copy: %s" % A.ROOT
+    missing = [k for k, v in A.PROSE.items() if not os.path.exists(v)]
+    assert not missing, "PROSE paths do not exist: %s" % missing
+    empty = [k for k, v in A.PROSE.items() if not A.read(v).strip()]
+    assert not empty, "PROSE files read empty -- the gates would pass vacuously: %s" % empty
+
+    def run(label):
+        A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
+        A.check_baseline_attribution(); A.check_custom_kernel_rate()
+        names = [c for c, _ in A.FAILS]
+        print("  %-44s -> %s" % (label, names or "clean"))
+        return names
+
+    def mutate(rel, fn, expect):
+        p = os.path.join(dst, rel)
+        orig = open(p).read()
+        open(p, "w").write(fn(orig))
+        try:
+            got = run("+ " + rel)
+            assert expect in got, "expected %r for %s, got %r" % (expect, rel, got)
+        finally:
+            open(p, "w").write(orig)
+
+    print("baseline gate: no unscoped torch.compile claims")
+    assert run("unmodified repo") == [], "repo must start clean"
+
+    mutate("paper/instrument_validity.tex",
+           lambda t: t + "\nNo open model can beat torch.compile on this bank.\n",
+           "baseline/attribution")
+    mutate("INTUITIONS.md",
+           lambda t: t + "\nModels simply cannot beat torch.compile here.\n",
+           "baseline/attribution")
+    mutate("docs/index.html",
+           lambda t: t + "<p>Nothing we tested is faster than torch.compile.</p>\n",
+           "baseline/attribution")
+
+    print("custom-kernel gate: the 0-of-86 figure must not drift")
+    mutate("docs/index.html", lambda t: t.replace("0 of 86", "3 of 86", 1),
+           "prompt/custom-kernel-rate")
+
+    assert run("all restored") == [], "repo must end clean"
+    shutil.rmtree(tmp)
+    print("\nPASS -- every gate fires on the error it exists to catch, and clears when fixed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

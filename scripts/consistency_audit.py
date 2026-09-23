@@ -25,11 +25,22 @@ import json, os, re, sys, glob, argparse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "docs", "data")
+# Every artifact that makes a claim to a reader. This deliberately includes the paper's
+# \input-ed sections (a claim in instrument_validity.tex is as public as one in the main file),
+# the website, the pre-registration and the intuitions log -- the torch.compile misattribution
+# lived in three of these while the audit was scanning none of them, so both of the gates added
+# for it passed vacuously. A check that cannot see the text it guards reads as a pass, which is
+# worse than having no check at all.
 PROSE = {
     "results_auto.tex": os.path.join(ROOT, "paper", "results_auto.tex"),
     "kernelascent_full.tex": os.path.join(ROOT, "paper", "kernelascent_full.tex"),
     "discussion.tex": os.path.join(ROOT, "paper", "discussion.tex"),
+    "instrument_validity.tex": os.path.join(ROOT, "paper", "instrument_validity.tex"),
+    "probe_appendix.tex": os.path.join(ROOT, "paper", "probe_appendix.tex"),
     "README.md": os.path.join(ROOT, "README.md"),
+    "INTUITIONS.md": os.path.join(ROOT, "INTUITIONS.md"),
+    "PREREGISTRATION.md": os.path.join(ROOT, "docs", "PREREGISTRATION.md"),
+    "index.html": os.path.join(ROOT, "docs", "index.html"),
 }
 
 FAILS, WARNS, PASSES = [], [], []
@@ -371,13 +382,106 @@ def check_embedded_claims():
             ok("mech/claim-wall", "correctness-wall claim string is consistent with %.2f crossing rate" % lt2)
 
 
+def check_baseline_attribution():
+    """Do not attribute a result to `torch.compile` unless the runs actually scored against it.
+
+    This is the sixth defect, made into a gate. The default scorer is KA_SCORE=eager, which
+    measures speedup over EAGER against the legacy fixed 1.5x anchor -- the compiled baseline and
+    the per-task roofline ceiling are both unused. We nonetheless wrote, in three artifacts, that
+    H100's stronger `torch.compile` had closed the headroom. It was plausible, it fit the data,
+    and it was about a quantity those runs never measured.
+
+    So: any sentence claiming models cannot BEAT / are not FASTER THAN torch.compile is a failure
+    unless it is explicitly scoped to compiled-mode runs. Struck-through text and the passages
+    that document the error are exempt -- the point is to keep the correction, not erase it.
+    """
+    pat = re.compile(r"[^.\n]*\b(?:beat|faster than|outperform\w*|exceed\w*)\s+"
+                     r"(?:the\s+)?(?:\\texttt\{)?`?torch\.?compile", re.I)
+    # Exemption is scoped to the SENTENCE the claim sits in, not a wide context window. A window
+    # was the first attempt and it was useless: instrument_validity.tex is *about* this mistake,
+    # so every marker appears within a few hundred characters of everything, and the gate
+    # exempted a deliberately-planted bad claim. Narrow scope is what makes it able to fire.
+    exempt = ("was wrong", "~~", "never entered", "no claim about", "initial diagnosis",
+              "sixth defect", "ka_score=compiled", "compiled-mode", "mistake",
+              "justification was not", "cannot beat the baseline on this hardware")
+    hits = []
+    for name, path in PROSE.items():
+        txt = read(path)
+        for m in pat.finditer(txt):
+            line_no = txt[:m.start()].count("\n") + 1
+            lo = max(txt.rfind(".", 0, m.start()), txt.rfind("\n", 0, m.start())) + 1
+            hi = m.end() + 160
+            for stop in (".", "\n"):
+                k = txt.find(stop, m.end())
+                if k != -1:
+                    hi = min(hi, k + 1)
+            sentence = txt[lo:hi]
+            if any(e in sentence.lower() for e in exempt):
+                continue
+            hits.append("%s:%d  %r" % (name, line_no, m.group(0).strip()[:90]))
+    if hits:
+        fail("baseline/attribution",
+             "prose claims a result about `torch.compile`, but the default scorer (KA_SCORE=eager) "
+             "measures speedup over EAGER with a fixed 1.5x anchor and never touches the compiled "
+             "baseline. Scope the claim to compiled-mode runs or restate it:\n      "
+             + "\n      ".join(hits))
+    else:
+        ok("baseline/attribution", "no unscoped torch.compile claims (the sixth-defect gate)")
+
+
+def check_custom_kernel_rate():
+    """The 0-of-86 custom-kernel figure must agree wherever it appears.
+
+    It is the load-bearing number for the prompt finding -- it is why the 0.50 spike is a real
+    measurement rather than a dead instrument -- so it is exactly the kind of number that drifts
+    between a paper, a website and a notes file.
+
+    These three artifacts are LaTeX, HTML and Markdown, and each puts its own emphasis markup
+    between the digits and the noun ("<b>0 of 86</b> verified kernels", "\\textbf{zero}"). Matching
+    the raw text silently matches nothing, so strip markup and normalise number words first --
+    a check that cannot fire is worse than no check, because it reads as a pass.
+    """
+    def norm(t):
+        t = re.sub(r"\\textbf\{|\\emph\{|\\texttt\{|[{}]", " ", t)   # LaTeX
+        t = re.sub(r"<[^>]+>", " ", t)                                  # HTML tags
+        t = t.replace("**", " ").replace("`", " ")                      # Markdown
+        t = re.sub(r"\bzero\b", "0", t, flags=re.I)
+        return re.sub(r"\s+", " ", t)
+
+    pat = re.compile(r"(\d+)\s*(?:of|/|out of)\s*(\d+)\s*verified kernels", re.I)
+    alt = re.compile(r"(\d+)\s*verified kernels[^.]{0,60}?\b(\d+)\b\s*contained", re.I)
+    seen = {}
+    for name, path in PROSE.items():
+        txt = norm(read(path))
+        for m in pat.finditer(txt):
+            seen.setdefault((int(m.group(1)), int(m.group(2))), []).append(name)
+        for m in alt.finditer(txt):                       # "Of 86 verified kernels, 0 contained"
+            seen.setdefault((int(m.group(2)), int(m.group(1))), []).append(name)
+    if not seen:
+        return                                    # figure not cited anywhere; nothing to check
+    if len(seen) > 1:
+        fail("prompt/custom-kernel-rate",
+             "the custom-kernel rate is cited inconsistently: "
+             + "; ".join("%d of %d in %s" % (a, b, ",".join(sorted(set(v)))) for (a, b), v in seen.items()))
+        return
+    (num, den), where = next(iter(seen.items()))
+    if num != 0:
+        fail("prompt/custom-kernel-rate",
+             "prose says %d of %d verified kernels contained a custom kernel; the harvest measured 0."
+             % (num, den))
+    else:
+        ok("prompt/custom-kernel-rate",
+           "custom-kernel rate cited as 0 of %d consistently across %s" % (den, ", ".join(sorted(set(where)))))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
     a = ap.parse_args()
     for fn in (check_compounding, check_search, check_mech, check_selfplay,
                check_trackc, check_embedded_claims, check_wall_phrasing, check_score_anchor,
-               check_unverifiable_probe, check_probe_clustered, check_roofline_arch):
+               check_unverifiable_probe, check_probe_clustered, check_roofline_arch,
+               check_baseline_attribution, check_custom_kernel_rate):
         fn()
     if not a.quiet:
         print("=" * 100)
