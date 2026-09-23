@@ -1,0 +1,17 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "mode": "self-modify",
+  "Q0": 0.5460813495441285,
+  "max_strategies": 12,
+  "archive_shown": 3,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.451,
+      "delta_vs_base": -0.095,
+      "F_g": null,
+      "n_strategies": 7,
+      "n_archive": 5
+    }
+  ]
+}

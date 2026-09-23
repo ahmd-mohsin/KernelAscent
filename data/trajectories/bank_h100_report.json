@@ -1,0 +1,234 @@
+[
+  {
+    "name": "l1_1",
+    "tier": "L1",
+    "correct_rate": 0.25,
+    "best_score": 0.501,
+    "ceiling": 24.9,
+    "keep": true
+  },
+  {
+    "name": "l1_2",
+    "tier": "L1",
+    "correct_rate": 0.375,
+    "best_score": 0.55,
+    "ceiling": 25.99,
+    "keep": true
+  },
+  {
+    "name": "l1_3",
+    "tier": "L1",
+    "correct_rate": 0.375,
+    "best_score": 0.547,
+    "ceiling": 28.85,
+    "keep": true
+  },
+  {
+    "name": "l1_4",
+    "tier": "L1",
+    "correct_rate": 0.25,
+    "best_score": 0.5,
+    "ceiling": 43.98,
+    "keep": true
+  },
+  {
+    "name": "l1_5",
+    "tier": "L1",
+    "correct_rate": 0.125,
+    "best_score": 1.0,
+    "ceiling": 48.14,
+    "keep": false
+  },
+  {
+    "name": "l1_6",
+    "tier": "L1",
+    "correct_rate": 0.5,
+    "best_score": 0.521,
+    "ceiling": 50.0,
+    "keep": true
+  },
+  {
+    "name": "l1_7",
+    "tier": "L1",
+    "correct_rate": 0.25,
+    "best_score": 0.5,
+    "ceiling": 50.0,
+    "keep": true
+  },
+  {
+    "name": "l1_8",
+    "tier": "L1",
+    "correct_rate": 0.625,
+    "best_score": 0.575,
+    "ceiling": 34.49,
+    "keep": true
+  },
+  {
+    "name": "l1_9",
+    "tier": "L1",
+    "correct_rate": 0.375,
+    "best_score": 0.5,
+    "ceiling": 31.46,
+    "keep": true
+  },
+  {
+    "name": "l1_10",
+    "tier": "L1",
+    "correct_rate": 0.5,
+    "best_score": 0.569,
+    "ceiling": 38.13,
+    "keep": true
+  },
+  {
+    "name": "l2_1",
+    "tier": "L2",
+    "correct_rate": 0.5,
+    "best_score": 0.506,
+    "ceiling": 2.24,
+    "keep": true
+  },
+  {
+    "name": "l2_2",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.497,
+    "ceiling": 2.22,
+    "keep": true
+  },
+  {
+    "name": "l2_3",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.5,
+    "ceiling": 2.21,
+    "keep": true
+  },
+  {
+    "name": "l2_4",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.501,
+    "ceiling": 2.2,
+    "keep": true
+  },
+  {
+    "name": "l2_5",
+    "tier": "L2",
+    "correct_rate": 0.125,
+    "best_score": 0.507,
+    "ceiling": 2.22,
+    "keep": true
+  },
+  {
+    "name": "l2_6",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.505,
+    "ceiling": 2.2,
+    "keep": true
+  },
+  {
+    "name": "l2_7",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.494,
+    "ceiling": 2.2,
+    "keep": true
+  },
+  {
+    "name": "l2_8",
+    "tier": "L2",
+    "correct_rate": 0.125,
+    "best_score": 0.493,
+    "ceiling": 2.19,
+    "keep": true
+  },
+  {
+    "name": "l2_9",
+    "tier": "L2",
+    "correct_rate": 0.375,
+    "best_score": 0.499,
+    "ceiling": 2.07,
+    "keep": true
+  },
+  {
+    "name": "l2_10",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.498,
+    "ceiling": 2.19,
+    "keep": true
+  },
+  {
+    "name": "l2_11",
+    "tier": "L2",
+    "correct_rate": 0.25,
+    "best_score": 0.496,
+    "ceiling": 2.21,
+    "keep": true
+  },
+  {
+    "name": "l2_12",
+    "tier": "L2",
+    "correct_rate": 0.625,
+    "best_score": 0.501,
+    "ceiling": 2.21,
+    "keep": true
+  },
+  {
+    "name": "l2_13",
+    "tier": "L2",
+    "correct_rate": 0.25,
+    "best_score": 0.495,
+    "ceiling": 2.21,
+    "keep": true
+  },
+  {
+    "name": "l2_14",
+    "tier": "L2",
+    "correct_rate": 0.125,
+    "best_score": 0.502,
+    "ceiling": 2.21,
+    "keep": true
+  },
+  {
+    "name": "l2_15",
+    "tier": "L2",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 2.23,
+    "keep": false
+  },
+  {
+    "name": "l3_1",
+    "tier": "L3",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 46.19,
+    "keep": false
+  },
+  {
+    "name": "l3_2",
+    "tier": "L3",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 23.7,
+    "keep": false
+  },
+  {
+    "name": "l3_3",
+    "tier": "L3",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 12.42,
+    "keep": false
+  },
+  {
+    "name": "l3_4",
+    "tier": "L3",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 41.92,
+    "keep": false
+  }
+]

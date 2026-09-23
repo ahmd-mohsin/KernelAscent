@@ -27,6 +27,9 @@ WALL="02:00:00"       # short chunks: walltime drives the backfill estimate here
 DRY=""; [ "${1:-}" = "--dry" ] && { DRY=1; shift; }
 STEP="${1:-help}"
 
+# NOTE ON ENV VARS: jobs run as `apptainer exec IMAGE CMD...` with NO shell, so a shell-style
+# `VAR=value cmd` prefix is taken as the executable name and the job dies in ~3 seconds with
+# `FATAL: "VAR=value": executable file not found in $PATH`. Always prefix with `env`.
 go() {  # go <name> <command...>   ; GPUS=n and WALL=hh:mm:ss override per call
   local name="$1"; shift
   if [ -n "$DRY" ]; then printf '  %-22s (%sg %s) %s\n' "$name" "${GPUS:-1}" "$WALL" "$*"; return 0; fi
@@ -106,7 +109,7 @@ r2)
   # re-measure the prompt effect and say nothing about scale. Together with r4's 14B safe/kernel
   # pair this gives a 3-cell scale x prompt design: 14B-safe, 14B-kernel, 32B-kernel.
   echo "R2  can a >14B model beat the baseline WHEN ASKED TO? (32B, kernel prompt)"
-  GPUS=2 WALL="03:00:00" go "r2-probe-32b" "KA_PROMPT=kernel python scripts/make_teacher_kernels.py \
+  GPUS=2 WALL="03:00:00" go "r2-probe-32b" "env KA_PROMPT=kernel python scripts/make_teacher_kernels.py \
 --model Qwen/Qwen2.5-Coder-32B-Instruct --gpus 0,1 --k 6 \
 --out $OUT/r2_kernel_q32.json"
   echo "    READ-OUT: the speedup_eager distribution. >1.1x on a decent fraction of tasks"
@@ -126,9 +129,9 @@ r3)
   for i in "${!MODELS[@]}"; do
     m="${MODELS[$i]}"; t="${TAGS[$i]}"
     for s in 1 2; do
-      go "r3c-$t-s$s" "KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
+      go "r3c-$t-s$s" "env KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
 --gpus 0 --rounds 6 --seed $s --outdir $OUT/r3_control_${t}_s${s}"
-      go "r3i-$t-s$s" "KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
+      go "r3i-$t-s$s" "env KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
 --gpus 0 --rounds 6 --seed $s --inject-kernels $TEACHER --inject-per-task 1 \
 --outdir $OUT/r3_inject_${t}_s${s}"
     done
@@ -153,7 +156,7 @@ r4)
   # grader and seed. Same harvest script, same bank, only KA_PROMPT differs.
   echo "R4  prompt A/B: does asking for a real kernel produce one?"
   for v in safe kernel; do
-    GPUS=2 WALL="02:00:00" go "r4-$v-14b" "KA_PROMPT=$v python scripts/make_teacher_kernels.py \
+    GPUS=2 WALL="02:00:00" go "r4-$v-14b" "env KA_PROMPT=$v python scripts/make_teacher_kernels.py \
 --model Qwen/Qwen2.5-Coder-14B-Instruct --gpus 0,1 --k 6 \
 --out $OUT/r4_${v}_q14.json"
   done

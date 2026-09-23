@@ -30,61 +30,74 @@ def _load(p):
 
 
 def r1(paths=None):
-    """Substrate quality. The question is NOT 'is there a middle band' -- neither bank has a
-    fat one. It is whether tasks the model solves have headroom LEFT, and whether anything on
-    the substrate has ever demonstrably captured headroom."""
+    """Substrate quality.
+
+    READ THE COLUMNS CAREFULLY -- this report mixes two different scales, and conflating them is
+    how the torch.compile misattribution happened:
+
+      best_score  difficulty_filter calls LK._score(ok, sp_eager) with only two arguments, so
+                  `ceiling` takes its LEGACY DEFAULT of 1.5. It is therefore speedup over EAGER
+                  normalised to a fixed 1.5x anchor -- NOT the headroom-normalised score the
+                  paper defines. best_score == 1.00 means sp_eager >= 1.5x. It does NOT mean the
+                  task reached its roofline.
+      ceiling     roofline headroom over torch.compile. Used ONLY for admission (>= 1.3x). It
+                  does not enter best_score at all, so it cannot be cited as "room to move"
+                  under this scoring.
+
+    So the banks are compared on the one scale they share: how often the frozen base actually
+    clears 1.5x over eager.
+    """
     print("=" * 84)
     print("ROUTE 1 -- does the substrate leave the model room to move?")
     print("=" * 84)
     banks = paths or [("29-task", os.path.join(D, "bank_h100_report.json")),
                       ("456-DSL", os.path.join(D, "bank_dsl_h100_report.json"))]
-    print("%-9s %7s %6s %9s %9s %12s %11s" %
-          ("bank", "scored", "kept", ">0.51", ">0.75", "ceil@parity", "mean kept"))
+    print("  (best_score = speedup over EAGER at a fixed 1.5x anchor; 1.00 means sp_eager >= 1.5x)")
+    print("%-9s %7s %6s %11s %12s %11s" %
+          ("bank", "scored", "kept", ">1.0x eager", ">=1.5x eager", "mean kept"))
     rows = {}
     for lbl, p in banks:
         d = _load(p)
         if not d:
             continue
         kept = [x for x in d if x.get("keep")]
-        par = [x for x in kept if PARITY[0] <= x["best_score"] <= PARITY[1]]
         rows[lbl] = dict(
             n=len(d), kept=len(kept),
             gt51=sum(1 for x in d if x["best_score"] > 0.51),
-            gt75=sum(1 for x in d if x["best_score"] > 0.75),
-            ceil=st.median([x["ceiling"] for x in par]) if par else 0.0,
+            at15=sum(1 for x in d if x["best_score"] >= 1.0),
             mean=st.mean([x["best_score"] for x in kept]) if kept else 0.0)
         r = rows[lbl]
-        print("%-9s %7d %6d %9d %9d %11.1fx %11.3f" %
-              (lbl, r["n"], r["kept"], r["gt51"], r["gt75"], r["ceil"], r["mean"]))
+        print("%-9s %7d %6d %5d (%4.1f%%) %5d (%4.1f%%) %11.3f" %
+              (lbl, r["n"], r["kept"], r["gt51"], 100 * r["gt51"] / r["n"],
+               r["at15"], 100 * r["at15"] / r["n"], r["mean"]))
 
     if "456-DSL" not in rows or "29-task" not in rows:
         return
     a, b = rows["29-task"], rows["456-DSL"]
+    fa, fb = 100 * a["at15"] / a["n"], 100 * b["at15"] / b["n"]
     print("""
-DECISION RULE (fixed in advance): the substrate is usable iff (i) some task on it has
-demonstrably captured real headroom, so the speed dimension is reachable AT ALL, and
-(ii) the tasks actually kept still have headroom above them.
+DECISION RULE (fixed in advance): the substrate is usable iff the frozen base demonstrably
+clears the anchor on a non-trivial fraction of tasks -- i.e. the speed dimension is reachable
+at all, rather than every success landing exactly at parity.
 
-  (i) tasks scoring >0.75 (base captured >half its roofline headroom)
-        29-task {gt75a:>4d}        456-DSL {gt75b:>4d}
-  (ii) median roofline ceiling on KEPT tasks sitting at parity
-        29-task {ca:>4.1f}x       456-DSL {cb:>4.1f}x
+  base reaches >= 1.5x over eager:   29-task {fa:.1f}%  ({a15}/{an})    456-DSL {fb:.1f}%  ({b15}/{bn})
 
 VERDICT: {verdict}
 
-Neither bank has a fat middle band -- both are bimodal. What separates them is that on the
-DSL bank {gt75b} tasks demonstrate a frozen 3B base CAN capture most of the available headroom,
-while on the 29-task bank exactly {gt75a} ever did. So "these models cannot beat torch.compile"
-was a property of the old BANK, not of the models. And a kept DSL task at parity has a {cb:.1f}x
-ceiling overhead versus {ca:.1f}x, so improvement has somewhere to register.
+Neither bank has a fat middle band -- both are bimodal, parity or well past the anchor. What
+separates them is reachability: on the DSL bank the base clears 1.5x over eager {ratio:.0f}x more
+often. So "these models cannot produce a faster kernel" is a property of the OLD BANK, not of
+the models, and the 29-task bank cannot support a speed-scored compounding claim at all.
 
-CAVEAT that must be resolved before publishing any headroom number from this bank: tasks
-scoring exactly 1.00 have measured speedup >= their computed ceiling. Either these generated
-references are naive enough to be beaten by that margin, or the roofline ceiling is
-UNDER-estimated for them -- which would inflate every score on those tasks.""".format(
-        gt75a=a["gt75"], gt75b=b["gt75"], ca=a["ceil"], cb=b["ceil"],
+CAVEAT: the DSL references are generated, so beating eager by 1.5x may be easy for reasons that
+do not transfer -- a naive reference is not the same as a strong baseline. Before any headroom
+number from this bank is published it must be re-scored in KA_SCORE=compiled mode, where the
+baseline is torch.compile and `ceiling` is actually used. The numbers above do not license a
+claim about torch.compile.""".format(
+        fa=fa, fb=fb, a15=a["at15"], an=a["n"], b15=b["at15"], bn=b["n"],
+        ratio=(fb / fa if fa else float("inf")),
         verdict=("DSL bank is a usable substrate; the 29-task bank is not"
-                 if b["gt75"] > 10 and b["ceil"] > 2 * a["ceil"] else
+                 if fb > 10 and fb > 2 * fa else
                  "NEITHER bank clears the rule -- do not run the compounding study on either")))
 
 

@@ -324,6 +324,19 @@ had accumulated run output pulled down from the cluster. Re-uploading it died wi
 a *sync of results* was enough to break the code deploy. Exclude every output directory
 explicitly; "it's only a few MB" is irrelevant when the binding constraint is file count.
 
+**A shell-style `VAR=value cmd` prefix does not survive a container.** Jobs run as
+`apptainer exec IMAGE CMD...` with **no shell**, so the assignment is parsed as the executable
+name and the job dies in three seconds with `FATAL: "KA_SCORE=passrate": executable file not
+found in $PATH`. Eleven cells died this way at once, and they were queued behind each other so
+the first failure did not warn the rest. Prefix with `env` — a real binary that does the
+assignment itself, and works identically with or without a shell. This is the third distinct
+failure caused by assuming a shell was present (after `ssh host 'cmd'` losing `module`, and
+`#SBATCH` not expanding `$HOME`).
+
+**Smoke-test the env plumbing through the real container before a batch**, not just the code:
+`apptainer exec $SIF env KA_X=1 python3 -c "import os;print(os.environ.get('KA_X'))"` costs one
+second and would have caught this before eleven submissions.
+
 **One-liners will betray you.** `set -- $spec` inside a loop silently lost fields and produced
 job cells named `e1c--s1`, collapsing two models onto one manifest entry. Three relaunches lost
 to shell quoting. Write the script file.
