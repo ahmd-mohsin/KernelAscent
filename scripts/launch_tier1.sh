@@ -99,10 +99,16 @@ r2)
   # 2x1.08x, 1x2.03x. If 32B also lands on 1.00x then the speed dimension is dead for the
   # whole open-weight range and headroom-normalised scoring cannot be rescued by scale.
   # 32B bf16 ~64GB: 2 GPUs, so weights plus activations are not fighting for one 80GB card.
-  echo "R2  can a >14B model beat the baseline? (32B speedup probe)"
-  GPUS=2 WALL="03:00:00" go "r2-probe-32b" "python scripts/make_teacher_kernels.py \
+  #
+  # RUN UNDER KA_PROMPT=kernel. Under the default prompt this probe would be confounded: we
+  # now know the published prompt yields pure-PyTorch rewrites at 1.00x regardless of scale
+  # (0 of 86 verified 14B kernels contained a custom kernel), so a `safe` 32B run would just
+  # re-measure the prompt effect and say nothing about scale. Together with r4's 14B safe/kernel
+  # pair this gives a 3-cell scale x prompt design: 14B-safe, 14B-kernel, 32B-kernel.
+  echo "R2  can a >14B model beat the baseline WHEN ASKED TO? (32B, kernel prompt)"
+  GPUS=2 WALL="03:00:00" go "r2-probe-32b" "KA_PROMPT=kernel python scripts/make_teacher_kernels.py \
 --model Qwen/Qwen2.5-Coder-32B-Instruct --gpus 0,1 --k 6 \
---out $OUT/teacher_kernels_q32.json"
+--out $OUT/r2_kernel_q32.json"
   echo "    READ-OUT: the speedup_eager distribution. >1.1x on a decent fraction of tasks"
   echo "    means scale restores the speed dimension and Tier-2 should move up a size class."
   ;;

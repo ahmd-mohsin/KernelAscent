@@ -18,10 +18,15 @@ PARITY = (0.49, 0.51)          # _score(correct, speedup=1.0) == 0.50 exactly
 
 
 def _load(p):
+    """None for a file that has not landed yet (normal while jobs are queued); loud for a file
+    that exists but will not parse, since that is a truncated or half-written result."""
+    if not os.path.exists(p):
+        return None
     try:
         return json.load(open(p))
     except Exception as e:
-        print("  (cannot read %s: %s)" % (p, e)); return None
+        print("  !! %s exists but will not parse (%s) -- truncated run?" % (os.path.basename(p), e))
+        return None
 
 
 def r1(paths=None):
@@ -84,34 +89,64 @@ UNDER-estimated for them -- which would inflate every score on those tasks.""".f
 
 
 def r2(path=None):
-    """Can a >14B model beat the baseline? Compares against the 14B teacher already harvested."""
+    """Routes 2+4 are one design: prompt (safe|kernel) x scale (14B|32B).
+
+    The cell that matters is 14B-safe vs 14B-kernel, because only the prompt differs -- same
+    tasks, same grader, same model, same seed. 32B-kernel asks whether scale adds anything once
+    the model is actually asked to optimise. 32B-safe is not run: its outcome is predictable
+    from the 14B-safe result and it is the most expensive cell.
+    """
     print("=" * 84)
-    print("ROUTE 2 -- can a >14B model beat the torch.compile baseline?")
+    print("ROUTES 2+4 -- prompt x scale: is the plateau prompt-induced?")
     print("=" * 84)
-    cands = [("14B", os.path.join(D, "teacher_kernels_q14.json")),
-             ("32B", path or os.path.join(D, "teacher_kernels_q32.json"))]
-    seen = False
-    for lbl, p in cands:
-        d = _load(p)
+    cells = [("14B", "safe", os.path.join(D, "r4_safe_q14.json")),
+             ("14B", "kernel", os.path.join(D, "r4_kernel_q14.json")),
+             ("32B", "kernel", path or os.path.join(D, "r2_kernel_q32.json")),
+             ("14B", "safe(orig)", os.path.join(D, "teacher_kernels_q14.json"))]
+    print("%-5s %-11s %7s %8s %10s %9s %9s" %
+          ("model", "prompt", "solved", "kernels", "custom-k", "median", ">1.05x"))
+    got = {}
+    for scale, prompt, f in cells:
+        d = _load(f)
         if not d:
-            print("  %-4s not harvested yet (%s)" % (lbl, os.path.basename(p))); continue
-        seen = True
-        sp = [k["speedup_eager"] for v in d.get("kernels", {}).values() for k in v]
+            print("%-5s %-11s   (not harvested yet)" % (scale, prompt)); continue
+        ks = [k for v in d.get("kernels", {}).values() for k in v]
         best = [max(k["speedup_eager"] for k in v) for v in d.get("kernels", {}).values() if v]
-        if not sp:
-            print("  %-4s solved nothing" % lbl); continue
-        print("  %-4s %d tasks solved, %d verified kernels" % (lbl, len(best), len(sp)))
-        print("       best-per-task: median %.2fx  max %.2fx" % (st.median(best), max(best)))
-        for t in (1.05, 1.10, 1.50):
-            print("       tasks with best > %.2fx : %d/%d (%.0f%%)" %
-                  (t, sum(1 for v in best if v > t), len(best),
-                   100 * sum(1 for v in best if v > t) / len(best)))
-    if seen:
-        print("""
-DECISION RULE (fixed in advance): if >1.10x on a decent fraction of tasks, scale restores the
-speed dimension and Tier-2 should move up a size class. If 32B also lands on ~1.00x, the speed
-dimension is dead for the whole open-weight range on this hardware+bank, and no amount of scale
-rescues headroom-normalised scoring here.""")
+        if not ks:
+            print("%-5s %-11s %7d  solved nothing" % (scale, prompt, 0)); continue
+        cust = sum(1 for k in ks if any(t in k["code"] for t in
+                   ("triton", "load_inline", "__global__")))
+        row = dict(solved=len(best), n=len(ks), cust=cust,
+                   med=st.median(best), fast=sum(1 for v in best if v > 1.05))
+        got[(scale, prompt)] = row
+        print("%-5s %-11s %7d %8d %9d%% %8.2fx %8.0f%%" %
+              (scale, prompt, row["solved"], row["n"], round(100 * cust / len(ks)),
+               row["med"], 100 * row["fast"] / max(len(best), 1)))
+
+    a, b = got.get(("14B", "safe")), got.get(("14B", "kernel"))
+    if not (a and b):
+        print("\n  (both 14B cells needed for the verdict)"); return
+    print("""
+DECISION RULE (fixed in advance). Only the prompt differs between these two cells.
+  custom-kernel rate rises AND median speedup rises  -> the plateau is substantially
+      prompt-induced, and every headroom board has to be re-run before it means anything
+  custom-kernel rate stays ~0                        -> the models genuinely will not write
+      kernels; the published prompt was not the binding constraint
+  custom rate rises but SOLVED collapses             -> the bottleneck is formation, not
+      intent. Report ambition and coverage separately; do not average them.""")
+    dk = b["cust"] * 100 // max(b["n"], 1) - a["cust"] * 100 // max(a["n"], 1)
+    dm = b["med"] - a["med"]
+    ds = b["solved"] - a["solved"]
+    print("\n  OBSERVED: custom-kernel %+d pts, median speedup %+.2fx, tasks solved %+d" % (dk, dm, ds))
+    if dk > 20 and dm > 0.05:
+        v = "PROMPT-INDUCED -- the published boards measure compliance, not capability"
+    elif dk > 20 and ds < 0:
+        v = "FORMATION-LIMITED -- the models try when asked and fail to produce working kernels"
+    elif dk <= 5:
+        v = "NOT prompt-induced -- the models decline to write kernels even when asked"
+    else:
+        v = "AMBIGUOUS -- effect present but under the pre-set thresholds; do not claim it"
+    print("  VERDICT: %s" % v)
 
 
 def r3(pattern=None):
