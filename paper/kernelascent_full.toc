@@ -1,0 +1,44 @@
+\contentsline {section}{\numberline {1}Thesis: recursion, not capability}{3}{section.1}%
+\contentsline {section}{\numberline {2}The RSI ladder: five rungs of recursion}{3}{section.2}%
+\contentsline {section}{\numberline {3}Infrastructure: three weeks on 72 GPUs}{4}{section.3}%
+\contentsline {paragraph}{Compute discipline.}{4}{section*.2}%
+\contentsline {paragraph}{Resumability.}{4}{section*.3}%
+\contentsline {paragraph}{Operational lessons (recorded because they bit us).}{4}{section*.4}%
+\contentsline {section}{\numberline {4}Results by rung}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}T1 --- Capability}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}T2 --- Weight-RSI: a rigorously-powered compounding null}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}T3 --- Procedure-RSI}{6}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}T4 --- Closed$\to $Open}{7}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}T5 --- Self-play: an author-yield failure, not a measured null}{7}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Cross-cutting analyses: the mechanism}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Coverage vs.\ scale, and the ``correctness wall'' as a sampling artifact}{8}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Zero-score forensics: the wall is a formation failure}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Search beats training at matched compute}{8}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}WHY-RSI: the weight-level mechanism and the inverted-U in scale}{9}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Probe-as-intervention: correctness is represented better than it is generated}{9}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Instrument validity: five ways a self-improvement benchmark manufactures a null}{10}{section.6}%
+\contentsline {paragraph}{A clean zero is a bug hypothesis before it is a finding.}{10}{section*.5}%
+\contentsline {paragraph}{Correctness of the instrument is not sufficient; it must also have range.}{11}{section*.6}%
+\contentsline {paragraph}{The sixth defect was our own explanation of the first five.}{11}{section*.7}%
+\contentsline {paragraph}{The estimator, not the normalisation, is the thing to fix.}{12}{section*.8}%
+\contentsline {paragraph}{Check the denominator of the mechanism, not just the metric.}{12}{section*.9}%
+\contentsline {paragraph}{What we propose as standard practice.}{12}{section*.10}%
+\contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{13}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{13}{subsection.7.1}%
+\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{13}{section*.11}%
+\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{13}{section*.12}%
+\contentsline {paragraph}{Why verified search escapes where training does not.}{13}{section*.13}%
+\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{14}{section*.14}%
+\contentsline {paragraph}{The inverted-U, mechanistically.}{14}{section*.15}%
+\contentsline {paragraph}{What would break the plateau, and what our data predict.}{14}{section*.16}%
+\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{14}{section*.17}%
+\contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{15}{section.8}%
+\contentsline {section}{\numberline {9}What would break the plateau: predictions}{15}{section.9}%
+\contentsline {section}{\numberline {10}Limitations and scope}{15}{section.10}%
+\contentsline {section}{\numberline {11}Conclusion}{16}{section.11}%
+\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{16}{appendix.A}%
+\contentsline {paragraph}{Three corrections to the earlier analysis.}{16}{section*.18}%
+\contentsline {paragraph}{Result.}{16}{section*.19}%
+\contentsline {paragraph}{What this does and does not establish.}{17}{section*.20}%
+\contentsline {paragraph}{The diagnostic.}{17}{section*.21}%
+\contentsline {paragraph}{Defensible claim.}{17}{section*.22}%

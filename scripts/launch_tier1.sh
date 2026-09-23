@@ -10,6 +10,7 @@
 #   scripts/launch_tier1.sh r1      route 1: calibrate the 456-task DSL bank (resumable)
 #   scripts/launch_tier1.sh r2      route 2: can a 32B model beat the baseline?
 #   scripts/launch_tier1.sh r3      route 3: E1 re-read under KA_SCORE=passrate
+#   scripts/launch_tier1.sh r4      route 4: prompt A/B -- is the plateau prompt-induced?
 #   scripts/launch_tier1.sh --dry e1
 set -uo pipefail
 
@@ -133,6 +134,30 @@ r3)
   echo "    both flat                              -> instrument still dead; publish no"
   echo "                                              compounding claim from this hardware"
   echo "    NEVER pool these with the A100 headroom boards -- different metric AND hardware."
+  ;;
+
+r4)
+  # ROUTE 4 -- is the plateau an artifact of the PROMPT?
+  # Of 86 verified kernels harvested from the 14B teacher, ZERO contained triton, CUDA or
+  # load_inline: 100% were pure-PyTorch rewrites of the reference, median speedup 1.00x over
+  # eager. The published prompt contains "a plain-torch kernel that is correct beats a fancy
+  # one that errors", which steers exactly that way. A rewrite scores _score(correct, 1.0) =
+  # 0.50 by construction -- the value 76% of all H100 scores took.
+  # So before concluding anything about models or hardware, A/B the prompt on identical tasks,
+  # grader and seed. Same harvest script, same bank, only KA_PROMPT differs.
+  echo "R4  prompt A/B: does asking for a real kernel produce one?"
+  for v in safe kernel; do
+    GPUS=2 WALL="02:00:00" go "r4-$v-14b" "KA_PROMPT=$v python scripts/make_teacher_kernels.py \
+--model Qwen/Qwen2.5-Coder-14B-Instruct --gpus 0,1 --k 6 \
+--out $OUT/r4_${v}_q14.json"
+  done
+  echo "    READ-OUT: custom-kernel rate and speedup distribution, safe vs kernel."
+  echo "      kernel arm produces custom kernels AND speedups > 1.05x -> the plateau is"
+  echo "        substantially prompt-induced and every headroom board needs re-running"
+  echo "      kernel arm still 100% plain-torch -> the models genuinely cannot write kernels,"
+  echo "        and the published prompt was not the binding constraint"
+  echo "      kernel arm writes kernels that FAIL to verify -> the bottleneck is formation,"
+  echo "        not intent; report coverage-vs-ambition explicitly"
   ;;
 
 *) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//' ;;

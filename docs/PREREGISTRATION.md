@@ -69,12 +69,31 @@ Running the compounding protocol on Marlowe (H100) with Qwen2.5-Coder 1.5B/3B:
 * The 14B teacher's best speedups across the bank: nine tasks at 1.00×, two at 1.08×, one each
   at 1.05×, 1.01×, 2.03×.
 
-So on this hardware and bank, models from 0.5B to 14B **essentially never produce a kernel
-faster than the baseline**. The headroom-normalised score collapses to a correctness indicator
-with two reachable states (0 and ≈0.5) that saturates in 1–3 rounds, and `lineage − reset` is
-forced toward zero regardless of whether compounding occurs.
+So on this bank the models essentially never produce a submission faster than the baseline.
+The headroom-normalised score collapses to a correctness indicator with two reachable states
+(0 and ≈0.5) that saturates in 1–3 rounds, and `lineage − reset` is forced toward zero
+regardless of whether compounding occurs.
 
 **A flat contrast under these conditions is uninformative, not a null.**
+
+### Correction to this amendment's stated cause (same day, before any passrate run landed)
+
+This amendment first attributed the saturation to a stronger `torch.compile` baseline on H100.
+That was wrong, and the correction is recorded rather than silently edited. The default scorer
+(`KA_SCORE=eager`) does not use the compiled baseline at all — it scores speedup against
+**eager** with the legacy fixed 1.5× anchor — so no claim about `torch.compile` was licensed by
+these runs.
+
+The real cause is upstream of the metric. Of 86 verified kernels harvested from the 14B model,
+**zero** contained Triton, CUDA or `load_inline`; all 86 were pure-PyTorch rewrites of the
+reference. A rewrite runs at eager speed by construction (median 1.00×, 93% below 1.05×), and
+`_score(correct, 1.00) = 0.50` exactly. The generation prompt contains the clause *"a plain-torch
+kernel that is correct beats a fancy one that errors"*, which steers precisely this way.
+
+This does not change the amendment — pass-rate is still the right second metric when the live
+axis is correctness reliability — but it changes what a flat result would *mean*, so the
+distinction is registered before any pass-rate result is seen. A prompt A/B (`KA_PROMPT=safe`
+vs `kernel`, identical tasks/grader/model/seed) is running to settle it.
 
 ## The amendment
 

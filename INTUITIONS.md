@@ -60,10 +60,10 @@ correct, and not one bit faster than the baseline. Models climb to the correctne
 With both arms pinned at the same ceiling, `lineage − reset` is **forced to ≈0 by
 construction**. The experiment could not have detected compounding in either direction.
 
-**Why here and not on the A100 fleet:** `KA_SCORE=compiled` scores against a `torch.compile`
-baseline, and compile is *relatively stronger* on H100. Headroom that existed on A100 has
-closed. So this run is non-comparable to the published boards on two axes at once — different
-hardware **and** a collapsed measurement range.
+**Why here and not on the A100 fleet** — ~~`KA_SCORE=compiled` scores against a
+`torch.compile` baseline, and compile is relatively stronger on H100~~. **This explanation was
+wrong; see §2e.** The default scorer never touches the compiled baseline. Struck through rather
+than deleted, because the wrong answer was plausible, fitted the data, and cost a day.
 
 **The intuition:** a headroom-normalised score silently becomes a correctness-only score when
 the baseline is strong. `0.5` is then an absorbing state. Always look at the *distribution* of
@@ -107,7 +107,8 @@ And it is not a small-model problem. The 14B teacher's best speedups across 29 t
 ```
 
 Essentially **no model from 0.5B to 14B produces meaningfully faster kernels on this bank on
-H100.** The headroom-normalised score therefore collapses into a correctness indicator, and
+H100** — though see §2e for *why*, which is not what I assumed. The headroom-normalised score
+therefore collapses into a correctness indicator, and
 "does self-improvement compound?" degenerates into "does the model learn to be correct more
 often?" — which saturates almost immediately and leaves `lineage − reset` no room to move.
 
@@ -140,6 +141,54 @@ returns `[False, ...]` for **every** candidate — a whole round of zeros.
 **The intuition:** a filesystem quota does not only break writes you can see. It breaks writes
 buried inside libraries, and those surface as *scientific* zeros. When results contain long
 runs of exact zeros punctuated by normal values, suspect the environment before the model.
+
+---
+
+## 2e. The sixth defect was my own explanation of the first five
+
+I diagnosed the 0.50 spike as a hardware effect: `torch.compile` is stronger on H100, so the
+headroom closed. Plausible, consistent with every number I had, and **wrong**.
+
+The default scorer is `KA_SCORE=eager`:
+
+```python
+LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))
+```
+
+With `KA_SCORE` unset it scores **speedup over eager**, normalised by the legacy **fixed 1.5x**
+anchor. The compiled baseline and the per-task roofline ceiling are both *unused*. Every
+sentence I wrote about `torch.compile` was about a quantity the runs never measured.
+
+**The actual chain**, and it is deterministic end to end:
+
+| link | evidence |
+|---|---|
+| the prompt steers away from optimising | `OPT` contains *"a plain-torch kernel that is correct beats a fancy one that errors"* |
+| models comply | **0 of 86** verified 14B kernels contain triton / CUDA / `load_inline`; 86/86 are pure-PyTorch rewrites |
+| a rewrite runs at reference speed | median speedup **1.00x**, 93% below 1.05x |
+| the score is pinned | `_score(correct, 1.00) = 0.50` **exactly** |
+| the contrast is pinned | both arms at 0.50 ⇒ `lineage − reset ≡ 0` |
+
+So the metric was never broken. It accurately reported that the models were not attempting the
+task the benchmark exists to measure. I misread a correct measurement as a dead instrument.
+
+**The intuition, and it inverts §1.** There, a clean zero was a bug. Here a clean zero was a
+*finding*, and the bug was in my interpretation. So "suspect the instrument" is not the rule —
+it is too weak in one direction and too strong in the other. The rule is:
+
+> **Trace the causal chain from prompt to number before naming a cause, and prefer the
+> explanation you can kill with an intervention.** "H100 closes the headroom" was untestable
+> with what I had, and I believed it anyway because it explained the data. "The prompt told the
+> model not to try" is settled by an A/B on one string, holding tasks, grader, model and seed
+> fixed. When two explanations fit equally, the one you can intervene on is worth more than the
+> one that merely fits — and a hypothesis that explains everything while predicting nothing new
+> is the shape of a wrong one.
+
+Second-order lesson: **a defect can hide in a default argument.** `_score(ok, sp)` silently
+supplies `ceiling=1.5`, and `difficulty_filter` calls it that way, so its `best_score` column is
+the legacy fixed-anchor score on the eager ratio — *not* the headroom-normalised score the
+paper defines, even though it shares a name and a range. Two different quantities under one
+name is how this survived review. Check what a default actually binds before reading a column.
 
 ---
 
@@ -286,14 +335,22 @@ to shell quoting. Write the script file.
 1. **Never launch a batch without `precheck_grader.sh` passing on the same allocation shape.**
 2. **Check the score distribution before trusting a contrast** — a spike at one value means a
    dead dimension.
-3. **A clean zero is a bug hypothesis first, a finding second.**
+3. **A clean zero is a bug hypothesis first, a finding second** — but §2e is the counterexample:
+   once the bug hypotheses are exhausted, a clean zero can be an accurate report of the models
+   doing nothing. Do not stop at "the instrument is dead"; find the mechanism that produced it.
 4. **Check the mechanism's denominator** before interpreting any per-model number.
 5. **Auto-retry only infrastructure failures** (`TIMEOUT`, `NODE_FAIL`, `PREEMPTED`). A code
    failure re-run is wasted allocation and risks a plausible zero.
-6. **Match the estimator to where the population sits**, not just to the quantity of interest.
+6. **Trace the chain from prompt to number before naming a cause**, and prefer the explanation
+   an intervention can kill over the one that merely fits.
+7. **Check what a default argument binds.** `_score(ok, sp)` quietly means `ceiling=1.5`; two
+   different quantities shared the name `best_score` for weeks.
+8. **Match the estimator to where the population sits**, not just to the quantity of interest.
    Check the score *histogram* has mass away from its bounds before trusting any contrast.
-7. **Any metric change made after seeing results is written down as post-hoc**, with its
+9. **Any metric change made after seeing results is written down as post-hoc**, with its
    motivating numbers, a separate experiment tag, and a falsifier — before its own results land.
-8. **Verify a job resumes, not just that it writes.** Re-running must skip completed work.
-9. **Keep H100 and A100 results in separate experiment sets** — the roofline constants and the
-   `torch.compile` baseline both differ, and the second one closed the measurement range.
+10. **Verify a job resumes, not just that it writes.** Re-running must skip completed work.
+11. **Keep H100 and A100 results in separate experiment sets** — the roofline constants differ,
+   and the two fleets have never been shown comparable. (The original reason given here, that
+   H100's `torch.compile` closed the measurement range, was the §2e mistake: the default scorer
+   never uses the compiled baseline. The separation is still right; that justification was not.)

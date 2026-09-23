@@ -69,12 +69,39 @@ def _archive_text(lib):
             "\n".join("# fast %s:\n%s" % (n, s) for n, s in list(lib.items())[:3]) + "\n")
 
 
-OPT = ("Optimize this PyTorch module for speed on an A100 GPU, numerically equivalent (same dtype, same "
+# PROMPT VARIANTS.
+#
+# `safe` is the published prompt and stays the default, because every published board was
+# produced with it. It contains the clause "a plain-torch kernel that is correct beats a fancy
+# one that errors", which was written to reduce parse/compile failures -- and it worked, at a
+# cost we only measured later: of 86 verified kernels harvested from the 14B teacher, ZERO
+# contained triton, CUDA or load_inline. All 86 were pure-PyTorch rewrites of the reference,
+# whose speedup over eager is therefore ~1.00x by construction (median 1.00x, 93% below 1.05x).
+# Under the default scorer that is _score(correct, 1.0) = exactly 0.50 -- which is precisely the
+# value 76% of all H100 scores took. The "saturated metric" is downstream of a prompt that told
+# the model not to optimise.
+#
+# `kernel` removes the steer and asks for an actual kernel. KA_PROMPT selects between them so
+# the two can be compared on identical tasks, graders and seeds.
+_OPT_SAFE = ("Optimize this PyTorch module for speed on an A100 GPU, numerically equivalent (same dtype, same "
        "output). The code must be SELF-CONTAINED and RUN AS-IS: import ONLY torch and torch.nn as nn "
        "(optionally `import triton` and `import triton.language as tl` — nothing else, no other triton "
        "submodules, no autocast wrappers, no external packages). Prefer fused torch ops; a plain-torch "
        "kernel that is correct beats a fancy one that errors. Define ONLY `class ModelNew(nn.Module)` with "
        "the same __init__/forward signature, in ONE python code block.\n{arch}\n{src}")
+
+_OPT_KERNEL = ("Write a FASTER implementation of this PyTorch module, numerically equivalent (same dtype, "
+       "same output). A rewrite that merely restates the reference in torch ops scores ZERO -- you are "
+       "being measured on SPEEDUP, not on correctness alone. Fuse the elementwise chain into a single pass "
+       "over memory; these operators are memory-bound, so the win comes from reading and writing the tensor "
+       "once instead of once per op. Write a triton kernel (`import triton`, `import triton.language as tl`) "
+       "unless a fused torch op is provably faster. The code must be SELF-CONTAINED and RUN AS-IS: import "
+       "ONLY torch, torch.nn as nn, triton and triton.language as tl — no other modules, no autocast "
+       "wrappers, no external packages. Define ONLY `class ModelNew(nn.Module)` with the same "
+       "__init__/forward signature, in ONE python code block.\n{arch}\n{src}")
+
+_OPT_VARIANTS = {"safe": _OPT_SAFE, "kernel": _OPT_KERNEL}
+OPT = _OPT_VARIANTS.get(os.environ.get("KA_PROMPT", "safe"), _OPT_SAFE)
 
 
 def make_behaviors(gen):
