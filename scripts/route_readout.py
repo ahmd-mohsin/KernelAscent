@@ -174,6 +174,7 @@ def r3(pattern=None):
         trajectory_ci = None
     pat = pattern or os.path.join(D, "r3_*")
     arms = {}
+    modes = set()
     for outdir in sorted(glob.glob(pat)):
         arm = "inject" if "_inject_" in outdir else "control"
         rounds = []
@@ -182,8 +183,27 @@ def r3(pattern=None):
             for rec in (d if isinstance(d, list) else [d]) if d else []:
                 if isinstance(rec, dict) and "lineage_minus_reset" in rec:
                     rounds.append(rec["lineage_minus_reset"])
+                    # eval_tasks stamps score_mode into every round record, so the metric that
+                    # produced a number travels WITH the number. Amendment 1 forbids pooling
+                    # passrate with headroom, and a promise that is only in prose is one nobody
+                    # can enforce -- this makes the file itself refuse.
+                    for key in ("score_mode", "stats"):
+                        v = rec.get(key)
+                        if isinstance(v, dict):
+                            v = v.get("score_mode")
+                        if isinstance(v, str):
+                            modes.add(v)
         if rounds:
             arms.setdefault(arm, []).append(st.mean(rounds))   # one number per TRAJECTORY
+
+    if modes and modes != {"passrate"}:
+        print("  !! REFUSING TO REPORT: these runs carry score_mode %s, not {'passrate'}."
+              % sorted(modes))
+        print("     PREREGISTRATION.md Amendment 1 binds passrate results to their own")
+        print("     experiment set and forbids pooling them with headroom-scored runs.")
+        return
+    if modes:
+        print("  score_mode: %s (verified from the round records, not assumed)" % sorted(modes)[0])
     if not arms:
         print("  no r3 output yet under %s" % pat); return
     for arm, vals in sorted(arms.items()):
