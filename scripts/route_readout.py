@@ -10,7 +10,7 @@ rule in the code rather than in a later judgement call.
   route_readout.py r3 [outdir-glob]    lineage-reset under KA_SCORE=passrate
   route_readout.py all
 """
-import json, os, sys, glob, statistics as st
+import json, os, re, sys, glob, statistics as st
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "data", "marlowe_h100")
@@ -162,6 +162,31 @@ DECISION RULE (fixed in advance). Only the prompt differs between these two cell
     print("  VERDICT: %s" % v)
 
 
+def _modes_from_manifest(pattern):
+    """Recover the score mode from the recorded launch command for runs that predate stamping.
+
+    .jobman.tsv stores the exact command each cell was submitted with, so `env KA_SCORE=x` in
+    it is real provenance rather than an assumption. Used only when the data carries no mode.
+    """
+    man = os.path.join(ROOT, ".jobman.tsv")
+    if not os.path.exists(man):
+        return set()
+    cells = {os.path.basename(p).strip("_") for p in glob.glob(pattern)}
+    modes = set()
+    for line in open(man):
+        parts = line.rstrip("\n").split("\t")
+        if len(parts) < 4:
+            continue
+        name, cmd = parts[0], parts[3]
+        # e.g. r3c-q15-s1 <-> outdir r3_control_q15_s1: match on the shared tail
+        tag = name.replace("r3c-", "").replace("r3i-", "")
+        if not any(tag.replace("-", "_") in c for c in cells):
+            continue
+        m = re.search(r"KA_SCORE=(\w+)", cmd)
+        modes.add(m.group(1) if m else "eager")
+    return modes
+
+
 def r3(pattern=None):
     """lineage-reset under passrate. Trajectory level: one value per run, never per round."""
     print("=" * 84)
@@ -196,14 +221,28 @@ def r3(pattern=None):
         if rounds:
             arms.setdefault(arm, []).append(st.mean(rounds))   # one number per TRAJECTORY
 
-    if modes and modes != {"passrate"}:
+    # FAIL CLOSED. The first version only refused when it SAW a wrong mode, so a run with no
+    # score_mode recorded passed by default -- and lab_compounding was not stamping it, which
+    # made the whole check inert. An enforcement whose default is "allow" enforces nothing.
+    if not modes:
+        modes = _modes_from_manifest(pat)          # provenance fallback: the recorded command
+        if modes:
+            print("  score_mode: %s (from the launch command in .jobman.tsv -- these rounds"
+                  % sorted(modes)[0])
+            print("              predate score_mode stamping; newer runs carry it in the data)")
+    if not modes:
+        print("  !! REFUSING TO REPORT: no score_mode recorded in these rounds, and no launch")
+        print("     command found for them. Amendment 1 forbids pooling passrate with")
+        print("     headroom-scored runs, and an unlabelled run cannot be shown to comply.")
+        return
+    if modes != {"passrate"}:
         print("  !! REFUSING TO REPORT: these runs carry score_mode %s, not {'passrate'}."
               % sorted(modes))
         print("     PREREGISTRATION.md Amendment 1 binds passrate results to their own")
         print("     experiment set and forbids pooling them with headroom-scored runs.")
         return
     if modes:
-        print("  score_mode: %s (verified from the round records, not assumed)" % sorted(modes)[0])
+        print("  score_mode: %s (verified, not assumed)" % sorted(modes)[0])
     if not arms:
         print("  no r3 output yet under %s" % pat); return
     for arm, vals in sorted(arms.items()):

@@ -171,6 +171,39 @@ its coverage was a fossil of those bugs, not a property of the model.
 
 ---
 
+## 2j. An enforcement whose default is "allow" enforces nothing
+
+I wrote a check to make Amendment 1's no-pooling promise mechanical: refuse to report a set of
+runs unless every round carries `score_mode == "passrate"`. It was negative-tested — a directory
+mixing `eager` and `passrate` was correctly refused — and I committed it satisfied.
+
+Then I looked at a real round record from the live run. There is **no `score_mode` field**.
+`eval_tasks` builds the mode into its `stats`, but `lab_compounding` never copied it into the
+row it writes. So the checker found no modes at all, and my code said:
+
+```python
+if modes and modes != {"passrate"}:   # <- `modes` empty => falls straight through
+```
+
+The gate passed everything. My negative test only ever exercised the branch where a mode was
+present and wrong — never the one where none was present, which is the actual state of every
+run I have.
+
+**The intuition:** a guard has two failure modes and they are not symmetric. Rejecting something
+valid is loud and gets fixed in minutes. Accepting something invalid is silent and is what the
+guard existed to prevent. **So the default on missing evidence must be refuse, not allow** — and
+the negative test has to include the *absent-input* case, not just the wrong-input case.
+
+That is four instances today of a check that could not see its input (§2i lists three). This one
+is the worst of them, because it was the check specifically protecting a pre-registration
+commitment — the promise most likely to be broken by accident and least likely to be noticed.
+
+Fixed in two places, because one alone would have been enough to hide the other: the data now
+carries `score_mode` per round, *and* the reader refuses when it is missing, falling back only
+to the recorded launch command in `.jobman.tsv`, which is real provenance rather than a guess.
+
+---
+
 ## 2i. A gate that cannot see its input, and knowing when to stop widening it
 
 Three separate times today a check reported **clean** while examining nothing:

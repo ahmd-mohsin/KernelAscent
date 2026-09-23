@@ -142,7 +142,12 @@ def run(args):
         if BL is not None:
             try: C_ret = BL.retrieval(tok, mdl, train, held, args.k, n_shot=min(3 + r, 8)).get("C")
             except Exception: C_ret = None
-        row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs),
+        # The metric that produced these numbers travels WITH them. PREREGISTRATION.md
+        # Amendment 1 forbids pooling passrate with headroom results, and an unstamped row makes
+        # that promise unenforceable -- the checker finds no mode and passes by default, which
+        # is the failure it exists to prevent.
+        row = {"round": r, "score_mode": os.environ.get("KA_SCORE", "eager"),
+               "trainC": round(trainC, 3), "n_ex": len(pairs),
                "n_injected": n_inj, "injected_tasks": len(inj_tasks), "n_solved_self": len(solved), "loss": round(loss, 3),
                "C_lineage": round(C_lin, 3), "C_reset": round(C_reset, 3), "C_bestofN": round(C_bon, 3),
                "C_retrieval": (round(C_ret, 3) if C_ret is not None else None), "transfer_C": round(C_tr, 3),
