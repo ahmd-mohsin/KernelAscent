@@ -452,6 +452,12 @@ than it \emph{generates}. This is the same discovery$\to$assimilation gap seen f
 step is turning latent competence into a reliably-produced output.}
 
 % =====================================================================================
+% =====================================================================================
+\section{Instrument validity: five ways a self-improvement benchmark manufactures a null}
+% =====================================================================================
+\input{instrument_validity}
+
+% =====================================================================================
 \section{Synthesis: why self-improvement does not compound here}
 % =====================================================================================
 % discussion.tex carries its own \section + \paragraph structure; demote its \section to a
@@ -510,9 +516,15 @@ the lineage forward does not beat a matched reset; verified search is a better u
 binding internal signals are coverage/formation (small scale), a mid-scale learnable frontier, and
 drift-without-gain plus diversity contraction (large scale). We do \emph{not} claim the reachable set is
 mathematically invariant, that the weights sit at a genuine local optimum, or that RL/RLVR (as opposed to
-rejection-sampling SFT) cannot expand capability. The pooled interval treats correlated rounds as independent,
-so per-trajectory (2--3 seed) uncertainty is the binding constraint; the coverage-transplant that would settle
-the mechanism directly proved computationally infeasible and is left to future work.
+rejection-sampling SFT) cannot expand capability. All primary intervals are now computed at the
+\emph{trajectory} level rather than the round level, since rounds within a run share a base checkpoint, a seed,
+a held-out split and an accumulated adapter; this is the honest unit of replication and it costs us evidential
+strength, moving the equivalence Bayes factor from $\mathrm{BF}_{01}=14.7$ (pooling 228 rounds) to $5.6$
+(57 trajectories) --- strong to \emph{moderate}. The verdicts survive the correction, and the
+search-beats-training positive strengthens under it, because that contrast is made within a round. Per-trajectory
+(2--3 seed) uncertainty remains the binding constraint. Finally, all results here are A100; our H100 runs are
+reported separately and are non-comparable on two axes at once (different roofline constants, and a
+\texttt{torch.compile} baseline strong enough to close the measurement range entirely).
 
 % =====================================================================================
 \section{Conclusion}

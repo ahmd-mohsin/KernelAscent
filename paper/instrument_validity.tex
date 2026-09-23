@@ -1,0 +1,112 @@
+% =====================================================================================
+% Instrument validity. Included from kernelascent_full.tex before the Synthesis, because it
+% qualifies every null the Results section reports.
+% =====================================================================================
+A benchmark that reports a null owes its reader a second result: evidence that the
+measurement \emph{could have} reported a positive. Self-improvement benchmarks are unusually
+exposed here, because the headline quantity is a difference between two arms of the same
+pipeline. Any defect that suppresses both arms equally leaves the contrast at zero while every
+surface diagnostic --- jobs complete, kernels compile, scores populate --- looks healthy. A
+broken instrument does not report that it is broken; it reports $\Delta \approx 0$.
+
+Over this project, \textbf{five independent pipeline defects each produced a plausible,
+publishable-looking null}, summarised in Table~\ref{tab:defects}. None announced itself, and
+three survived a code review before being caught by an assertion.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}p{0.30\linewidth}p{0.31\linewidth}p{0.31\linewidth}@{}}
+\toprule
+\textbf{Defect} & \textbf{Presented as} & \textbf{Caught by} \\
+\midrule
+Grader mis-imported under a wrong root & ``self-training does not compound'' & identity-kernel assertion \\
+Grading device index absent on a 1--2 GPU allocation & ``the model writes bad kernels'' & same assertion, run \emph{on the allocation shape the jobs use} \\
+Raw generations graded without extracting the submission & ``the 14B teacher solves 0/29'' & non-zero coverage precondition \\
+Score saturated at the correctness floor & ``lineage $\approx$ reset'' & score-histogram check \\
+Compiled-baseline cache hitting a filesystem inode quota & ``4 of 6 rounds produced nothing'' & output-path/quota correlation \\
+\bottomrule
+\end{tabular}
+\caption{Five defects, each of which independently manufactured a null. The middle column is
+what the artifact would have claimed had the defect not been found.}
+\label{tab:defects}
+\end{table}
+
+\paragraph{A clean zero is a bug hypothesis before it is a finding.}
+The operational signature that caught most of these is distributional, not statistical. A
+\emph{real} null is noisy: it has per-task spread, partial successes, seed-to-seed variance. A
+null in which every task fails identically, or every score takes the same value, is
+instrumentation. We therefore treat suspicious tidiness as evidence \emph{against} the result,
+inverting the usual intuition that clean data is good data.
+
+\paragraph{Correctness of the instrument is not sufficient; it must also have range.}
+This is the failure mode we consider most transferable, because it defeats the obvious check.
+Our headroom-normalised score is
+$0.5 + 0.5\cdot\mathrm{clamp}\!\left(\frac{sp-1}{\mathrm{ceiling}-1}\right)$,
+which is well-formed, was verified end-to-end on known-good inputs, and was working exactly as
+specified. It was nonetheless dead as a measurement: on H100, \textbf{76\% of all scores across
+every run and round were exactly $0.50$} --- precisely the value of a correct kernel at
+parity with the baseline. Models reach the correctness floor in one to three rounds and stop,
+because essentially no model from 0.5B to 14B produces a kernel faster than \texttt{torch.compile}
+on this hardware.\footnote{The 14B teacher's best speedups across the bank: nine tasks at
+$1.00\times$, two at $1.08\times$, and one each at $1.05\times$, $1.01\times$, $2.03\times$.}
+With both arms pinned to the same absorbing value, $\textsf{lineage}-\textsf{reset}$ is forced
+to zero \emph{by construction}, and the experiment could not have detected compounding in
+either direction.
+
+Critically, this is not repairable by task curation. Filtering the bank against an
+H100 anchor with a $1.3\times$ minimum roofline headroom kept 23 of 29 tasks and still returned
+a frozen-base mean best score of $0.511$, with every surviving task at $\approx 0.50$ and every
+L3 task at $\textrm{correct\_rate}=0$. The difficulty distribution is bimodal with no middle
+band: tasks are either unreachable or solved-at-parity. A filter selects among existing tasks;
+it cannot create a regime in which the model is correct \emph{and} has headroom it can capture.
+
+\paragraph{The estimator, not the normalisation, is the thing to fix.}
+A saturated metric invites the wrong repair. The instinct is to re-normalise; the actual
+problem is that best-of-$k$ over a speed score is the wrong \emph{estimator} for a population
+sitting at the correctness floor. Best-of-$k$ answers ``can it ever,'' and returns an identical
+$0.500$ whether a model solves a task once in eight attempts or eight times out of eight ---
+two plainly different models. Where the live axis is reliability rather than speed, pass-rate
+over $k$ separates those cases by a factor of eight in resolution.
+
+We report such runs under a separate metric (pre-registration, Amendment~1), never pooled with the
+headroom leaderboards, and with two properties stated up front: the denominator is $k$, so a
+model emitting nothing parseable scores zero rather than being excluded; and it does not reward
+speed, so it tests a \emph{weaker and different} claim than the headroom score. It was also
+adopted \emph{after} observing saturation --- a forking path that we record as such rather than
+present as the original design.
+
+\paragraph{Check the denominator of the mechanism, not just the metric.}
+The same failure shape recurs wherever a rate is computed over events that never occurred. Two
+frontier models in our procedure-RSI track recorded $n_{\textrm{strategies}}=0$ in every round:
+their output was never parsed into a strategy list, so the self-modification channel never
+engaged. The resulting $-0.234$ ``self-degradation'' was widely quoted from an earlier draft of
+this work and is a parse failure. Likewise, our self-play primary metric requires the live
+author to produce accepted valid tasks; demanding at least five qualifies only 6 of 24 open and
+5 of 11 closed runs. \textbf{A metric computed over zero events is undefined, not zero}, and the
+distinction is invisible in the aggregate.
+
+\paragraph{What we propose as standard practice.}
+We ship these as executable gates rather than advice, and we recommend them for any
+self-improvement benchmark reporting a null:
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt]
+\item \textbf{Known-good input, known-good output}, asserted before every batch and run
+\emph{on the same allocation shape as the experiment} --- one of our defects lived entirely in
+the difference between a 1-GPU and a 3-GPU allocation.
+\item \textbf{A dynamic-range precondition}: demonstrate the primary metric takes at least two
+distinguishable values on this hardware and this task bank, \emph{before} interpreting a
+contrast computed from it.
+\item \textbf{A positive control on the causal path}: an intervention known to move the primary
+metric (for us, injecting verified solutions on tasks the student failed). A null is
+interpretable only once the harness has been shown to register a positive.
+\item \textbf{Mechanism denominators reported alongside every rate}, so undefined is
+distinguishable from zero.
+\item \textbf{Automated cross-artifact consistency checking}: every number in the manuscript
+re-derived from the data files at build time. Ours catches stale figures and claim strings that
+contradict the data they cite --- both of which occurred.
+\end{enumerate}
+
+We emphasise that this is not a catalogue of unusual carelessness. Each defect was a single
+line, each was locally reasonable, and each was caught only because an assertion was looking
+for it. The generalisable claim is structural: \textbf{in a benchmark whose headline is a
+difference between two arms of one pipeline, the cheapest result to produce accidentally is a
+null}, and the field currently has no convention requiring authors to rule that out.
