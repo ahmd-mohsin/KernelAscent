@@ -37,6 +37,7 @@ def main():
 
     from kernelascent.v3 import lab_weight_rsi as W
     from kernelascent.v3 import lab_kernel as LK
+    from kernelascent import agent_bench as AB
 
     names = list(LK.TASKS)
     if a.limit:
@@ -50,7 +51,16 @@ def main():
         src = LK.TASKS[name]
         try:
             # adapter=False: the teacher is frozen, we only want what it can already do
-            codes = W.generate_batch(tok, mdl, [src], a.k, adapter=False)[0]
+            raw = W.generate_batch(tok, mdl, [src], a.k, adapter=False)[0]
+            # A model emits prose + a fenced code block, not a bare class. eval_tasks does this
+            # same extraction before grading; skipping it hands the grader unparseable text and
+            # EVERY candidate fails to build -- which looks exactly like "the teacher can't solve
+            # anything" (0/29 on a model whose published coverage is 86%).
+            codes = [c for c in (AB.extract_modelnew(t) for t in raw) if c]
+            if not codes:
+                print("  [%d/%d] %-34s no parseable ModelNew in %d generations"
+                      % (i + 1, len(names), name[:34], len(raw)), flush=True)
+                continue
         except Exception as e:
             print("  [%d/%d] %-34s GEN FAIL %s" % (i + 1, len(names), name[:34], e), flush=True)
             continue

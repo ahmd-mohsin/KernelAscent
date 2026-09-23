@@ -222,7 +222,8 @@ def _run_with(args, gen):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", required=True, help="API model id (e.g. us.anthropic.claude-fable-5-1)")
+    ap.add_argument("--model", default=None, help="API model id (e.g. us.anthropic.claude-fable-5-1). "
+                                                  "Not needed when --open-model is given.")
     ap.add_argument("--mode", default="self-modify", choices=["frozen", "archive-only", "self-modify"])
     ap.add_argument("--region", default="us-east-1"); ap.add_argument("--rounds", type=int, default=5)
     ap.add_argument("--k", type=int, default=4); ap.add_argument("--n-train", type=int, default=20)
@@ -237,6 +238,8 @@ def main():
                     help="how many archived kernels are shown as exemplars (default 3)")
     ap.add_argument("--outdir", default="/tmp/instance_storage/ka_data/track_c")
     a = ap.parse_args()
+    if not a.model and not a.open_model:
+        ap.error("give either --model (API) or --open-model (HF id)")
     global MAX_STRATEGIES, N_ARCHIVE_SHOWN
     if a.max_strategies is not None: MAX_STRATEGIES = a.max_strategies
     if a.archive_shown is not None:  N_ARCHIVE_SHOWN = a.archive_shown
