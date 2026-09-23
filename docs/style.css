@@ -374,3 +374,15 @@ a,button,.pill,.state,tr{transition-duration:150ms}
    does not establish a scroll container, so the sticky .nav keeps working.
 --------------------------------------------------------------------------- */
 html,body{overflow-x:clip}
+
+/* Prose tables (e.g. #instrument's defect table) carry sentences, not leaderboard numbers,
+   so the global `th,td{white-space:nowrap}` must not apply -- without this the cells set
+   their min-content width to the longest sentence and the table escapes the page, which is
+   exactly the overflow already documented above for .note table. Same fix, but these tables
+   sit directly in a section rather than inside a .note. */
+table.prose{table-layout:fixed;width:100%;max-width:100%}
+table.prose th,table.prose td{white-space:normal;overflow-wrap:anywhere;vertical-align:top}
+@media (max-width:640px){
+  table.prose{font-size:12px}
+  table.prose th,table.prose td{padding:7px 8px}
+}
