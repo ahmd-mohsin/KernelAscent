@@ -73,6 +73,75 @@ only tasks where the roofline leaves real headroom over `torch.compile`. Re-run 
 
 ---
 
+## 2b. The deeper problem: on H100 the score is effectively BINARY
+
+Calibrating the 29-task bank against a 3B H100 anchor (`difficulty_filter --min-ceiling 1.3`)
+was meant to restore headroom. It revealed something worse than a missing filter.
+
+```
+kept 23/29  {L1: 9, L2: 14, L3: 0}
+frozen-base mean best on kept = 0.511      <- the C0 floor
+```
+
+Look at the per-task numbers. **Every kept task scores best ≈ 0.50.** L1 tasks: 0.50, 0.55,
+0.55, 0.50, 0.52, 0.58… L2 tasks: 0.49–0.51. All four L3 tasks: `correct_rate = 0.00`.
+
+So the difficulty distribution is **bimodal with nothing in between**:
+
+| band | correct_rate | best score | meaning |
+|---|---|---|---|
+| L3 (4 tasks) | 0.00 | 0.00 | unreachable |
+| L1/L2 (23 tasks) | 0.12–0.62 | **≈0.50** | correct, and never faster |
+
+A score of exactly 0.50 is `_score(correct, speedup=1.0)`. So for a 3B model the metric has
+**two reachable states — 0 and ~0.5** — and correctness saturates in 1–3 rounds.
+
+**This is not fixable by filtering.** The filter can only keep or drop tasks; it cannot create
+a band where the model is correct *and* has speed it can actually capture.
+
+And it is not a small-model problem. The 14B teacher's best speedups across 29 tasks:
+
+```
+9 x 1.00x   2 x 1.08x   1 x 1.05x   1 x 1.01x   1 x 2.03x
+```
+
+Essentially **no model from 0.5B to 14B produces meaningfully faster kernels on this bank on
+H100.** The headroom-normalised score therefore collapses into a correctness indicator, and
+"does self-improvement compound?" degenerates into "does the model learn to be correct more
+often?" — which saturates almost immediately and leaves `lineage − reset` no room to move.
+
+**The intuition:** a headroom-normalised metric needs the model to sit *inside* the headroom.
+If every success lands exactly on the baseline, normalisation buys nothing and the metric is a
+correctness bit wearing a continuous disguise. Before running a compounding study, verify that
+the population actually occupies the middle of the score range — not just that the range exists
+on paper.
+
+**What would make the experiment measurable again** (in rough order of cost):
+1. **A substrate where these models can make incremental progress** — the L3 tasks show the
+   cliff is too steep and L1/L2 too flat. Needs a genuine middle band.
+2. **Models large enough to beat the baseline**, so speed becomes a live dimension. On this
+   evidence that is >14B.
+3. **Score correctness-acquisition explicitly** (e.g. pass-rate over k) instead of hiding it
+   behind a speed normalisation that never engages. This changes what is being claimed and
+   must be pre-registered, not chosen after seeing the data.
+
+## 2c. Fifth zero-producing defect: the compiled cache on a quota-exhausted filesystem
+
+E2 runs whose data dir was on `/scratch` showed 4–5 of 6 rounds at `Q = 0.000`, then sudden
+jumps to ~0.50. Runs whose data dir was on `$HOME` showed **zero** such rounds. Perfect
+correlation, n=6.
+
+The mechanism: `grade_batch.py` caches compiled baselines under `KA_DATA_DIR`, and
+`agent_bench.build_ref_c` does `os.makedirs(compiled_cache)`. On the inode-exhausted group
+`/scratch` that raises `EDQUOT`, `build_ref_c` propagates, and `grade_batch`'s except-branch
+returns `[False, ...]` for **every** candidate — a whole round of zeros.
+
+**The intuition:** a filesystem quota does not only break writes you can see. It breaks writes
+buried inside libraries, and those surface as *scientific* zeros. When results contain long
+runs of exact zeros punctuated by normal values, suspect the environment before the model.
+
+---
+
 ## 3. Published claims that turned out to be confounded
 
 ### T3 "frontier self-modification is one-shot" — confounded by a harness cap

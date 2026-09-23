@@ -21,6 +21,16 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAN="$REPO/.jobman.tsv"        # name <TAB> walltime <TAB> gpus <TAB> command
 touch "$MAN"
 
+# Fail ONCE, clearly, if the ssh master is down. Without this every manifest row runs its own
+# remote query and prints the whole "authenticate once" banner, burying the actual status in
+# twenty copies of the same message.
+if ! ssh -O check marlowe >/dev/null 2>&1; then
+  echo "no live SSH master -- Marlowe needs SUNet password + Duo once:"
+  echo "    ssh -f -N marlowe"
+  echo "(a laptop sleeping drops the socket even inside ControlPersist)"
+  exit 1
+fi
+
 _jid() { sed -n 's/.*job \([0-9][0-9]*\) queued.*/\1/p' <<<"$1" | head -1; }
 
 case "${1:-status}" in
