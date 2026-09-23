@@ -42,11 +42,30 @@ def main():
 
     bank = json.load(open(args.inp))
     gpus = [int(x) for x in str(args.gpus).split(",")]
+
+    # RESUME. A 456-task bank does not fit one backfill-friendly walltime, and the scheduling
+    # estimate here is dominated by requested walltime -- so this has to run as short chunks.
+    # The per-task write below already persists partial work; without this the next chunk would
+    # regenerate every task it had already scored and never reach the end of a large bank.
+    rpath = args.report or (args.out + ".report.json")
+    report = []; kept = []; done = set()
+    if os.path.exists(rpath):
+        try:
+            report = json.load(open(rpath))
+            done = {r["name"] for r in report}
+            if os.path.exists(args.out):
+                kept = json.load(open(args.out))
+            print("RESUME  %d tasks already scored, %d kept -- skipping those" % (len(done), len(kept)), flush=True)
+        except Exception as e:                      # a half-written JSON from a kill mid-dump
+            print("RESUME failed (%s) -- starting clean" % e, flush=True)
+            report = []; kept = []; done = set()
+
     tok, mdl = W.build(args.model, gpus)                 # adapter present but we generate with adapter=False = frozen base
-    report = []; kept = []
-    print("DIFFICULTY-FILTER %s  in=%d tasks  k=%d  keep if 0<correct_rate and best<=%.2f"
-          % (args.model, len(bank), args.k, args.keep_hi), flush=True)
+    print("DIFFICULTY-FILTER %s  in=%d tasks (%d remaining)  k=%d  keep if 0<correct_rate and best<=%.2f"
+          % (args.model, len(bank), len(bank) - len(done), args.k, args.keep_hi), flush=True)
     for t in bank:
+        if t["name"] in done:
+            continue
         src = t["source"]
         outs = W.generate(tok, mdl, src, args.k, adapter=False)
         codes = [c for c in (AB.extract_modelnew(o) for o in outs) if c]
@@ -66,7 +85,7 @@ def main():
         torch.cuda.empty_cache()
         print("  %-8s %-3s correct_rate=%.2f best=%.2f -> %s" % (t["name"], t["tier"], cr, best, "KEEP" if keep else "drop"), flush=True)
         json.dump(kept, open(args.out, "w"), indent=2)
-        json.dump(report, open(args.report or (args.out + ".report.json"), "w"), indent=2)
+        json.dump(report, open(rpath, "w"), indent=2)
     by = {tt: sum(1 for x in kept if x["tier"] == tt) for tt in ("L1", "L2", "L3")}
     c0_proxy = statistics.mean([r["best_score"] for r in report if r["keep"]]) if kept else 0.0
     print("\n=== FILTER SUMMARY === kept %d/%d %s ; frozen-base mean best on kept = %.3f (this is the expected C0 floor)"

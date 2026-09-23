@@ -7,6 +7,9 @@
 #
 #   scripts/launch_tier1.sh e1      control vs coverage-injection (needs the teacher JSON)
 #   scripts/launch_tier1.sh e2      strategy-cap ablation
+#   scripts/launch_tier1.sh r1      route 1: calibrate the 456-task DSL bank (resumable)
+#   scripts/launch_tier1.sh r2      route 2: can a 32B model beat the baseline?
+#   scripts/launch_tier1.sh r3      route 3: E1 re-read under KA_SCORE=passrate
 #   scripts/launch_tier1.sh --dry e1
 set -uo pipefail
 
@@ -23,10 +26,10 @@ WALL="02:00:00"       # short chunks: walltime drives the backfill estimate here
 DRY=""; [ "${1:-}" = "--dry" ] && { DRY=1; shift; }
 STEP="${1:-help}"
 
-go() {  # go <name> <command...>
+go() {  # go <name> <command...>   ; GPUS=n and WALL=hh:mm:ss override per call
   local name="$1"; shift
-  if [ -n "$DRY" ]; then printf '  %-22s %s\n' "$name" "$*"; return 0; fi
-  "$JM" run "$name" "$WALL" 1 -- "$*" 2>&1 | tail -1
+  if [ -n "$DRY" ]; then printf '  %-22s (%sg %s) %s\n' "$name" "${GPUS:-1}" "$WALL" "$*"; return 0; fi
+  "$JM" run "$name" "$WALL" "${GPUS:-1}" -- "$*" 2>&1 | tail -1
 }
 
 case "$STEP" in
@@ -69,6 +72,67 @@ e2)
 --grade-gpu 0 --max-strategies $cap --rounds 6 --seed $s --outdir $OUT/e2_cap${lbl}_s${s}"
     done
   done
+  ;;
+
+r1)
+  # ROUTE 1 -- a substrate with a genuine middle band.
+  # The 29-task bank is bimodal on H100: 23 tasks score ~0.50 (correct, never faster) and the
+  # 4 L3 tasks score 0.00 (unreachable). Nothing in between, so no contrast can move. The
+  # 456-task DSL bank is the only candidate with enough tasks to contain a middle band at all.
+  # difficulty_filter now RESUMES from its report, so this runs as 2h chunks via `jobman continue`
+  # until it reaches the end -- the previous single-shot attempt timed out and lost its work.
+  echo "R1  calibrate the 456-task DSL bank against a 3B H100 anchor (resumable chunks)"
+  go "ka-calib-dsl" "python -m kernelascent.v3.difficulty_filter \
+--model Qwen/Qwen2.5-Coder-3B-Instruct --gpus 0 \
+--in dataset/kernel_bank/kernel_tasks_dsl_validated.json \
+--out $OUT/bank_dsl_h100_filtered.json --report $OUT/bank_dsl_h100_report.json \
+--k 4 --keep-hi 0.75 --min-ceiling 1.3"
+  echo "    READ-OUT: the report's best_score histogram. A usable substrate needs mass"
+  echo "    strictly BETWEEN 0.5 and 1.0. Another spike at 0.50 means the ceiling is the"
+  echo "    hardware baseline, not the bank, and no task curation will fix it."
+  ;;
+
+r2)
+  # ROUTE 2 -- is there ANY model that beats the torch.compile baseline on this hardware?
+  # Best speedups across the bank: 1.5B/3B ~1.00x, and the 14B teacher managed 9x1.00x,
+  # 2x1.08x, 1x2.03x. If 32B also lands on 1.00x then the speed dimension is dead for the
+  # whole open-weight range and headroom-normalised scoring cannot be rescued by scale.
+  # 32B bf16 ~64GB: 2 GPUs, so weights plus activations are not fighting for one 80GB card.
+  echo "R2  can a >14B model beat the baseline? (32B speedup probe)"
+  GPUS=2 WALL="03:00:00" go "r2-probe-32b" "python scripts/make_teacher_kernels.py \
+--model Qwen/Qwen2.5-Coder-32B-Instruct --gpus 0,1 --k 6 \
+--out $OUT/teacher_kernels_q32.json"
+  echo "    READ-OUT: the speedup_eager distribution. >1.1x on a decent fraction of tasks"
+  echo "    means scale restores the speed dimension and Tier-2 should move up a size class."
+  ;;
+
+r3)
+  # ROUTE 3 -- score correctness-acquisition directly (KA_SCORE=passrate), pre-registered as
+  # Amendment 1 in docs/PREREGISTRATION.md BEFORE these runs land. Same E1 design, so it is a
+  # like-for-like re-read of an experiment already shown to be flat under the saturated metric.
+  MODELS=("Qwen/Qwen2.5-Coder-1.5B-Instruct" "Qwen/Qwen2.5-Coder-3B-Instruct")
+  TAGS=("q15" "q3")
+  if [ -z "$DRY" ] && ! mrl run "test -s $TEACHER" >/dev/null 2>&1; then
+    echo "!! teacher kernels missing at $TEACHER -- run the harvest first"; exit 1
+  fi
+  echo "R3  E1 re-read under KA_SCORE=passrate (fraction of k that verify)"
+  for i in "${!MODELS[@]}"; do
+    m="${MODELS[$i]}"; t="${TAGS[$i]}"
+    for s in 1 2; do
+      go "r3c-$t-s$s" "KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
+--gpus 0 --rounds 6 --seed $s --outdir $OUT/r3_control_${t}_s${s}"
+      go "r3i-$t-s$s" "KA_SCORE=passrate python -m kernelascent.v3.lab_compounding --model $m \
+--gpus 0 --rounds 6 --seed $s --inject-kernels $TEACHER --inject-per-task 1 \
+--outdir $OUT/r3_inject_${t}_s${s}"
+    done
+  done
+  echo
+  echo "  DECISION RULE (fixed; see PREREGISTRATION.md Amendment 1):"
+  echo "    inject lineage-reset > 0, control flat -> the loop registers acquired coverage but"
+  echo "                                              does not generate it: a real finding"
+  echo "    both flat                              -> instrument still dead; publish no"
+  echo "                                              compounding claim from this hardware"
+  echo "    NEVER pool these with the A100 headroom boards -- different metric AND hardware."
   ;;
 
 *) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//' ;;
