@@ -1,0 +1,41 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "mode": "self-modify",
+  "Q0": 0.48151521207073666,
+  "max_strategies": 12,
+  "archive_shown": 3,
+  "history": [
+    {
+      "round": 0,
+      "Qg": 0.502,
+      "delta_vs_base": 0.02,
+      "F_g": null,
+      "n_strategies": 8,
+      "n_archive": 12
+    },
+    {
+      "round": 1,
+      "Qg": 0.445,
+      "delta_vs_base": -0.037,
+      "F_g": -0.054,
+      "n_strategies": 8,
+      "n_archive": 15
+    },
+    {
+      "round": 2,
+      "Qg": 0.502,
+      "delta_vs_base": 0.02,
+      "F_g": 0.057,
+      "n_strategies": 9,
+      "n_archive": 16
+    },
+    {
+      "round": 3,
+      "Qg": 0.524,
+      "delta_vs_base": 0.043,
+      "F_g": -0.08,
+      "n_strategies": 9,
+      "n_archive": 18
+    }
+  ]
+}

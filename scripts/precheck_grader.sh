@@ -32,6 +32,25 @@ print("subprocess:", single, "->", "PASS" if ok_s else "FAIL")
 print("batch     :", batch,  "->", "PASS" if ok_b else "FAIL")
 if single and len(single[0]) > 3 and abs(single[0][3] - 1.5) < 1e-9:
     print("WARNING: ceiling is exactly 1.5 -- that is grade_batch.py fallback, i.e. build_ref_c RAISED")
+
+# DYNAMIC RANGE. A working grader is not enough: the SCORE must be able to move. On H100 the
+# torch.compile baseline is strong enough that models sit at speedup 1.0, so _score returns
+# exactly 0.50 (correct, not faster) on every task and lineage-minus-reset is forced to ~0 by
+# construction. That produced a flat E1 that looked like a null. Report the headroom the bank
+# actually offers before anyone trusts a contrast computed on it.
+import statistics as _st
+ceils = []
+for n in list(LK.TASKS)[:12]:
+    g = W._grade_isolated(LK.TASKS[n], [LK.TASKS[n].replace("class Model(", "class ModelNew(")])
+    if g and len(g[0]) > 3: ceils.append(g[0][3])
+if ceils:
+    room = [c for c in ceils if c >= 1.3]
+    print("headroom: %d/%d sampled tasks have roofline ceiling >= 1.3x (median %.2fx)"
+          % (len(room), len(ceils), _st.median(ceils)))
+    if len(room) < len(ceils) / 2:
+        print("WARNING: most tasks are already compile-saturated on this hardware. Scores will")
+        print("         pin at 0.50 and any lineage-vs-reset contrast is forced to zero.")
+        print("         Run difficulty_filter.py --min-ceiling 1.3 against THIS GPU first.")
 sys.exit(0 if (ok_s and ok_b) else 1)
 PY'
 echo
