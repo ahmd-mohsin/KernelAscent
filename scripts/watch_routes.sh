@@ -15,7 +15,16 @@ squeue -u \$USER -h -o '%i|%j|%T' 2>/dev/null
 sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
   awk -F'|' '\$3!~/RUNNING|PENDING/{print \$1\"|\"\$2\"|\"\$3}'" 2>/dev/null |
         grep -E '^[0-9]+\|' | sort -u)"
-  [ -n "$cur" ] || { sleep 180; continue; }
+  # An empty poll used to `continue` silently, so a run of failed queries was
+  # indistinguishable from a quiet cluster -- and a monitor whose silence is ambiguous is
+  # not a monitor. Warn once after two consecutive empty polls.
+  if [ -z "$cur" ]; then
+    empties=$((${empties:-0} + 1))
+    [ "$empties" = 2 ] && echo "POLL RETURNING EMPTY x2 -- cluster query failing; job states are NOT being watched"
+    sleep 180; continue
+  fi
+  if [ "${empties:-0}" -ge 2 ]; then echo "poll recovered -- watching again"; fi
+  empties=0
   if [ -n "$prev" ]; then
     # only lines that are new or changed since last poll
     comm -13 <(echo "$prev") <(echo "$cur") | while IFS='|' read -r id name st; do
