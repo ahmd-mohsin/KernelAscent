@@ -41,3 +41,5 @@ hf_token
 paper/*.aux
 paper/*.log
 paper/*.out
+.jobman.tsv
+.watchdog_state/
