@@ -144,6 +144,33 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 
 ---
 
+## 2g. A positive control is only as strong as the thing it injects
+
+R4's `safe` arm was meant only as the control for the prompt A/B. It replicated the headline
+(0 of 118 verified kernels contain a custom kernel; median 1.01x over eager) — and incidentally
+exposed that the teacher file E1 and R3 inject from covers **14/29 tasks**, while an identical
+model under an identical prompt covers **25/29**, at *k=6* rather than *k=8*.
+
+The rerun is a strict superset: every task the original solved, plus 11 more, all L2. So the
+original harvest quietly stopped covering L2 partway through.
+
+Why this matters more than a stale file: **R3 is a positive control.** Its job is to show the
+harness *can* register acquired coverage, so that a flat unaugmented result means something. An
+injection reaching 14 tasks instead of 25 makes the control weak, and **a weak positive control
+that comes out flat is uninterpretable** — which is precisely the failure this whole document is
+about. I would have read "injection did not move it" as evidence about the loop.
+
+**The intuition:** check the *magnitude* of your intervention, not just that it fired. I had
+verified injection was firing and being applied correctly. I had never asked whether it was
+*large enough to be detectable*. Those are different questions, and only the second one makes a
+null informative.
+
+Corollary: re-derive an artifact before depending on it, especially one produced by an earlier,
+buggier version of the pipeline. The original teacher was harvested before several grader fixes;
+its coverage was a fossil of those bugs, not a property of the model.
+
+---
+
 ## 2f. Reachability — the range check, turned into a number I can act on
 
 "Check the metric has range" was the rule I wrote after §2, and it was still too vague to stop

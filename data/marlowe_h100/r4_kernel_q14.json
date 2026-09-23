@@ -1,0 +1,6 @@
+{
+ "teacher": "Qwen/Qwen2.5-Coder-14B-Instruct",
+ "k": 6,
+ "n_tasks": 29,
+ "kernels": {}
+}
