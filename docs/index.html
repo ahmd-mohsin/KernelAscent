@@ -43,7 +43,7 @@
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
   </div>
   <p class="finding-strip"><b>The finding:</b> verified self-training did not compound &mdash; under our tested GPU-kernel protocol. <span class="ev">57 independent trajectories · lineage ≈ reset · BF₀₁ = 5.6 · search &gt; training</span> <a href="#findings">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
-  <p class="finding-strip" style="border-color:#c2410c"><b>Open caveat (2026-09-23):</b> we found that our generation prompt steers models toward plain-torch rewrites &mdash; <b>0 of 86</b> verified kernels from the 14B model contained Triton or CUDA. A rewrite runs at reference speed, which scores exactly 0.50 by construction. A prompt A/B is running to determine how much of the plateau this explains. <span class="ev">Until it lands, treat the speed-scored boards as provisional.</span> <a href="#instrument">What this means</a></p>
+  <p class="finding-strip" style="border-color:#c2410c"><b>Open caveat (2026-09-23):</b> we found that our generation prompt steers models toward plain-torch rewrites &mdash; <b>0 of 204</b> verified kernels from the 14B model, across two independent harvests, contained Triton or CUDA. A rewrite runs at reference speed, which scores exactly 0.50 by construction. A prompt A/B is running to determine how much of the plateau this explains. <span class="ev">Until it lands, treat the speed-scored boards as provisional.</span> <a href="#instrument">What this means</a></p>
 </section>
 
 <section id="findings">
@@ -86,7 +86,7 @@
   <p class="small">We diagnosed a spike of scores at exactly 0.50 as a hardware effect: <code>torch.compile</code> is stronger on H100, so the headroom closed. It was plausible, it fit every number we had, and it was <b>wrong</b> &mdash; the default scorer never uses the compiled baseline at all. The real cause was upstream of the metric, in our own prompt:</p>
   <ul class="small">
     <li>The generation prompt says <i>&ldquo;a plain-torch kernel that is correct beats a fancy one that errors&rdquo;</i> &mdash; written to suppress parse failures, which it did.</li>
-    <li>Models complied: <b>0 of 86</b> verified kernels from the 14B model contained Triton, CUDA or <code>load_inline</code>. All 86 were pure-PyTorch rewrites of the reference.</li>
+    <li>Models complied: <b>0 of 86</b> verified kernels from the 14B model contained Triton, CUDA or <code>load_inline</code> &mdash; all pure-PyTorch rewrites of the reference. An independent re-harvest under the same prompt replicated it exactly: <b>0 of 118</b>, for <b>0 of 204</b> across both.</li>
     <li>A semantically equivalent rewrite runs at reference speed by construction: median <b>1.00&times;</b>, 93% below 1.05&times;.</li>
     <li>And <code>score(correct, 1.00) = 0.50</code> <b>exactly</b> &mdash; the value 76% of all H100 scores took.</li>
     <li>Both arms pinned at 0.50 &rArr; <code>lineage &minus; reset &equiv; 0</code>, by construction.</li>

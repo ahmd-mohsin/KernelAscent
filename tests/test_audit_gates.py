@@ -60,9 +60,14 @@ def main():
            lambda t: t + "<p>Nothing we tested is faster than torch.compile.</p>\n",
            "baseline/attribution")
 
-    print("custom-kernel gate: the 0-of-86 figure must not drift")
-    mutate("docs/index.html", lambda t: t.replace("0 of 86", "3 of 86", 1),
-           "prompt/custom-kernel-rate")
+    print("custom-kernel gate: the numerator must stay 0 in every artifact")
+    for rel, a, b in (("docs/index.html", "0 of 86", "3 of 86"),
+                      ("docs/index.html", "0 of 118", "3 of 118"),
+                      ("paper/instrument_validity.tex", "0 of 118", "7 of 118"),
+                      ("docs/PREREGISTRATION.md", "0 of 118", "2 of 118"),
+                      ("INTUITIONS.md", "0 of 118", "9 of 118")):
+        mutate(rel, (lambda a, b: (lambda t: t.replace(a, b, 1)))(a, b),
+               "prompt/custom-kernel-rate")
 
     assert run("all restored") == [], "repo must end clean"
     shutil.rmtree(tmp)

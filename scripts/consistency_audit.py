@@ -448,30 +448,59 @@ def check_custom_kernel_rate():
         t = re.sub(r"\bzero\b", "0", t, flags=re.I)
         return re.sub(r"\s+", " ", t)
 
-    pat = re.compile(r"(\d+)\s*(?:of|/|out of)\s*(\d+)\s*verified kernels", re.I)
-    alt = re.compile(r"(\d+)\s*verified kernels[^.]{0,60}?\b(\d+)\b\s*contained", re.I)
+    # Match "N of M" anywhere in the NEIGHBOURHOOD of "verified kernel", not only when the
+    # phrase immediately follows. Requiring adjacency meant "...0 of 118, for 0 of 204 across
+    # both" was invisible: the gate reported clean while reading none of it. That is the third
+    # check today that could not see its own input, so the window is deliberately generous --
+    # a false positive is a conversation, a false negative is a silent pass.
+    win = re.compile(r"verified kernels?", re.I)
+    num = re.compile(r"(\d+)\s*(?:of|/|out of)\s*(\d+)\b")
     seen = {}
     for name, path in PROSE.items():
         txt = norm(read(path))
-        for m in pat.finditer(txt):
-            seen.setdefault((int(m.group(1)), int(m.group(2))), []).append(name)
-        for m in alt.finditer(txt):                       # "Of 86 verified kernels, 0 contained"
-            seen.setdefault((int(m.group(2)), int(m.group(1))), []).append(name)
+        for w in win.finditer(txt):
+            lo, hi = max(0, w.start() - 220), w.end() + 220
+            chunk = txt[lo:hi]
+            for m in num.finditer(chunk):
+                a, b = int(m.group(1)), int(m.group(2))
+                if b < 10 or b > 100000 or a > b:      # not a kernel-count pair
+                    continue
+                # "14/29 tasks" is TASK COVERAGE, a different quantity that happens to sit near
+                # this prose. Widening the window to see every kernel citation also swallowed
+                # those, so the unit has to be checked, not just the proximity.
+                # also treat "covers N/M" as coverage language, whatever noun follows
+                before = chunk[max(0, m.start() - 12):m.start()].lower()
+                if re.match(r"\s*(?:task|of 29|held|bank)", chunk[m.end():m.end() + 12], re.I) \
+                   or "cover" in before or "solve" in before:
+                    continue
+                seen.setdefault((a, b), []).append(name)
+
     if not seen:
         return                                    # figure not cited anywhere; nothing to check
-    if len(seen) > 1:
+
+    # The LOAD-BEARING claim is that the numerator is zero, not that one denominator is used
+    # everywhere. Several denominators are legitimate once a result is replicated (86 original,
+    # 118 re-harvest, 204 combined), and failing on that would punish replication. A non-zero
+    # numerator anywhere, or a cited total that does not match its parts, is a real error.
+    bad = {k: v for k, v in seen.items() if k[0] != 0}
+    if bad:
         fail("prompt/custom-kernel-rate",
-             "the custom-kernel rate is cited inconsistently: "
-             + "; ".join("%d of %d in %s" % (a, b, ",".join(sorted(set(v)))) for (a, b), v in seen.items()))
+             "prose says a custom kernel WAS found, but every harvest measured zero: "
+             + "; ".join("%d of %d in %s" % (a, b, ",".join(sorted(set(v)))) for (a, b), v in bad.items()))
         return
-    (num, den), where = next(iter(seen.items()))
-    if num != 0:
-        fail("prompt/custom-kernel-rate",
-             "prose says %d of %d verified kernels contained a custom kernel; the harvest measured 0."
-             % (num, den))
-    else:
-        ok("prompt/custom-kernel-rate",
-           "custom-kernel rate cited as 0 of %d consistently across %s" % (den, ", ".join(sorted(set(where)))))
+    # DELIBERATELY NARROW. An earlier version also required the denominators to add up
+    # (86 + 118 = 204) to catch a stale figure. Matching free prose cannot do that reliably --
+    # it kept binding to incidental "N of M" pairs nearby, and I patched it three times before
+    # accepting that the arithmetic rule produces more false alarms than it prevents errors.
+    # A gate that cries wolf gets ignored, which costs more than the staleness it might catch.
+    #
+    # What survives is the load-bearing claim: the NUMERATOR is zero. That is the fact the
+    # prompt finding rests on, it is unambiguous, and it is what would actually be wrong if
+    # someone mis-transcribed a later harvest.
+    dens = sorted({k[1] for k in seen})
+    ok("prompt/custom-kernel-rate",
+       "custom-kernel numerator is 0 in every citation; denominators seen: %s (%s)"
+       % (dens, ", ".join(sorted({n for v in seen.values() for n in v}))))
 
 
 def main():

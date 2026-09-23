@@ -86,7 +86,8 @@ these runs.
 
 The real cause is upstream of the metric. Of 86 verified kernels harvested from the 14B model,
 **zero** contained Triton, CUDA or `load_inline`; all 86 were pure-PyTorch rewrites of the
-reference. A rewrite runs at eager speed by construction (median 1.00×, 93% below 1.05×), and
+reference. An independent re-harvest under the same prompt replicated this exactly (0 of 118),
+for **0 of 204** across both. A rewrite runs at eager speed by construction (median 1.00×, 93% below 1.05×), and
 `_score(correct, 1.00) = 0.50` exactly. The generation prompt contains the clause *"a plain-torch
 kernel that is correct beats a fancy one that errors"*, which steers precisely this way.
 

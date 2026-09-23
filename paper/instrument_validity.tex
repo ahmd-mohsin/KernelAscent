@@ -61,8 +61,10 @@ The actual cause was upstream of the metric, in the prompt. Our generation instr
 the clause \emph{``a plain-torch kernel that is correct beats a fancy one that errors''} ---
 written to suppress parse and compile failures, which it did. Of \textbf{86 verified kernels}
 harvested from the 14B model, \textbf{zero} contained Triton, CUDA, or \texttt{load\_inline}.
-All 86 were pure-PyTorch rewrites of the reference module. A semantically equivalent rewrite
-runs at eager speed by construction: median speedup $1.00\times$, with 93\% below $1.05\times$.
+All 86 were pure-PyTorch rewrites of the reference module. An independent re-harvest under the
+same prompt replicated this exactly: \textbf{0 of 118 verified kernels}, for \textbf{0 of 204}
+across both. A semantically equivalent rewrite runs at eager speed by construction: median
+speedup $1.00\times$, with 93\% below $1.05\times$.
 And $\textsf{\_score}(\textrm{correct}, 1.00) = 0.50$ exactly.
 
 So the chain is deterministic, and it runs entirely through our own harness: a prompt that

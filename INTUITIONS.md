@@ -149,7 +149,7 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 R4's `safe` arm was meant only as the control for the prompt A/B. It replicated the headline
 (0 of 118 verified kernels contain a custom kernel; median 1.01x over eager) — and incidentally
 exposed that the teacher file E1 and R3 inject from covers **14/29 tasks**, while an identical
-model under an identical prompt covers **25/29**, at *k=6* rather than *k=8*.
+model under an identical prompt covers **25/29 tasks**, at *k=6* rather than *k=8*.
 
 The rerun is a strict superset: every task the original solved, plus 11 more, all L2. So the
 original harvest quietly stopped covering L2 partway through.
@@ -168,6 +168,37 @@ null informative.
 Corollary: re-derive an artifact before depending on it, especially one produced by an earlier,
 buggier version of the pipeline. The original teacher was harvested before several grader fixes;
 its coverage was a fossil of those bugs, not a property of the model.
+
+---
+
+## 2i. A gate that cannot see its input, and knowing when to stop widening it
+
+Three separate times today a check reported **clean** while examining nothing:
+
+1. the audit's file list omitted the artifacts the claim lived in;
+2. my test harness remapped paths so every `read()` returned `""`;
+3. a regex required `"N of M"` to sit immediately before `"verified kernels"`, so
+   `"0 of 118, for 0 of 204 across both"` was invisible.
+
+All three are the same failure with different masks, and it is worse than having no check,
+because a green result is read as evidence. **The fix is not a better regex. It is a negative
+test: plant the error, assert the gate fires.** Anything unverified that way should be assumed
+not to work.
+
+### And the opposite mistake, which I then made
+
+Widening that regex to catch every citation made it bind to unrelated pairs — task coverage
+(`14/29`), then a stray `20`. I patched it three times. The right move was to stop and narrow
+the *claim* instead: the load-bearing fact is that the **numerator is zero**, not that the
+denominators sum correctly. I dropped the arithmetic rule.
+
+> **A gate should assert the smallest thing that would actually be wrong.** Every extra
+> condition is a false-alarm source, and a gate that cries wolf gets ignored — which costs more
+> than the staleness it might have caught. Prefer one assertion you trust to three you will
+> learn to skip past.
+
+Where the prose was genuinely ambiguous (`covers 25/29` with no unit), the honest fix was to fix
+the writing, not to teach the checker to guess.
 
 ---
 
