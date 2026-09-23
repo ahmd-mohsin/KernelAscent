@@ -255,13 +255,30 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     grades = _grade_isolated_batch(list(zip(srcs, per_task_codes)))         # [ok, sp_eager, sp_compiled] per candidate
     # KA_SCORE=compiled scores capability on the torch.compile speedup (headroom for correct-but-slow models
     # of ANY size), instead of the correctness-heavy eager score. Isolates SPEED optimization from correctness.
-    use_compiled = os.environ.get("KA_SCORE", "eager") == "compiled"
+    # KA_SCORE selects the capability metric.
+    #   eager     best-of-k headroom score vs the eager baseline      (ceiling 1.5x)
+    #   compiled  best-of-k headroom score vs torch.compile           (per-task roofline ceiling)
+    #   passrate  FRACTION OF k CANDIDATES THAT VERIFY, per task
+    #
+    # Why passrate exists. Measured on H100 (2026-09-23): every task a 0.5B-14B model can solve
+    # at all is solved at speedup ~1.0, so the headroom score returns exactly 0.50 and nothing
+    # else. Two reachable states, 0 and 0.50, saturating in 1-3 rounds -- a correctness bit
+    # wearing a continuous disguise, with no room for a compounding contrast to move.
+    # passrate measures RELIABILITY of correctness instead: a model that solves a task 1-in-8
+    # and improves to 5-in-8 registers real progress that best-of-k throws away. It is
+    # continuous in [0,1], it does not saturate at the correctness floor, and it is exactly the
+    # quantity the paper already says is moving ("C moves via correctness acquisition, not
+    # speed"). It measures a DIFFERENT claim from the published boards and must never be mixed
+    # with them.
+    score_mode = os.environ.get("KA_SCORE", "eager")
+    use_compiled = score_mode == "compiled"
+    use_passrate = score_mode == "passrate"
     # KA_SFT_SELECT=topq -> A1 speedup-weighted rejection sampling: keep only the top-quartile (by compiled
     # speedup) correct kernels per task for SFT, instead of all correct (denser reward; RL-ladder A1 arm).
     topq = os.environ.get("KA_SFT_SELECT", "all") == "topq"
     scores = []; examples = []; corr = []; comp = []
     for src, codes, res in zip(srcs, per_task_codes, grades):
-        best = 0.0; n_ok = 0; best_c = 0.0; ok_cands = []
+        best = 0.0; n_ok = 0; best_c = 0.0; ok_cands = []; n_cand = len(codes)
         for code, g in zip(codes, res):
             ok, se, sc, ceil = (list(g) + [0.0, 0.0, 0.0, 1.5])[:4]
             s = LK._score(ok, sc if use_compiled else se, ceiling=(ceil if use_compiled else 1.5))  # headroom-normalized
@@ -278,12 +295,16 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
             examples += [(src, c) for _, c in keep]
         else:
             examples += [(src, c) for _, c in ok_cands]      # default: keep ALL correct kernels
-        scores.append(best)
+        # passrate: fraction of ATTEMPTED candidates that verified. Denominator is k (the
+        # generation budget), not len(codes), so a task where the model emits nothing parseable
+        # scores 0 rather than being silently dropped -- formation failure is a real failure.
+        scores.append((n_ok / float(k)) if use_passrate else best)
         corr.append(1.0 if n_ok > 0 else 0.0)              # per-task solved-at-all (correctness, not speed)
         comp.append(best_c)                                # best compiled speedup among correct candidates
     mean = statistics.mean(scores) if scores else 0.0
     ci = (1.96 * statistics.pstdev(scores) / (len(scores) ** 0.5)) if len(scores) > 1 else 0.0
-    stats = {"correct_rate": round(statistics.mean(corr), 3) if corr else 0.0,
+    stats = {"score_mode": score_mode,
+             "correct_rate": round(statistics.mean(corr), 3) if corr else 0.0,
              "compiled_sp": round(statistics.mean(comp), 3) if comp else 0.0,
              "per_task_correct": corr}   # per-task 0/1 solved-at-all (for batched coverage attribution)
     return mean, examples, scores, ci, stats
