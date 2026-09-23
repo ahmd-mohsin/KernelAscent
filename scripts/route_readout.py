@@ -222,10 +222,122 @@ DECISION RULE (PREREGISTRATION.md Amendment 1):
   NEVER pool with the A100 headroom boards: different metric AND different hardware.""")
 
 
+def e2(pattern=None):
+    """E2 -- is T3's "frontier self-modification is one-shot" a finding or a harness cap?
+
+    The published harness asked the model to return at most 12 strategy strings and showed 12
+    back. Crucially the cap is a SOFT REQUEST plus a display truncation -- U["strategies"] is
+    never actually truncated -- so what it really measures is instruction compliance. That makes
+    the closed-model runs the evidence that matters, and they must be in the table beside the
+    open-model re-runs rather than left out of it.
+
+    The claim under test is already published, so the decision rule is fixed here in code.
+    """
+    print("=" * 84)
+    print("E2 -- does the procedure plateau survive lifting the strategy cap?")
+    print("=" * 84)
+    pats = [pattern] if pattern else [
+        os.path.join(ROOT, "data", "**", "track_c*.json"),
+    ]
+    rows, seen = [], set()
+    for pat in pats:
+        for f in sorted(glob.glob(pat, recursive=True)):
+            d = _load(f)
+            if not d:
+                continue
+            hist = d.get("history") or []
+            if not hist:
+                continue
+            model = d.get("model", "?")
+            cell = os.path.basename(os.path.dirname(f))
+            key = (cell, model, len(hist), tuple(h.get("n_strategies", 0) for h in hist))
+            if key in seen:                       # the same run pulled into two data dirs
+                continue
+            seen.add(key)
+            ns = [h.get("n_strategies", 0) for h in hist]
+            qs = [h["Qg"] for h in hist]
+            q0 = d.get("Q0", 0.0)
+            gain, r0 = qs[-1] - q0, qs[0] - q0
+            cap = d.get("max_strategies")
+            rows.append(dict(
+                cell=cell, model=model, closed=("Qwen" not in model),
+                cap=("unbounded" if cap == 0 else (cap if cap is not None else "12 (pub)")),
+                rounds=len(hist), ns=ns, gain=gain,
+                # A share is a ratio, so it is unstable when the denominator is small: runs
+                # with |dQ| of 0.05 produced "992%" and "955%". Those are undefined, not large.
+                # 0.10 is the smallest denominator at which the ratio is stable here.
+                share=(r0 / gain if abs(gain) >= 0.10 else float("nan")),
+                grew=(ns[-1] > ns[0]), nmax=max(ns) if ns else 0))
+    live = [r for r in rows if r["rounds"] >= 3 and max(r["ns"]) > 0]
+    if not live:
+        print("  no interpretable E2/Track-C output yet"); return
+
+    for grp, lbl in ((True, "PUBLISHED closed frontier models (cap requested = 12)"),
+                     (False, "E2 open-model re-runs (Qwen-7B, cap varied)")):
+        sel = [r for r in live if r["closed"] == grp]
+        if not sel:
+            continue
+        print("\n%s" % lbl)
+        print("  %-26s %-11s %6s %-26s %9s %7s" %
+              ("cell/model", "cap", "rounds", "n_strategies per round", "total dQ", "r0 share"))
+        for r in sorted(sel, key=lambda x: -x["nmax"]):
+            name = (r["model"] if grp else r["cell"])[:26]
+            print("  %-26s %-11s %6d %-26s %+9.3f %7s" %
+                  (name, r["cap"], r["rounds"], str(r["ns"])[:26], r["gain"],
+                   ("%.0f%%" % (100 * r["share"])) if r["share"] == r["share"] else "n/a"))
+
+    closed = [r for r in live if r["closed"]]
+    openr = [r for r in live if not r["closed"]]
+    print("""
+DECISION RULE (fixed in advance; the claim under test is already published):
+  procedures sit AT the requested limit from round 0 and never grow -> the plateau is the
+      HARNESS. "One-shot self-modification" is not earned and must be retracted.
+  procedures grow across rounds and STILL plateau in Q             -> the plateau is REAL.
+  no run ever approaches its limit                                  -> the cap was never
+      binding; it cannot explain the plateau either way.""")
+    if closed:
+        pinned = [r for r in closed if r["nmax"] >= 11]
+        never_grew = [r for r in closed if not r["grew"]]
+        print("\n  CLOSED: %d/%d runs sit at 11-12 strategies; %d/%d never grew at all."
+              % (len(pinned), len(closed), len(never_grew), len(closed)))
+    if openr:
+        grew = [r for r in openr if r["grew"]]
+        over = [r for r in openr if r["nmax"] > 12]
+        print("  OPEN:   %d/%d runs GREW their procedure; %d exceeded 12 strategies (max %d)."
+              % (len(grew), len(openr), len(over), max(r["nmax"] for r in openr)))
+    if openr:
+        by = {}
+        for r in openr:
+            by.setdefault(str(r["cap"]), []).append(r["gain"])
+        print("  mean total dQ by cap:  " +
+              "   ".join("%s: %+.3f (n=%d)" % (k, st.mean(v), len(v))
+                         for k, v in sorted(by.items(), key=lambda kv: str(kv[0]))))
+    if closed and openr:
+        def share(rs):
+            v = [r["share"] for r in rs if r["share"] == r["share"]]
+            return (st.mean(v), len(v))
+        cs, cn = share(closed); os_, on = share(openr)
+        print("  round-0 share of total gain:  closed %.0f%% (n=%d)   open %.0f%% (n=%d)"
+              % (100 * cs, cn, 100 * os_, on)
+              + "\n     [runs with |dQ| < 0.10 excluded -- the ratio is undefined there, not large]")
+        if len([r for r in closed if r["nmax"] >= 11]) >= 0.8 * len(closed) and \
+           len([r for r in openr if r["grew"]]) >= 0.5 * len(openr):
+            print("\n  VERDICT: the published one-shot claim is CONFOUNDED. Frontier models comply")
+            print("           with the <=12 instruction exactly and are pinned from round 0, while")
+            print("           open models under the same harness grow their procedures past 12.")
+            print("           A procedure that cannot grow cannot be observed to keep improving.")
+        else:
+            print("\n  VERDICT: no clean separation -- do not claim the cap explains the plateau.")
+    print("""
+  LIMIT OF THIS TEST: the cap is a soft request, so the effect is instruction COMPLIANCE, and
+  the open model does not comply reliably. The open re-runs therefore corroborate rather than
+  directly replicate. Settling it properly needs closed models re-run at several caps.""")
+
+
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     arg = sys.argv[2] if len(sys.argv) > 2 else None
-    for fn, name in ((r1, "r1"), (r2, "r2"), (r3, "r3")):
+    for fn, name in ((r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
         if what in (name, "all"):
             fn(arg) if what == name else fn()
             print()

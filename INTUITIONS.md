@@ -286,8 +286,31 @@ So "the model stopped improving its procedure" and "the harness stopped letting 
 separable** in the published design. 5 of 5 interpretable runs are capped; mean round-0 share
 of total gain is 79%.
 
-The gains vs a frozen procedure are real. The *one-shot* interpretation is not earned until
-E2 (cap ∈ {12, 48, unbounded}) says whether the plateau survives.
+The gains vs a frozen procedure are real. The *one-shot* interpretation is **retracted**.
+
+E2 and the stored records settle it:
+
+| | evidence |
+|---|---|
+| closed frontier | **5/5** runs at 11–12 strategies from round 0; **4/5 never grew**. Astra, Sonnet 5, Mistral Large 3 are literally `12,12,12,12,12,12` |
+| open 7B, cap varied | 5/6 runs **grew**; 3 exceeded 12, reaching 18 |
+| mean ΔQ by cap | 12 → −0.018 · 48 → −0.003 · **unbounded → +0.482** |
+| round-0 share | closed **77%** · unbounded open **0%** |
+
+**The intuition:** the cap is a *soft request* — the stored list is never truncated — so what it
+really measures is **instruction compliance**. Frontier models comply exactly, and that is
+precisely why the artifact looks like a scientific plateau: a well-behaved model hitting an
+instruction ceiling is indistinguishable from a model that has run out of ideas. The more
+obedient the model, the more convincing the false plateau.
+
+So: **when a quantity saturates at a round number, find out whether you asked for that number.**
+12 is not a value a search process drifts to. Six models from four labs landing on exactly 12 is
+a specification, not a finding.
+
+Caveats I have to keep attached: n=2 per cap cell, open-vs-closed is confounded with model
+family, and the open model does not comply reliably — so the new runs *corroborate*, they do not
+replicate. The strong evidence needed no new experiment at all; it was sitting in the published
+run records.
 
 ### Two "results" that were parse failures
 

@@ -277,6 +277,43 @@ started from \emph{low} $Q_0$ --- i.e.\ they are consuming headroom, not demonst
 DeepSeek-V3.2's $-0.234$ ``self-degrade'' is a 1-round interrupted-run artifact and should not be read as a
 finding.}
 
+\paragraph{The one-shot reading is confounded by the harness, and we retract it.}
+The procedure is a list of strategy strings, and the harness asks the model for ``$\le 12$'' of them while
+displaying only 12 back. It is a \emph{soft} request --- the stored list is never truncated --- so what it
+actually measures is instruction compliance. Frontier models comply exactly:
+
+\begin{center}\small
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Model} & \textbf{Strategies per round} & \textbf{Total $\Delta Q$} \\
+\midrule
+GPT-6 Astra & 12, 12, 12, 12, 12, 12 & $+0.556$ \\
+Claude Sonnet 5 & 12, 12, 12, 12, 12, 12 & $+0.401$ \\
+Mistral Large 3 & 12, 12, 12, 12, 12, 12 & $+0.310$ \\
+GPT-5.6 Sol & 12, 12, 11, 12, 11, 11 & --- \\
+GPT-5.6 Terra & 10, 12, 12, 12, 12, 11 & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Five of five interpretable runs sit at 11--12 from round~0; four of five never grow at all. A
+procedure pinned at its limit in round~0 \emph{cannot be observed to keep improving}, so ``the model stopped
+improving its procedure'' and ``the harness stopped letting it'' are not separable in this design, and the
+one-shot interpretation is not earned by these data.
+
+Re-running the same harness with an open model at caps $\{12, 48, \text{unbounded}\}$ corroborates this.
+Procedures grow when permitted (5 of 6 runs; three exceed 12 strategies, reaching 18), and total gain rises
+monotonically with the cap: mean $\Delta Q = -0.018$ at cap~12, $-0.003$ at cap~48, and $\mathbf{+0.482}$
+unbounded. In the unbounded runs \emph{none} of the gain arrives at round~0 --- the opposite of the one-shot
+signature.
+
+We state the limits plainly. There are two seeds per cap cell; open-versus-closed is confounded with model
+family; and because the cap is a soft request, the open model does not comply with it reliably, so these runs
+corroborate rather than replicate. The strong evidence is the closed-model pinning, which is visible in the
+\emph{already-published} run records and requires no new experiment. Settling the question properly requires
+re-running frontier models at several caps. Until then we report the procedure gains as real and withdraw the
+claim that they are one-shot.
+
 \subsection{T4 --- Closed$\to$Open}
 A closed researcher rewriting an open trainee's training harness can help substantially
 (\texttt{combined\_rsi.json}): Fable-5.1 $\to$ Qwen-1.5B reaches improved$-$frozen \textbf{+0.472} (peak 0.472,
