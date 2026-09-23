@@ -10,7 +10,7 @@ Companion to `BENCHMARK_LOG.md` (dated record of numbers) and `PROGRESS.md` (sta
 
 ## 1. The measurement lies more often than the model does
 
-Four times now a **pipeline defect has masqueraded as a scientific finding**. Every one produced
+Five times now a **pipeline defect has masqueraded as a scientific finding**. Every one produced
 a plausible, publishable-looking zero. None announced itself.
 
 | # | defect | what it looked like |
@@ -19,6 +19,7 @@ a plausible, publishable-looking zero. None announced itself.
 | 2 | `KA_GRADE_GPU` defaulted to device `2`, absent on a 1–2 GPU job | "the model writes bad kernels" |
 | 3 | raw generations fed to the grader without `extract_modelnew` | "the 14B teacher solves 0/29" (its real coverage is 86%) |
 | 4 | score saturated at the correctness floor | "lineage ≈ reset, no compounding" |
+| 5 | compiled-baseline cache hit an inode quota (§2c) | "4 of 6 rounds produced nothing" |
 
 **The intuition:** in this project, a clean zero is evidence of a bug until proven otherwise. A
 real null looks *noisy* — it has variance, partial successes, per-task spread. A null that is
@@ -142,6 +143,60 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 
 ---
 
+## 2d. Choosing a metric with resolution, and the honesty cost of choosing it late
+
+The fix for a saturated metric is not a better normalisation — it is measuring the thing that
+is actually moving. On this bank what moves is **whether the model gets it right**, not how
+fast. So `KA_SCORE=passrate` scores the fraction of the *k* candidates that verify.
+
+Verified against the old metric on the same synthetic outcomes:
+
+| candidates correct | headroom best-of-k | pass-rate |
+|---|---|---|
+| 1 / 8 | 0.500 | 0.125 |
+| 3 / 8 | 0.500 | 0.375 |
+| 6 / 8 | 0.500 | 0.750 |
+| 8 / 8 | 0.500 | 1.000 |
+
+Best-of-k is **identical** for a model that solves a task once in eight tries and one that
+solves it every time. Those are obviously different models. The old metric cannot see the
+difference at all; pass-rate gets 8× the resolution on exactly the axis the population occupies.
+
+> **The intuition: a metric's resolution has to match where the population actually sits.**
+> Best-of-k is the right statistic when the question is "can it ever", and the wrong one when
+> the question is "how reliably". Saturation is the symptom; the wrong *estimator* — not the
+> wrong normalisation — is the disease.
+
+Two design details that matter more than they look:
+
+* **The denominator is k, not the number of parseable candidates.** A model that emits nothing
+  extractable scores 0, not `NaN` and not "excluded". Defect #3 (the teacher "solving 0/29")
+  and the `n_strategies = 0` parse failures both came from a mechanism denominator that
+  quietly shrank. Fixing the denominator is how you stop undefined from masquerading as zero.
+* **It deliberately does not reward speed.** A 2× kernel and a 1.0× kernel each count once. So
+  it tests a **weaker and different claim** than the headroom score, and the two must never be
+  pooled or compared.
+
+### The part that is about honesty, not statistics
+
+I chose this metric *after* seeing the old one fail. That is the textbook setup for a
+garden-of-forking-paths result, and no amount of it being the right call changes that.
+
+The discipline is not to avoid changing the metric — sometimes the instrument really is broken
+— it is to **make the change expensive to abuse**. `docs/PREREGISTRATION.md` Amendment 1 is
+written to do that: it states plainly that it is post-hoc, records the measurements that
+motivated it, binds the results to a separate experiment set, keeps the original metric primary
+where it still has range, requires the paper to say so, and commits to a falsifier *including
+the outcome where we publish nothing*.
+
+> **The intuition: a post-hoc metric change is defensible exactly to the degree that it was
+> pre-committed before its own results were seen, and indefensible the moment it is allowed to
+> silently replace the metric it failed to beat.** The tell of the bad version is that it makes
+> the paper's claim stronger; the tell of the good version is that it makes the claim *narrower*
+> and names the result that would sink it.
+
+---
+
 ## 3. Published claims that turned out to be confounded
 
 ### T3 "frontier self-modification is one-shot" — confounded by a harness cap
@@ -207,6 +262,19 @@ reservation. Both labs checkpoint per round, so a timeout resumes.
 intermittently; `os.makedirs` killed 2 of 6 jobs *after* they had loaded the model. Containers
 (one `.sif`) and `$HOME` (separate user quota) are the way around it.
 
+**Writing partial results is not the same as being able to resume.** `difficulty_filter`
+dumped its report after *every* task, which looks like checkpointing — but on restart it
+iterated the bank from index 0 and overwrote that report. A 456-task bank could therefore never
+finish in 2-hour chunks no matter how many times it was continued: each chunk redid the same
+first ~120 tasks. Resumability is a property of the **read** path, not the write path. Before
+relying on `jobman continue`, check that the job actually *skips* what it already did.
+
+**The deploy will push your results back at you.** `mrl deploy` rsyncs the repo up, and `data/`
+had accumulated run output pulled down from the cluster. Re-uploading it died with
+`mkdir ... Disk quota exceeded (122)` mid-sync — on a group already 2.3× over its inode limit,
+a *sync of results* was enough to break the code deploy. Exclude every output directory
+explicitly; "it's only a few MB" is irrelevant when the binding constraint is file count.
+
 **One-liners will betray you.** `set -- $spec` inside a loop silently lost fields and produced
 job cells named `e1c--s1`, collapsing two models onto one manifest entry. Three relaunches lost
 to shell quoting. Write the script file.
@@ -222,5 +290,10 @@ to shell quoting. Write the script file.
 4. **Check the mechanism's denominator** before interpreting any per-model number.
 5. **Auto-retry only infrastructure failures** (`TIMEOUT`, `NODE_FAIL`, `PREEMPTED`). A code
    failure re-run is wasted allocation and risks a plausible zero.
-6. **Keep H100 and A100 results in separate experiment sets** — the roofline constants and the
+6. **Match the estimator to where the population sits**, not just to the quantity of interest.
+   Check the score *histogram* has mass away from its bounds before trusting any contrast.
+7. **Any metric change made after seeing results is written down as post-hoc**, with its
+   motivating numbers, a separate experiment tag, and a falsifier — before its own results land.
+8. **Verify a job resumes, not just that it writes.** Re-running must skip completed work.
+9. **Keep H100 and A100 results in separate experiment sets** — the roofline constants and the
    `torch.compile` baseline both differ, and the second one closed the measurement range.
