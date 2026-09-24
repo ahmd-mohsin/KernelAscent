@@ -2730,3 +2730,28 @@ present. Only the empty case changes behaviour; both other cases are identical.
 
 The lesson that keeps recurring: **a falsy-but-valid value is where these bugs live.** This is
 the second today — the first was `Q0 = 0.000` needing `is None` rather than a truthiness test.
+
+### The budget fix made a unit of work outgrow the walltime (2026-09-24 16:40)
+
+Predicted this that morning and then walked into it. `basek-q15-s1` ran a full 50-minute chunk,
+resumed past `best_of_k`, and recorded **nothing**: at 2048 tokens `self_refine` alone no longer
+fits. `lab_baselines` resumes at METHOD granularity, so a chunk that dies mid-method saves
+nothing, and `jobman continue` faithfully resubmitted it. Four cells, indefinitely, queue busy.
+
+**The rule that matters**: the smallest resumable unit must fit inside one walltime. Raising the
+token budget multiplied the unit by 2.3x and silently crossed that line. Walltime raised
+50 min -> 90 min, sized so at least one method completes and is recorded per chunk; the
+method-granular resume then guarantees forward progress.
+
+**Detection, not just repair.** `continue` could not distinguish a cell that is advancing from
+one that is repeating — both present as TIMEOUT. It now keeps a progress ledger
+(`.jobman.progress`): every cell is fingerprinted (`rounds=N`, or `methods=a,b`) in one remote
+call, and a cell whose fingerprint is unchanged across **two consecutive** continues is HELD
+with the diagnosis, rather than given another walltime to prove it again. It recovers
+automatically the moment the fingerprint moves.
+
+This is the second occurrence of the same shape. The first was 19 cells restarting at round 0
+because their lab had no resume at all. Both times the queue looked healthy, both times the
+signal was "output did not change", and both times I found it by reading logs rather than being
+told. Verified against live data: 112 cells fingerprinted, and the four stuck baselines all read
+`methods=best_of_k` — the exact unchanging value the check keys on.

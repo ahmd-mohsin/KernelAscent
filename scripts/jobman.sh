@@ -38,6 +38,55 @@ _jid() { sed -n 's/.*job \([0-9][0-9]*\) queued.*/\1/p' <<<"$1" | head -1; }
 # is the real constraint on throughput here -- not GPU-hours, of which we have thousands.
 BACKLOG="$REPO/.jobman.backlog"
 touch "$BACKLOG"
+
+# A PROGRESS LEDGER, because "continue" cannot tell a cell that is advancing from one that is
+# looping. Both look like TIMEOUT. Two separate incidents so far: 19 cells restarting at round 0
+# forever because their lab had no resume, and 4 baselines cells whose smallest resumable unit
+# (one method) grew past the walltime when the token budget was corrected -- each chunk burned
+# 50 minutes, recorded nothing, and was faithfully resubmitted. The queue looked busy in both.
+#
+# name <TAB> fingerprint <TAB> consecutive-no-progress-count
+PROGRESS="$REPO/.jobman.progress"
+touch "$PROGRESS"
+TAB=$'\t'      # `grep "\t"` is a basic-regex literal "t", not a tab -- name the character
+
+# Fingerprint every cell in ONE remote call: rounds recorded, methods recorded, or file size.
+# Cheap enough to run on every `continue`, which is the only way it gets used.
+_fingerprints() {
+  $MRL run "python3 - <<'PYEOF'
+import json, os, glob
+root = '/users/muahmed/ka_data'
+for p in sorted(glob.glob(os.path.join(root, '*'))):
+    name = os.path.basename(p)
+    fp = None
+    if os.path.isdir(p):
+        for fn in ('weight_rsi.json', 'compounding.json', 'track_c.json', 'selfplay_rsi.json'):
+            f = os.path.join(p, fn)
+            if os.path.exists(f):
+                try: fp = 'rounds=%d' % len((json.load(open(f)).get('history') or []))
+                except Exception: fp = 'unreadable'
+                break
+        if fp is None:
+            f = os.path.join(p, 'baselines.json')
+            if os.path.exists(f):
+                try: fp = 'methods=%s' % ','.join(sorted(json.load(open(f)).get('results') or {}))
+                except Exception: fp = 'unreadable'
+        if fp is None:
+            fp = 'files=%d' % len(os.listdir(p))
+    elif p.endswith('.json'):
+        try: fp = 'bytes=%d' % os.path.getsize(p)
+        except Exception: fp = 'gone'
+    if fp: print('%s\t%s' % (name, fp))
+PYEOF" 2>/dev/null
+}
+
+# Map a recorded command to the cell name its fingerprint lives under.
+_cell_of() {
+  local cmd="$1" v
+  v="$(sed -n 's/.*--outdir[ =]\([^ ]*\).*/\1/p' <<<"$cmd" | head -1)"
+  [ -z "$v" ] && v="$(sed -n 's/.*--out[ =]\([^ ]*\).*/\1/p' <<<"$cmd" | head -1)"
+  [ -n "$v" ] && basename "$v"
+}
 CAP="${KA_SUBMIT_CAP:-32}"
 
 # MaxSubmitJobsPerAccount counts EVERY job in the allocation, not just yours -- another member's
@@ -107,6 +156,7 @@ continue)
   # checkpoint, so the same command picks up at the next round. A FAILED job is left alone --
   # three failures in this project were code bugs that would have produced a plausible zero.
   live="$($MRL run "module load slurm >/dev/null 2>&1; squeue -u \$USER -h -o %j 2>/dev/null" 2>/dev/null)"
+  FP_NOW="$(_fingerprints)"
   n=0
   while IFS=$'\t' read -r name wall gpus cmd; do
     [ -n "$name" ] || continue
@@ -115,7 +165,29 @@ continue)
     state="${st##*|}"
     case "$state" in
       TIMEOUT*)
-        echo "continue  $name  (last chunk hit $wall; resuming from its checkpoint)"
+        # Did the last chunk actually record anything? A cell whose fingerprint is unchanged
+        # across two consecutive continues is not resuming, it is repeating -- hold it rather
+        # than spend another walltime finding out again.
+        cell="$(_cell_of "$cmd")"
+        now_fp="$(awk -F'\t' -v c="$cell" '$1==c{print $2; exit}' <<<"$FP_NOW")"
+        prev="$(awk -F'\t' -v n="$name" '$1==n{print $2"\t"$3; exit}' "$PROGRESS")"
+        prev_fp="${prev%%$TAB*}"; stall="${prev#*$TAB}"
+        [ "$stall" = "$prev" ] && stall=0
+        if [ -n "$now_fp" ] && [ "$now_fp" = "$prev_fp" ]; then
+          stall=$((stall + 1))
+        else
+          stall=0
+        fi
+        grep -v "^$name	" "$PROGRESS" > "$PROGRESS.tmp" 2>/dev/null || true
+        printf '%s\t%s\t%s\n' "$name" "${now_fp:-?}" "$stall" >> "$PROGRESS.tmp"
+        mv "$PROGRESS.tmp" "$PROGRESS"
+        if [ "$stall" -ge 2 ]; then
+          echo "HOLD      $name  (2 consecutive chunks recorded nothing new: $now_fp)"
+          echo "          its smallest resumable unit does not fit $wall -- raise the walltime"
+          echo "          or make the lab checkpoint at a finer granularity. Not resubmitting."
+          continue
+        fi
+        echo "continue  $name  (last chunk hit $wall; resuming from its checkpoint${now_fp:+; at $now_fp})"
         "$0" run "$name" "$wall" "$gpus" -- "$cmd" ; n=$((n+1)) ;;
       COMPLETED*) : ;;                                          # done, nothing to do
       "")         echo "skip      $name  (no record yet)" ;;
