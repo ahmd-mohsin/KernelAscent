@@ -33,7 +33,7 @@ def esc(x):
 
 def t1_table():
     """Capability curve with attempt/verify separated -- solve-rate alone is a compliance metric."""
-    rows, note = [], []
+    rows, note, policies = [], [], set()
     for lbl, tag in (("0.5B", "q05"), ("1.5B", "q15"), ("3B", "q3"), ("7B", "q7"), ("14B", "q14")):
         d = _load(os.path.join(D, "t1k_%s.json" % tag))
         if not d:
@@ -48,6 +48,10 @@ def t1_table():
         ver = sum(v.get("n_verified", 0) for v in att.values())
         gens = (d.get("n_tasks") or 0) * (d.get("k") or 0)
         complete = d.get("complete")
+        # the extraction policy is part of the result: strict discards 66% of 0.5B generations
+        # and 5% of 14B ones, so a trend across scale can be a property of the filter
+        pol = ((d.get("_provenance") or {}).get("env") or {}).get("KA_EXTRACT", "strict")
+        policies.add(pol)
         rows.append((lbl, gens, cand, tried, ver, kok, complete))
     if not rows:
         return "", note
@@ -57,10 +61,14 @@ def t1_table():
         body += "%s%s & %d & %d (%.0f\\%%) & %d (%.0f\\%%) & %d & %d (%.1f\\%%) \\\\\n" % (
             lbl, flag, gens, cand, 100 * cand / max(gens, 1),
             tried, 100 * tried / max(cand, 1), ver, kok, 100 * kok / max(tried, 1))
+    pol = "/".join(sorted(policies)) or "strict"
+    polnote = (r"Extraction policy: \texttt{%s}. Under \texttt{strict} the extractor discards "
+               r"66\%% of 0.5B generations and 5\%% of 14B generations, so any trend across scale "
+               r"must be shown under both policies before it is attributed to the models." % pol)
     tex = r"""\begin{table}[h]\centering\small
 \caption{T1-kernel. Solve-rate alone is a compliance metric: a submission that ignores the
 kernel instruction and rewrites the reference in torch verifies trivially. Reported instead as
-a cascade. $^{\dagger}$ marks an incomplete cell.}
+a cascade. $^{\dagger}$ marks an incomplete cell. POLICYNOTE}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
@@ -68,6 +76,7 @@ Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
 """ + body + r"""\bottomrule
 \end{tabular}
 \end{table}"""
+    tex = tex.replace("POLICYNOTE", polnote)
     return tex, note
 
 

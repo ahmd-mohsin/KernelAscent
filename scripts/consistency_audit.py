@@ -718,6 +718,40 @@ def check_band_table():
            % ", ".join("%s n=%d" % (b, v[0]) for b, v in sorted(truth.items())))
 
 
+def check_extraction_policy_stated():
+    """A kernel-authoring result must say which extraction policy produced it.
+
+    `strict` discards 66% of 0.5B generations and 5% of 14B ones. A filter whose severity
+    correlates with the independent variable can manufacture a trend across scale, so the policy
+    is part of the result and not part of the plumbing. We reported a p = 0.0038 trend before
+    noticing; this gate exists so the next one cannot be reported without its policy attached.
+    """
+    pat = re.compile(r"verify.{0,4}given.{0,4}attempt|verify\|attempt|attempt rate", re.I)
+    hits = []
+    for name, path in PROSE.items():
+        txt = norm_prose(read(path))
+        for m in pat.finditer(txt):
+            lo, hi = max(0, m.start() - 700), m.end() + 700
+            ctx = txt[lo:hi]
+            if re.search(r"KA_EXTRACT|extraction policy|strict|lenient", ctx, re.I):
+                continue
+            # A DEFINITION carries no number and needs no policy -- the pre-registration defines
+            # these terms before any data exists. Only a reported FIGURE is policy-dependent, so
+            # require a percentage or ratio within the same sentence.
+            lo2 = max(0, m.start() - 120)
+            near = txt[lo2:m.end() + 120]
+            if not re.search(r"\d+(?:\.\d+)?\s*(?:%|\\%)|\d+\s*/\s*\d+", near):
+                continue
+            hits.append("%s  %r" % (name, near.strip()[:70]))
+    if hits:
+        fail("extraction/policy-stated",
+             "a verify-given-attempt figure appears with no extraction policy nearby; strict "
+             "discards 66%% of 0.5B and 5%% of 14B generations, so the policy is part of the "
+             "result:\n      " + "\n      ".join(sorted(set(hits))))
+    else:
+        ok("extraction/policy-stated", "every attempt/verify figure states its extraction policy")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -728,7 +762,8 @@ def main():
                check_baseline_attribution, check_custom_kernel_rate,
                check_degenerate_bestofn, check_retractions_propagated,
                check_intervals_contain_estimates,
-               check_table_sums, check_band_table):
+               check_table_sums, check_band_table,
+               check_extraction_policy_stated):
         fn()
     if not a.quiet:
         print("=" * 100)

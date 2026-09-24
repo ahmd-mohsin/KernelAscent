@@ -44,6 +44,7 @@ def main():
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
         A.check_degenerate_bestofn(); A.check_retractions_propagated()
         A.check_intervals_contain_estimates(); A.check_table_sums(); A.check_band_table()
+        A.check_extraction_policy_stated()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -104,6 +105,11 @@ def main():
     mutate("paper/kernelascent_full.tex",
            lambda t: t.replace("$\\ge$8B & 26 &", "$\\ge$8B & 21 &", 1),
            "mech/band-table")
+
+    print("extraction gate: an attempt/verify figure must state its policy")
+    mutate("INTUITIONS.md",
+           lambda t: t + "\n\nThe model reached 42% attempt rate and 7.3% verify-given-attempt.\n",
+           "extraction/policy-stated")
 
     assert run("all restored") == [], "repo must end clean"
 

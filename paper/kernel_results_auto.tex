@@ -3,7 +3,7 @@
 \begin{table}[h]\centering\small
 \caption{T1-kernel. Solve-rate alone is a compliance metric: a submission that ignores the
 kernel instruction and rewrites the reference in torch verifies trivially. Reported instead as
-a cascade. $^{\dagger}$ marks an incomplete cell.}
+a cascade. $^{\dagger}$ marks an incomplete cell. Extraction policy: \texttt{strict}. Under \texttt{strict} the extractor discards 66\% of 0.5B generations and 5\% of 14B generations, so any trend across scale must be shown under both policies before it is attributed to the models.}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\

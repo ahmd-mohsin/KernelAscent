@@ -811,7 +811,7 @@ counting as a solve. Until that lands, the solve-rate column is uninterpretable 
 
 ## 2.9i Attempt tracking lands, and corrects two of my own numbers
 
-First cell re-run with per-candidate tracking (0.5B, k=12, 29 tasks):
+First cell re-run with per-candidate tracking (0.5B, k=12, 29 tasks, `KA_EXTRACT=strict`):
 
 ```
 348 generations -> 118 parseable candidates    (34% extract)
@@ -978,7 +978,8 @@ settles that:
 **Extraction is 95%.** Truncation is not the 14B's problem — it is the 0.5B's problem (34%
 extraction). The 14B writes well-formed, parseable Triton and **none of it is correct**.
 
-So the two ends of the curve fail for different reasons, which no single number could show:
+So the two ends of the curve fail for different reasons, which no single number could show
+(both cells under `KA_EXTRACT=strict`):
 
 | | 0.5B | 14B |
 |---|---|---|
@@ -1045,7 +1046,10 @@ here roughly **triples**, and the "models cannot write kernels" reading weakens 
 
 ## 2.9o T1-kernel, decided: models try harder and succeed less as they scale
 
-All five scales complete with attempt tracking, `KA_PROMPT=kernel`, k=12 over 29 tasks:
+All five scales complete with attempt tracking, `KA_PROMPT=kernel`, `KA_MAX_NEW=2048`,
+**`KA_EXTRACT=strict`**, k=12 over 29 tasks. The extraction policy matters and is stated
+because strict discards 66% of 0.5B generations and 5% of 14B ones — see §2.9p, and treat
+everything below as pending the lenient re-run:
 
 | scale | attempted | attempt rate (95% CI) | kernel-verified | verify\|attempt (95% CI) |
 |---|---|---|---|---|
@@ -1068,7 +1072,8 @@ and certainly not an effect size per billion parameters.
 
 ### Why it is interesting rather than merely negative
 
-Attempt rate and success move in **opposite directions**. Larger models follow the instruction
+(All figures in this section are under `KA_EXTRACT=strict`.) Attempt rate and success move in
+**opposite directions**. Larger models follow the instruction
 more often (63% → 78% before the 14B dip) and verify less often (5.4% → 0%). The failure is not
 reluctance and not formatting: the 14B produced **219 syntactically valid Triton kernels and not
 one correct one**, with 95% extraction.
@@ -1186,7 +1191,8 @@ The T2-kernel inject arms launched pointing at the 14B harvest, because "biggest
 teacher" is the obvious default. On this task the 14B harvest covers **one task with one
 kernel**. Injecting that is a no-op, and I started fourteen cells before noticing.
 
-**No single scale is a good teacher here**, and the T1 curve says why: solve-rate does not rise
+**No single scale is a good teacher here**, and the T1 curve (`KA_EXTRACT=strict`) says why:
+solve-rate does not rise
 with scale (0.5B solves 8/29, 14B solves 1/29) because compliance rises with scale while
 verify-given-attempt stays low. The usual heuristic is inverted on this substrate.
 
