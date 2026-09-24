@@ -40,7 +40,10 @@ BACKLOG="$REPO/.jobman.backlog"
 touch "$BACKLOG"
 CAP="${KA_SUBMIT_CAP:-32}"
 
-_queued() { $MRL run "module load slurm >/dev/null 2>&1; squeue -u \$USER -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9'; }
+# MaxSubmitJobsPerAccount counts EVERY job in the allocation, not just yours -- another member's
+# queue eats your room. Count the account, not the user, or topup keeps optimistically trying and
+# reporting a confusing submit failure.
+_queued() { $MRL run "module load slurm >/dev/null 2>&1; squeue -A ${MRL_ACCOUNT:-marlowe-m000215-pm06} -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9'; }
 
 case "${1:-status}" in
 
@@ -70,7 +73,7 @@ topup)
       tail -n +2 "$BACKLOG" > "$BACKLOG.tmp" && mv "$BACKLOG.tmp" "$BACKLOG"
       echo "  submitted $name"; sent=$((sent+1))
     else
-      echo "  FAILED $name -- leaving in backlog"; break
+      echo "  at the account submit cap -- $name stays parked, will retry when a slot frees"; break
     fi
   done
   echo "topped up $sent job(s); $(wc -l < "$BACKLOG" | tr -d ' ') still parked"
