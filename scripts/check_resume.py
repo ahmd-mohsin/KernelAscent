@@ -32,6 +32,17 @@ LABS = [
     ("kernelascent/v3/lab_rsi_mechanism.py", "mechk-* (fits one chunk; exempt)"),
 ]
 
+# A lab that TRAINS weights has state a round counter cannot capture. Restoring only `history`
+# continues the round numbering while every arm restarts from base weights -- which is exactly
+# what happened in lab_compounding and lab_weight_rsi (the registered primary): trainC collapsed
+# at precisely the round named by `resumed_at`, in all 18 resumed cells, with no exceptions.
+# Nothing errored. The queue looked healthy. The accumulation being measured was simply deleted
+# at each walltime boundary.
+#
+# So: if a lab calls sft()/trains an adapter AND resumes, it must also restore the adapter.
+TRAINS = [r"\bsft\(", r"get_peft_model\("]
+RESTORES = [r"set_peft_model_state_dict\(", r"torch\.load\("]
+
 READS = [r"json\.load\(open\(", r"\bresume\b"]
 # any loop or guard that begins past zero / skips completed items
 SKIPS = [r"for\s+\w+\s+in\s+range\(\s*len\(", r"for\s+\w+\s+in\s+range\(\s*start",
@@ -43,36 +54,51 @@ def check(path):
     reads = any(re.search(p, s) for p in READS)
     skips = any(re.search(p, s) for p in SKIPS)
     writes = "json.dump" in s or "PROV.dump" in s
-    return reads, skips, writes
+    trains = any(re.search(p, s) for p in TRAINS)
+    restores = any(re.search(p, s) for p in RESTORES)
+    return reads, skips, writes, trains, restores
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true")
     a = ap.parse_args()
-    bad = []
+    bad = []; severed = []
     print("%-40s %-10s %s" % ("lab", "cells", "resume"))
     for path, cells in LABS:
         if not os.path.exists(os.path.join(ROOT, path)):
             continue
-        reads, skips, writes = check(path)
+        reads, skips, writes, trains, restores = check(path)
         if "exempt" in cells:
             v = "n/a -- completes within one walltime chunk"
+        elif reads and skips and trains and not restores:
+            v = "SEVERS -- resumes rounds but not trained weights"
+            severed.append((path, cells))
         elif reads and skips:
-            v = "yes"
+            v = "yes" + (" (weights restored)" if trains and restores else "")
         elif writes and "exempt" not in cells:
             v = "NO -- writes per round but restarts at 0"
             bad.append((path, cells))
         else:
             v = "n/a (single-shot)"
         print("%-40s %-10s %s" % (os.path.basename(path), cells, v))
+    if severed:
+        print("\n  %d lab(s) resume the ROUND COUNT but not the trained weights. Each resumed"
+              % len(severed))
+        print("  round restarts from base weights while the trajectory claims to continue:")
+        for path, cells in severed:
+            print("     %-34s runs %s" % (os.path.basename(path), cells))
+        print("  Checkpoint the adapter per round (tmp + os.replace), restore it on resume, and")
+        print("  refuse to continue when the checkpoint is absent.")
     if bad:
         print("\n  %d lab(s) cannot resume. `jobman continue` will loop these forever:" % len(bad))
         for path, cells in bad:
             print("     %-34s runs %s" % (os.path.basename(path), cells))
         print("  Either add a resume, or give those cells a walltime that fits a whole run.")
         return 1 if a.strict else 0
-    print("\n  every long-running lab resumes; auto-continuation is safe for all of them")
+    if severed:
+        return 1 if a.strict else 0
+    print("\n  every long-running lab resumes, and every training lab restores its weights")
     return 0
 
 

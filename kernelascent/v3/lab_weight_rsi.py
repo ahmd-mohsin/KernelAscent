@@ -423,21 +423,69 @@ def run(args):
     # 5-round run under a 70-minute chunk would never have finished, and the registered primary
     # would have accumulated nothing but repeated round-0s.
     #
-    # The adapter state is NOT restored (LoRA weights are not written per round), so a resumed
-    # run re-learns from its own round-0 data rather than continuing the exact lineage. That is
-    # a real limitation and it is recorded in the artifact as `resumed_at`, so any trajectory
-    # affected can be identified rather than silently pooled with clean ones.
+    # All three arms accumulate ACROSS rounds -- self trains on its own fresh data, the round0
+    # control re-trains on ex0, the fresh-frozen learner trains on frozen-base data -- so the
+    # adapters, plus ex0 and round0_solved, are the run's real state. Restoring only `history`
+    # continued the round numbering while restarting every arm from base weights, which is the
+    # same defect found in lab_compounding: trainC collapses at exactly `resumed_at`
+    # (prereg_q3_s1 0.334 -> 0.165, prereg_q3_s2 0.122 -> 0.0). This is the REGISTERED PRIMARY,
+    # so a severed lineage here is not a footnote.
+    #
+    # ex0 matters as much as the weights: it is frozen at round 0 and the control re-trains on
+    # it every round. Losing it silently re-freezes the control's target mid-trajectory.
     _prev = os.path.join(args.outdir, "weight_rsi.json")
-    resumed_at = None
+    _aux_f = os.path.join(args.outdir, "resume_aux.json")
+    from peft import get_peft_model_state_dict, set_peft_model_state_dict   # lazy, as build() does
+    _arms = [("self", mdl), ("ctrl", ctrl), ("fresh", fr)]
+    resumed_at = None; adapter_restored = None
+
+    def _ckpt_arms():
+        """Adapters + ex0 + round0_solved, each written atomically: the walltime kill lands
+        mid-round by construction, so a torn checkpoint is the expected failure mode."""
+        try:
+            for nm, m in _arms:
+                if m is None:
+                    continue
+                f = os.path.join(args.outdir, "adapter_%s.pt" % nm)
+                torch.save({k: v.detach().cpu().clone()
+                            for k, v in get_peft_model_state_dict(m).items()}, f + ".tmp")
+                os.replace(f + ".tmp", f)
+            json.dump({"ex0": [list(p) for p in (ex0 or [])], "round0_solved": round0_solved,
+                       "C0": C0}, open(_aux_f + ".tmp", "w"))
+            os.replace(_aux_f + ".tmp", _aux_f)
+        except Exception as e:
+            sys.stderr.write("WARNING: could not checkpoint arm state (%r); a resume of this "
+                             "cell would sever every arm\n" % e)
+
     if os.path.exists(_prev):
         try:
             _d = json.load(open(_prev))
             hist = _d.get("history") or []
             if hist:
-                resumed_at = len(hist)
-                print("RESUME  %d round(s) already recorded -- continuing from round %d "
-                      "(adapter state not restored; trajectory marked)" % (len(hist), len(hist)),
-                      flush=True)
+                resumed_at = len(hist); adapter_restored = False
+                _missing = [nm for nm, m in _arms
+                            if m is not None and not os.path.exists(os.path.join(args.outdir, "adapter_%s.pt" % nm))]
+                if _missing or not os.path.exists(_aux_f):
+                    print("RESUME  no checkpoint for %s -- every arm would restart from base "
+                          "weights while the round count continued. Refusing. Delete the outdir "
+                          "to restart this cell clean."
+                          % (",".join(_missing) or "ex0/round0_solved"), flush=True)
+                    raise SystemExit(3)
+                for nm, m in _arms:
+                    if m is None:
+                        continue
+                    _sd = torch.load(os.path.join(args.outdir, "adapter_%s.pt" % nm), map_location="cpu")
+                    set_peft_model_state_dict(m, {k: v.to(_dev(m)) for k, v in _sd.items()})
+                _aux = json.load(open(_aux_f))
+                ex0 = [tuple(p) for p in (_aux.get("ex0") or [])] or None
+                round0_solved = _aux.get("round0_solved")
+                C0 = _aux.get("C0", C0)
+                adapter_restored = True
+                print("RESUME  %d round(s) recorded -- continuing from round %d "
+                      "(all arms restored, ex0=%d pairs)"
+                      % (len(hist), len(hist), len(ex0 or [])), flush=True)
+        except SystemExit:
+            raise
         except Exception as e:
             print("RESUME failed (%r) -- starting clean" % e, flush=True)
             hist = []
@@ -480,12 +528,15 @@ def run(args):
                "n_uniq_self": n_uniq, "diversity_self": diversity, "retention": retention,
                "round_sec": round(dt, 1), "cum_gpu_hours": round(cum_gpu_s / 3600, 3), "n_gens": n_gens}
         hist.append(row)
+        _ckpt_arms()                     # arms BEFORE the artifact: a resume that sees round r
+                                         # recorded must find round r's weights
         print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%s | dSelf=%+.3f self-fresh=%s self-ctrl=%s corr=%.2f csp=%.2f (%.0fs)" %
               (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), ("%.3f" % Cc if Cc is not None else "-"), Cs - C0,
                ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), ("%+.3f" % (Cs - Cc) if Cc is not None else "-"), sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
         json.dump({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
                    "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"],
-                   "resumed_at": resumed_at, "history": hist},
+                   "resumed_at": resumed_at, "adapter_restored": adapter_restored,
+                   "history": hist},
                   open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)
     print("\n=== WEIGHT-RSI SUMMARY (%s seed %d) ===" % (args.model, args.seed))
     print("  C0=%.3f  C_self:" % C0, [h["C_self"] for h in hist])

@@ -2523,3 +2523,42 @@ absence of learning. This is the saturation the code comments predicted ("two re
 establish the finding (small early compounding, decaying to zero at saturation); more rounds
 would buy more saturated zeros at large allocation cost. The fix protects everything launched
 from here. Any future depth claim needs the passrate metric (Amendment 1), not headroom.
+
+### The same severing was in the REGISTERED PRIMARY (2026-09-24 16:20)
+
+`lab_weight_rsi` — which runs the pre-registered primary — had the identical defect, and my own
+comment in `lab_compounding` said so ("As with lab_weight_rsi, the LoRA adapter is not
+checkpointed"). I wrote that sentence and did not follow it to its consequence.
+
+Same signature in the data: `prereg_q3_s1` trainC 0.334 → 0.165 at `resumed_at=3`;
+`prereg_q3_s2` 0.122 → 0.0 at `resumed_at=3`.
+
+**All three arms accumulate across rounds**, so all three were being reset:
+
+| arm | what it trains on each round | accumulates? |
+|---|---|---|
+| `self` | its own fresh data | yes |
+| `ctrl` (round0-replay) | frozen `ex0` | yes |
+| `fresh` (fresh-frozen) | frozen-base data | yes |
+
+Two pieces of non-weight state were lost too, and `ex0` is the dangerous one: it is frozen at
+round 0 and the control re-trains on it *every* round. Losing it silently re-freezes the
+control's target mid-trajectory — the control arm would have been comparing against a different
+baseline after each resume. `round0_solved` (the retention denominator) was lost the same way.
+
+All of it is now checkpointed atomically per round, and a resume without a checkpoint exits 3.
+
+**`lab_selfplay_rsi` (T5) already did this correctly** — per-arm adapters saved to `ckpt/` and
+restored on resume. It was the one lab that got it right, and it is the pattern the other two
+should have copied. T5's numbers are unaffected by this class of bug.
+
+`scripts/check_resume.py` now fails any lab that trains weights, resumes rounds, and does not
+restore weights. Negative-tested against the pre-fix source: it fires.
+
+**The general lesson, twice learned today.** Both defects — the 900-token baseline budget and
+the severed adapter — were invisible in every output. No crash, no warning, no implausible
+number; the queue looked healthy and the trajectories looked like trajectories. Both were found
+only by asking "what does this code actually restore/pass?" rather than "does the output look
+right?". A marker like `resumed_at` is worthless as a safeguard when the condition it marks is
+universal: every cell hit the walltime, so every cell was marked, so the marking distinguished
+nothing.
