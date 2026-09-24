@@ -2,8 +2,12 @@
 
 ## One job outstanding
 
-`r4-kernel-14b` (jobid 501682), queued, estimated start **2026-09-24 ~10:08**. It should run
-overnight without intervention.
+`r4-kernel-14b` (jobid 501682), queued, estimated start **2026-09-25 ~06:47**.
+
+The cluster is heavily loaded (650 jobs pending; our priority 1.10M against a top of 4.48M), so
+this is a queue-position wait, not a job-shape problem. An earlier note claimed a walltime
+reshape had gained 20 hours -- that was a misread of a single volatile `START_TIME` reading and
+is **not** true. Do not reshape again; it resets accrued age for nothing.
 
 ```bash
 export PATH="$HOME/.marlowe/bin:$PATH"

@@ -827,6 +827,22 @@ Seen again, starkly: `r4-kernel-14b` requested 2 h and Slurm estimated its start
 hours**, for a job whose three comparable runs took 15:03, 18:54 and 21:57. Resubmitted at 45
 minutes.
 
+> **CORRECTION (same evening).** I then claimed that reshape "gained 20 hours", on the strength
+> of one `START_TIME` reading that moved from 09-25 06:47 to 09-24 10:08. It has since reverted
+> to **09-25 06:47** — for the reshaped job. The estimate is a rolling projection that moves
+> with cluster load, and I read a single before/after snapshot as the causal effect of my own
+> intervention, with no control for the number's own volatility. That is the same error this
+> whole document is about, committed against my own change rather than a model's.
+>
+> The binding constraint here was never walltime: **650 jobs pending cluster-wide**, top
+> priority 4.48M against our 1.10M. Shaping cannot beat being 4x down the list, and since
+> cancel-and-resubmit resets accrued age, the reshape probably cost more than it gained.
+>
+> **So: `START_TIME` is an estimate, not a measurement.** Before attributing a queue improvement
+> to a change you made, check the number twice with time in between, and check whether you are
+> even the binding constraint — `squeue -h -t PENDING | wc -l` and the top priorities answer
+> that in one line.
+
 **So the two rules are not in conflict — they apply to different things.** Do not churn to chase
 *priority*; that is age-dominated and resubmitting only loses ground. Do reshape when the
 *request itself* is wrong by a large factor, because backfill is governed by the request, not by
