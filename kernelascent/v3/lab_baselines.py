@@ -152,7 +152,25 @@ def main():
     budget = args.rounds * args.k                                     # compute-matched to cumulative RSI sampling
     print("BASELINES %s seed=%d held=%d budget=%d (rounds*k)" % (args.model, args.seed, len(held), budget), flush=True)
     out = {"model": args.model, "seed": args.seed, "held": len(held), "budget_per_task": budget, "results": {}}
-    want = args.methods.split(",")
+
+    # RESUME at METHOD granularity. Each of the three baselines is a long independent sweep, and
+    # without this the lab restarted all of them on every walltime timeout -- `jobman continue`
+    # then resubmitted it to redo the ones already finished, forever. Method-level is the right
+    # grain here because each writes its result atomically when it completes.
+    _prev = os.path.join(args.outdir, "baselines.json")
+    if os.path.exists(_prev):
+        try:
+            _d = json.load(open(_prev))
+            done = _d.get("results") or {}
+            if done:
+                out["results"].update(done)
+                print("RESUME  already have %s -- skipping" % ", ".join(sorted(done)), flush=True)
+        except Exception as e:
+            print("RESUME failed (%r) -- starting clean" % e, flush=True)
+
+    want = [m for m in args.methods.split(",") if m not in out["results"]]
+    if not want:
+        print("BASELINES all methods already complete", flush=True)
     if "best_of_k" in want:
         out["results"]["best_of_k"] = best_of_k(tok, mdl, held, budget); print(out["results"]["best_of_k"], flush=True)
         json.dump(out, open(os.path.join(args.outdir, "baselines.json"), "w"), indent=2)

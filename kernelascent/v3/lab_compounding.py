@@ -114,7 +114,31 @@ def run(args):
     C0, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=False)     # frozen-base held-out baseline
     print("C0 frozen-base held = %.3f" % C0, flush=True)
     hist = []; prevC = C0
-    for r in range(args.rounds):
+
+    # RESUME. Without this the lab restarts at round 0 on every walltime timeout, and jobman's
+    # `continue` resubmits it to do so again: these cells reached round 4 of 6 in a 50-minute
+    # chunk and then began the same 5 rounds over, indefinitely, while the queue showed healthy
+    # progress. 19 cells were in that loop.
+    #
+    # As with lab_weight_rsi, the LoRA adapter is not checkpointed, so a resumed run continues
+    # the round sequence but re-learns from the recorded data rather than restoring exact weights.
+    # Recorded as `resumed_at` so affected trajectories are identifiable, never silently pooled.
+    _prev = os.path.join(args.outdir, "compounding.json")
+    resumed_at = None
+    if os.path.exists(_prev):
+        try:
+            _d = json.load(open(_prev))
+            hist = _d.get("history") or []
+            if hist:
+                resumed_at = len(hist)
+                prevC = hist[-1].get("C_lineage", C0)
+                print("RESUME  %d round(s) recorded -- continuing from round %d "
+                      "(adapter not restored; trajectory marked)" % (len(hist), len(hist)), flush=True)
+        except Exception as e:
+            print("RESUME failed (%r) -- starting clean" % e, flush=True)
+            hist = []
+
+    for r in range(len(hist), args.rounds):
         t0 = time.time()
         # LINEAGE: produce on train (adapter ON), accumulate SFT
         trainC, pairs, _, _, _ = W.eval_tasks(tok, mdl, train, args.k, adapter=True)
@@ -161,7 +185,7 @@ def run(args):
         hist.append(row); prevC = C_lin
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
-        PROV.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family,
+        PROV.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
                    "arm": ("inject" if teacher else "control"),
                    "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
                    "history": hist},
