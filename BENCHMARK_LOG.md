@@ -2606,11 +2606,24 @@ verifies".
 Raising `_gen_custom` from 900 to `KA_MAX_NEW=2048` was correct but not free, and it has two
 knock-on effects worth stating before they surprise someone.
 
-**1. Rounds got ~1.7x slower.** `lab_compounding` calls `BL.retrieval` each round for
-`C_retrieval`, and that call now generates 2.3x more tokens. Measured: `t2kc-q15-s2` round 0
-took **902s**, against ~540s for the same lab before the fix. At a 50-minute walltime that is
-~3 rounds per chunk instead of ~5. Acceptable only because resume is now correct — before
-today's adapter fix, more chunks meant more severing.
+**1. Rounds got ~2x slower, and this is the second time the same cause has shown up.**
+Correcting my first reading of this: it is not specific to `lab_baselines`. Raising the
+generation budget 900 -> 2048 roughly doubles generation cost everywhere it lands, and the fix
+reached different labs at different times, so the slowdown appeared twice and looked like two
+separate events.
+
+| cell | before | after | when the budget reached that lab |
+|---|---|---|---|
+| `prereg-q15-s1` (identical config, same cell) | 848, 848, 825, 819s | **1699, 1732s** | earlier today, via `lab_weight_rsi` |
+| `t2kc-q15-s2` (`lab_compounding` -> `BL.retrieval`) | ~540s | **902s** | 15:17, via `_gen_custom` |
+
+The `prereg` numbers are the cleanest evidence available: the same cell, the same manifest
+(model, rounds=5, k=10, n_train=3, sft_steps=40), 2x the round time. That is the price of not
+truncating 39% of generations, and it is worth paying — but it is a real halving of throughput
+and it was not caused by the `_gen_custom` change alone.
+
+At a 70-minute walltime, `prereg` now fits C0 (~12 min) plus one round in chunk 1, and ~2 rounds
+per chunk after that, since the fix also restores C0 instead of re-evaluating it.
 
 Worth watching: if a single round ever exceeds the walltime, the cell completes no round, writes
 no checkpoint, and `jobman continue` resubmits it forever while the queue looks busy. That is the
