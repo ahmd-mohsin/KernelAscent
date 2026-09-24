@@ -412,7 +412,32 @@ def run(args):
     n_gpus = len(sg) + (len(cg) if cg else 0) + (len(fg) if fg else 0)   # GPUs this run holds (arms)
     cum_gpu_s = 0.0; round0_solved = None
     hist = []; ex0 = None
-    for r in range(args.rounds):
+
+    # RESUME. This lab has no checkpoint of its own, so every walltime timeout restarted it at
+    # round 0 -- and jobman's `continue` faithfully resubmitted it to do exactly that again. A
+    # 5-round run under a 70-minute chunk would never have finished, and the registered primary
+    # would have accumulated nothing but repeated round-0s.
+    #
+    # The adapter state is NOT restored (LoRA weights are not written per round), so a resumed
+    # run re-learns from its own round-0 data rather than continuing the exact lineage. That is
+    # a real limitation and it is recorded in the artifact as `resumed_at`, so any trajectory
+    # affected can be identified rather than silently pooled with clean ones.
+    _prev = os.path.join(args.outdir, "weight_rsi.json")
+    resumed_at = None
+    if os.path.exists(_prev):
+        try:
+            _d = json.load(open(_prev))
+            hist = _d.get("history") or []
+            if hist:
+                resumed_at = len(hist)
+                print("RESUME  %d round(s) already recorded -- continuing from round %d "
+                      "(adapter state not restored; trajectory marked)" % (len(hist), len(hist)),
+                      flush=True)
+        except Exception as e:
+            print("RESUME failed (%r) -- starting clean" % e, flush=True)
+            hist = []
+
+    for r in range(len(hist), args.rounds):
         t0 = time.time()
         trainC, pairs, _, _, _ = eval_tasks(tok, mdl, train, args.k, adapter=True)     # self producer, fresh
         if ex0 is None:
@@ -454,7 +479,8 @@ def run(args):
               (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), ("%.3f" % Cc if Cc is not None else "-"), Cs - C0,
                ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), ("%+.3f" % (Cs - Cc) if Cc is not None else "-"), sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
         json.dump({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
-                   "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"], "history": hist},
+                   "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"],
+                   "resumed_at": resumed_at, "history": hist},
                   open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)
     print("\n=== WEIGHT-RSI SUMMARY (%s seed %d) ===" % (args.model, args.seed))
     print("  C0=%.3f  C_self:" % C0, [h["C_self"] for h in hist])

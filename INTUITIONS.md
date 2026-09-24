@@ -1457,6 +1457,22 @@ designing an experiment that needs a new one.
 intermittently; `os.makedirs` killed 2 of 6 jobs *after* they had loaded the model. Containers
 (one `.sif`) and `$HOME` (separate user quota) are the way around it.
 
+**A `continue` that restarts is worse than no continue.** `lab_weight_rsi` has no checkpoint:
+`for r in range(args.rounds)` starts at zero every invocation. Its cells were hitting a 70-minute
+walltime, and `jobman continue` faithfully resubmitted them — to repeat round 0, forever. The
+registered primary would have accumulated nothing but repeated first rounds while the queue
+reported healthy progress.
+
+I had already written the lesson for `difficulty_filter` (§5, *"writing partial results is not
+the same as being able to resume"*) and did not check whether the OTHER long-running lab had the
+same gap. **Auto-continuation is only safe for jobs proven to resume; for the rest it is an
+infinite loop that looks like progress.**
+
+Note also what the resume cannot restore: LoRA adapter state is not written per round, so a
+resumed run re-learns from its own round-0 data rather than continuing the exact lineage. That
+is a real limitation, so the artifact records `resumed_at` and any affected trajectory can be
+identified instead of silently pooled.
+
 **Ask for host RAM explicitly; `DefMemPerCPU` is per CPU, not per GPU.** A 3-GPU, 3-arm job was
 OOM-killed after 69 minutes. Not GPU memory — the partition default is `DefMemPerCPU=13000` and
 `mrl submit` requested one CPU, so **every job got 13 GB of host RAM regardless of GPU count**,
