@@ -788,9 +788,11 @@ of the reference verifies trivially — it is a free solve for declining the tas
 
 So the curve inverts because **the metric rewards non-compliance**. Counting "any verifying
 submission" pays a model for ignoring the instruction, and the models that did what they were
-asked score worst. Neither scale had a single parse failure (0 across 348 candidates each), so
-this is genuine verification failure, not malformed output: the 14B produced twelve parseable
-Triton kernels per task and one of 348 was correct.
+asked score worst. ~~Neither scale had a single parse failure (0 across 348 candidates each)~~
+— **corrected**: the `no parseable ModelNew` line only fires when *every* candidate for a task
+fails to extract, so partial losses are invisible. Per-candidate tracking shows the 0.5B cell
+produced **118 parseable candidates from 348 generations (34%)**, and the per-candidate rates
+quoted above used 348 as the denominator — understating them roughly threefold.
 
 > **A capability metric that accepts any valid submission is a compliance metric in disguise.**
 > When the instruction asks for something hard and an easy alternative also scores, the score
@@ -804,6 +806,43 @@ collapsed into one number, and the number then read as a statement about capabil
 **Consequence for the design:** T1-kernel must report **attempt rate** and **verify-given-attempt**
 separately, and a submission that ignores the kernel instruction should score zero rather than
 counting as a solve. Until that lands, the solve-rate column is uninterpretable across scale.
+
+---
+
+## 2.9i Attempt tracking lands, and corrects two of my own numbers
+
+First cell re-run with per-candidate tracking (0.5B, k=12, 29 tasks):
+
+```
+348 generations -> 118 parseable candidates    (34% extract)
+                    74 attempted a kernel      (63% attempt rate)
+                    11 verified                 (9.3% of parseable)
+                     4 kernel-verified          (5.4% verify-given-attempt)
+                     7 solves WITHOUT writing a kernel
+```
+
+**7 of 11 solves came from declining the task.** That is the compliance artifact quantified, and
+exactly what a single solve-rate number hid.
+
+### Two corrections to what I reported an hour ago
+
+**"Zero parse failures at any scale."** False. The `no parseable ModelNew` line fires only when
+*every* candidate for a task fails to extract; partial losses never appear. A third of
+generations survive.
+
+> **A log message is evidence of the event it reports, never of the events it does not.** I read
+> "no occurrences of the all-failed message" as "no failures" — the same shape as reading a
+> silent monitor as a quiet cluster (§5).
+
+**Per-candidate rates.** I divided by 348 (k × tasks); the true denominator is parseable
+candidates. Every per-candidate figure in the first T1 table was understated roughly threefold.
+
+### A design consequence
+
+A 34% extraction rate is a finding, not a nuisance: two thirds of what these models emit under
+the kernel prompt cannot be parsed into a submission at all. That is **the largest single loss
+in the pipeline** — larger than the verification failure it precedes — and whether it is
+formatting, truncation, or refusal of the format is now the most valuable thing to measure next.
 
 ---
 
