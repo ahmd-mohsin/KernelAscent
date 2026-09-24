@@ -65,6 +65,7 @@ def main():
     max_new = int(os.environ.get("KA_MAX_NEW", "1024"))
 
     counts = collections.Counter()
+    classnames = collections.Counter()      # what the model NAMES its class when not ModelNew
     lens = []
     samples = {}
     for i, n in enumerate(names):
@@ -74,7 +75,13 @@ def main():
             counts[c] += 1
             lens.append(len(t or ""))
             if c != "extracted" and c not in samples:
-                samples[c] = (t or "")[:400]
+                samples[c] = (t or "")[:1200]
+            if c == "wrong-class-name":
+                # the actionable detail: is it a near-miss (ModelNew with different casing or
+                # spacing) or a genuinely different name? Those need different fixes -- a looser
+                # extractor versus a clearer prompt.
+                for nm in re.findall(r"class\s+(\w+)", t or ""):
+                    classnames[nm] += 1
         print("  [%d/%d] %-28s %s" % (i + 1, len(names), n[:28], dict(counts)), flush=True)
 
     tot = sum(counts.values())
@@ -82,6 +89,11 @@ def main():
     for c, k in counts.most_common():
         print("  %-22s %4d  (%.0f%%)" % (c, k, 100 * k / tot))
     print("  mean generation length: %d chars" % (sum(lens) / max(len(lens), 1)))
+    if classnames:
+        print("\n  CLASS NAMES emitted when it is not ModelNew:")
+        for nm, k in classnames.most_common(8):
+            near = "  <- near-miss" if nm.lower().replace("_", "") == "modelnew" else ""
+            print("     %-28s %3d%s" % (nm, k, near))
     print("""
   READ-OUT
     truncated dominant        -> raise max_new_tokens. A cheap fix to the pipeline's biggest loss.
@@ -90,7 +102,8 @@ def main():
     prose-only dominant       -> the model is declining the format, which IS a capability
                                  statement and belongs in the results.""")
     PROV.dump({"model": a.model, "k": a.k, "n_tasks": len(names),
-               "counts": dict(counts), "mean_chars": sum(lens) / max(len(lens), 1),
+               "counts": dict(counts), "class_names": dict(classnames),
+               "mean_chars": sum(lens) / max(len(lens), 1),
                "samples": samples}, a.out, indent=1)
     print("\n  wrote %s" % a.out)
     return 0

@@ -929,6 +929,39 @@ class, not just the ones that feel systemic.
 
 ---
 
+## 2.9l Raising the budget worked, and uncovered a bigger loss underneath
+
+Same probe at `KA_MAX_NEW=2048`:
+
+| outcome | 900 | 2048 |
+|---|---|---|
+| truncated | **39%** | **5%** |
+| extracted | 38% | 41% |
+| **wrong-class-name** | 17% | **52%** |
+| fenced-but-no-class | 6% | 3% |
+
+Truncation collapsed, which confirms the diagnosis. **But extraction barely moved** — 38% to
+41%. The generations that were previously cut off now run to completion, and it turns out they
+name their class something other than `ModelNew`.
+
+**Truncation was masking a larger failure.** With the token limit fixed, the dominant loss is
+that **more than half of all generations produce complete, plausible code the extractor
+rejects on the class name alone**.
+
+> **Fixing the top cause of a loss does not reduce the loss if it was hiding a second one.** I
+> would have reported "raising the budget recovered the pipeline's biggest loss" on the strength
+> of truncation dropping 39% to 5% — and the extraction rate, the thing I actually care about,
+> moved three points. **Measure the outcome, not the mechanism you just fixed.**
+
+Whether this is recoverable depends on what the models actually write, which the probe did not
+record. If they emit `class ModelNew` with different casing or spacing, the extractor is too
+strict and a one-line fix roughly **doubles the usable sample size of every experiment in this
+project**. If they emit genuinely different names, the prompt is not being followed and that is
+a (much weaker) capability statement. Re-running with class-name recording; the two need
+opposite fixes, which is exactly why guessing is not acceptable here.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
