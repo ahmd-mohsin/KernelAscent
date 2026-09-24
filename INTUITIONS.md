@@ -998,6 +998,51 @@ artifact, and it is the first such statement this project has been able to make.
 
 ---
 
+## 2.9n The 67% loss is the model naming its class after the thing it replaces
+
+With the token budget fixed, the dominant extraction failure is `wrong-class-name` at **67%**.
+The names it emits:
+
+```
+Model  27      <- the reference's own class name
+class  14  |
+using  10  |   my regex reading English prose, not code
+with    7  |
+```
+
+(Two findings for the price of one: `class\s+(\w+)` over a generation that mixes prose and code
+reports `using` and `with` as class names. **A regex over mixed content has to be told which it
+is reading** — now restricted to fenced blocks.)
+
+The real answer is **`class Model`**. The model produces a drop-in replacement and names it
+after the thing it replaces.
+
+### Why this cannot be fixed by matching more loosely
+
+The grader loads `task_source + candidate`, and **the task source already defines `class
+Model`**. A candidate using that name *shadows the reference*: `mod.ModelNew` then does not
+exist, and what does exist is the candidate being graded against itself. A looser match would
+not recover these generations, it would silently corrupt the comparison.
+
+The only safe accommodation is a **rename**, and whether to accommodate at all is a judgement
+rather than a bug fix. The prompt says *"Define ONLY `class ModelNew`"*, so a model writing
+`class Model` has not followed the instruction:
+
+* **discarding it** measures instruction-following, and calls it capability
+* **renaming it** measures kernel-writing, and forgives a naming slip
+
+> **When a harness rejects a large share of outputs on a technicality, "fix the harness" and
+> "report the failure" are both defensible, and choosing silently is the only indefensible
+> option.** Loosening quietly inflates every downstream number; discarding quietly reports
+> instruction-following as capability. So `KA_EXTRACT` is `strict` (published default) or
+> `lenient`, and the probe now measures what lenient would recover so the choice is made against
+> a number rather than an intuition.
+
+If lenient recovers most of the 67%, the usable sample size of every kernel-prompt experiment
+here roughly **triples**, and the "models cannot write kernels" reading weakens considerably.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

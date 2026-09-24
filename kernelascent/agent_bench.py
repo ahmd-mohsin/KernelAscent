@@ -79,13 +79,53 @@ def build_ref(task_source):
     return ref, x, gold, ref_err
 
 
-def extract_modelnew(text):
+# EXTRACTION POLICY. `strict` is the published behaviour and stays the default.
+#
+# Measured on the 0.5B cell under the kernel prompt: with the token budget fixed, 67% of
+# generations were rejected by the extractor, and the dominant reason is that the model names
+# its class `Model` -- the SAME name as the reference -- instead of `ModelNew`. It is producing
+# a drop-in replacement and naming it after the thing it replaces.
+#
+# This cannot be fixed by matching the name loosely. The grader loads
+# `task_source + candidate`, and the task source already defines `class Model`, so a candidate
+# using that name SHADOWS the reference: `mod.ModelNew` then does not exist, and what does exist
+# is the candidate graded against itself. The only safe accommodation is a RENAME.
+#
+# Whether to accommodate at all is a judgement, not a bug fix: the prompt says "Define ONLY
+# class ModelNew", so a model that writes `class Model` has not followed the instruction.
+# Counting it as a success is generous; discarding it measures instruction-following rather than
+# kernel-writing. So both are available and the choice is reported, never silent.
+#
+#   KA_EXTRACT=strict   (default) require `class ModelNew`, as published
+#   KA_EXTRACT=lenient  rename a lone `class Model` to `ModelNew` and accept it
+_EXTRACT_MODE = os.environ.get("KA_EXTRACT", "strict").strip().lower()
+
+
+def _rename_model_class(code):
+    """`class Model` -> `class ModelNew`, only when there is no ModelNew already."""
+    if "class ModelNew" in code:
+        return code
+    if not re.search(r"^\s*class\s+Model\s*[\(:]", code, re.M):
+        return code
+    return re.sub(r"(^\s*class\s+)Model(\s*[\(:])", r"\1ModelNew\2", code, count=1, flags=re.M)
+
+
+def extract_modelnew(text, mode=None):
+    mode = (mode or _EXTRACT_MODE)
     blocks = re.findall(r"```(?:python)?\s*(.*?)```", text, re.DOTALL)
     for b in blocks:
         if "class ModelNew" in b:
             return b
     if "class ModelNew" in text:                      # unfenced fallback
         return text[text.index("class ModelNew"):]
+    if mode == "lenient":
+        for b in blocks:
+            r = _rename_model_class(b)
+            if r is not b and "class ModelNew" in r:
+                return r
+        r = _rename_model_class(text)
+        if r is not text and "class ModelNew" in r:
+            return r[r.index("class ModelNew"):] if "class ModelNew" in r else None
     return None
 
 
