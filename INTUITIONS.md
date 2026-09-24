@@ -823,6 +823,17 @@ an identical 2-hour job was estimated 33 hours out. So choose walltime carefully
 and run long work as **short resumable chunks** (`scripts/jobman.sh`) rather than one long
 reservation. Both labs checkpoint per round, so a timeout resumes.
 
+Seen again, starkly: `r4-kernel-14b` requested 2 h and Slurm estimated its start at **+36
+hours**, for a job whose three comparable runs took 15:03, 18:54 and 21:57. Resubmitted at 45
+minutes.
+
+**So the two rules are not in conflict — they apply to different things.** Do not churn to chase
+*priority*; that is age-dominated and resubmitting only loses ground. Do reshape when the
+*request itself* is wrong by a large factor, because backfill is governed by the request, not by
+age. The test I now use: **is the change evidence-based and large?** A 2 h request for a 20 min
+job, with three measured runtimes in hand, is both. "Maybe 3 GPUs would be faster" is neither,
+and that is the guess that cost three relaunches.
+
 **A shared quota is not yours to fix.** The 32B probe died with
 `OSError [Errno 122] Disk quota exceeded` while *downloading the model* — HF creates a lock
 directory per file, and the group is at 1,167,124 / 512,000 inodes. Our own directories account
