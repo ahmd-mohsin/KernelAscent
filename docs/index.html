@@ -43,7 +43,7 @@
     <div><div class="kpi-n">held out</div><div class="kpi-l">split scores the board</div></div>
   </div>
   <p class="finding-strip"><b>The finding:</b> verified self-training did not compound &mdash; under our tested GPU-kernel protocol. <span class="ev">57 independent trajectories · lineage ≈ reset · BF₀₁ = 5.6 · search &gt; training</span> <a href="#findings">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
-  <p class="finding-strip" style="border-color:#c2410c"><b>Open caveat (2026-09-23):</b> we found that our generation prompt steers models toward plain-torch rewrites &mdash; <b>0 of 204</b> verified kernels from the 14B model, across two independent harvests, contained Triton or CUDA. A rewrite runs at reference speed, which scores exactly 0.50 by construction. A prompt A/B is running to determine how much of the plateau this explains. <span class="ev">Until it lands, treat the speed-scored boards as provisional.</span> <a href="#instrument">What this means</a></p>
+  <p class="finding-strip" style="border-color:#c2410c"><b>Open caveat (2026-09-23):</b> we found that <b>Triton kernels could never verify on this harness</b>. The cluster's <code>CC</code> pointed at a host compiler absent inside our container, and only Triton compiles C at runtime &mdash; so <b>0 of 204</b> verified kernels across two harvests contained Triton or CUDA, and every non-plain-torch submission in this project's history failed for an environment reason. The benchmark has been measuring correctness-preserving <i>rewriting</i>, not kernel optimization. Fixed; a hand-written Triton kernel now verifies. <span class="ev">The speed-scored boards are provisional until the re-runs land.</span> <a href="#instrument">What this means</a></p>
 </section>
 
 <section id="findings">
@@ -68,7 +68,7 @@
   <h2>Can this benchmark detect a positive?</h2>
   <p class="small sub"><b>A benchmark that reports a null owes a second result: evidence the measurement could have reported a positive.</b> When the headline is a difference between two arms of one pipeline, any defect that suppresses both arms equally leaves the contrast at zero while every surface check &mdash; jobs complete, kernels compile, scores populate &mdash; looks healthy. A broken instrument does not announce itself; it reports &Delta;&nbsp;&asymp;&nbsp;0.</p>
 
-  <div class="note" style="margin:14px 0 18px"><b>Six defects, each of which independently produced a plausible null.</b> We publish these because the null is our headline, and a reader cannot audit a null without them.</div>
+  <div class="note" style="margin:14px 0 18px"><b>Seven defects, each of which independently produced a plausible null.</b> We publish these because the null is our headline, and a reader cannot audit a null without them.</div>
 
   <table class="small prose">
     <thead><tr><th style="width:34%">Defect</th><th style="width:33%">Presented as</th><th style="width:33%">Caught by</th></tr></thead>
@@ -79,6 +79,7 @@
       <tr><td>Score saturated at the correctness floor</td><td>&ldquo;lineage &asymp; reset&rdquo;</td><td>score-histogram check</td></tr>
       <tr><td>Compiled-baseline cache hitting a filesystem inode quota</td><td>&ldquo;4 of 6 rounds produced nothing&rdquo;</td><td>output-path / quota correlation</td></tr>
       <tr><td><b>Our own explanation of the first five</b></td><td>&ldquo;H100 closed the headroom&rdquo;</td><td>tracing prompt &rarr; number</td></tr>
+      <tr><td><b>Host <code>CC</code> leaking into the container, so Triton could not build</b></td><td>&ldquo;models cannot write kernels when asked&rdquo;</td><td>known-good <i>Triton</i> kernel</td></tr>
     </tbody>
   </table>
 
@@ -94,6 +95,22 @@
   <p class="small">So the metric was never broken. It reported, accurately, that the models were not attempting the task the benchmark exists to measure &mdash; and we misread a correct measurement as a dead instrument. This <i>inverts</i> the lesson of the first five: there, a clean zero was a bug; here a clean zero was a finding and the bug was in the interpretation. The rule we now hold is stricter: <b>trace the causal chain from prompt to number before naming a cause, and prefer the explanation an intervention can kill over the one that merely fits.</b></p>
 
   <div class="note" style="margin:16px 0"><b>What is running now.</b> A prompt A/B &mdash; identical tasks, grader, model and seed, only the prompt text differs &mdash; at 14B, plus a 32B cell to test whether scale adds anything once the model is actually asked to optimize. The three outcomes and their thresholds were fixed in code before the runs launched. If the plateau proves substantially prompt-induced, <b>every speed-scored board here has to be re-run before it means anything</b>, and we will say so on this page.</div>
+
+  <h3 style="margin-top:22px">The seventh: the benchmark had never measured its own subject</h3>
+  <p class="small">Having traced the plateau to the prompt, we removed the steer and asked explicitly for a Triton kernel. The model solved <b>0 of 29</b> tasks against 25 of 29 under the published prompt &mdash; a clean, pre-registered, publishable result: <i>the models try when asked and cannot produce a working kernel</i>.</p>
+  <p class="small">It is also false. Before reporting it we applied the known-good-input gate to the <i>new</i> input: a hand-written Triton kernel, correct by construction, plus a plain-torch control that must pass and a wrong kernel that must fail.</p>
+  <table class="small prose">
+    <thead><tr><th style="width:46%">Case</th><th style="width:27%">Result</th><th style="width:27%">Reason</th></tr></thead>
+    <tbody>
+      <tr><td>plain-torch identical to the reference</td><td><b>ok=True</b></td><td><code>ok</code></td></tr>
+      <tr><td>deliberately wrong kernel</td><td>ok=False</td><td><code>wrong/imprecise</code></td></tr>
+      <tr><td><b>hand-written correct Triton kernel</b></td><td><b>ok=False</b></td><td><code>FileNotFoundError</code></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Triton compiles a small C shim at first use and takes its compiler from <code>$CC</code>, which the cluster's module system sets to a <i>host</i> path absent inside our container. Plain PyTorch never compiles anything at runtime, so <b>only Triton broke</b> &mdash; and Triton is the subject of the benchmark. One environment variable fixed it; the same kernel now verifies at 0.99&times;.</p>
+  <p class="small">The consequence is a corrected <i>scope</i>, not a corrected number: for this project's entire history, every submission that was not plain PyTorch failed for an environment reason.</p>
+  <p class="small">It also revises our account of the sixth defect. We blamed the saturated score on the prompt's instruction to prefer plain torch &mdash; but that instruction reads as a <b>rational adaptation to a broken grader</b>. Tuned against a harness where Triton always failed, plain torch genuinely was the only thing that worked. The prompt and the grader were coupled, and the grader came first. <b>A configuration that looks inexplicably conservative may be compensating for a defect</b> &mdash; and because the defect never appears in any result, the workaround looks like a design choice indefinitely.</p>
+  <p class="small">Two things made this catchable before publication. Failure reasons now propagate &mdash; the grader had always computed a reason and discarded it one line later, so every failure in project history was a bare <code>False</code>, and &ldquo;model writes Triton, Triton grades False&rdquo; reads naturally as a claim about the model. And, more transferably: <b>when an experiment starts producing a new <i>kind</i> of artifact, re-instantiate the known-good gate for that kind.</b> &ldquo;The grader works&rdquo; was true and useless; &ldquo;the grader works on Triton&rdquo; was the question, and nothing was asking it.</p>
 
   <h3 style="margin-top:22px">Reachability: the range check, made into a number</h3>
   <p class="small">&ldquo;Check the metric has range&rdquo; is advice until it is a number. <b>Reachability</b> is the fraction of bank tasks where the <i>frozen base</i> already clears the scoring anchor. It falls out of the calibration pass, costs nothing extra, and is known before any experiment runs.</p>

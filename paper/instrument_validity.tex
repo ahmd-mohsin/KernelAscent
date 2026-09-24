@@ -9,9 +9,11 @@ pipeline. Any defect that suppresses both arms equally leaves the contrast at ze
 surface diagnostic --- jobs complete, kernels compile, scores populate --- looks healthy. A
 broken instrument does not report that it is broken; it reports $\Delta \approx 0$.
 
-Over this project, \textbf{five independent pipeline defects each produced a plausible,
+Over this project, \textbf{seven independent pipeline defects each produced a plausible,
 publishable-looking null}, summarised in Table~\ref{tab:defects}. None announced itself, and
-three survived a code review before being caught by an assertion.
+three survived a code review before being caught by an assertion. Six were found only after
+they had been written up as findings; one was caught before it reached prose, and we report
+what made the difference.
 
 \begin{table}[t]
 \centering\small
@@ -24,10 +26,13 @@ Grading device index absent on a 1--2 GPU allocation & ``the model writes bad ke
 Raw generations graded without extracting the submission & ``the 14B teacher solves 0/29'' & non-zero coverage precondition \\
 Score saturated at the correctness floor & ``lineage $\approx$ reset'' & score-histogram check \\
 Compiled-baseline cache hitting a filesystem inode quota & ``4 of 6 rounds produced nothing'' & output-path/quota correlation \\
+Our own explanation of the first five & ``H100 closed the headroom'' & tracing prompt $\rightarrow$ number \\
+Host \texttt{CC} leaking into the container, so Triton could not build & ``models cannot write kernels when asked'' & known-good \emph{Triton} kernel \\
 \bottomrule
 \end{tabular}
-\caption{Five defects, each of which independently manufactured a null. The middle column is
-what the artifact would have claimed had the defect not been found.}
+\caption{Seven defects, each of which independently manufactured a null. The middle column is
+what the artifact would have claimed had the defect not been found. Every one of these is a
+statement we came close to publishing.}
 \label{tab:defects}
 \end{table}
 
@@ -115,6 +120,42 @@ this work and is a parse failure. Likewise, our self-play primary metric require
 author to produce accepted valid tasks; demanding at least five qualifies only 6 of 24 open and
 5 of 11 closed runs. \textbf{A metric computed over zero events is undefined, not zero}, and the
 distinction is invisible in the aggregate.
+
+\paragraph{The seventh defect: the benchmark had never measured its own subject.}
+Having traced the plateau to the prompt, we tested the obvious follow-up --- remove the steer
+and ask explicitly for a Triton kernel. The model solved \textbf{0 of 29} tasks, against 25 of
+29 under the published prompt. That is a clean, pre-registered, publishable result: the models
+try when asked and cannot produce a working kernel.
+
+It is also false. Before reporting it we applied the known-good-input gate to the \emph{new}
+input: we hand-wrote a Triton kernel that is correct by construction and required the real
+grader to verify it, alongside a plain-torch control that must pass and a wrong kernel that
+must fail. The controls behaved; the correct Triton kernel returned
+\texttt{FileNotFoundError}. The cause was that Triton compiles a small C shim at first use and
+takes its compiler from \texttt{\$CC}, which the cluster's module system sets to a
+\emph{host} toolchain path that does not exist inside our container. Plain PyTorch never
+compiles anything at runtime, so \textbf{only Triton broke} --- and Triton is the subject of the
+benchmark. One environment variable fixed it, after which the same kernel verifies.
+
+The consequence is not a corrected number but a corrected scope: for the entire history of this
+project, \textbf{every submission that was not plain PyTorch failed for an environment reason}.
+The benchmark has been measuring correctness-preserving rewriting, not kernel optimisation.
+
+This also revises our own account of the previous defect. We attributed the saturated score to
+the prompt's instruction to prefer plain torch --- but that instruction now reads as a
+\emph{rational adaptation to a broken grader}. Tuned against a harness in which Triton always
+failed, plain torch genuinely was the only thing that worked. The prompt and the grader were
+coupled, and the grader came first. Generalising: \textbf{a configuration that looks
+inexplicably conservative may be compensating for a defect}, and because the defect never
+appears in any result, the workaround looks like a design choice indefinitely.
+
+Two things made this one catchable before publication rather than after. First, failure reasons
+now propagate: the grader had always computed a reason string and discarded it one line later,
+so every failure in project history was a bare \texttt{False} --- and ``model writes Triton,
+Triton grades \texttt{False}'' reads naturally as a statement about the model. Second, and more
+transferable: \textbf{when an experiment begins producing a new \emph{kind} of artifact, the
+known-good gate must be re-instantiated for that kind.} ``The grader works'' was true and
+useless; ``the grader works on Triton'' was the question, and nothing was asking it.
 
 \paragraph{Reachability: the dynamic-range precondition, made quantitative.}
 ``Check the metric has range'' is advice until it is a number, so we propose one.

@@ -23,24 +23,25 @@
 \contentsline {paragraph}{The sixth defect was our own explanation of the first five.}{12}{section*.8}%
 \contentsline {paragraph}{The estimator, not the normalisation, is the thing to fix.}{12}{section*.9}%
 \contentsline {paragraph}{Check the denominator of the mechanism, not just the metric.}{13}{section*.10}%
-\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{13}{section*.11}%
-\contentsline {paragraph}{What we propose as standard practice.}{13}{section*.12}%
-\contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{14}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{14}{subsection.7.1}%
-\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{14}{section*.13}%
-\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{14}{section*.14}%
-\contentsline {paragraph}{Why verified search escapes where training does not.}{15}{section*.15}%
-\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{15}{section*.16}%
-\contentsline {paragraph}{The inverted-U, mechanistically.}{15}{section*.17}%
-\contentsline {paragraph}{What would break the plateau, and what our data predict.}{15}{section*.18}%
-\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{15}{section*.19}%
+\contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{13}{section*.11}%
+\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{13}{section*.12}%
+\contentsline {paragraph}{What we propose as standard practice.}{14}{section*.13}%
+\contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{15}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{15}{subsection.7.1}%
+\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{15}{section*.14}%
+\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{15}{section*.15}%
+\contentsline {paragraph}{Why verified search escapes where training does not.}{15}{section*.16}%
+\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{15}{section*.17}%
+\contentsline {paragraph}{The inverted-U, mechanistically.}{16}{section*.18}%
+\contentsline {paragraph}{What would break the plateau, and what our data predict.}{16}{section*.19}%
+\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{16}{section*.20}%
 \contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{16}{section.8}%
-\contentsline {section}{\numberline {9}What would break the plateau: predictions}{16}{section.9}%
+\contentsline {section}{\numberline {9}What would break the plateau: predictions}{17}{section.9}%
 \contentsline {section}{\numberline {10}Limitations and scope}{17}{section.10}%
-\contentsline {section}{\numberline {11}Conclusion}{17}{section.11}%
-\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{17}{appendix.A}%
-\contentsline {paragraph}{Three corrections to the earlier analysis.}{17}{section*.20}%
-\contentsline {paragraph}{Result.}{18}{section*.21}%
-\contentsline {paragraph}{What this does and does not establish.}{18}{section*.22}%
-\contentsline {paragraph}{The diagnostic.}{18}{section*.23}%
-\contentsline {paragraph}{Defensible claim.}{18}{section*.24}%
+\contentsline {section}{\numberline {11}Conclusion}{18}{section.11}%
+\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{18}{appendix.A}%
+\contentsline {paragraph}{Three corrections to the earlier analysis.}{18}{section*.21}%
+\contentsline {paragraph}{Result.}{18}{section*.22}%
+\contentsline {paragraph}{What this does and does not establish.}{18}{section*.23}%
+\contentsline {paragraph}{The diagnostic.}{19}{section*.24}%
+\contentsline {paragraph}{Defensible claim.}{19}{section*.25}%
