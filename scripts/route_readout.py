@@ -57,7 +57,7 @@ def prereg(pattern=None):
     except Exception:
         trajectory_level = _ci = _tost = None
     pat = pattern or os.path.join(D, "prereg_*")
-    traj, rounds_seen, partial = [], 0, []
+    traj, rounds_seen, partial, resumed = [], 0, [], []
     for outdir in sorted(glob.glob(pat)):
         d = _load(os.path.join(outdir, "weight_rsi.json"))
         if not d:
@@ -68,10 +68,22 @@ def prereg(pattern=None):
         if not vals:
             continue
         traj.append(st.mean(vals)); rounds_seen += len(vals)
+        if d.get("resumed_at"):
+            resumed.append((os.path.basename(outdir), d["resumed_at"]))
         if len(vals) < 5:
             partial.append((os.path.basename(outdir), len(vals)))
     if not traj:
         print("  no prereg output yet"); return
+    if resumed:
+        # The pre-registration fixes the TRAJECTORY as the unit of replication. A resumed run
+        # continues its round sequence but re-learns from recorded data, because LoRA adapter
+        # state is not checkpointed -- so it is not the same object as an uninterrupted run and
+        # must be identifiable rather than pooled silently.
+        print("  !! %d trajectory(ies) RESUMED mid-run (adapter state not restored):" % len(resumed))
+        for n, at in resumed:
+            print("       %-26s resumed at round %d" % (n, at))
+        print("     Report these separately, or re-run them, before treating the pooled")
+        print("     estimate as %d independent uninterrupted trajectories." % len(traj))
     if partial:
         print("  !! %d cell(s) INCOMPLETE -- a mid-run mean is not a trajectory mean:" % len(partial))
         for n, k in partial:

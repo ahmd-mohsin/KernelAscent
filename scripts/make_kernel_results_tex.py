@@ -77,7 +77,7 @@ def prereg_table():
         from clustered_stats import trajectory_level, ci as _ci
     except Exception:
         return "", []
-    traj, partial = [], 0
+    traj, partial, resumed = [], 0, 0
     for outdir in sorted(glob.glob(os.path.join(D, "prereg_*"))):
         d = _load(os.path.join(outdir, "weight_rsi.json"))
         if not d:
@@ -88,6 +88,8 @@ def prereg_table():
         if not v:
             continue
         traj.append(st.mean(v))
+        if d.get("resumed_at"):
+            resumed += 1
         if len(v) < 5:
             partial += 1
     if len(traj) < 2:
@@ -98,9 +100,12 @@ def prereg_table():
         r" \textbf{Underpowered} ($n<8$; MDE $0.120$ at $n{=}4$ against a $\delta{=}0.05$ margin), "
         r"so no equivalence claim is made.")
     inc = (" %d of %d cells incomplete." % (partial, len(traj))) if partial else ""
+    res = ((r" %d trajectory(ies) were resumed mid-run after a walltime timeout; LoRA state is "
+            r"not checkpointed, so those continue the round sequence while re-learning from "
+            r"recorded data." % resumed) if resumed else "")
     return (r"""\begin{table}[h]\centering\small
 \caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, under the
-registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline).%s%s}
+registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline).%s%s%s}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 Contrast & Trajectories & Estimate (95\%% CI) \\
@@ -108,7 +113,7 @@ Contrast & Trajectories & Estimate (95\%% CI) \\
 \texttt{self} $-$ \texttt{fresh\_frozen} & %d & $%+.3f\,[%+.3f, %+.3f]$ \\
 \bottomrule
 \end{tabular}
-\end{table}""" % (powered, inc, len(traj), est["mean"], lo, hi)), []
+\end{table}""" % (powered, inc, res, len(traj), est["mean"], lo, hi)), []
 
 
 def main():
