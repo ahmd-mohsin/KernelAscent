@@ -286,7 +286,63 @@ the writing, not to teach the checker to guess.
 
 ---
 
-## 2g2. Defect #7, confirmed: the harness cannot grade triton
+## 2g2. Defect #7: the harness could not grade triton — root-caused and FIXED
+
+Three-point calibration on a GPU node, before the fix:
+
+| case | result | reason |
+|---|---|---|
+| plain-torch identical to the reference | **ok=True** | `ok` |
+| deliberately wrong kernel | ok=False | `wrong/imprecise` |
+| **hand-written correct triton kernel** | **ok=False** | **`FileNotFoundError(2)`** |
+
+Controls behave, so the precheck is trustworthy and the grader does discriminate. Triton failed
+on a **missing file** — not a wrong answer, not a tolerance, not a timeout.
+
+### The root cause, and why it hid so well
+
+```
+FileNotFoundError: '/cm/shared/apps/nvhpc/26.5/.../compilers/bin/nvc'
+```
+
+Triton compiles `driver.c` at runtime to build its CUDA shim, taking the compiler from `$CC`.
+Marlowe's `module load` sets `CC` to the **host's** nvhpc compiler; apptainer passes the host
+environment into the container, where that path does not exist. **Plain torch never compiles C
+at runtime, so only triton broke** — and triton is exactly the thing the benchmark is about.
+
+Fixed centrally in `mrl submit`: `APPTAINERENV_CC=/usr/bin/gcc`. After the fix the same
+precheck returns `triton -> ok=True (0.99x)`.
+
+### What this implies, and it is bigger than a bug
+
+Every non-plain-torch kernel in this project failed for an environment reason. So the
+benchmark **has never once measured GPU-kernel optimisation** — only correctness-preserving
+rewriting — and `KA_PROMPT=kernel`'s 0/29 was void.
+
+It also reframes §2e. I blamed the plateau on the prompt's *"a plain-torch kernel that is
+correct beats a fancy one that errors"* clause. But that clause looks like a **rational
+adaptation to a broken grader**: tuned against a harness where triton always failed, plain
+torch genuinely *was* the only thing that worked. The prompt and the grader were coupled, and
+the grader came first. A prompt that encodes a workaround for a silent defect will look like a
+design choice forever, because the defect it compensates for never appears in any result.
+
+> **When a configuration looks inexplicably conservative, check whether it is compensating for
+> something broken.** Defensive settings are fossils of failures, and the failure they record
+> may still be live.
+
+### The gate that caught it
+
+This is the first defect caught **before it reached prose**, and only because the standing rule
+was applied to the *specific new input*: the arm had started producing triton, so the known-good
+input had to be triton.
+
+> **When an experiment starts producing a new KIND of artifact, re-instantiate the known-good
+> gate for that kind.** "The grader works" was true and useless; "the grader works on triton"
+> was the question, and nothing was asking it.
+
+It was also only diagnosable because failure reasons now propagate (§2h). Before that fix this
+was a bare `False`, indistinguishable from a wrong kernel — and "model writes triton, triton
+grades False" reads very naturally as *the model is bad at triton*.
 
 Three-point calibration on a GPU node:
 
@@ -311,11 +367,6 @@ already handles will pass forever and protect nothing.
 > **When an experiment starts producing a new KIND of artifact, the known-good gate has to be
 > re-instantiated for that kind.** "The grader works" was true and useless; "the grader works on
 > triton" was the question, and nobody was asking it.
-
-Note also that this was only diagnosable because the failure reason now propagates (§2h). Before
-that fix the result would have been a bare `False`, indistinguishable from a wrong kernel — and
-the natural reading of "model writes triton, triton grades False" is *the model is bad at
-triton*. The dropped `msg` would have cost this one too.
 
 ---
 
