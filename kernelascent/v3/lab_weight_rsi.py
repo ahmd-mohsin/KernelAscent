@@ -128,10 +128,15 @@ def generate(tok, mdl, task_src, k, max_new=None, temp=0.8, adapter=True):
         return [tok.decode(g, skip_special_tokens=True) for g in gen]
 
 
-def generate_batch(tok, mdl, srcs, k, max_new=None, temp=0.8, adapter=True, bs=4):
+_GEN_BS = int(os.environ.get("KA_GEN_BS", "4"))   # sequences per forward; the KV cache
+                                                 # scales with bs * max_new
+
+
+def generate_batch(tok, mdl, srcs, k, max_new=None, temp=0.8, adapter=True, bs=None):
     """Generate k candidates for EACH src, batching several prompts per forward pass to parallelize on the
     GPU (left-padded). Returns a list (per src) of k decoded strings. This is the big throughput win over
     calling generate() once per task."""
+    bs = bs or _GEN_BS
     old_side = tok.padding_side; tok.padding_side = "left"
     results = [[] for _ in srcs]
     ctx = mdl.disable_adapter() if not adapter else _null()

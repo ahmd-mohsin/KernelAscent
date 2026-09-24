@@ -121,7 +121,11 @@ do_base() {
   for m in "q15 Qwen/Qwen2.5-Coder-1.5B-Instruct" "q3 Qwen/Qwen2.5-Coder-3B-Instruct"; do
     set -- $m
     for s in 1 2; do
-      go "basek-$1-s$s" "00:45:00" 1 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_baselines \
+      # KA_GEN_BS caps the generation batch: this lab draws rounds*k = 60 sequences per task,
+      # and at KA_MAX_NEW=2048 that KV cache OOMs an 80GB card. Lowering the batch keeps the
+      # token budget intact -- reducing KA_MAX_NEW instead would reintroduce the truncation
+      # confound that cost 39% of generations.
+      go "basek-$1-s$s" "00:50:00" 1 "env KA_PROMPT=kernel KA_GEN_BS=2 python -m kernelascent.v3.lab_baselines \
 --model $2 --gpus 0 --rounds 6 --k 10 --seed $s --outdir $OUT/basek_$1_s$s"
     done
   done
