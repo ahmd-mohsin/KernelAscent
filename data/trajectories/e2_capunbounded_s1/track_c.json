@@ -12,6 +12,22 @@
       "F_g": null,
       "n_strategies": 5,
       "n_archive": 5
+    },
+    {
+      "round": 1,
+      "Qg": 0.563,
+      "delta_vs_base": 0.062,
+      "F_g": 0.001,
+      "n_strategies": 14,
+      "n_archive": 13
+    },
+    {
+      "round": 2,
+      "Qg": 0.389,
+      "delta_vs_base": -0.111,
+      "F_g": -0.113,
+      "n_strategies": 14,
+      "n_archive": 14
     }
   ]
 }

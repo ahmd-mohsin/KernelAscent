@@ -144,6 +144,57 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 
 ---
 
+## 2k. I fixed the floor and hit the ceiling
+
+Route 3's first 8 trajectories, under `KA_SCORE=passrate`:
+
+```
+control  +0.184 [+0.080, +0.287]  n=4 trajectories  CI EXCLUDES 0
+inject   +0.184 [+0.089, +0.278]  n=4 trajectories  CI EXCLUDES 0
+delta    +0.000
+```
+
+`lineage − reset` is positive with a CI excluding zero — the first non-degenerate compounding
+measurement from this hardware. The metric that was frozen at 0.50 now moves. **And it still
+does not license a compounding claim**, for three reasons I had to go looking for, because the
+result was the one I wanted.
+
+**1. Best-of-N is degenerate under this metric, and would have reversed a published result.**
+Pass-rate is a *mean* over draws; best-of-N's entire mechanism is the *max* over draws. As the
+budget grew 5×, `C_bestofN` moved **−0.024**. So `lineage − bestofN = +0.676`, positive in
+37/37 rounds, is not a matched-budget search comparison — it is a trained model against a
+baseline whose mechanism the metric switched off. Reported naively it would have *overturned*
+the paper's "search beats training" finding with an artifact.
+
+> **Changing the metric silently changes what every baseline means.** A baseline is only a
+> baseline with respect to a scoring rule. Re-examine each one when the rule changes.
+
+**2. Ceiling saturation, now at the top.** `C_lineage == 1.000` in **18/37 rounds (49%)** on a
+**5-task** held set. Once lineage pins at the ceiling, `lineage − reset` measures only how far
+*reset* fell below it. The magnitude is a lower bound and the across-round trend is unreadable.
+
+**3. The contrast is not training-compute matched.** Lineage keeps its adapter and trains every
+round (R × `sft_steps`); reset re-initialises and trains on one round (1 × `sft_steps`). Under a
+metric scoring *reliability of correctness*, "more SFT on verified-correct outputs raises the
+rate of correct outputs" is close to tautological.
+
+### The positive control did not fail — it ran out of work
+
+`injected_tasks` per round: `[15,2,1,0,0]`, `[19,3,0,0,0,0]`, `[2,0,0,0]`, `[7,0,0,0]`.
+Injection targets tasks the student *failed*; by round 2 it solves everything, so there is
+nothing left to inject and `delta` is exactly `+0.000`.
+
+**The intuition, and it is the whole session in one line:** I diagnosed a floor effect, built a
+metric with range at the floor, and landed straight into a ceiling effect. Saturation is not a
+property of the metric — it is a property of **the match between task difficulty and model
+ability**, and changing the metric only moves where the wall sits. A 5-task held set that a 1.5B
+model solves completely by round 2 cannot support a compounding claim under *any* scoring rule.
+
+The fix is not another metric. It is the 456-task DSL bank with 180 admitted tasks (§2f), where
+the population is not exhausted in two rounds. See [[route-1-dsl-bank]].
+
+---
+
 ## 2g. A positive control is only as strong as the thing it injects
 
 R4's `safe` arm was meant only as the control for the prompt A/B. It replicated the headline

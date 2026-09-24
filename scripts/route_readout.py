@@ -192,22 +192,35 @@ def r3(pattern=None):
     print("=" * 84)
     print("ROUTE 3 -- lineage minus reset under KA_SCORE=passrate")
     print("=" * 84)
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
     try:
-        sys.path.insert(0, os.path.join(ROOT, "scripts"))
-        from clustered_stats import trajectory_ci
+        from clustered_stats import trajectory_level, ci as _ci, tost as _tost
     except Exception:
-        trajectory_ci = None
+        trajectory_level = _ci = _tost = None
     pat = pattern or os.path.join(D, "r3_*")
     arms = {}
     modes = set()
+    bon_rounds, bon_first, bon_last, sat_hits, sat_tot, held_n = [], [], [], 0, 0, None
     for outdir in sorted(glob.glob(pat)):
         arm = "inject" if "_inject_" in outdir else "control"
         rounds = []
         for f in sorted(glob.glob(os.path.join(outdir, "*.json"))):
             d = _load(f)
-            for rec in (d if isinstance(d, list) else [d]) if d else []:
+            # lab_compounding writes {"history": [...round rows...]}, not a bare list. Treating
+            # the dict as a single record found zero rounds and printed "no output yet" while
+            # the file sat right there -- the same blindness as the audit gates, in a reader.
+            if isinstance(d, dict):
+                recs = d.get("history") or d.get("rounds") or [d]
+            elif isinstance(d, list):
+                recs = d
+            else:
+                recs = []
+            for rec in recs:
                 if isinstance(rec, dict) and "lineage_minus_reset" in rec:
                     rounds.append(rec["lineage_minus_reset"])
+                    bon_rounds.append(rec.get("C_bestofN"))
+                    sat_tot += 1
+                    sat_hits += 1 if (rec.get("C_lineage", 0) or 0) >= 1.0 else 0
                     # eval_tasks stamps score_mode into every round record, so the metric that
                     # produced a number travels WITH the number. Amendment 1 forbids pooling
                     # passrate with headroom, and a promise that is only in prose is one nobody
@@ -220,6 +233,9 @@ def r3(pattern=None):
                             modes.add(v)
         if rounds:
             arms.setdefault(arm, []).append(st.mean(rounds))   # one number per TRAJECTORY
+            cb = [r for r in bon_rounds[-len(rounds):] if r is not None]
+            if len(cb) > 1:
+                bon_first.append(cb[0]); bon_last.append(cb[-1])
 
     # FAIL CLOSED. The first version only refused when it SAW a wrong mode, so a run with no
     # score_mode recorded passed by default -- and lab_compounding was not stamping it, which
@@ -230,6 +246,7 @@ def r3(pattern=None):
             print("  score_mode: %s (from the launch command in .jobman.tsv -- these rounds"
                   % sorted(modes)[0])
             print("              predate score_mode stamping; newer runs carry it in the data)")
+            from_manifest = True
     if not modes:
         print("  !! REFUSING TO REPORT: no score_mode recorded in these rounds, and no launch")
         print("     command found for them. Amendment 1 forbids pooling passrate with")
@@ -241,24 +258,66 @@ def r3(pattern=None):
         print("     PREREGISTRATION.md Amendment 1 binds passrate results to their own")
         print("     experiment set and forbids pooling them with headroom-scored runs.")
         return
-    if modes:
-        print("  score_mode: %s (verified, not assumed)" % sorted(modes)[0])
+    if modes and not locals().get("from_manifest"):
+        print("  score_mode: %s (verified from the round records)" % sorted(modes)[0])
     if not arms:
         print("  no r3 output yet under %s" % pat); return
+    # GUARD 1: best-of-N is DEGENERATE under passrate and must not be reported.
+    # Its mechanism is taking the MAX over k*(r+1) draws; pass-rate is a MEAN, which is
+    # invariant to how many draws you take. Measured: as the budget grew 5x, C_bestofN moved
+    # -0.024. So "lineage - bestofN" here is not a matched-budget search comparison -- it is a
+    # trained model against a baseline whose mechanism the metric switched off, and it would
+    # spuriously REVERSE the published "search beats training" result.
+    bon = [r for r in bon_rounds if r is not None]
+    if bon:
+        print("  !! NOT REPORTING lineage-minus-bestofN: pass-rate is a mean over draws, so the")
+        print("     best-of-N arm cannot benefit from its budget (C_bestofN moved %+.3f while the"
+              % (st.mean(bon_last) - st.mean(bon_first)) if bon_first else "")
+        print("     budget grew 5x). That contrast is invalid under this metric.")
+
+    # GUARD 2: saturation at the TOP is the same absorbing-state failure as 0.50 was at the
+    # bottom. Report it beside the effect rather than under it.
+    if sat_tot:
+        pct = 100.0 * sat_hits / sat_tot
+        print("  ceiling: C_lineage == 1.000 in %d/%d rounds (%.0f%%) on a %d-task held set"
+              % (sat_hits, sat_tot, pct, held_n or 5))
+        if pct > 30:
+            print("     ^ above 30%: once lineage pins at the ceiling, lineage-reset measures only")
+            print("       how far RESET fell below it. Treat the magnitude as a lower bound and do")
+            print("       not read a trend across rounds.")
+
+    # Trajectory is the unit of replication: rounds inside a run share a checkpoint, a seed,
+    # a held split and an accumulated adapter. Each value here is already one run's mean.
     for arm, vals in sorted(arms.items()):
         m = st.mean(vals)
-        if trajectory_ci and len(vals) > 1:
-            lo, hi = trajectory_ci(vals)
-            print("  %-8s %+.3f [%+.3f, %+.3f]  n=%d trajectories" % (arm, m, lo, hi, len(vals)))
+        est = trajectory_level([[v] for v in vals]) if trajectory_level else None
+        if est and _ci:
+            lo, hi = _ci(est)
+            excl = "EXCLUDES 0" if (lo > 0 or hi < 0) else "includes 0"
+            print("  %-8s %+.3f [%+.3f, %+.3f]  n=%d trajectories  CI %s"
+                  % (arm, m, lo, hi, len(vals), excl))
         else:
             print("  %-8s %+.3f  n=%d trajectories" % (arm, m, len(vals)))
+    if len(arms) == 2 and trajectory_level and _ci:
+        a, b = arms.get("control", []), arms.get("inject", [])
+        if a and b:
+            d = st.mean(b) - st.mean(a)
+            print("  %-8s %+.3f  (inject minus control -- does added coverage change anything?)"
+                  % ("delta", d))
     print("""
 DECISION RULE (PREREGISTRATION.md Amendment 1):
   inject > 0 while control is flat -> the loop registers acquired coverage but does not
                                       generate it. That is a real finding.
   both flat                        -> instrument still dead. Publish no compounding claim
                                       from this hardware.
-  NEVER pool with the A100 headroom boards: different metric AND different hardware.""")
+  NEVER pool with the A100 headroom boards: different metric AND different hardware.
+
+  AND THE CONFOUND THAT LIMITS WHAT A POSITIVE MEANS: lineage keeps its adapter and trains
+  every round (R x sft_steps); reset re-initialises and trains on one round (1 x sft_steps).
+  So this contrast mixes ACCUMULATION with MORE GRADIENT STEPS. Under a metric that scores
+  reliability of correctness, "more SFT on verified-correct outputs raises the rate of correct
+  outputs" is near-tautological. A positive here is evidence that accumulation helps
+  correctness reliability -- NOT evidence of recursive self-improvement.""")
 
 
 def e2(pattern=None):
