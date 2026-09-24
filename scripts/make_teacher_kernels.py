@@ -82,7 +82,12 @@ def main():
             out[name] = good
         print("  [%d/%d] %-34s %d/%d correct%s" % (i + 1, len(names), name[:34], len(good), a.k,
               ("  best %.2fx" % good[0]["speedup_eager"]) if good else ""), flush=True)
-        PROV.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out},
+        # `kernels` holds only SOLVED tasks, so its length is coverage, not progress -- a
+        # half-finished harvest is indistinguishable from a complete one with poor coverage.
+        # Record how far we actually got, and whether we reached the end. Reading a partial
+        # artifact as a capability number is a live hazard: this file is rewritten every task.
+        PROV.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out,
+                   "tasks_attempted": i + 1, "complete": (i + 1) == len(names)},
                   open(a.out, "w"), indent=1)
 
     cov = len(out)

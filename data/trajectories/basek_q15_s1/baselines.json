@@ -1,0 +1,24 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "seed": 1,
+  "held": 26,
+  "budget_per_task": 60,
+  "results": {
+    "best_of_k": {
+      "method": "best_of_k",
+      "budget_per_task": 60,
+      "C": 0.2856,
+      "ci": 0.0941,
+      "correct_rate": 0.577,
+      "compiled_sp": 0.613
+    },
+    "self_refine": {
+      "method": "self_refine",
+      "iters": 6,
+      "k": 10,
+      "C": 0.2463,
+      "ci": 0.0947,
+      "correct_rate": 0.5
+    }
+  }
+}

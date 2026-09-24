@@ -32,6 +32,76 @@ def _load(p):
         return None
 
 
+def t1(pattern=None):
+    """T1-kernel capability curve -- the registered falsifier for the whole program.
+
+    Amendment 2: if the verified-kernel rate is at or near zero at EVERY scale including 14B,
+    the task is unreachable rather than unsaturated, and no compounding claim is published.
+
+    make_teacher_kernels writes incrementally per task, so a file existing does not mean the run
+    finished. A partial file read as final is how a 12/29 cell gets reported as a capability
+    number -- the cell is marked PARTIAL unless the task count matches the bank.
+    """
+    print("=" * 84)
+    print("T1-kernel -- capability curve on kernel AUTHORING (registered falsifier)")
+    print("=" * 84)
+    scales = [("0.5B", "q05"), ("1.5B", "q15"), ("3B", "q3"), ("7B", "q7"), ("14B", "q14")]
+    print("%-6s %-9s %8s %8s %8s %9s %9s %8s" %
+          ("scale", "status", "solved", "kernels", "custom", "med spd", "max spd", ">1.05x"))
+    done = []
+    for lbl, tag in scales:
+        f = pattern.replace("TAG", tag) if pattern else os.path.join(D, "t1k_%s.json" % tag)
+        d = _load(f)
+        if not d:
+            print("%-6s %-9s   (not harvested yet)" % (lbl, "-")); continue
+        ks = d.get("kernels") or {}
+        n_tasks = d.get("n_tasks") or 0
+        # `kernels` holds only SOLVED tasks, so its length is coverage and says nothing about
+        # progress. Newer artifacts record it explicitly; older ones cannot be judged, and
+        # "unknown" must not be reported as "complete".
+        if "complete" in d:
+            complete, prog = bool(d["complete"]), d.get("tasks_attempted")
+        else:
+            complete, prog = None, None
+        allk = [k for v in ks.values() for k in v]
+        solved = len([n for n, v in ks.items() if v])
+        status = {True: "complete", False: "PARTIAL", None: "unknown"}[complete]
+        if prog and not complete:
+            status = "%d/%d" % (prog, n_tasks)
+        if not allk:
+            print("%-6s %-9s %4d/%-3d %8d %8s %9s %9s %8s"
+                  % (lbl, status, solved, n_tasks, 0, "-", "-", "-", "-")); continue
+        cust = sum(1 for k in allk if any(t in k["code"] for t in
+                                          ("triton", "load_inline", "__global__")))
+        sp = [k["speedup_eager"] for k in allk]
+        print("%-6s %-9s %4d/%-3d %8d %7.0f%% %9.2f %9.2f %8d"
+              % (lbl, status, solved, n_tasks, len(allk), 100 * cust / len(allk),
+                 st.median(sp), max(sp), sum(1 for x in sp if x > 1.05)))
+        if complete:
+            done.append((lbl, solved, n_tasks, len(allk), cust, sp))
+
+    if not done:
+        print("\n  no cell is confirmed COMPLETE yet. Cells marked 'unknown' predate progress")
+        print("  stamping -- check the job log's TEACHER COVERAGE line before using them.")
+        return
+    print("""
+DECISION RULE (PREREGISTRATION.md Amendment 2, fixed before these ran):
+  verified rate at or near zero at EVERY scale -> the task is UNREACHABLE, not unsaturated.
+      The compounding contrast is uninterpretable for the same reason as before and no
+      compounding claim is published from it.
+  otherwise -> kernel authoring is a live substrate and T2-kernel is interpretable.""")
+    worst = max(s / t for _, s, t, _, _, _ in done)
+    fast = sum(1 for _, _, _, _, _, sp in done for x in sp if x > 1.05)
+    print("\n  OBSERVED over %d complete cell(s): best solve-rate %.0f%%, %d kernel(s) above 1.05x"
+          % (len(done), 100 * worst, fast))
+    print("  FALSIFIER: %s" % ("NOT triggered -- the task is reachable" if worst > 0.05
+                               else "TRIGGERED -- publish no compounding claim"))
+    print("""
+  Report correctness-reachability and speed-reachability SEPARATELY. A model that is correct at
+  parity is indistinguishable, in a single score, from one that cannot compete at all -- which
+  is how the 0.50 spike went unexplained for weeks.""")
+
+
 def r1(paths=None):
     """Substrate quality.
 
@@ -457,7 +527,7 @@ DECISION RULE (fixed in advance; the claim under test is already published):
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     arg = sys.argv[2] if len(sys.argv) > 2 else None
-    for fn, name in ((r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
+    for fn, name in ((t1, "t1"), (r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
         if what in (name, "all"):
             fn(arg) if what == name else fn()
             print()

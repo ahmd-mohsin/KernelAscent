@@ -615,6 +615,42 @@ a much stronger statement than one point at 0.5B.
 
 ---
 
+## 2.9f A file that exists is not a run that finished
+
+The capability curve looked complete — five scales, all with data:
+
+```
+0.5B  8/29 solved   1.5B  4/29   3B  9/29   7B  3/29   14B  1/29
+```
+
+Three of those were **mid-run**. `make_teacher_kernels` rewrites its artifact after *every*
+task, so the file appears the moment the first task is graded. The job log showed the truth:
+`q3` at 26/29, `q7` at **12/29**, `q14` at 22/29. I was one step from reading "7B solves 3/29"
+as a capability number for a cell that had seen 12 of 29 tasks.
+
+My first completeness check was also wrong, in an instructive way: I tested
+`len(kernels) >= n_tasks`. But `kernels` holds only **solved** tasks, so its length is *coverage*
+— a complete run with poor coverage is indistinguishable from a half-finished one. The check
+reported every cell PARTIAL, including the two that were genuinely finished.
+
+> **Incremental writes make "file exists" meaningless, and a field that happens to be a count is
+> not a progress field.** If a run writes as it goes, it must record *how far it got* — nothing
+> else in the artifact can be reverse-engineered into that, and the reader will guess wrong in
+> whichever direction is most convenient.
+
+Fixed: the harvester stamps `tasks_attempted` and `complete`, and the read-out reports
+`complete` / `N/29` / **`unknown`** as three distinct states. Older artifacts are `unknown` —
+not silently treated as complete, which is the failure that matters.
+
+### The result underneath, once completeness is respected
+
+Only 0.5B and 1.5B are finished. Both write real Triton (60% of verified kernels) and both sit
+at median 1.00×. But 1.5B produced one kernel at **1.34×**, and the partial 7B has one at
+**1.83×** — so the speed dimension is **not** uniformly dead, which is a correction to what the
+0.5B-only view suggested. The curve is the result; single cells are anecdotes.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

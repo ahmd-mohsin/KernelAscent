@@ -1,0 +1,67 @@
+{
+ "teacher": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+ "k": 12,
+ "n_tasks": 29,
+ "kernels": {
+  "l1_2": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nfrom typing import List\nimport triton\nimport triton.language as tl\n\n# Define the model using PyTorch\nclass ModelNew(nn.Module):\n    \"\"\"Pre-norm residual block minus the matmul:\n        y = x + gelu_tanh(LayerNorm(x) * w + b)\n    Row-wise mean/var reduction + elementwise chain over a 16384 x 8192 fp16 tensor\n    (256 MiB in, 256 MiB out). fp32 math internally, fp16 out.\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        self.eps = 1e-5\n        g = torch.Generator().manual_seed(1234)\n        w = 1.0 + 0.1 * torch.randn(HIDDEN, generator=g)\n        b = 0.05 * torch.randn(HIDDEN, generator=g)\n        self.weight = nn.Parameter(w.to(device=_DEV, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEV, dtype=dt), requires_grad=False)\n\n    def forward(self, x: torch.Tensor) -> torch.Tensor:\n        xf = x.float()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = xc.square().mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.weight.float() + self.bias.float()\n        h = F.gelu(h, approximate=\"tanh\")\n        return (xf + h).to(x.dtype)\n\n# Define Triton kernel for the model\n@triton.jit\ndef gelu_kernel(\n    x_ptr: tl.int32,\n    weight_ptr: tl.float32,\n    bias_ptr: tl.float32,\n    out_ptr: tl.float32,\n    batch_size: tl.uint32,\n    hidden_dim: tl.uint32,\n):\n    i, j = tl.arange(batch_size, tile_shape=(batch_size,))\n    mean = tl.load(x_ptr + i * hidden_dim)\n    xc = tl.load(x_ptr + i * hidden_dim) - mean\n    var = tl.load(x_ptr + i * hidden_dim) ** 2\n    h = xc * tl.rsqrt(var + 1e-5)\n    h = h * weight_ptr[i] + bias_ptr[i]\n    out_ptr[i * hidden_dim : i * hidden_dim + hidden_dim] = h\n\n\ndef get_inputs_triton():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = x * 2.0 + 0.5\n    return [\n        x.view(-1),\n        torch.ones(HIDDEN, device=_DEV, dtype=torch.float32),\n        torch.zeros(HIDDEN, device=_DEV, dtype=torch.float32),\n        x.view(-1),\n        ROWS,\n        HIDDEN,\n    ]\n\n# Main function to run the models\nif __name__ == \"__main__\":\n    # Create instances of the models\n    model_pyt = ModelNew(dt=DT)\n    model_triton = ModelNew(dt=DT)\n    \n    # Generate inputs\n    inputs_pyt = get_inputs()\n    inputs_triton = get_inputs_triton()\n    \n    # Forward pass for PyTorch model\n    with torch.no_grad():\n        out_pyt = model_pyt(*inputs_pyt)\n    \n    # Forward pass for Triton model\n    out_triton = gelu_kernel(*inputs_triton)\n    \n    # Check if outputs are equal\n    assert torch.allclose(out_pyt, out_triton), \"The outputs differ.\"\n    \n    print(\"Models are identical.\")\n",
+    "speedup_eager": 1.001
+   },
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport numpy as np\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 16384, 8192\n_DEV = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n\nclass ModelNew(nn.Module):\n    \"\"\"Pre-norm residual block minus the matmul:\n        y = x + gelu_tanh(LayerNorm(x) * w + b)\n    Row-wise mean/var reduction + elementwise chain over a 16384 x 8192 fp16 tensor\n    (256 MiB in, 256 MiB out). fp32 math internally, fp16 out.\n    \"\"\"\n    \n    def __init__(self, dt=DT):\n        super().__init__()\n        self.eps = 1e-5\n        g = torch.Generator().manual_seed(1234)\n        w = 1.0 + 0.1 * torch.randn(HIDDEN, generator=g)\n        b = 0.05 * torch.randn(HIDDEN, generator=g)\n        self.weight = nn.Parameter(w.to(device=_DEV, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=_DEV, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        xf = x.float()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = xc.square().mean(dim=-1, keepdim=True)\n        h = xc * torch.rsqrt(var + self.eps)\n        h = h * self.weight.float() + self.bias.float()\n        h = F.gelu(h, approximate=\"tanh\")\n        return (xf + h).to(x.dtype)\n\n\ndef get_inputs():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = x * 2.0 + 0.5\n    return [x.to(DT)]\n\n@triton.jit\ndef model_forward_kernel(X, W, B, OUT, NUM_ROWS, NUM_HIDDEN, BLOCK_SIZE):\n    pid = tl.program_id(0)\n    num_blocks = X.shape[0] // BLOCK_SIZE\n    for i in range(num_blocks):\n        row_start = i * BLOCK_SIZE\n        row_end = min(row_start + BLOCK_SIZE, X.shape[0])\n        \n        # Mean calculation\n        batch_mean = tl.sum(X[row_start:row_end, :], axis=0) / BLOCK_SIZE\n        \n        # Variance calculation\n        batch_var = tl.sum((X[row_start:row_end, :] - batch_mean[:, None])**2, axis=0) / BLOCK_SIZE\n        \n        # Normalization\n        z = (X[row_start:row_end, :] - batch_mean[:, None]) / torch.sqrt(batch_var + 1e-5)\n        \n        # Elementwise multiplication and addition with weight and bias\n        h = z * W[pid*BLOCK_SIZE:(pid+1)*BLOCK_SIZE] + B[pid*BLOCK_SIZE:(pid+1)*BLOCK_SIZE]\n        \n        # GELU operation\n        h = F.gelu(h, approximate=\"tanh\")\n        \n        # Output assignment\n        OUT[row_start:row_end, :] += h[:, :, None]\n\ndef train_step(model, inputs, optimizer, criterion):\n    model.train()\n    optimizer.zero_grad()\n    outputs = model(*inputs)\n    loss = criterion(outputs, inputs[0])\n    loss.backward()\n    optimizer.step()\n    return loss.item()\n\nif __name__ == \"__main__\":\n    model_new = ModelNew(dt=DT)\n    model_new.load_state_dict(torch.load('model.pt'))\n    inputs = get_inputs()\n    optimizer = torch.optim.AdamW(model_new.parameters(), lr=1e-3)\n    criterion = nn.MSELoss()\n    for epoch in range(10):\n        loss = train_step(model_new, inputs, optimizer, criterion)\n        print(f'Epoch {epoch}, Loss: {loss}')\n",
+    "speedup_eager": 1.0
+   }
+  ],
+  "l1_3": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        cols = 4096\n        self.eps = 1e-5\n        w = 1.0 + 0.1 * torch.randn(cols, generator=g)\n        b = 0.05 * torch.randn(cols, generator=g)\n        gain = 0.5 + torch.rand(cols, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gain = nn.Parameter(gain.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        # Input data in FP32 for efficiency but converted to FP16 during computation\n        xf = x.float().to(DT)\n        \n        # Step 1: Calculate mean and variance\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        \n        # Step 2: Calculate the inverse square root of variance plus epsilon\n        var = (xc * xc).mean(dim=-1, keepdim=True)\n        inv_sqrt_var_plus_eps = 1 / torch.sqrt(var + self.eps)\n        \n        # Step 3: Perform element-wise multiplication by weight and bias\n        weighted_and_shifted = xc * self.weight.float().to(DT) + self.bias.float().to(DT)\n        \n        # Step 4: Apply GELU activation function\n        gelu_output = F.gelu(weighted_and_shifted, approximate=\"tanh\", out=weighted_and_shifted)\n        \n        # Step 5: Apply the gain parameter\n        gain_output = gelu_output * self.gain.float().to(DT) + xf.to(DT)\n        \n        # Step 6: Return the result in original input precision\n        return gain_output.float()\n\n# Example usage\ninputs = get_inputs()\nmodel = ModelNew(dt=DT)\noutput = model(*inputs)\nprint(output.shape)  # Should print: torch.Size([32768, 4096])\n",
+    "speedup_eager": 1.345
+   }
+  ],
+  "l2_9": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\n\nclass ModelNew(nn.Module):\n    \"\"\"\n    Transformer-style residual projection block with a fused epilogue:\n        y = x + scale * gelu_tanh(x @ W^T + b)\n    GEMM: M = 16*1024 = 16384, K = 4096, N = 4096 (fp16 in, fp32 accumulate).\n    Epilogue = bias add + tanh-GELU + scalar scale + residual add.\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        D = 4096\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(D, D, generator=g) * (1.0 / D ** 0.5)\n        b = torch.randn(D, generator=g) * 0.02\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.scale = 0.5\n\n    def forward(self, x):\n        B, S, D = x.shape\n        h = F.linear(x.reshape(B * S, D), self.weight, self.bias)   # cuBLAS GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")                            # activation\n        h = self.scale * h.view(B, S, D)                          # scale + residual\n        return x + h\n\n\ndef get_inputs():\n    dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(16, 1024, 4096, generator=g)\n    return [x.to(device=dev, dtype=DT)]\n",
+    "speedup_eager": 0.997
+   }
+  ],
+  "l2_10": [
+   {
+    "code": "from typing import List\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\n# Realistic 7B-class transformer projection: 8192 tokens (batch 4 x seq 2048), hidden 4096\nM = 8192\nK = 4096\nN = 4096  # == K so the residual add is shape-compatible\n\nclass ModelNew(nn.Module):\n    \"\"\"y = gelu(x @ W^T + b) * gamma + x  -- GEMM with fused bias / GELU / per-channel scale / residual epilogue.\"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(N, K, generator=g) * (1.0 / K ** 0.5)\n        b = torch.randn(N, generator=g) * 0.02\n        gamma = 1.0 + 0.1 * torch.randn(N, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        # Fuse the elementwise chain into a single pass over memory\n        # First, GEMM to compute xW^T\n        # Then, apply Gelu\n        # Next, multiply by gamma\n        # Finally, add x\n        return F.gelu(F.linear(x, self.weight, self.bias)) * self.gamma + x\n\ndef get_inputs():\n    dev = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(M, K, generator=g).to(device=dev, dtype=DT)\n    return [x]\n",
+    "speedup_eager": 0.992
+   }
+  ]
+ },
+ "_provenance": {
+  "utc": "2026-09-24T19:30:06Z",
+  "host": "n27",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}

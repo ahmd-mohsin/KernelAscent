@@ -1,0 +1,101 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "seed": 1,
+  "history": [
+    {
+      "round": 0,
+      "C_train": 0.094,
+      "C_held": 0.038,
+      "transfer_gap": 0.055,
+      "retention": 0.25,
+      "gen_distinct2": 0.317,
+      "gen_dissim": 0.681,
+      "gen_entropy": 0.001,
+      "drift_total": null,
+      "drift_early": null,
+      "drift_mid": null,
+      "drift_late": null,
+      "sft_loss": 0.1672
+    },
+    {
+      "round": 1,
+      "C_train": 0.031,
+      "C_held": 0.038,
+      "transfer_gap": -0.007,
+      "retention": 0.25,
+      "gen_distinct2": 0.307,
+      "gen_dissim": 0.667,
+      "gen_entropy": 0.001,
+      "drift_total": 0.0581,
+      "drift_early": 0.0332,
+      "drift_mid": 0.0338,
+      "drift_late": 0.0336,
+      "sft_loss": 0.2154
+    },
+    {
+      "round": 2,
+      "C_train": 0.125,
+      "C_held": 0.077,
+      "transfer_gap": 0.048,
+      "retention": 0,
+      "gen_distinct2": 0.297,
+      "gen_dissim": 0.659,
+      "gen_entropy": 0.001,
+      "drift_total": 0.2343,
+      "drift_early": 0.1265,
+      "drift_mid": 0.138,
+      "drift_late": 0.1409,
+      "sft_loss": 0.1606
+    },
+    {
+      "round": 3,
+      "C_train": 0.161,
+      "C_held": 0.307,
+      "transfer_gap": -0.146,
+      "retention": 0.375,
+      "gen_distinct2": 0.313,
+      "gen_dissim": 0.68,
+      "gen_entropy": 0.0,
+      "drift_total": 0.2654,
+      "drift_early": 0.1486,
+      "drift_mid": 0.1569,
+      "drift_late": 0.1543,
+      "sft_loss": 0.1267
+    },
+    {
+      "round": 4,
+      "C_train": 0.188,
+      "C_held": 0.313,
+      "transfer_gap": -0.125,
+      "retention": 0.625,
+      "gen_distinct2": 0.29,
+      "gen_dissim": 0.635,
+      "gen_entropy": 0.0,
+      "drift_total": 0.3245,
+      "drift_early": 0.1809,
+      "drift_mid": 0.192,
+      "drift_late": 0.189,
+      "sft_loss": 0.0783
+    },
+    {
+      "round": 5,
+      "C_train": 0.381,
+      "C_held": 0.463,
+      "transfer_gap": -0.082,
+      "retention": 0.75,
+      "gen_distinct2": 0.288,
+      "gen_dissim": 0.625,
+      "gen_entropy": 0.0,
+      "drift_total": 0.4956,
+      "drift_early": 0.2436,
+      "drift_mid": 0.2916,
+      "drift_late": 0.3183,
+      "sft_loss": 0.0906
+    }
+  ],
+  "verdict": {
+    "compounded": true,
+    "mechanisms": [],
+    "carrying_depth": "late"
+  }
+}

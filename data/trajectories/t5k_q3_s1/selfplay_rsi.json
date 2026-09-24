@@ -1,0 +1,53 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "seed": 1,
+  "held": 13,
+  "history": [
+    {
+      "round": 0,
+      "C_held_static": 0.077,
+      "C_held_frozen_author": 0.115,
+      "C_held_live": 0.077,
+      "L_minus_S": -0.0,
+      "F_minus_S": 0.038,
+      "L_minus_F": -0.038,
+      "frontier_L": 16,
+      "frontier_F": 16,
+      "live_model_proposed": 0,
+      "live_rejected_degenerate": 6,
+      "live_backstop": 0,
+      "base_correct_on_live": 0
+    },
+    {
+      "round": 1,
+      "C_held_static": 0.116,
+      "C_held_frozen_author": 0.038,
+      "C_held_live": 0.077,
+      "L_minus_S": -0.039,
+      "F_minus_S": -0.078,
+      "L_minus_F": 0.039,
+      "frontier_L": 17,
+      "frontier_F": 17,
+      "live_model_proposed": 0,
+      "live_rejected_degenerate": 6,
+      "live_backstop": 1,
+      "base_correct_on_live": 0
+    },
+    {
+      "round": 2,
+      "C_held_static": 0.27,
+      "C_held_frozen_author": 0.039,
+      "C_held_live": 0.154,
+      "L_minus_S": -0.115,
+      "F_minus_S": -0.231,
+      "L_minus_F": 0.116,
+      "frontier_L": 17,
+      "frontier_F": 17,
+      "live_model_proposed": 0,
+      "live_rejected_degenerate": 3,
+      "live_backstop": 0,
+      "base_correct_on_live": 0.25
+    }
+  ],
+  "note": "3-arm: STATIC / FROZEN-AUTHOR / LIVE-AUTHOR. PRIMARY=L_minus_F (author co-evolution). L-S=total curriculum, F-S=curriculum w/o author update."
+}
