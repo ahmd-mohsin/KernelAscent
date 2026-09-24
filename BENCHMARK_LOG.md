@@ -2562,3 +2562,39 @@ only by asking "what does this code actually restore/pass?" rather than "does th
 right?". A marker like `resumed_at` is worthless as a safeguard when the condition it marks is
 universal: every cell hit the walltime, so every cell was marked, so the marking distinguished
 nothing.
+
+### T1-kernel FINAL — all 10 cells complete, both extraction policies (2026-09-24 16:45)
+
+`t1kl_q14` landed. Every cell in both policies is now `complete` at 29/29 tasks, so this is the
+settled result and supersedes the two partial sections above.
+
+| scale | strict verify\|attempt | lenient verify\|attempt | lenient Wilson 95% |
+|---|---|---|---|
+| 0.5B | 5.41% (4/74) | **9.45%** (24/254) | [6.4%, 13.7%] |
+| 1.5B | 4.05% (3/74) | 2.95% (7/237) | [1.4%, 6.0%] |
+| 3B | 3.26% (6/184) | 7.93% (26/328) | [5.5%, 11.4%] |
+| 7B | 1.53% (4/262) | 2.91% (10/344) | [1.6%, 5.3%] |
+| 14B | 0.00% (0/219) | **0.59%** (2/338) | [0.16%, 2.1%] |
+
+**One correction to what I wrote an hour ago.** I twice recorded 14B as verifying *nothing*
+under lenient extraction. That was reading an incomplete cell: at 108 and then 252 attempts it
+had 0, but the finished cell has **2 verified kernels in 338 attempts**. 14B is near-zero, not
+zero. The falsifier language must say "near-zero", and any sentence asserting 14B never produces
+a correct kernel is wrong.
+
+**CONFIRMED — endpoint contrast.** 0.5B vs 14B: strict p = 0.0038, lenient p = **9.6e-08**.
+Wilson intervals for the endpoints do not overlap under either policy. This is the T1 result.
+
+**CONFIRMED — registered falsifier NOT triggered.** It required a near-zero verified rate at
+*every* scale; 0.5B reaches 9.45% [6.4%, 13.7%]. The task is reachable, so a zero elsewhere is
+informative rather than a dead instrument.
+
+**RETRACTION STANDS — monotonicity.** Strict rho = −1.000, lenient rho = **−0.900**. Under the
+permissive policy the structure is not a staircase but three groups: {0.5B, 3B} ~8–9%,
+{1.5B, 7B} ~3%, {14B} 0.6%. The intermediate ordering is not stable across extraction policies
+and must not be claimed. 3B's interval [5.5%, 11.4%] overlaps 0.5B's almost entirely.
+
+**Paper wording that is defensible:** attempt rate rises with scale while the probability a
+kernel verifies *given* an attempt falls, with a highly significant endpoint contrast robust to
+extraction policy. **Not defensible:** a monotone decline, an ordering p-value, or "14B never
+verifies".
