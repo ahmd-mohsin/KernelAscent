@@ -551,6 +551,32 @@ the build when the estimate falls outside. Negative-tested.
 
 ---
 
+## 2.9d The row that vanished because it had no error bar
+
+The headline table printed per-scale trajectory counts of 12 + 20 + 19 + 5 = **56**, beside a
+bolded pooled **57**. The missing trajectory was the 14B cell: **n=1**.
+
+`trajectory_level()` returns `None` when there is a single cluster, because no t-interval is
+computable. The generator then did `if not t: continue` — dropping the whole **row**, not just
+the interval. So a run that counted toward the pooled figure had nothing to show for itself, and
+a caption promising that underpowered scales are "marked underpowered" was false for the one
+scale that was invisible.
+
+The root cause is a level deeper: `pack()` stored `{"trajectory": None, "crve": None, "round":
+None}` for that cell — **no counts at all**. There was no way to print the row even if the
+generator had wanted to, because the summary had discarded the only facts that still existed.
+
+> **A summary should record the COUNTS even when it cannot compute a statistic.** "We could not
+> estimate this" and "there is nothing here" are different statements, and collapsing them makes
+> a table stop summing with no visible cause.
+
+Fixed at the source: `pack()` now always emits `n_trajectories` and `n_rounds_total`, the
+generator emits a row with dashes for the uncomputable fields, and `check_table_sums()` fails
+the build when per-scale rows do not add to the pooled total. A table a reader cannot add up is
+not auditable, which is the whole point of printing it.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

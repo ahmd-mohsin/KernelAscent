@@ -5,6 +5,8 @@
  "note": "Trajectory is the independent replicate: rounds within a run share a base checkpoint, seed, held split and accumulated adapter. Round-level pooling is reported only to make the correction auditable.",
  "models": {
   "Qwen2.5-Coder-0.5B-Instruct": {
+   "n_trajectories": 12,
+   "n_rounds_total": 51,
    "trajectory": {
     "n": 12,
     "G": 12,
@@ -70,6 +72,8 @@
    }
   },
   "Qwen2.5-Coder-1.5B-Instruct": {
+   "n_trajectories": 20,
+   "n_rounds_total": 93,
    "trajectory": {
     "n": 20,
     "G": 20,
@@ -135,6 +139,8 @@
    }
   },
   "Qwen2.5-Coder-3B-Instruct": {
+   "n_trajectories": 19,
+   "n_rounds_total": 78,
    "trajectory": {
     "n": 19,
     "G": 19,
@@ -200,6 +206,8 @@
    }
   },
   "Qwen2.5-Coder-7B-Instruct": {
+   "n_trajectories": 5,
+   "n_rounds_total": 5,
    "trajectory": {
     "n": 5,
     "G": 5,
@@ -259,6 +267,8 @@
    }
   },
   "Qwen2.5-Coder-14B-Instruct": {
+   "n_trajectories": 1,
+   "n_rounds_total": 1,
    "trajectory": null,
    "crve": null,
    "round": null

@@ -34,7 +34,7 @@ def main():
         A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
         A.check_degenerate_bestofn(); A.check_retractions_propagated()
-        A.check_intervals_contain_estimates()
+        A.check_intervals_contain_estimates(); A.check_table_sums()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names

@@ -634,6 +634,33 @@ def check_intervals_contain_estimates():
         ok("stats/interval-contains-estimate", "every estimate printed beside an interval lies inside it")
 
 
+def check_table_sums():
+    """Per-scale trajectory counts must sum to the pooled n printed beside them.
+
+    A single-trajectory cell has no computable interval, so its ROW was dropped while its
+    trajectory still counted toward the pooled total: the table read 12+20+19+5 = 56 against a
+    bolded 57, with the missing 14B run invisible. A table a reader cannot add up is not
+    auditable, and 'underpowered scales are marked' is false if one of them is absent.
+    """
+    d = load("compounding_tost.json")
+    models, pooled = d.get("models") or {}, (d.get("pooled") or {}).get("trajectory") or {}
+    if not models or not pooled:
+        return
+    rows = sum((v or {}).get("n_trajectories") or 0 for v in models.values())
+    if rows != pooled.get("n"):
+        fail("tables/sum",
+             "per-scale trajectory counts sum to %d but the pooled n is %d -- a cell is in the "
+             "pooled figure with no row of its own" % (rows, pooled.get("n")))
+        return
+    rounds = sum((v or {}).get("n_rounds_total") or 0 for v in models.values())
+    if rounds != pooled.get("n_rounds"):
+        fail("tables/sum", "per-scale round counts sum to %d but the pooled figure says %d"
+             % (rounds, pooled.get("n_rounds")))
+        return
+    ok("tables/sum", "per-scale rows sum to the pooled totals (%d trajectories, %d rounds)"
+       % (rows, rounds))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -643,7 +670,8 @@ def main():
                check_unverifiable_probe, check_probe_clustered, check_roofline_arch,
                check_baseline_attribution, check_custom_kernel_rate,
                check_degenerate_bestofn, check_retractions_propagated,
-               check_intervals_contain_estimates):
+               check_intervals_contain_estimates,
+               check_table_sums):
         fn()
     if not a.quiet:
         print("=" * 100)

@@ -85,11 +85,18 @@ def report(groups, delta, title, field):
     return per_model, ap
 
 
-def to_json(per_model, pooled, delta, field):
-    def pack(a):
+def to_json(per_model, pooled, delta, field, groups=None):
+    def pack(a, clusters=None):
         if not a:
             return None
+        # Always record the COUNTS, even when no estimator could be computed. A single-trajectory
+        # cell has no t-interval, and packing it as all-None meant its row vanished from the
+        # results table while its trajectory still counted toward the bolded pooled n -- the
+        # table summed to 56 against a printed 57 with nothing to show the reader why.
         out = {}
+        if clusters is not None:
+            out["n_trajectories"] = len(clusters)
+            out["n_rounds_total"] = sum(len(c) for c in clusters)
         for k in ("trajectory", "crve", "round"):
             e = a[k]
             if not e:
@@ -111,7 +118,7 @@ def to_json(per_model, pooled, delta, field):
             "note": ("Trajectory is the independent replicate: rounds within a run share a base "
                      "checkpoint, seed, held split and accumulated adapter. Round-level pooling is "
                      "reported only to make the correction auditable."),
-            "models": {m: pack(a) for m, a in per_model.items()},
+            "models": {m: pack(a, (groups or {}).get(m)) for m, a in per_model.items()},
             "pooled": pack(pooled)}
 
 
@@ -137,7 +144,7 @@ def main():
     print("BF01 > 3 = moderate, > 10 = strong evidence for the null. Computed at the estimand's own n,")
     print("so the trajectory-level BF01 is the one that may be quoted.")
     if a.out:
-        json.dump(to_json(per_model, pooled, a.delta, a.field), open(a.out, "w"), indent=1)
+        json.dump(to_json(per_model, pooled, a.delta, a.field, groups), open(a.out, "w"), indent=1)
         print("\nwrote", a.out)
     return 0
 

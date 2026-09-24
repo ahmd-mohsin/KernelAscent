@@ -69,7 +69,14 @@ def compounding_note():
         t = a.get("trajectory")
         short = m.replace("Qwen2.5-Coder-", "Qwen-").replace("-Instruct", "")
         if not t:
+            # A single-trajectory cell has no computable interval, but dropping its ROW makes the
+            # table stop summing to the pooled n -- 12+20+19+5 = 56 against a bolded 57, with the
+            # missing 14B trajectory invisible. Emit the row with dashes so the table is
+            # auditable and the omission is the reader's to see, not ours to hide.
             underp.append(short)
+            n_t = a.get("n_trajectories") or 1
+            n_r = a.get("n_rounds_total") or 1
+            rows += "%s & %d & %d & --- & n/a (single run) & --- \\\\\n" % (esc(short), n_t, n_r)
             continue
         verdict = "EQUIV" if t["equivalent"] else "not equiv."
         if t["n"] < 5:
