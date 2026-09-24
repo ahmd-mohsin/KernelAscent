@@ -44,13 +44,15 @@ def main():
     from kernelascent.v3 import lab_kernel as LK
     import importlib
 
-    names = list(LK.TASKS)[: a.tasks] if hasattr(LK, "TASKS") else None
-    if not names:
+    # LK.TASKS is a {name: source} dict -- there is no task_src() accessor, which is what
+    # killed the first run of this script in 12s.
+    if isinstance(getattr(LK, "TASKS", None), dict) and LK.TASKS:
+        names = list(LK.TASKS)[: a.tasks]
+        srcs = {n: LK.TASKS[n] for n in names}
+    else:
         bank = json.load(open(os.path.join(ROOT, "dataset", "kernel_bank", "kernel_tasks.json")))
         names = [t["name"] for t in bank][: a.tasks]
         srcs = {t["name"]: t["source"] for t in bank}
-    else:
-        srcs = {n: LK.task_src(n) for n in names}
 
     tok, mdl = W.build(a.model, tuple(int(g) for g in str(a.gpus).split(",") if g != ""))
     report = {}
