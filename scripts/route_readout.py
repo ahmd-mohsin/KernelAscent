@@ -32,6 +32,83 @@ def _load(p):
         return None
 
 
+def t2k(pattern=None):
+    """T2-kernel: compounding on kernel AUTHORING, the task the models have not saturated.
+
+    Written while 35 of 36 cells are still running, so the rule is not chosen from the answer.
+
+    The contrast is `lineage - reset`, which is the PUBLISHED one and NOT the registered primary
+    (`self - fresh_frozen`, reported by prereg()). It is kept because the kernel-authoring set is
+    a like-for-like re-run of the published protocol on a different task, and because it carries
+    a confound worth stating every time: lineage accumulates R x sft_steps against reset's 1 x,
+    so it mixes accumulation with total gradient steps.
+    """
+    print("=" * 84)
+    print("T2-kernel -- lineage minus reset on kernel authoring")
+    print("=" * 84)
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        from clustered_stats import trajectory_level, ci as _ci, tost as _tost
+    except Exception:
+        trajectory_level = _ci = _tost = None
+    pat = pattern or os.path.join(D, "t2k_*")
+    arms, incomplete, resumed, inj = {}, [], 0, []
+    for outdir in sorted(glob.glob(pat)):
+        d = _load(os.path.join(outdir, "compounding.json"))
+        if not d:
+            continue
+        rows = d.get("history") or []
+        v = [r["lineage_minus_reset"] for r in rows if r.get("lineage_minus_reset") is not None]
+        if not v:
+            continue
+        arm = "inject" if "_inject_" in outdir else "control"
+        arms.setdefault(arm, []).append(st.mean(v))
+        if len(v) < 6:
+            incomplete.append((os.path.basename(outdir), len(v)))
+        if d.get("resumed_at"):
+            resumed += 1
+        if arm == "inject":
+            inj += [r.get("injected_tasks") for r in rows if r.get("injected_tasks") is not None]
+    if not arms:
+        print("  no t2k output yet"); return
+    if incomplete:
+        print("  !! %d cell(s) INCOMPLETE (a mid-run mean is not a trajectory mean):" % len(incomplete))
+        for n, k in sorted(incomplete)[:6]:
+            print("       %-28s %d/6 rounds" % (n, k))
+        if len(incomplete) > 6:
+            print("       ... and %d more" % (len(incomplete) - 6))
+    if resumed:
+        print("  !! %d trajectory(ies) resumed mid-run; LoRA state was not restored." % resumed)
+    for arm, vals in sorted(arms.items()):
+        est = trajectory_level([[v] for v in vals]) if (trajectory_level and len(vals) > 1) else None
+        if est and _ci:
+            lo, hi = _ci(est)
+            print("  %-8s %+.3f [%+.3f, %+.3f]  n=%d trajectories  CI %s"
+                  % (arm, st.mean(vals), lo, hi, len(vals),
+                     "EXCLUDES 0" if (lo > 0 or hi < 0) else "includes 0"))
+        else:
+            print("  %-8s %+.3f  n=%d" % (arm, st.mean(vals), len(vals)))
+    if inj:
+        fired = sum(1 for x in inj if x)
+        print("  positive control: injection fired in %d of %d inject-arm rounds (median %d tasks)"
+              % (fired, len(inj), int(st.median(inj))))
+        if fired < 0.3 * len(inj):
+            print("     ^ the control stopped firing early -- a control that runs out of work has")
+            print("       not passed, it has stopped testing. Treat a flat inject arm as UNINFORMATIVE.")
+    print("""
+DECISION RULE (fixed while 35 of 36 cells were still running):
+  n < 8 per arm                      -> UNDERPOWERED; report the interval, claim no equivalence
+  CI excludes 0, positive, control fires throughout
+                                     -> compounding on a task the models have NOT saturated --
+                                        the result this benchmark exists to produce
+  CI includes 0 and the control fired -> a real bounded null on kernel authoring
+  CI includes 0 and the control did NOT fire
+                                     -> uninformative; publish no compounding claim
+  ALWAYS report alongside: this contrast gives lineage R x the gradient steps of reset, so a
+  positive is evidence that ACCUMULATION helps, not that recursion does. The registered primary
+  (self - fresh_frozen) is the one without that confound -- see prereg().""")
+
+
 def prereg(pattern=None):
     """The PRE-REGISTERED T2 primary: self - fresh_frozen, under the registered scorer.
 
@@ -624,7 +701,7 @@ DECISION RULE (fixed in advance; the claim under test is already published):
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     arg = sys.argv[2] if len(sys.argv) > 2 else None
-    for fn, name in ((prereg, "prereg"), (t1, "t1"), (r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
+    for fn, name in ((prereg, "prereg"), (t2k, "t2k"), (t1, "t1"), (r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
         if what in (name, "all"):
             fn(arg) if what == name else fn()
             print()

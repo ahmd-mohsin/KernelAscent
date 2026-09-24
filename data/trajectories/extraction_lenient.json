@@ -1,0 +1,53 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+ "k": 8,
+ "n_tasks": 8,
+ "counts": {
+  "fenced-but-no-class": 4,
+  "extracted": 28,
+  "wrong-class-name": 32
+ },
+ "class_names": {
+  "Model": 31,
+  "TrinoptimizedModel": 1,
+  "ModelTriton": 2
+ },
+ "lenient_recovered": 30,
+ "mean_chars": 3051.234375,
+ "samples": {
+  "fenced-but-no-class": "```python\nimport torch\nimport torch.nn as nn\nfrom torch.ops.torchscript import torch_script_function\n\n@torch_script_function\ndef my_model_new(x):\n    x = x.float()\n    ms = x.square().mean(dim=-1, keepdim=True)\n    y = x * torch.rsqrt(ms + x.eps)\n    y = y * self.weight.float() + self.bias.float()\n    out = y * torch.sigmoid(y * self.gate.float())\n    return out.to(x.dtype)\n\ndef main():\n    rows, hiddens = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n    x = torch.randn(rows, hiddens, generator=torch.Generator(seed=0)).to(torch.float32)\n    result = my_model_new(x)\n    print(result.shape)\n\nif __name__ == \"__main__\":\n    main()\n```\n\nThis code defines a PyTorch module `ModelNew` that computes the output of a neural network using a custom kernel. The kernel multiplies the input tensor by a RMS normalization followed by a SiLU-like gating mechanism, then applies a sigmoid activation function. The implementation is self-contained and runs as-is with `torch-script` and `triton`. The kernel is not optimized for performance but can be executed on the GPU for speedup.",
+  "wrong-class-name": "To achieve a faster implementation of the given PyTorch model, we can use PyTorch's advanced features such as vectorized operations and leverage Triton for higher throughput. Below is a self-contained PyTorch module that implements the same functionality as the original model:\n\n```python\nimport torch\nimport torch.nn as nn\nfrom torch.ops import triton\n\n# Define the Model class with the same __init__ and forward signature\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.bias = nn.Parameter((0.05 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.gate = nn.Parameter((0.5 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n\n    def forward(self, x):\n        x = x.float()\n        ms = x.square().mean(dim=-1, keepdim=True)\n        y = x * torch.rsqrt(ms + self.eps)\n        y = y * self.weight.float() + self.bias.float()\n        out "
+ },
+ "_provenance": {
+  "utc": "2026-09-24T21:33:56Z",
+  "host": "n14",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}

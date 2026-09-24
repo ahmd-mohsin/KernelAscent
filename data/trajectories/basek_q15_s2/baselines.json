@@ -7,18 +7,10 @@
     "best_of_k": {
       "method": "best_of_k",
       "budget_per_task": 60,
-      "C": 0.2653,
-      "ci": 0.0945,
+      "C": 0.2698,
+      "ci": 0.096,
       "correct_rate": 0.538,
-      "compiled_sp": 0.529
-    },
-    "self_refine": {
-      "method": "self_refine",
-      "iters": 6,
-      "k": 10,
-      "C": 0.2637,
-      "ci": 0.094,
-      "correct_rate": 0.538
+      "compiled_sp": 0.548
     }
   }
 }
