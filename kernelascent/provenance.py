@@ -88,6 +88,25 @@ def stamp(extra=None):
     return p
 
 
+def dump_atomic(obj, path, extra=None, **kw):
+    """`dump` to a PATH, written tmp-then-os.replace so a reader never sees a partial file.
+
+    `open(path, "w")` truncates to zero bytes immediately, so a job killed between the truncate
+    and the write leaves an EMPTY artifact. Every long-running cell here is killed at a walltime
+    boundary by construction, and the labs treat an unreadable artifact as "no prior rounds" and
+    start clean -- so a torn write does not just lose the round in flight, it silently discards
+    every round the cell had already completed. Observed in the wild:
+
+        RESUME failed (JSONDecodeError('Expecting value: line 1 column 1 (char 0)')) -- starting clean
+
+    os.replace is atomic within a filesystem, so a reader sees either the old file or the new.
+    """
+    tmp = str(path) + ".tmp"
+    dump(obj, tmp, extra=extra, **kw)
+    os.replace(tmp, path)
+    return path
+
+
 def dump(obj, dest, extra=None, **kw):
     """Drop-in for `json.dump(obj, <path-or-file>, ...)` with `_provenance` attached.
 

@@ -217,10 +217,12 @@ def _run_with(args, gen):
         print("round %d Q=%.3f dBase=%+.3f F=%s strat=%d arch=%d (%.0fs)" %
               (r, Qg, Qg - Q0, ("%+.3f" % Fg if Fg is not None else "-"), len(U["strategies"]), len(U["archive"]), time.time() - t0), flush=True)
         os.makedirs(args.outdir, exist_ok=True)
-        PROV.dump({"model": args.model, "mode": args.mode, "Q0": Q0,
+        PROV.dump_atomic({"model": args.model, "mode": args.mode, "Q0": Q0,
                    "max_strategies": MAX_STRATEGIES, "archive_shown": N_ARCHIVE_SHOWN, "history": hist},
-                  open(os.path.join(args.outdir, "track_c.json"), "w"), indent=2)
-        json.dump({"round": r, "U": U, "hist": hist, "Q0": Q0}, open(statef, "w"))   # resume ckpt (S3-synced) — lets rounds extend
+                         os.path.join(args.outdir, "track_c.json"), indent=2)
+        json.dump({"round": r, "U": U, "hist": hist, "Q0": Q0}, open(statef + ".tmp", "w"))
+        os.replace(statef + ".tmp", statef)     # resume ckpt written atomically: a torn one is
+                                                # read as "no prior rounds" and discards them all
     fs = [h["F_g"] for h in hist if h["F_g"] is not None]
     print("\n=== TRACK-C SUMMARY (%s, %s) ===" % (args.model, args.mode))
     print("  Q0=%.3f  Q by round:" % Q0, [h["Qg"] for h in hist])

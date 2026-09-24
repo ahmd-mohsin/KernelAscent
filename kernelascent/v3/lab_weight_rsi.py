@@ -17,6 +17,7 @@ sys.path.insert(0, ROOT); sys.path.insert(0, PKG); sys.path.insert(0, HERE)
 import torch
 from kernelascent import agent_bench as AB
 from kernelascent.v3 import lab_kernel as LK   # reuse TASKS, _ref, _score, OPT
+from kernelascent import provenance as PROV
 
 SYS = "You are an expert GPU performance engineer. You write correct, fast PyTorch/Triton kernels."
 
@@ -533,11 +534,11 @@ def run(args):
         print("round %d trainC=%.3f ex=%d | C_self=%.3f C_fresh=%s C_ctrl=%s | dSelf=%+.3f self-fresh=%s self-ctrl=%s corr=%.2f csp=%.2f (%.0fs)" %
               (r, trainC, len(pairs), Cs, ("%.3f" % Cf if Cf is not None else "-"), ("%.3f" % Cc if Cc is not None else "-"), Cs - C0,
                ("%+.3f" % (Cs - Cf) if Cf is not None else "-"), ("%+.3f" % (Cs - Cc) if Cc is not None else "-"), sts["correct_rate"], sts["compiled_sp"], time.time() - t0), flush=True)
-        json.dump({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
-                   "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"],
-                   "resumed_at": resumed_at, "adapter_restored": adapter_restored,
-                   "history": hist},
-                  open(os.path.join(args.outdir, "weight_rsi.json"), "w"), indent=2)
+        PROV.dump_atomic({"model": args.model, "seed": args.seed, "C0_frozen": C0, "C0_ci": c0ci,
+                          "C0_correct_rate": st0["correct_rate"], "C0_compiled_sp": st0["compiled_sp"],
+                          "resumed_at": resumed_at, "adapter_restored": adapter_restored,
+                          "history": hist},
+                         os.path.join(args.outdir, "weight_rsi.json"), indent=2)
     print("\n=== WEIGHT-RSI SUMMARY (%s seed %d) ===" % (args.model, args.seed))
     print("  C0=%.3f  C_self:" % C0, [h["C_self"] for h in hist])
     print("  self-minus-fresh (producer-quality):", [h["delta_self_minus_fresh"] for h in hist])

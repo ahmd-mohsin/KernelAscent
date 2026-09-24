@@ -226,12 +226,12 @@ def run(args):
                              "cell would sever the lineage\n" % e)
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
-        PROV.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
+        PROV.dump_atomic({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
                    "adapter_restored": adapter_restored,
                    "arm": ("inject" if teacher else "control"),
                    "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
                    "history": hist},
-                  open(os.path.join(args.outdir, "compounding.json"), "w"), indent=2)
+                  os.path.join(args.outdir, "compounding.json"), indent=2)
     lr = [h["lineage_minus_reset"] for h in hist]
     print("\n=== COMPOUNDING SUMMARY %s === lineage-minus-reset:" % args.model, lr)
     print("COMPOUNDS (accumulation raises subsequent learning, sustained lineage>reset & lineage>best-of-N)?",
