@@ -2863,3 +2863,27 @@ artifact records which extraction policy produced it — the single variable dis
 reported a policy split across all 143 submissions that was entirely fabricated. Added
 `KA_EXTRACT`, `KA_MAX_NEW` and `KA_GEN_BS` to the recorded environment; the probe now infers
 from the cell name and marks the inference with a trailing `?` rather than asserting.
+
+### The registered primary restores all three arms, including the empty-ex0 case
+
+```
+prereg-q15-s1  RESUME  2 round(s) recorded -- continuing from round 2 (all arms restored, ex0=0 pairs)
+prereg-q15-s2  RESUME  2 round(s) recorded -- continuing from round 2 (all arms restored, ex0=2 pairs)
+```
+
+`s1` is the case worth pointing at. Its round 0 solved nothing, so `ex0` is legitimately empty,
+and it restored as an empty set rather than collapsing to `None` and re-freezing the
+round0-replay control's target from round 2's data. That was a bug I introduced *in the fix for
+the severing*, caught by reading a verification dump, and it is now confirmed correct in exactly
+the edge case that would have hidden it. `s2` restoring `ex0=2 pairs` shows the ordinary path
+still works.
+
+Both falsy-but-valid cases today are now verified in production: `Q0 = 0.000` restored rather
+than recomputed, and `ex0 = []` restored rather than re-frozen. Both needed `is None` where the
+obvious code says `or` / `not`.
+
+**Verification complete.** Everything changed today has been observed working on the cluster:
+T3 `Q0` restore; T2 lineage checkpoint and restore; the primary's three-arm checkpoint, restore
+and empty-`ex0` handling; the refusal guard on pre-fix cells; T5 atomic checkpoints with fatal
+load failure; atomic artifact writes; stall detection in `continue`; and `KA_EXTRACT` now
+recorded in provenance.
