@@ -1638,5 +1638,157 @@
     "best_score": 0.0,
     "ceiling": 11.91,
     "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f16_4096x8192_1em06",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.5,
+    "ceiling": 11.92,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_f16_16384x2048_1em05",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.501,
+    "ceiling": 11.98,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_f16_16384x2048_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 12.0,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_8192x2048_1em05",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.349,
+    "ceiling": 12.66,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_8192x2048_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 12.7,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x4096_1em05",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.5,
+    "ceiling": 11.55,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x4096_1em06",
+    "tier": "L1",
+    "correct_rate": 0.333,
+    "best_score": 0.686,
+    "ceiling": 11.56,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_32768x4096_1em05",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 11.29,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_32768x4096_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 11.29,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_4096x8192_1em05",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 12.0,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_4096x8192_1em06",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.501,
+    "ceiling": 12.0,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x2048_1em05",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.501,
+    "ceiling": 12.06,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x2048_1em06",
+    "tier": "L1",
+    "correct_rate": 0.167,
+    "best_score": 0.347,
+    "ceiling": 12.06,
+    "keep": true
+  },
+  {
+    "name": "dsl_softplus_norm_f32_8192x2048_1em05",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.66,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f32_8192x2048_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.63,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f32_16384x4096_1em05",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.26,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f32_16384x4096_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.25,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f32_32768x4096_1em05",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.16,
+    "keep": false
+  },
+  {
+    "name": "dsl_softplus_norm_f32_32768x4096_1em06",
+    "tier": "L1",
+    "correct_rate": 0.0,
+    "best_score": 0.0,
+    "ceiling": 3.16,
+    "keep": false
   }
 ]

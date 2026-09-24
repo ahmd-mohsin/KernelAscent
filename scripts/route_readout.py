@@ -32,6 +32,79 @@ def _load(p):
         return None
 
 
+def prereg(pattern=None):
+    """The PRE-REGISTERED T2 primary: self - fresh_frozen, under the registered scorer.
+
+    Two things the paper got wrong at once, closed by one experiment set:
+      * PREREGISTRATION.md registers `self - fresh_frozen` as the T2 primary -- a frozen
+        producer trained on the same fresh data each round, which isolates "the improver got
+        better" from "more data". The paper reported `lineage - reset` and never declared the
+        substitution. `lineage - reset` also confounds accumulation with total gradient steps
+        (R x versus 1 x); `self - fresh_frozen` does not.
+      * The registration defines the score over the torch.compile baseline with the per-task
+        roofline ceiling. Every published number used eager speedup against a fixed 1.5x anchor,
+        because `ceiling` defaults to 1.5 when unsupplied. These runs use KA_SCORE=compiled with
+        KA_ROOF_ARCH=h100.
+
+    Written before the data completed, so the decision rule is not chosen from the answer.
+    """
+    print("=" * 84)
+    print("PREREG -- self minus fresh_frozen (the REGISTERED T2 primary)")
+    print("=" * 84)
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        from clustered_stats import trajectory_level, ci as _ci, tost as _tost
+    except Exception:
+        trajectory_level = _ci = _tost = None
+    pat = pattern or os.path.join(D, "prereg_*")
+    traj, rounds_seen, partial = [], 0, []
+    for outdir in sorted(glob.glob(pat)):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        rows = d.get("rounds") or d.get("history") or []
+        vals = [r["delta_self_minus_fresh"] for r in rows
+                if r.get("delta_self_minus_fresh") is not None]
+        if not vals:
+            continue
+        traj.append(st.mean(vals)); rounds_seen += len(vals)
+        if len(vals) < 5:
+            partial.append((os.path.basename(outdir), len(vals)))
+    if not traj:
+        print("  no prereg output yet"); return
+    if partial:
+        print("  !! %d cell(s) INCOMPLETE -- a mid-run mean is not a trajectory mean:" % len(partial))
+        for n, k in partial:
+            print("       %-24s %d/5 rounds" % (n, k))
+    m = st.mean(traj)
+    est = trajectory_level([[v] for v in traj]) if (trajectory_level and len(traj) > 1) else None
+    if est and _ci:
+        lo, hi = _ci(est)
+        t = _tost(est, 0.05) if _tost else None
+        eq = (t.get("equivalent") if isinstance(t, dict) else None)
+        print("\n  self - fresh_frozen : %+.3f [%+.3f, %+.3f]   n=%d trajectories (%d rounds)"
+              % (m, lo, hi, len(traj), rounds_seen))
+        print("  CI %s zero | TOST at delta=0.05: %s"
+              % ("EXCLUDES" if (lo > 0 or hi < 0) else "includes",
+                 "EQUIVALENT" if eq else ("not equivalent" if eq is not None else "n/a")))
+    else:
+        print("\n  self - fresh_frozen : %+.3f   n=%d trajectories (too few for an interval)"
+              % (m, len(traj)))
+    print("""
+DECISION RULE (PREREGISTRATION.md Amendments 3 and 4, fixed before these runs landed):
+  n < 8 per arm                      -> UNDERPOWERED. Report the interval, make no
+                                        equivalence claim. MDE at n=4 is 0.120 against a
+                                        margin of 0.05.
+  CI excludes 0, positive            -> the improver genuinely got better, on the registered
+                                        contrast and the registered scorer
+  CI includes 0 and TOST equivalent  -> a bounded null on the REGISTERED primary, which is a
+                                        stronger statement than the published one because it
+                                        is not confounded with total gradient steps
+  disagrees in sign with lineage-reset -> the REGISTERED contrast is reported as primary and
+                                        the disagreement is reported, not resolved toward
+                                        whichever is more interesting""")
+
+
 def t1(pattern=None):
     """T1-kernel capability curve -- the registered falsifier for the whole program.
 
@@ -539,7 +612,7 @@ DECISION RULE (fixed in advance; the claim under test is already published):
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     arg = sys.argv[2] if len(sys.argv) > 2 else None
-    for fn, name in ((t1, "t1"), (r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
+    for fn, name in ((prereg, "prereg"), (t1, "t1"), (r1, "r1"), (r2, "r2"), (r3, "r3"), (e2, "e2")):
         if what in (name, "all"):
             fn(arg) if what == name else fn()
             print()

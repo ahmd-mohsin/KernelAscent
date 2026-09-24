@@ -782,5 +782,117 @@
     "eps": 1.0,
     "split": "heldin_cell",
     "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_f16_4096x8192_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "float16",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1e-06,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_f16_16384x2048_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "float16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1e-05,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_8192x2048_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 8192, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      8192,
+      2048
+    ],
+    "eps": 1e-05,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x4096_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      4096
+    ],
+    "eps": 1e-05,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x4096_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      4096
+    ],
+    "eps": 1e-06,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_4096x8192_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1e-06,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x2048_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1e-05,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_bf16_16384x2048_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1e-06,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
   }
 ]
