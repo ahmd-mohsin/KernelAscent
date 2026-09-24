@@ -2326,7 +2326,10 @@ does not, at the large end.
 | 14B | 219 | 66% | **0** | **0.0%** [0.0, 1.7] |
 
 **Attempt rate rises with scale; verify-given-attempt falls.** Endpoints 4/74 vs 0/219, Fisher
-exact two-sided **p = 0.0038**. Monotone ordering across 5 scales p = 1/120.
+exact two-sided **p = 0.0038**. ~~Monotone ordering across 5 scales p = 1/120.~~
+**RETRACTED 2026-09-24** — the monotone ordering is an artifact of strict extraction; under
+lenient extraction 3B breaks the order (Spearman rho -1.000 -> -0.900). See the lenient
+section below. The endpoint contrast stands under both policies.
 
 Per Amendment 4 this is a **capability finding**, not a metric artifact. Adjacent pairs overlap;
 one seed per scale; the claim is the endpoint contrast plus direction, not a smooth curve.
@@ -2422,3 +2425,101 @@ weight-RSI (T2)", "self-play (T5) shows no advantage" — is partly confounded b
 budget difference and must state so. The T5 null (`L-S=+0.001`, `F-S=-0.003` at round 3) is
 *consistent with* no self-play benefit but does not isolate it from the smaller budget.
 The gate freezes all 9 values so a new one, or a change to an existing one, fails loudly.
+
+### T1 lenient, 4 of 5 complete — one claim confirmed, one RETRACTED (2026-09-24 15:45)
+
+| scale | strict verify\|attempt | lenient verify\|attempt | lenient cell |
+|---|---|---|---|
+| 0.5B | 5.41% (4/74) | **9.45%** (24/254) | complete |
+| 1.5B | 4.05% (3/74) | 2.95% (7/237) | complete |
+| 3B | 3.26% (6/184) | **7.93%** (26/328) | complete |
+| 7B | 1.53% (4/262) | 2.91% (10/344) | complete |
+| 14B | 0.00% (0/219) | **0.00%** (0/252) | *incomplete* |
+
+**CONFIRMED — the endpoint contrast.** Fisher exact 0.5B vs 14B: strict p = 0.0038, lenient
+p = **6.8e-08**. It did not merely survive the extraction policy, it strengthened by four orders
+of magnitude. 14B now has *more* attempts under lenient extraction than it had under strict
+(252 vs 219) and still verifies **nothing**. Whatever stops 14B producing a correct kernel, it
+is not the extractor rejecting its output.
+
+**RETRACTED — the monotonicity claim.** The line above reading "Monotone ordering across 5
+scales p = 1/120" is an artifact of strict extraction and must not appear in the paper.
+
+- strict: 5.41 > 4.05 > 3.26 > 1.53 > 0.00, Spearman rho = **-1.000**, perfectly ordered
+- lenient: 9.45 > 2.95 < 7.93 > 2.91 > 0.00, Spearman rho = **-0.900**, 3B breaks the order
+
+Strict extraction discards a share of generations that itself correlates with scale, and that
+filter is what manufactured the clean staircase. Under the more permissive policy the decline is
+real but bumpy. The defensible claim is **the endpoint contrast plus the direction**, not a
+smooth curve, and not an ordering p-value.
+
+This is the second time a headline number has turned out to be a property of the instrument
+rather than of the models (the first was the whole benchmark measuring Triton's build
+environment). The pattern to watch: any filter whose severity correlates with the independent
+variable can synthesise a trend out of nothing.
+
+Still open: `t1kl_q14` is incomplete. The endpoint p-value can only strengthen while 14B keeps
+verifying zero, but no lenient p-value goes in the .tex until that cell reports `complete`.
+
+### T2-kernel: the lineage was severed at every chunk boundary (2026-09-24 16:00)
+
+`lab_compounding` checkpointed `history` and `prevC` on resume but **not the LoRA adapter**. The
+lineage arm's only cross-round state is that adapter — `pairs` is rebuilt from scratch each
+round — so every resumed run continued the round *numbering* while restarting the lineage from
+**base weights**. The lab exists to measure weight accumulation, and the accumulation was being
+deleted at each walltime boundary.
+
+I had noted this in a comment ("adapter not restored; trajectory marked") and recorded
+`resumed_at` so such trajectories would never be pooled silently. That safeguard was necessary
+but useless in practice: **every cell hit the walltime, so every cell was marked.**
+
+The signature, once looked for, is unmistakable — `trainC` collapses at exactly the round named
+by `resumed_at`, in **all 18** resumed cells, with no exceptions:
+
+| cell | resumed_at | trainC |
+|---|---|---|
+| control_q15_s1 | 5 | 0.025, 0.075, 0.175, 0.353, **0.478 → 0.05** |
+| control_q15_s5 | 4 | 0.047, 0.096, 0.369, **0.474 → 0.072**, 0.168 |
+| inject_q15_s2 | 5 | 0.05, 0.173, 0.374, 0.453, **0.502 → 0.075** |
+
+**Fixed**: the adapter is now checkpointed per round, written to a temp file and `os.replace`d,
+because the walltime kill lands mid-round by construction — a torn file is the expected case.
+C0 is restored too rather than re-evaluated (it is the frozen base and cannot change). A resume
+that finds no adapter checkpoint now **exits 3 and refuses** rather than silently severing.
+
+#### The result this changes
+
+Previously logged: control `+0.051`, inject `+0.100` — reading as though teacher injection
+roughly doubles the lineage advantage. That does not survive. Two corrections compound:
+
+1. Drop rounds at/after `resumed_at` (severed lineage).
+2. Match on round index. Cells have unequal valid depth — `inject_q3` contributes 2 *early*
+   rounds while `control_q15` contributes 5 mostly-*saturated* ones. Comparing "last 2 rounds"
+   across them biased inject upward.
+
+Matched on (scale, round), valid rounds only:
+
+| | n | mean lineage−reset | 95% CI |
+|---|---|---|---|
+| control | 44 | +0.057 | [+0.020, +0.094] |
+| inject | 44 | +0.075 | [+0.035, +0.114] |
+
+**No detectable injection effect** — the intervals overlap across almost their whole range. The
+per-round breakdown shows the advantage does not merely shrink, it **changes sign** with depth:
+q15 diff = +0.047, +0.118, −0.085, −0.116, −0.024 across rounds 0–4.
+
+**What does hold**: lineage beats reset by a small positive margin whose CI excludes zero in the
+control arm (+0.057 [+0.020, +0.094]). Weight lineage compounds — modestly, early, and then it
+stops.
+
+**Why it stops is the metric, not the model.** Both arms converge to C ≈ 0.50, which is exactly
+correct-at-parity in the headroom score. `lineage_minus_reset` values quantise to multiples of
+~0.1 because ~10 held tasks each score 0 or ~0.50 — the statistic is counting how many tasks
+flipped. Once both arms solve the same set, the difference is 0 **by construction**, not by
+absence of learning. This is the saturation the code comments predicted ("two reachable states,
+0 and 0.50"), now measured.
+
+**Decision: not re-running the 26 T2-kernel cells from scratch.** The valid prefixes already
+establish the finding (small early compounding, decaying to zero at saturation); more rounds
+would buy more saturated zeros at large allocation cost. The fix protects everything launched
+from here. Any future depth claim needs the passrate metric (Amendment 1), not headroom.

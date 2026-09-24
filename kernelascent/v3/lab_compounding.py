@@ -111,32 +111,64 @@ def run(args):
     if teacher:
         print("E1 POSITIVE CONTROL: injecting up to %d teacher kernel(s) per UNSOLVED train task "
               "(%d tasks available from %s)" % (args.inject_per_task, len(teacher), args.inject_kernels), flush=True)
-    C0, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=False)     # frozen-base held-out baseline
-    print("C0 frozen-base held = %.3f" % C0, flush=True)
-    hist = []; prevC = C0
+    hist = []; prevC = None; C0 = None
 
     # RESUME. Without this the lab restarts at round 0 on every walltime timeout, and jobman's
     # `continue` resubmits it to do so again: these cells reached round 4 of 6 in a 50-minute
     # chunk and then began the same 5 rounds over, indefinitely, while the queue showed healthy
     # progress. 19 cells were in that loop.
     #
-    # As with lab_weight_rsi, the LoRA adapter is not checkpointed, so a resumed run continues
-    # the round sequence but re-learns from the recorded data rather than restoring exact weights.
-    # Recorded as `resumed_at` so affected trajectories are identifiable, never silently pooled.
+    # The LINEAGE arm's only cross-round state is its LoRA adapter: `pairs` is rebuilt from
+    # scratch each round, and hist/prevC come back from the artifact. So an un-checkpointed
+    # adapter meant a resumed run restarted the lineage from BASE weights while continuing the
+    # round numbering -- severing the accumulation whose existence this lab exists to measure.
+    #
+    # The signature was unmistakable once looked for: in all 18 resumed cells, trainC collapsed
+    # at exactly the round named by `resumed_at` (0.502 -> 0.075, 0.478 -> 0.05, ...), and the
+    # collapse index tracked resumed_at with no exceptions. Marking the trajectory was not
+    # enough, because every cell hit the walltime and so every cell was marked.
+    #
+    # Checkpoint the adapter per round, written atomically: the walltime kill lands mid-round by
+    # construction, so a torn file is the expected failure, not a rare one.
     _prev = os.path.join(args.outdir, "compounding.json")
-    resumed_at = None
+    _adapter_f = os.path.join(args.outdir, "lineage_adapter.pt")
+    resumed_at = None; adapter_restored = None
     if os.path.exists(_prev):
         try:
             _d = json.load(open(_prev))
             hist = _d.get("history") or []
             if hist:
                 resumed_at = len(hist)
-                prevC = hist[-1].get("C_lineage", C0)
+                prevC = hist[-1].get("C_lineage")
+                C0 = _d.get("C0")                      # frozen base: cannot change, do not re-evaluate
+                adapter_restored = False
+                if os.path.exists(_adapter_f):
+                    try:
+                        _sd = torch.load(_adapter_f, map_location="cpu")
+                        set_peft_model_state_dict(mdl, {k: v.to(W._dev(mdl)) for k, v in _sd.items()})
+                        adapter_restored = True
+                    except Exception as e:
+                        print("RESUME  adapter checkpoint unreadable (%r) -- lineage would be "
+                              "severed; refusing to continue this cell" % e, flush=True)
+                        raise SystemExit(3)
+                else:
+                    print("RESUME  no adapter checkpoint (pre-fix run) -- lineage would be severed; "
+                          "refusing to continue. Delete the outdir to restart this cell clean.", flush=True)
+                    raise SystemExit(3)
                 print("RESUME  %d round(s) recorded -- continuing from round %d "
-                      "(adapter not restored; trajectory marked)" % (len(hist), len(hist)), flush=True)
+                      "(adapter restored=%s)" % (len(hist), len(hist), adapter_restored), flush=True)
+        except SystemExit:
+            raise
         except Exception as e:
             print("RESUME failed (%r) -- starting clean" % e, flush=True)
-            hist = []
+            hist = []; prevC = None; C0 = None
+    if C0 is None:
+        C0, _, _, _, _ = W.eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base held-out baseline
+        print("C0 frozen-base held = %.3f" % C0, flush=True)
+    else:
+        print("C0 frozen-base held = %.3f (restored; not re-evaluated)" % C0, flush=True)
+    if prevC is None:
+        prevC = C0
 
     for r in range(len(hist), args.rounds):
         t0 = time.time()
@@ -183,9 +215,19 @@ def run(args):
                "lineage_minus_bestofN": round(C_lin - C_bon, 3),   # >0 = beats matched-budget search
                "round_sec": round(time.time() - t0, 1)}
         hist.append(row); prevC = C_lin
+        # Persist the lineage adapter BEFORE the artifact, and atomically: if the walltime kill
+        # lands between the two, a resume that sees round r recorded must find round r's weights.
+        try:
+            _tmp = _adapter_f + ".tmp"
+            torch.save({k: v.detach().cpu().clone() for k, v in get_peft_model_state_dict(mdl).items()}, _tmp)
+            os.replace(_tmp, _adapter_f)
+        except Exception as e:
+            sys.stderr.write("WARNING: could not checkpoint lineage adapter (%r); a resume of this "
+                             "cell would sever the lineage\n" % e)
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
         PROV.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
+                   "adapter_restored": adapter_restored,
                    "arm": ("inject" if teacher else "control"),
                    "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
                    "history": hist},
