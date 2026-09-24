@@ -503,6 +503,43 @@ def check_custom_kernel_rate():
        % (dens, ", ".join(sorted({n for v in seen.values() for n in v}))))
 
 
+def check_degenerate_bestofn():
+    """lineage-minus-bestofN must never be reported under pass-rate.
+
+    Best-of-N's mechanism is the MAX over k*(r+1) draws; pass-rate is a MEAN, invariant to the
+    number of draws (measured: budget grew 5x, C_bestofN moved -0.024). The contrast is
+    therefore meaningless under that metric -- and it comes out at +0.676, positive in 37/37
+    rounds, which would REVERSE the published search-beats-training result with an artifact.
+    It is exactly the kind of number that gets copied into prose because it looks decisive.
+    """
+    pat = re.compile(r"[^.\n]{0,160}(?:best.?of.?[nk])[^.\n]{0,160}", re.I)
+    hits = []
+    for name, path in PROSE.items():
+        # Strip emphasis before matching. "*mean* over draws" did not match the exemption
+        # "mean over draws" and the gate flagged the very sentence that explains the problem --
+        # the same markup blindness that made the custom-kernel gate inert.
+        txt = re.sub(r"[*`]|\\emph\{|\\textbf\{|\\texttt\{|[{}]", "", read(path))
+        for m in pat.finditer(txt):
+            seg = m.group(0)
+            # a markdown table row comparing metrics is a definition, not a reported contrast
+            if seg.lstrip().startswith("|") or seg.count("|") >= 2:
+                continue
+            if not re.search(r"pass.?rate|passrate|KA_SCORE", seg, re.I):
+                continue
+            # the passages that EXPLAIN the degeneracy are the point, not a violation
+            if re.search(r"degenerat|invariant|do not report|does not report|not report|"
+                         r"mean over draws|max(imum)? over|artifact|refus", seg, re.I):
+                continue
+            hits.append("%s:%d  %r" % (name, txt[:m.start()].count("\n") + 1, seg.strip()[:100]))
+    if hits:
+        fail("passrate/bestofn",
+             "prose appears to report a best-of-N contrast under pass-rate, where the baseline "
+             "cannot benefit from its budget and the number is an artifact:\n      "
+             + "\n      ".join(hits))
+    else:
+        ok("passrate/bestofn", "no best-of-N contrast reported under pass-rate")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -510,7 +547,8 @@ def main():
     for fn in (check_compounding, check_search, check_mech, check_selfplay,
                check_trackc, check_embedded_claims, check_wall_phrasing, check_score_anchor,
                check_unverifiable_probe, check_probe_clustered, check_roofline_arch,
-               check_baseline_attribution, check_custom_kernel_rate):
+               check_baseline_attribution, check_custom_kernel_rate,
+               check_degenerate_bestofn):
         fn()
     if not a.quiet:
         print("=" * 100)

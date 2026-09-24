@@ -33,6 +33,7 @@ def main():
     def run(label):
         A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
+        A.check_degenerate_bestofn()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -68,6 +69,14 @@ def main():
                       ("INTUITIONS.md", "0 of 118", "9 of 118")):
         mutate(rel, (lambda a, b: (lambda t: t.replace(a, b, 1)))(a, b),
                "prompt/custom-kernel-rate")
+
+    print("best-of-N gate: the degenerate contrast must not be reported under pass-rate")
+    mutate("paper/instrument_validity.tex",
+           lambda t: t + "\nUnder pass-rate, lineage beats best-of-N by +0.676 in every round.\n",
+           "passrate/bestofn")
+    mutate("docs/index.html",
+           lambda t: t + "<p>With KA_SCORE=passrate, lineage exceeds best-of-N in 37/37 rounds.</p>\n",
+           "passrate/bestofn")
 
     assert run("all restored") == [], "repo must end clean"
     shutil.rmtree(tmp)

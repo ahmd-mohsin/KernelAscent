@@ -264,6 +264,60 @@ still inch ahead. Instead they are \emph{indistinguishable} --- which means the 
 \emph{no useful cumulative information} beyond what one round of fresh self-training recovers. That is a
 statement about the \emph{state}, not the step size.}
 
+\subsubsection*{An H100 replication under a correctness-reliability metric}
+The A100 compounding null above is measured on the headroom score. On H100 that score has no
+range (Section~\ref{sec:instrument}), so we re-ran the same protocol under a pre-registered
+second metric --- \emph{pass-rate}, the fraction of the $k$ sampled candidates that verify
+(pre-registration, Amendment~1). Eight trajectories, 1.5B and 3B, two seeds per arm:
+
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Arm} & $\textsf{lineage}-\textsf{reset}$ & \textbf{95\% CI} \\
+\midrule
+control (published protocol) & $+0.184$ & $[+0.080, +0.287]$ \\
+inject (teacher coverage on failed tasks) & $+0.184$ & $[+0.089, +0.278]$ \\
+\midrule
+inject $-$ control & $+0.000$ & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Both CIs exclude zero: on this metric, accumulation beats a matched reset. This is the
+first non-degenerate compounding measurement we obtained on H100, and we report it with three
+limits that between them prevent it from supporting a compounding claim.
+
+\textbf{First, the search baseline is degenerate under this metric and we do not report it.}
+Best-of-$N$'s mechanism is the \emph{maximum} over $k(r{+}1)$ draws; pass-rate is a
+\emph{mean}, which is invariant to the number of draws. Measured: as the budget grew
+five-fold, $C_{\textsf{best-of-}N}$ moved $-0.024$. The apparent
+$\textsf{lineage}-\textsf{best-of-}N = +0.676$ (positive in 37/37 rounds) would therefore
+\emph{reverse} our search-beats-training result using an artifact. \textbf{A baseline is only a
+baseline with respect to a scoring rule}; changing the rule silently changes what every
+comparator means, and each must be re-derived rather than carried over.
+
+\textbf{Second, the metric saturates at the top.} $C_{\textsf{lineage}} = 1.000$ in 18 of 37
+rounds (49\%) on a five-task held set. Once lineage pins at the ceiling the difference measures
+only how far \emph{reset} fell below it, so the magnitude is a lower bound and the
+across-round trend is unreadable. Having diagnosed a floor effect and built a metric with range
+at the floor, we landed in a ceiling effect: \textbf{saturation is a property of the match
+between task difficulty and model ability, not of the metric}, and changing the metric only
+moves where the wall sits.
+
+\textbf{Third, the contrast is not training-compute matched.} Lineage retains its adapter and
+trains every round ($R \times$ steps); reset re-initialises and trains on one round's data
+($1 \times$ steps). Under a metric scoring reliability of correctness, ``more supervised
+fine-tuning on verified-correct outputs raises the rate of correct outputs'' is close to
+tautological. The result is evidence that accumulation improves correctness \emph{reliability};
+it is not evidence of recursive self-improvement.
+
+Finally, the positive control did not fail --- it ran out of work. Injected-task counts per
+round run $[15,2,1,0,0]$ and $[19,3,0,0,0,0]$: injection targets tasks the student failed, and
+by round~2 it solves everything, which is why the inject--control delta is exactly zero. A
+five-task held set that a 1.5B model exhausts in two rounds cannot support a compounding claim
+under any scoring rule. The remedy is the 456-task generated bank (Table~\ref{tab:reach}), not
+a third metric.
+
 \subsection{T3 --- Procedure-RSI}
 When a frozen-weight model rewrites its own executable procedure, frontier models improve it substantially
 (\texttt{trackc.json}): GPT-6 Astra $Q$ $0.298\!\to\!0.854$ (\textbf{+0.556}, growing over 6 rounds), Claude
@@ -490,7 +544,8 @@ step is turning latent competence into a reliably-produced output.}
 
 % =====================================================================================
 % =====================================================================================
-\section{Instrument validity: five ways a self-improvement benchmark manufactures a null}
+\section{Instrument validity: how a self-improvement benchmark manufactures a null}
+\label{sec:instrument}
 % =====================================================================================
 \input{instrument_validity}
 
