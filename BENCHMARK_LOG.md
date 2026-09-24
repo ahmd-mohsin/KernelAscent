@@ -2374,7 +2374,7 @@ Two cautions I am not allowed to drop when this goes in the paper:
    **endpoint contrast plus direction**, and the "monotone ordering p = 1/120" line must come out.
    That line is currently in the log above and would be wrong to carry forward unqualified.
 
-### Generation-budget asymmetry across arms and rungs (2026-09-24 15:30)
+### Generation-budget asymmetry across arms and rungs (2026-09-24 15:17)
 
 Chasing a `basek-q3-s2` CUDA OOM turned up a confound rather than a memory bug.
 
@@ -2426,7 +2426,7 @@ budget difference and must state so. The T5 null (`L-S=+0.001`, `F-S=-0.003` at 
 *consistent with* no self-play benefit but does not isolate it from the smaller budget.
 The gate freezes all 9 values so a new one, or a change to an existing one, fails loudly.
 
-### T1 lenient, 4 of 5 complete — one claim confirmed, one RETRACTED (2026-09-24 15:45)
+### T1 lenient, 4 of 5 complete — one claim confirmed, one RETRACTED (2026-09-24 15:24)
 
 | scale | strict verify\|attempt | lenient verify\|attempt | lenient cell |
 |---|---|---|---|
@@ -2439,7 +2439,7 @@ The gate freezes all 9 values so a new one, or a change to an existing one, fail
 **CONFIRMED — the endpoint contrast.** Fisher exact 0.5B vs 14B: strict p = 0.0038, lenient
 p = **6.8e-08**. It did not merely survive the extraction policy, it strengthened by four orders
 of magnitude. 14B now has *more* attempts under lenient extraction than it had under strict
-(252 vs 219) and still verifies **nothing**. [SUPERSEDED 16:45 — that cell was incomplete; the
+(252 vs 219) and still verifies **nothing**. [SUPERSEDED 15:36 — that cell was incomplete; the
 finished cell has 2 verified in 338 attempts. 14B is near-zero, not zero.] Whatever stops 14B
 producing a correct kernel, it
 is not the extractor rejecting its output.
@@ -2463,7 +2463,7 @@ variable can synthesise a trend out of nothing.
 Still open: `t1kl_q14` is incomplete. The endpoint p-value can only strengthen while 14B keeps
 verifying zero, but no lenient p-value goes in the .tex until that cell reports `complete`.
 
-### T2-kernel: the lineage was severed at every chunk boundary (2026-09-24 16:00)
+### T2-kernel: the lineage was severed at every chunk boundary (2026-09-24 15:25)
 
 `lab_compounding` checkpointed `history` and `prevC` on resume but **not the LoRA adapter**. The
 lineage arm's only cross-round state is that adapter — `pairs` is rebuilt from scratch each
@@ -2526,7 +2526,7 @@ establish the finding (small early compounding, decaying to zero at saturation);
 would buy more saturated zeros at large allocation cost. The fix protects everything launched
 from here. Any future depth claim needs the passrate metric (Amendment 1), not headroom.
 
-### The same severing was in the REGISTERED PRIMARY (2026-09-24 16:20)
+### The same severing was in the REGISTERED PRIMARY (2026-09-24 15:30)
 
 `lab_weight_rsi` — which runs the pre-registered primary — had the identical defect, and my own
 comment in `lab_compounding` said so ("As with lab_weight_rsi, the LoRA adapter is not
@@ -2565,7 +2565,7 @@ right?". A marker like `resumed_at` is worthless as a safeguard when the conditi
 universal: every cell hit the walltime, so every cell was marked, so the marking distinguished
 nothing.
 
-### T1-kernel FINAL — all 10 cells complete, both extraction policies (2026-09-24 16:45)
+### T1-kernel FINAL — all 10 cells complete, both extraction policies (2026-09-24 15:36)
 
 `t1kl_q14` landed. Every cell in both policies is now `complete` at 29/29 tasks, so this is the
 settled result and supersedes the two partial sections above.
@@ -2601,7 +2601,7 @@ kernel verifies *given* an attempt falls, with a highly significant endpoint con
 extraction policy. **Not defensible:** a monotone decline, an ordering p-value, or "14B never
 verifies".
 
-### Operational consequences of the budget fix (2026-09-24 17:05)
+### Operational consequences of the budget fix (2026-09-24 15:42)
 
 Raising `_gen_custom` from 900 to `KA_MAX_NEW=2048` was correct but not free, and it has two
 knock-on effects worth stating before they surprise someone.

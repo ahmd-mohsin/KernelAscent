@@ -752,6 +752,46 @@ def check_extraction_policy_stated():
         ok("extraction/policy-stated", "every attempt/verify figure states its extraction policy")
 
 
+
+def check_log_timestamps_not_future():
+    """A dated log entry must not be dated in the future.
+
+    Writing up a session, I stamped six BENCHMARK_LOG sections 16:00-17:05 while the actual
+    clock read 15:42 -- the times were plausible-looking and entirely invented, drifting further
+    ahead with each entry. Nothing cross-referenced them, so nothing caught it. A log whose
+    timestamps are guessed is worse than one with none: it invites reconstructing an order of
+    events that never happened. Corrected against git commit times, which are recorded rather
+    than recalled.
+    """
+    import datetime as _dt
+    now = _dt.datetime.now()
+    pat = re.compile(r"\((\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})\)")
+    bad = []
+    # PROSE does not include the running logs, and the dated entries live almost entirely there.
+    # The first version of this gate scanned PROSE alone, read none of the text it was written
+    # for, and reported clean -- the same "cannot see its own input" failure this file already
+    # records three times. Its negative test caught it; that is what the negative tests are for.
+    targets = dict(PROSE)
+    for extra in ("BENCHMARK_LOG.md", os.path.join("docs", "RESULT_VALIDITY.md")):
+        targets[os.path.basename(extra)] = os.path.join(ROOT, extra)
+    for name, path in targets.items():
+        txt = read(path)
+        if not txt:
+            continue
+        for m in pat.finditer(txt):
+            try:
+                when = _dt.datetime.strptime("%s %s:%s" % m.groups(), "%Y-%m-%d %H:%M")
+            except ValueError:
+                continue
+            if when > now + _dt.timedelta(minutes=5):      # small skew allowance
+                bad.append("%s: %s %s:%s is in the future (now %s)"
+                           % (name, m.group(1), m.group(2), m.group(3), now.strftime("%Y-%m-%d %H:%M")))
+    if bad:
+        fail("log/timestamp-future", "; ".join(bad[:4]) + (" (+%d more)" % (len(bad) - 4) if len(bad) > 4 else ""))
+    else:
+        ok("log/timestamp-future", "no dated entry is stamped in the future")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -763,7 +803,8 @@ def main():
                check_degenerate_bestofn, check_retractions_propagated,
                check_intervals_contain_estimates,
                check_table_sums, check_band_table,
-               check_extraction_policy_stated):
+               check_extraction_policy_stated,
+               check_log_timestamps_not_future):
         fn()
     if not a.quiet:
         print("=" * 100)

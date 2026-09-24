@@ -45,6 +45,7 @@ def main():
         A.check_degenerate_bestofn(); A.check_retractions_propagated()
         A.check_intervals_contain_estimates(); A.check_table_sums(); A.check_band_table()
         A.check_extraction_policy_stated()
+        A.check_log_timestamps_not_future()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -75,7 +76,15 @@ def main():
     print("custom-kernel gate: the numerator must stay 0 in every artifact")
     for rel, a, b in (("docs/index.html", "0 of 86", "3 of 86"),
                       ("docs/index.html", "0 of 118", "3 of 118"),
-                      ("paper/instrument_validity.tex", "0 of 118", "7 of 118"),
+                      # instrument_validity.tex is NOT in this list any more. Its old
+                      # "0 of 118" target stopped existing when the file was rewritten, so the
+                      # mutation silently changed nothing and the assert blamed the gate --
+                      # aborting the run before the meta-gate could check anything. Its
+                      # surviving citation ("solved 0 of 29 tasks ... the models try when asked
+                      # and cannot produce a working kernel") is a KERNEL-PROMPT result, which
+                      # this gate exempts on purpose: the zero-numerator rule is about the safe
+                      # prompt, where models do not attempt kernels at all. Forcing the gate to
+                      # fire here would forbid reporting the result the prompt fix produced.
                       ("docs/PREREGISTRATION.md", "0 of 118", "2 of 118"),
                       ("INTUITIONS.md", "0 of 118", "9 of 118")):
         mutate(rel, (lambda a, b: (lambda t: t.replace(a, b, 1)))(a, b),
@@ -107,9 +116,20 @@ def main():
            "mech/band-table")
 
     print("extraction gate: an attempt/verify figure must state its policy")
+    # The gate clears a figure if a policy word appears within ~700 chars. Appending straight
+    # to the tail stopped planting a violation once the file gained a section mentioning
+    # "lenient extraction" -- the planted text landed inside that window and the gate skipped
+    # it correctly, while the test read the skip as a broken gate. Pad first so the window the
+    # gate inspects is genuinely policy-free.
+    _pad = ("\n\n" + ("filler sentence with no policy word in it. " * 24) + "\n\n")
     mutate("INTUITIONS.md",
-           lambda t: t + "\n\nThe model reached 42% attempt rate and 7.3% verify-given-attempt.\n",
+           lambda t: t + _pad + "The model reached 42% attempt rate and 7.3% verify-given-attempt.\n" + _pad,
            "extraction/policy-stated")
+
+    print("timestamp gate: a dated log entry must not be dated in the future")
+    mutate("BENCHMARK_LOG.md",
+           lambda t: t + "\n\n### A section stamped tomorrow (2099-01-01 09:00)\n\nbody\n",
+           "log/timestamp-future")
 
     assert run("all restored") == [], "repo must end clean"
 
