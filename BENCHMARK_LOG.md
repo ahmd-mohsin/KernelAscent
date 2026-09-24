@@ -2228,3 +2228,23 @@ automatically by `scripts/scan_contamination.py`, wired into `make audit`.
 
 The T3 one-shot retraction does **not** rest on these runs — it rests on the closed-model
 pinning (5/5 runs at 11–12 strategies from round 0), visible in the already-published records.
+
+### 2026-09-24 — T1-kernel, first cell (the first kernel-authoring measurement in this project)
+
+`t1k-q05`, Qwen2.5-Coder-0.5B, `KA_PROMPT=kernel`, k=12, 29 tasks, H100, triton verified working.
+
+| quantity | value |
+|---|---|
+| tasks solved at least once | **8 / 29 (28%)** |
+| verified kernels | 10 |
+| containing triton / CUDA | **6 / 10 (60%)** |
+| median speedup vs eager (custom) | **1.00×** |
+| max speedup (any kernel) | **1.01×** |
+| kernels above 1.05× | **0 / 10** |
+
+**Registered falsifier (Amendment 2) is NOT triggered** — the verified rate is far from zero at
+the smallest scale, so kernel authoring is reachable.
+
+**But the speed wall survives**: the model writes correct Triton kernels that run at eager speed.
+Neither previous explanation applies — it is not the prompt (asked and complied) and not the
+grader (triton builds, these verified). Awaiting 3B/7B/14B for the curve.

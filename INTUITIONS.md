@@ -577,6 +577,44 @@ not auditable, which is the whole point of printing it.
 
 ---
 
+## 2.9e First real kernel-authoring measurement: correct kernels that are not faster
+
+`t1k-q05` — Qwen2.5-Coder-**0.5B**, the smallest model in the suite, k=12 over 29 tasks, with
+provenance confirming `roof_arch=h100`, `triton` builds, `KA_PROMPT=kernel`:
+
+```
+solved 8/29 tasks (28%)   10 verified kernels   6 of 10 contain triton/CUDA
+custom kernels   median 1.00x   max 1.01x   >1.05x: 0/6
+plain-torch      median 1.00x   max 1.01x   >1.05x: 0/4
+```
+
+**Two findings, and they point opposite ways.**
+
+*The registered falsifier is not triggered.* Amendment 2 says: if the verified rate is at or near
+zero for every scale, the task is unreachable rather than unsaturated and no compounding claim
+gets published. A 0.5B model solving 28% of tasks, with 60% of its verified kernels being real
+Triton, is nowhere near zero. **Kernel authoring is reachable**, and it is reachable by the
+weakest model we have.
+
+*And the speed wall is still there.* Every verified kernel runs at eager speed — median 1.00x,
+best 1.01x, none above 1.05x. The model writes a kernel that is **correct and unoptimised**.
+
+That is a sharper result than either the old saturation or the prompt story, because the two
+previous explanations are now excluded by construction: it is not the prompt (the model was
+asked, and complied), and it is not the grader (triton builds and these kernels verified). A
+0.5B model can express a Triton kernel and cannot make it fast.
+
+> **Correctness-reachability and speed-reachability are different properties of a substrate, and
+> a benchmark needs to report both.** Everything before this conflated them — a task where the
+> model is correct at parity looks identical, in a single score, to one where it cannot compete
+> at all. Reachability (§2.8) measured the union; it should be measured separately for each.
+
+**What this does not yet settle:** one model, one seed, the smallest scale. The 3B/7B/14B cells
+are running, and the capability *curve* is the result — a flat 1.00x across all scales would be
+a much stronger statement than one point at 0.5B.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
