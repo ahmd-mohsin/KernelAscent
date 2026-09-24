@@ -2661,3 +2661,28 @@ Two separate runs, different routes and budgets, agreeing to within 0.01 percent
 That is a genuine replication of the paper's most surprising number — 14B attempts kernels
 readily (171 of 174 candidates parsed as kernel attempts, 98%) and almost never produces one
 that verifies. The failure is not extraction, not prompt compliance, and not a single bad run.
+
+### DSL kernel bank complete — 124 tasks (2026-09-24 16:05)
+
+`bank-kernel-dsl` finished. Difficulty-filtered under `KA_PROMPT=kernel`:
+
+| | count |
+|---|---|
+| candidates evaluated | 456 (L1 360, L2 96) |
+| kept | **124** (27%) |
+| split | train 35, held-in-cell 30, held-out-family 59 |
+
+Correct-rate across candidates: mean 0.059, max **0.500**, and **318 of 456 exactly zero**.
+
+Two things worth carrying forward.
+
+**It answers a real weakness.** Every kernel-authoring result so far rests on **29** tasks, which
+is the first thing a reviewer will push on. This bank is 124 tasks with a held-out *family*
+split, so a replication of the T1 curve on it would be a materially stronger claim than
+re-running the same 29.
+
+**The bimodality is in the task bank too, not just the models.** max correct-rate 0.500 with 70%
+of candidates at exactly zero is the same two-state pattern the scorer shows (0 or
+correct-at-parity). That it appears in an independent difficulty sweep argues the saturation is
+a property of the task/grader pair, not of any one lab's scoring path — which is the strongest
+support yet for the Amendment 1 claim that headroom scoring has only two reachable states here.
