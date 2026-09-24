@@ -42,9 +42,15 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
       # A CANCELLED job whose NAME now has a higher job id is one I deliberately replaced
       # (relaunched with a corrected command). Alarming on those is alert fatigue, and this
       # monitor is only useful if every line it prints is worth reading.
+      # A cancelled cell is benign if it is PARKED for resubmission, as well as if a newer
+      # job already carries its name. Bulk re-parking (e.g. repointing 14 inject arms at a
+      # better teacher) cancels many at once and the replacements queue gradually, so the
+      # newer-id test alone flagged 8 of 9 as failures. Alert noise from my own actions is how
+      # a monitor stops being read.
       if [ "${st#CANCELLED}" != "$st" ] && \
-         awk -F'|' -v n="$name" -v i="$id" '$2==n && $1+0>i+0{f=1} END{exit !f}' <<<"$cur"; then
-        echo "note    $name ($id) cancelled -- superseded by a newer submission"
+         { awk -F'|' -v n="$name" -v i="$id" '$2==n && $1+0>i+0{f=1} END{exit !f}' <<<"$cur" \
+           || cut -f1 "$REPO/.jobman.backlog" 2>/dev/null | grep -qx "$name"; }; then
+        echo "note    $name ($id) cancelled -- superseded or parked for resubmission"
         continue
       fi
       case "$st" in
