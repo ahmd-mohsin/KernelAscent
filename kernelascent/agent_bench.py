@@ -273,6 +273,20 @@ def grade(task_source, llm_code, ref, x, gold, bound, tbase):
     return True, err, tbase / t_cand, "ok"
 
 
+# GENERATION BUDGET, shared by both backends.
+#
+# These two defaults used to differ by 27x -- 32000 for the API backend, 1200 for the
+# open-weight one -- and `main()` calls `agent.optimize(src, k, temp)` without passing the
+# argument, so every head-to-head on the capability leaderboard silently gave closed models
+# vastly more room to write. Truncation is not hypothetical here: at 900 tokens, 39% of
+# open-weight generations under the kernel prompt were cut off mid-output and discarded, which
+# is the largest single loss in the pipeline.
+#
+# A budget that differs between the arms of a comparison is not a configuration detail, it is a
+# confound. One constant, one env var, both backends.
+KA_MAX_NEW_TOKENS = int(os.environ.get("KA_MAX_NEW", "2048"))
+
+
 class BedrockAgent:
     """Generation backend for a strong curator model (e.g. Opus 4.8) via Bedrock.
 
@@ -302,7 +316,8 @@ class BedrockAgent:
                 print("bedrock err:", repr(e)[:100])
                 return None
 
-    def optimize(self, src, k, temp, max_new_tokens=32000):
+    def optimize(self, src, k, temp, max_new_tokens=None):
+        max_new_tokens = max_new_tokens or KA_MAX_NEW_TOKENS
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=min(k, 8)) as ex:
             return list(ex.map(lambda _: self._one(src, temp, max_new_tokens), range(k)))
@@ -315,7 +330,8 @@ class Agent:
         self.model = AutoModelForCausalLM.from_pretrained(
             MODEL_ID, torch_dtype=torch.bfloat16).cuda().eval()
 
-    def optimize(self, src, k, temp, max_new_tokens=1200):
+    def optimize(self, src, k, temp, max_new_tokens=None):
+        max_new_tokens = max_new_tokens or KA_MAX_NEW_TOKENS
         msgs = [{"role": "system", "content": SYS},
                 {"role": "user", "content": PROMPT.format(src=src)}]
         text = self.tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)

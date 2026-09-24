@@ -2284,3 +2284,18 @@ scoring 0.50 under the compiled scorer has matched an *optimised* reference.
 Resolves the apparent contradiction: the 0.50 cluster is in the **calibration** data (eager +
 fixed 1.5× anchor, which `difficulty_filter` invokes directly, unaffected by `KA_SCORE`), while
 the **run** scorer is compiled — which is why frozen-base capability there is 0.401, not 0.50.
+
+### 2026-09-24 — CONFOUND in the T1 capability leaderboard (open vs closed)
+
+`agent_bench.py` gave the two backends different generation budgets, and `main()` passes none:
+
+| backend | `max_new_tokens` |
+|---|---|
+| `BedrockAgent` (closed / API) | **32000** |
+| `Agent` (open weight) | **1200** |
+
+A **27× asymmetry** in an open-vs-closed head-to-head. Not slack for the open side: at 900
+tokens, 39% of open-weight generations under the kernel prompt truncate.
+
+**The T1 leaderboard is confounded and must be re-run, or reported with the asymmetry stated.**
+Fixed: both backends now read `KA_MAX_NEW_TOKENS` (default 2048).

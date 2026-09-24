@@ -887,6 +887,48 @@ measured through a 900-token aperture**.
 
 ---
 
+## 2.9k The capability leaderboard gave closed models 27x the writing budget
+
+Having found that a fixed token budget biases across scale (§2.9j), I swept the codebase for
+other fixed budgets. Most hits were harmless display truncation (`repr(e)[:80]`). One was not:
+
+```python
+class BedrockAgent:                                    # closed / API models
+    def optimize(self, src, k, temp, max_new_tokens=32000)
+
+class Agent:                                           # open-weight models
+    def optimize(self, src, k, temp, max_new_tokens=1200)
+```
+
+`main()` picks the backend from `--backend` and calls `agent.optimize(src, k, temp)` for both,
+passing no budget — so each takes its class default. **Every open-vs-closed comparison on the
+T1 capability leaderboard ran with a 27x asymmetry in how much the model was allowed to write.**
+
+And the budget is not slack for the open side: at 900 tokens, **39% of open-weight generations
+under the kernel prompt were truncated** and discarded. 1200 is the same regime. 32000 is
+effectively unlimited.
+
+> **A budget that differs between the arms of a comparison is not a configuration detail; it is
+> a confound.** It hides especially well in per-class defaults, because neither call site
+> mentions it — the asymmetry is invisible at the point of use and only appears if you read both
+> class definitions side by side and notice they disagree.
+
+Both backends now read one `KA_MAX_NEW_TOKENS`, default 2048.
+
+### What this costs
+
+The T1 leaderboard is the benchmark's most-cited artifact and it compares closed and open models
+head to head. That comparison is **confounded and must be re-run**, or reported with the
+asymmetry stated. I do not yet know the size of the effect — but a 27x budget gap in a setting
+where 39% of generations already truncate is not plausibly negligible.
+
+This is also the second time today that **sweeping for a defect class I had just found turned up
+a bigger instance of it**. The first sweep (contamination) found one extra round; this one found
+a confound in a published leaderboard. The sweep is cheap and I should run it on every defect
+class, not just the ones that feel systemic.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
