@@ -1301,6 +1301,17 @@ designing an experiment that needs a new one.
 intermittently; `os.makedirs` killed 2 of 6 jobs *after* they had loaded the model. Containers
 (one `.sif`) and `$HOME` (separate user quota) are the way around it.
 
+**Ask for host RAM explicitly; `DefMemPerCPU` is per CPU, not per GPU.** A 3-GPU, 3-arm job was
+OOM-killed after 69 minutes. Not GPU memory — the partition default is `DefMemPerCPU=13000` and
+`mrl submit` requested one CPU, so **every job got 13 GB of host RAM regardless of GPU count**,
+and three model copies do not fit. A host-RAM OOM is also nearly invisible: Slurm reports
+`oom_kill events in StepId=....batch` with no Python traceback, so it reads as an unexplained
+death rather than a resource shortfall. Now `--mem = 48G x gpus`, `--cpus-per-task = 8 x gpus`.
+
+Note this is the *fourth* environment-level defect after the non-login shell, the missing `env`
+prefix, and the host `CC` leaking into the container — and the fourth time the answer was
+outside both the code and the command line.
+
 **Writing partial results is not the same as being able to resume.** `difficulty_filter`
 dumped its report after *every* task, which looks like checkpointing — but on restart it
 iterated the bank from index 0 and overwrote that report. A 456-task bank could therefore never
