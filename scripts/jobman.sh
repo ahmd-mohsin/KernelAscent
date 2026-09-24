@@ -54,6 +54,12 @@ park)
   grep -v "^$name	" "$BACKLOG" > "$BACKLOG.tmp" 2>/dev/null || true
   printf '%s\t%s\t%s\t%s\n' "$name" "$wall" "$gpus" "$*" >> "$BACKLOG.tmp"
   mv "$BACKLOG.tmp" "$BACKLOG"
+  # ALSO update the manifest. `continue` resubmits from the manifest, so parking a corrected
+  # command while leaving the old one there means auto-continuation keeps reviving the version
+  # you just fixed -- which is how four baselines cells kept OOMing after the fix was written.
+  grep -v "^$name	" "$MAN" > "$MAN.tmp" 2>/dev/null || true
+  printf '%s\t%s\t%s\t%s\n' "$name" "$wall" "$gpus" "$*" >> "$MAN.tmp"
+  mv "$MAN.tmp" "$MAN"
   echo "parked $name ($(wc -l < "$BACKLOG" | tr -d ' ') in backlog)"
   ;;
 
