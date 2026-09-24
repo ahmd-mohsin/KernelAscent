@@ -25,6 +25,7 @@ import torch
 from kernelascent import agent_bench as AB
 from kernelascent.v3 import lab_weight_rsi as W
 from kernelascent.v3 import lab_kernel as LK
+from kernelascent import provenance as PROV
 
 
 def main():
@@ -86,6 +87,9 @@ def main():
         print("  %-8s %-3s correct_rate=%.2f best=%.2f -> %s" % (t["name"], t["tier"], cr, best, "KEEP" if keep else "drop"), flush=True)
         json.dump(kept, open(args.out, "w"), indent=2)
         json.dump(report, open(rpath, "w"), indent=2)
+    # one sidecar at the end rather than per task: the report is a bare list, and a bank's
+    # admission decisions depend on the grader environment exactly as much as a score does
+    PROV.dump({"bank": args.inp, "kept": len(kept), "scored": len(report)}, rpath + ".prov.json")
     by = {tt: sum(1 for x in kept if x["tier"] == tt) for tt in ("L1", "L2", "L3")}
     c0_proxy = statistics.mean([r["best_score"] for r in report if r["keep"]]) if kept else 0.0
     print("\n=== FILTER SUMMARY === kept %d/%d %s ; frozen-base mean best on kept = %.3f (this is the expected C0 floor)"

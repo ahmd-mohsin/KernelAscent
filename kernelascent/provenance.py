@@ -1,0 +1,109 @@
+"""Record the environment an artifact was produced in, inside the artifact.
+
+Motivation, from a real and nearly-costly incident: Triton kernels could not verify on this
+harness for the whole project because the cluster's `CC` pointed at a host compiler absent in
+the container. When that was fixed, every result file produced beforehand became invalid for
+any claim about kernels -- and *nothing in those files said so*. A stale local copy of one was
+one sentence away from being reported as a fresh result.
+
+JSON has no field for "the grader could not compile Triton when this was written", so we add
+one. The cost is a few hundred bytes per artifact; the benefit is that "is this file still
+valid?" becomes answerable from the file instead of from memory.
+
+Keep this dependency-light and never let it raise: a provenance helper that crashes a 40-minute
+run is worse than no provenance.
+"""
+import json
+import os
+import platform
+import socket
+import subprocess
+import time
+
+# Environment variables that change what a number MEANS, not merely where it was written.
+_SEMANTIC_ENV = ("KA_SCORE", "KA_PROMPT", "KA_ROOT", "KA_DATA_DIR", "KA_GRADE_GPU",
+                 "KA_MAX_STRATEGIES", "KA_ROOF_ARCH", "CC", "CXX")
+
+
+def _git_commit():
+    try:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        out = subprocess.run(["git", "-C", root, "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True, timeout=5)
+        sha = out.stdout.strip()
+        dirty = subprocess.run(["git", "-C", root, "status", "--porcelain"],
+                               capture_output=True, text=True, timeout=5).stdout.strip()
+        return (sha + ("-dirty" if dirty else "")) if sha else None
+    except Exception:
+        return None
+
+
+def _triton_status():
+    """Can this process actually COMPILE with triton? Import success is not enough -- the CC
+    defect let `import triton` succeed while every kernel failed at build time."""
+    try:
+        import triton  # noqa: F401
+    except Exception as e:
+        return {"import": False, "why": repr(e)[:80]}
+    info = {"import": True, "version": getattr(triton, "__version__", "?")}
+    try:
+        import shutil
+        cc = os.environ.get("CC")
+        info["cc"] = cc or "(unset -> gcc/clang lookup)"
+        # the exact failure mode we hit: CC names a compiler that does not exist here
+        info["cc_exists"] = bool(shutil.which(cc)) if cc else bool(shutil.which("gcc") or shutil.which("clang"))
+    except Exception:
+        pass
+    return info
+
+
+def stamp(extra=None):
+    """A dict describing this run's environment. Never raises."""
+    p = {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+         "host": socket.gethostname(),
+         "git": _git_commit(),
+         "python": platform.python_version(),
+         "env": {k: os.environ[k] for k in _SEMANTIC_ENV if k in os.environ},
+         "triton": _triton_status()}
+    try:
+        import torch
+        p["torch"] = torch.__version__
+        p["cuda"] = torch.version.cuda
+        p["gpu"] = torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
+    except Exception:
+        pass
+    if extra:
+        try:
+            p.update(extra)
+        except Exception:
+            pass
+    return p
+
+
+def dump(obj, path, extra=None):
+    """json.dump with a `_provenance` key attached, for dict payloads."""
+    try:
+        if isinstance(obj, dict):
+            obj = dict(obj)
+            obj["_provenance"] = stamp(extra)
+        else:                                   # list payloads get a sidecar rather than a wrap
+            json.dump({"_provenance": stamp(extra)}, open(path + ".prov.json", "w"), indent=2)
+    except Exception:
+        pass
+    json.dump(obj, open(path, "w"), indent=2)
+
+
+def is_valid_for_kernels(path):
+    """True iff this artifact was produced where triton could actually build.
+
+    Use before reading any kernel-related number out of a stored result.
+    """
+    try:
+        d = json.load(open(path))
+    except Exception:
+        return None
+    p = d.get("_provenance") if isinstance(d, dict) else None
+    if not p:
+        return None                              # unknown provenance -- treat as suspect
+    t = p.get("triton") or {}
+    return bool(t.get("import")) and bool(t.get("cc_exists"))

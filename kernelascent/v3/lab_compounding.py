@@ -18,6 +18,7 @@ CLI: python -m kernelascent.v3.lab_compounding --model <hf> --gpus 0,1 --rounds 
 import os, sys, json, argparse, random, statistics, time
 from kernelascent.v3 import lab_weight_rsi as W
 from kernelascent.v3 import lab_kernel as LK
+from kernelascent import provenance as PROV
 try:
     from kernelascent.v3 import lab_baselines as BL
 except Exception:
@@ -160,7 +161,7 @@ def run(args):
         hist.append(row); prevC = C_lin
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
-        json.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family,
+        PROV.dump({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family,
                    "arm": ("inject" if teacher else "control"),
                    "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
                    "history": hist},

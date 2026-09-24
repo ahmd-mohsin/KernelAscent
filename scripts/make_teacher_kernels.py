@@ -21,6 +21,7 @@ every downstream arm -- so the expensive part happens once.
       --gpus 0,1 --k 8 --out /scratch/.../teacher_kernels.json
 """
 import os, sys, json, argparse, time
+from kernelascent import provenance as PROV
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
@@ -81,7 +82,7 @@ def main():
             out[name] = good
         print("  [%d/%d] %-34s %d/%d correct%s" % (i + 1, len(names), name[:34], len(good), a.k,
               ("  best %.2fx" % good[0]["speedup_eager"]) if good else ""), flush=True)
-        json.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out},
+        PROV.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out},
                   open(a.out, "w"), indent=1)
 
     cov = len(out)

@@ -25,6 +25,7 @@ import os, sys, json, argparse, random, statistics, time, hashlib, subprocess, t
 HERE = os.path.dirname(os.path.abspath(__file__)); PKG = os.path.dirname(HERE); ROOT = os.path.dirname(PKG)
 sys.path.insert(0, ROOT); sys.path.insert(0, PKG); sys.path.insert(0, HERE)
 from kernelascent import agent_bench as AB
+from kernelascent import provenance as PROV
 
 SOLVE_SYS = ("You are an expert GPU performance engineer. You write correct, fast, self-contained PyTorch/Triton "
              "kernels. Import only torch and torch.nn (optionally triton, triton.language). Return ONLY one "
@@ -209,7 +210,7 @@ def _run_with(args, gen):
         print("round %d Q=%.3f dBase=%+.3f F=%s strat=%d arch=%d (%.0fs)" %
               (r, Qg, Qg - Q0, ("%+.3f" % Fg if Fg is not None else "-"), len(U["strategies"]), len(U["archive"]), time.time() - t0), flush=True)
         os.makedirs(args.outdir, exist_ok=True)
-        json.dump({"model": args.model, "mode": args.mode, "Q0": Q0,
+        PROV.dump({"model": args.model, "mode": args.mode, "Q0": Q0,
                    "max_strategies": MAX_STRATEGIES, "archive_shown": N_ARCHIVE_SHOWN, "history": hist},
                   open(os.path.join(args.outdir, "track_c.json"), "w"), indent=2)
         json.dump({"round": r, "U": U, "hist": hist, "Q0": Q0}, open(statef, "w"))   # resume ckpt (S3-synced) — lets rounds extend

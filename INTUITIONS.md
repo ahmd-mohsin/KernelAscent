@@ -453,6 +453,21 @@ provenance for "the grader could not compile triton when this was written". If a
 fix invalidates past results, rename them immediately, everywhere, and teach the tools to refuse
 them — memory will not hold.
 
+**Fixed properly rather than by discipline:** `kernelascent/provenance.py` now stamps every
+experiment artifact with the git SHA (plus `-dirty`), the semantic env vars (`KA_SCORE`,
+`KA_PROMPT`, `CC`, …), torch/CUDA/GPU, and — the part that matters here — whether triton could
+actually *build*, not merely import. `import triton` succeeded throughout the defect; what
+failed was the C compile, so the stamp records `cc` and `cc_exists` separately.
+
+`is_valid_for_kernels(path)` then answers the question from the file: `True`, `False`, or
+**`None` for an unstamped legacy artifact — suspect, not valid.** Defaulting unknown provenance
+to "fine" would reproduce exactly the §2j failure where a guard's permissive default made it
+inert.
+
+> **Write down the thing that will invalidate the result, at the moment you produce it.** You
+> cannot reconstruct it later, and the artifacts that most need the label are the ones written
+> before you knew the label was needed.
+
 ---
 
 ## 2h. The grader knew why, and threw it away
