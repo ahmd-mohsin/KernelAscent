@@ -45,12 +45,144 @@
    "n_attempted_kernel": 12,
    "n_kernel_verified": 0,
    "n_verified": 0
+  },
+  "l1_8": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 12,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_9": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_10": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_1": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_2": {
+   "n_candidates": 11,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_3": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_4": {
+   "n_candidates": 11,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_5": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_6": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_7": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_8": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_9": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 11,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_10": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 3,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_11": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_12": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_13": {
+   "n_candidates": 10,
+   "n_attempted_kernel": 8,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_14": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_15": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_1": {
+   "n_candidates": 7,
+   "n_attempted_kernel": 1,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_2": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_3": {
+   "n_candidates": 8,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_4": {
+   "n_candidates": 9,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
   }
  },
- "tasks_attempted": 7,
- "complete": false,
+ "tasks_attempted": 29,
+ "complete": true,
  "_provenance": {
-  "utc": "2026-09-24T20:34:29Z",
+  "utc": "2026-09-24T20:51:47Z",
   "host": "n02",
   "git": null,
   "python": "3.11.10",

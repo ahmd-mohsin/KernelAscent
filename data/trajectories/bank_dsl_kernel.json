@@ -936,5 +936,75 @@
     "eps": 1.702,
     "split": "heldout_family",
     "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_groupnorm_rows_f16_32768x4096_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        s=x.float().view(x.shape[0], 8, -1); m=s.mean(-1,keepdim=True); v=s.var(-1,keepdim=True,unbiased=False)\n        s=((s-m)*torch.rsqrt(v+self.eps)).view_as(x); return s.to(x.dtype)*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "groupnorm_rows",
+    "dtype": "float16",
+    "shape": [
+      32768,
+      4096
+    ],
+    "eps": 1e-05,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_groupnorm_rows_f16_4096x8192_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        s=x.float().view(x.shape[0], 8, -1); m=s.mean(-1,keepdim=True); v=s.var(-1,keepdim=True,unbiased=False)\n        s=((s-m)*torch.rsqrt(v+self.eps)).view_as(x); return s.to(x.dtype)*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "groupnorm_rows",
+    "dtype": "float16",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1e-05,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_groupnorm_rows_bf16_16384x4096_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        s=x.float().view(x.shape[0], 8, -1); m=s.mean(-1,keepdim=True); v=s.var(-1,keepdim=True,unbiased=False)\n        s=((s-m)*torch.rsqrt(v+self.eps)).view_as(x); return s.to(x.dtype)*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "groupnorm_rows",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      4096
+    ],
+    "eps": 1e-06,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_groupnorm_rows_bf16_4096x8192_1em06",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-06\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        s=x.float().view(x.shape[0], 8, -1); m=s.mean(-1,keepdim=True); v=s.var(-1,keepdim=True,unbiased=False)\n        s=((s-m)*torch.rsqrt(v+self.eps)).view_as(x); return s.to(x.dtype)*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "groupnorm_rows",
+    "dtype": "bfloat16",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1e-06,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_groupnorm_rows_bf16_16384x2048_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        s=x.float().view(x.shape[0], 8, -1); m=s.mean(-1,keepdim=True); v=s.var(-1,keepdim=True,unbiased=False)\n        s=((s-m)*torch.rsqrt(v+self.eps)).view_as(x); return s.to(x.dtype)*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "groupnorm_rows",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1e-05,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
   }
 ]

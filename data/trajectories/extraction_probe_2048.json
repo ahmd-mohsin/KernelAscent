@@ -1,0 +1,49 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+ "k": 8,
+ "n_tasks": 8,
+ "counts": {
+  "extracted": 26,
+  "wrong-class-name": 33,
+  "truncated": 3,
+  "fenced-but-no-class": 2
+ },
+ "mean_chars": 3333.03125,
+ "samples": {
+  "wrong-class-name": "Here's a faster implementation of the PyTorch module using TRITON, which should significantly improve speed. This implementation uses the `triton` library, which allows for parallel computation on multiple hardware devices. It leverages the memory-bound nature of TRITON to perform element-wise operations without the need for explicit loops.\n\n```python\nimport torch\nimport torch.nn as nn\nimport trit",
+  "truncated": "To achieve a faster implementation of the given PyTorch module using Fused Triton kernels, we need to follow several steps. Here's a step-by-step approach to create a triton kernel for the `Model` class:\n\n### Step 1: Define the Triton Kernel\nFirst, we need to define the triton kernel for the `Model` class. This involves creating a function that takes a tensor, performs the necessary operations, an",
+  "fenced-but-no-class": "Here's a Python implementation of your `Model` class, rewritten to use Fused TIR and optimized for performance. The Fused TIR is a technique that leverages the power of TIR to combine multiple operations into a single pass over memory. This approach significantly improves performance compared to direct element-wise chain concatenation.\n\n```python\nimport torch\nimport torch.nn as nn\nfrom torch.ops i"
+ },
+ "_provenance": {
+  "utc": "2026-09-24T20:46:34Z",
+  "host": "n29",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}

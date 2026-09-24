@@ -1,0 +1,49 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+ "k": 8,
+ "n_tasks": 8,
+ "counts": {
+  "truncated": 25,
+  "wrong-class-name": 11,
+  "extracted": 24,
+  "fenced-but-no-class": 4
+ },
+ "mean_chars": 2846.828125,
+ "samples": {
+  "truncated": "```python\nimport torch\nimport torch.nn as nn\n\n# Define the custom module\nclass Model(nn.Module):\n    def __init__(self, dt=torch.float16, hidden=HIDDEN, eps=1e-5):\n        super(Model, self).__init__()\n        self.dt = dt\n        self.hidden = hidden\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(device='cuda', dtype=dt))\n        self.b",
+  "wrong-class-name": "```python\nimport torch\nimport torch.nn as nn\n\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n",
+  "fenced-but-no-class": "To achieve a more efficient and faster implementation of the provided PyTorch module, we can leverage triton's memory-bound capabilities and avoid the need for explicit elementwise chain operations. Here's a self-contained example using triton to achieve this:\n\n```python\nimport torch\nimport torch.nn as nn\nfrom triton import Library, Kernel\nfrom triton.runtime.memory import TensorMemoryAllocator\n\n#"
+ },
+ "_provenance": {
+  "utc": "2026-09-24T20:36:25Z",
+  "host": "n24",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}

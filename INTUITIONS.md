@@ -1043,6 +1043,44 @@ here roughly **triples**, and the "models cannot write kernels" reading weakens 
 
 ---
 
+## 2.9o T1-kernel, decided: models try harder and succeed less as they scale
+
+All five scales complete with attempt tracking, `KA_PROMPT=kernel`, k=12 over 29 tasks:
+
+| scale | attempted | attempt rate (95% CI) | kernel-verified | verify\|attempt (95% CI) |
+|---|---|---|---|---|
+| 0.5B | 74 | 63% [54, 71] | 4 | **5.4%** [2.1, 13.1] |
+| 1.5B | 74 | 56% [48, 64] | 3 | 4.1% [1.4, 11.3] |
+| 3B | 184 | 73% [67, 78] | 6 | 3.3% [1.5, 6.9] |
+| 7B | 262 | 78% [73, 82] | 4 | 1.5% [0.6, 3.9] |
+| 14B | 219 | 66% [61, 71] | **0** | **0.0%** [0.0, 1.7] |
+
+**Amendment 4 registered this branch before the data existed**: if verify-given-attempt *also*
+falls with scale, that is a real capability finding rather than the metric artifact the raw
+solve-rate suggested. It falls.
+
+* endpoints: 4/74 versus 0/219, **Fisher exact two-sided p = 0.0038**
+* fully monotone ordering across five scales: p = 1/120 = 0.008 under a random permutation
+
+**What I will not claim.** Every *adjacent* pair overlaps. One seed per scale. 29 tasks. The
+defensible statement is the endpoint contrast plus a consistent direction, not a smooth curve,
+and certainly not an effect size per billion parameters.
+
+### Why it is interesting rather than merely negative
+
+Attempt rate and success move in **opposite directions**. Larger models follow the instruction
+more often (63% → 78% before the 14B dip) and verify less often (5.4% → 0%). The failure is not
+reluctance and not formatting: the 14B produced **219 syntactically valid Triton kernels and not
+one correct one**, with 95% extraction.
+
+> **Two quantities that a single solve-rate silently averages can move in opposite directions,
+> and the average will then report whichever dominates as though it were the whole story.** The
+> published inverted curve (0.5B "better" than 14B) was that average. Separating them turns an
+> apparent instrument artifact into a measurable claim about capability — and the separation
+> cost one field in the harness.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

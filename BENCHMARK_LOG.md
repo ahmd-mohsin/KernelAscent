@@ -2314,3 +2314,21 @@ the large model extracts fine and writes 219 syntactically valid Triton attempts
 
 Corrects an earlier speculation that truncation explained the inverted solve-rate curve — it
 does not, at the large end.
+
+### 2026-09-24 — T1-kernel COMPLETE with attempt tracking (registered primary, Amendment 4)
+
+| scale | attempted | attempt rate | kernel-verified | verify\|attempt (95% CI) |
+|---|---|---|---|---|
+| 0.5B | 74 | 63% | 4 | **5.4%** [2.1, 13.1] |
+| 1.5B | 74 | 56% | 3 | 4.1% [1.4, 11.3] |
+| 3B | 184 | 73% | 6 | 3.3% [1.5, 6.9] |
+| 7B | 262 | 78% | 4 | 1.5% [0.6, 3.9] |
+| 14B | 219 | 66% | **0** | **0.0%** [0.0, 1.7] |
+
+**Attempt rate rises with scale; verify-given-attempt falls.** Endpoints 4/74 vs 0/219, Fisher
+exact two-sided **p = 0.0038**. Monotone ordering across 5 scales p = 1/120.
+
+Per Amendment 4 this is a **capability finding**, not a metric artifact. Adjacent pairs overlap;
+one seed per scale; the claim is the endpoint contrast plus direction, not a smooth curve.
+
+Registered falsifier NOT triggered (0.5B verifies at 5.4%, so the task is reachable).

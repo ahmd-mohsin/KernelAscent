@@ -2,17 +2,188 @@
  "teacher": "Qwen/Qwen2.5-Coder-14B-Instruct",
  "k": 12,
  "n_tasks": 29,
- "kernels": {
-  "l1_3": [
-   {
-    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        cols = 4096\n        self.eps = 1e-5\n        w = 1.0 + 0.1 * torch.randn(cols, generator=g)\n        b = 0.05 * torch.randn(cols, generator=g)\n        gain = 0.5 + torch.rand(cols, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gain = nn.Parameter(gain.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        xf = x.float()\n        mean = xf.mean(dim=-1, keepdim=True)\n        xc = xf - mean\n        var = (xc * xc).mean(dim=-1, keepdim=True)\n        y = xc * torch.rsqrt(var + self.eps)\n        y = y * self.weight.float() + self.bias.float()\n        y = F.gelu(y, approximate=\"tanh\")\n        y = y * self.gain.float() + xf\n        return y.to(x.dtype)\n\n@triton.jit\ndef model_kernel(\n    x_ptr, y_ptr, weight_ptr, bias_ptr, gain_ptr,\n    mean_ptr, var_ptr, N, C,\n    eps, BLOCK_SIZE: tl.constexpr,\n):\n    pid = tl.program_id(axis=0)\n    bid = tl.program_id(axis=1)\n    rows_per_pid = (N + BLOCK_SIZE - 1) // BLOCK_SIZE\n    row_start = pid * rows_per_pid\n    row_end = min(row_start + rows_per_pid, N)\n    for i in range(row_start, row_end):\n        offsets = row_start * C + tl.arange(0, C)\n        x = tl.load(x_ptr + offsets, mask=i < N, other=0.0)\n        mean = tl.load(mean_ptr + bid, mask=bid < 1, other=0.0)\n        xc = x - mean\n        var = tl.load(var_ptr + bid, mask=bid < 1, other=0.0)\n        rsqrt_var = 1 / tl.sqrt(var + eps)\n        y = xc * rsqrt_var\n        weight = tl.load(weight_ptr + offsets, mask=i < N, other=0.0)\n        bias = tl.load(bias_ptr + offsets, mask=i < N, other=0.0)\n        y = y * weight + bias\n        gelu = 0.5 * y * (1 + tl.tanh(0.79788456 * (y + 0.044715 * y * y * y)))\n        gain = tl.load(gain_ptr + offsets, mask=i < N, other=0.0)\n        xf = tl.load(x_ptr + offsets, mask=i < N, other=0.0)\n        y = gelu * gain + xf\n        tl.store(y_ptr + offsets, y, mask=i < N)\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    torch.manual_seed(1234)\n    x = torch.randn(32768, 4096, device=dev, dtype=torch.float32).to(DT)\n    return [x]\n\n# Example usage:\n# model = ModelNew().cuda()\n# x = get_inputs()[0].cuda()\n# y = model(x)\n",
-    "speedup_eager": 1.0
-   }
-  ]
+ "kernels": {},
+ "attempts": {
+  "l1_1": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 12,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_2": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 12,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_3": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_4": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 7,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_5": {
+   "n_candidates": 11,
+   "n_attempted_kernel": 7,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_6": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 8,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_7": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 12,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_8": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 12,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_9": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_10": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_1": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_2": {
+   "n_candidates": 11,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_3": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_4": {
+   "n_candidates": 11,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_5": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_6": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_7": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_8": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_9": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 11,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_10": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 3,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_11": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_12": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_13": {
+   "n_candidates": 10,
+   "n_attempted_kernel": 8,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_14": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_15": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 9,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_1": {
+   "n_candidates": 7,
+   "n_attempted_kernel": 1,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_2": {
+   "n_candidates": 12,
+   "n_attempted_kernel": 10,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_3": {
+   "n_candidates": 8,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_4": {
+   "n_candidates": 9,
+   "n_attempted_kernel": 2,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  }
  },
+ "tasks_attempted": 29,
+ "complete": true,
  "_provenance": {
-  "utc": "2026-09-24T19:37:17Z",
-  "host": "n27",
+  "utc": "2026-09-24T20:51:47Z",
+  "host": "n02",
   "git": null,
   "python": "3.11.10",
   "env": {
