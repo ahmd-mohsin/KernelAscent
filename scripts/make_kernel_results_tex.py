@@ -16,6 +16,17 @@ import glob, json, os, statistics as st, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "data", "marlowe_h100")
+# `mrl pull` lands artifacts in data/trajectories while older cells live in data/marlowe_h100.
+# Look in both, nearest first, so a table does not silently lose half its rows to a path change.
+DIRS = [D, os.path.join(ROOT, "data", "trajectories")]
+
+
+def _find(name):
+    for d in DIRS:
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            return p
+    return os.path.join(D, name)
 OUT = os.path.join(ROOT, "paper", "kernel_results_auto.tex")
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
@@ -35,7 +46,7 @@ def t1_table():
     """Capability curve with attempt/verify separated -- solve-rate alone is a compliance metric."""
     rows, note, policies = [], [], set()
     for lbl, tag in (("0.5B", "q05"), ("1.5B", "q15"), ("3B", "q3"), ("7B", "q7"), ("14B", "q14")):
-        d = _load(os.path.join(D, "t1k_%s.json" % tag))
+        d = _load(_find("t1k_%s.json" % tag))
         if not d:
             continue
         att = d.get("attempts") or {}
@@ -125,9 +136,71 @@ Contrast & Trajectories & Estimate (95\%% CI) \\
 \end{table}""" % (powered, inc, res, len(traj), est["mean"], lo, hi)), []
 
 
+def t1_robustness_table():
+    """Strict vs lenient extraction, side by side.
+
+    The extraction policy is not a preprocessing detail here. Strict discards a share of
+    generations that itself correlates with scale, and that filter alone produced a perfectly
+    monotone decline (Spearman rho = -1.000) which the permissive policy dissolves to -0.900.
+    The endpoint contrast survives both; the ordering survives neither. Printing one policy
+    would be printing the instrument.
+    """
+    def cascade(path):
+        d = _load(path)
+        if not d:
+            return None
+        att = d.get("attempts") or {}
+        if not att:
+            return None
+        return {"att": sum(v.get("n_attempted_kernel", 0) for v in att.values()),
+                "kok": sum(v.get("n_kernel_verified", 0) for v in att.values()),
+                "complete": bool(d.get("complete"))}
+
+    rows, incomplete = [], []
+    for lbl, tag in (("0.5B", "q05"), ("1.5B", "q15"), ("3B", "q3"), ("7B", "q7"), ("14B", "q14")):
+        a = cascade(_find("t1k_%s.json" % tag))
+        b = cascade(_find("t1kl_%s.json" % tag))
+        if not a or not b:
+            continue
+        for tagname, c in (("strict", a), ("lenient", b)):
+            if not c["complete"]:
+                incomplete.append("%s/%s" % (lbl, tagname))
+        rows.append((lbl, a, b))
+    if not rows:
+        return "", ["no paired strict/lenient cells found"]
+
+    body = ""
+    for lbl, a, b in rows:
+        ra = a["kok"] / a["att"] if a["att"] else 0.0
+        rb = b["kok"] / b["att"] if b["att"] else 0.0
+        body += "%s & %d & %d & %.2f\\%% & %d & %d & %.2f\\%% \\\\\n" % (
+            lbl, a["att"], a["kok"], 100 * ra, b["att"], b["kok"], 100 * rb)
+
+    warn = ""
+    if incomplete:
+        warn = (r" \textbf{Incomplete cells present (%s); this table is provisional.}"
+                % esc(", ".join(incomplete)))
+    tex = r"""\begin{table}[h]\centering\small
+\caption{T1-kernel robustness to extraction policy. Verify-given-attempt under
+\texttt{KA\_EXTRACT=strict} and \texttt{lenient}; identical tasks, $k$, and token budget,
+differing only in how a generation is converted to a candidate. The endpoint contrast
+(0.5B vs 14B) holds under both policies and strengthens under \texttt{lenient}. The monotone
+ordering does not: it is an artifact of a filter whose severity correlates with scale.WARN}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+& \multicolumn{3}{c}{\texttt{strict}} & \multicolumn{3}{c}{\texttt{lenient}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Scale & Attempts & Verified & Rate & Attempts & Verified & Rate \\
+\midrule
+""" + body + r"""\bottomrule
+\end{tabular}
+\end{table}"""
+    return tex.replace("WARN", warn), []
+
+
 def main():
     parts, notes = [], []
-    for fn in (t1_table, prereg_table):
+    for fn in (t1_table, t1_robustness_table, prereg_table):
         tex, n = fn()
         if tex:
             parts.append(tex)

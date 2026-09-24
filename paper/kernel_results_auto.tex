@@ -18,6 +18,27 @@ Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\caption{T1-kernel robustness to extraction policy. Verify-given-attempt under
+\texttt{KA\_EXTRACT=strict} and \texttt{lenient}; identical tasks, $k$, and token budget,
+differing only in how a generation is converted to a candidate. The endpoint contrast
+(0.5B vs 14B) holds under both policies and strengthens under \texttt{lenient}. The monotone
+ordering does not: it is an artifact of a filter whose severity correlates with scale.}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+& \multicolumn{3}{c}{\texttt{strict}} & \multicolumn{3}{c}{\texttt{lenient}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Scale & Attempts & Verified & Rate & Attempts & Verified & Rate \\
+\midrule
+0.5B & 74 & 4 & 5.41\% & 254 & 24 & 9.45\% \\
+1.5B & 74 & 3 & 4.05\% & 237 & 7 & 2.95\% \\
+3B & 184 & 6 & 3.26\% & 328 & 26 & 7.93\% \\
+7B & 262 & 4 & 1.53\% & 344 & 10 & 2.91\% \\
+14B & 219 & 0 & 0.00\% & 338 & 2 & 0.59\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]\centering\small
 \caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, under the
 registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline). \textbf{Underpowered} ($n<8$; MDE $0.120$ at $n{=}4$ against a $\delta{=}0.05$ margin), so no equivalence claim is made. 3 of 3 cells incomplete.}
 \begin{tabular}{@{}lrr@{}}
