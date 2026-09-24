@@ -2370,3 +2370,55 @@ Two cautions I am not allowed to drop when this goes in the paper:
    with 0.5B (9.5%), above 1.5B (3.0%). If that holds at completion, the honest claim is the
    **endpoint contrast plus direction**, and the "monotone ordering p = 1/120" line must come out.
    That line is currently in the log above and would be wrong to carry forward unqualified.
+
+### Generation-budget asymmetry across arms and rungs (2026-09-24 15:30)
+
+Chasing a `basek-q3-s2` CUDA OOM turned up a confound rather than a memory bug.
+
+`lab_baselines._gen_custom` hardcoded `max_new=900` and `bs=4`, ignoring `KA_MAX_NEW` and
+`KA_GEN_BS`. So within the baselines block:
+
+| arm | path | budget |
+|---|---|---|
+| `best_of_k` | `W.generate_batch` | **2048** |
+| `self_refine` | `_gen_custom` | **900** |
+| `retrieval` | `_gen_custom` | **900** |
+| weight-RSI `C_self` (what they are compared against) | `W.generate_batch` | **2048** |
+
+The headline comparison is `weight-RSI C_self vs max(best_of_k, self_refine, retrieval)`. That
+maximum was taken over arms at *different token budgets*, two of them at 44% of the RSI arm's.
+The comparison is documented as "at equal samples" — it was equal samples, unequal tokens.
+
+Nothing crashed and no number looked wrong. This is the failure mode that worries me most:
+the defect only shows up if you go read which function each arm calls.
+
+**Contained.** Only one stale value existed on disk: `basek_q3_s2.self_refine C=0.3448`. Removed
+(backup `baselines.json.bak-900tok`) so it regenerates at 2048 — the resume logic skips methods
+already recorded, so leaving it would have let the fix be silently ignored. No `retrieval`
+result existed anywhere yet, so every retrieval number will be produced at parity.
+
+The OOM itself was a symptom: `retrieval`'s prompt carries 3 few-shot kernels, so its KV cache
+dwarfs `best_of_k`'s at the same `bs*k`. `_gen_custom` now halves the batch on OOM and retries
+down to bs=1, raising rather than silently dropping a sequence that cannot fit alone.
+
+**The wider problem, which I am NOT fixing mid-flight.** A new gate
+(`tests/test_generation_budget.py`) scanned the repo and found 9 more hardcoded budgets. Two are
+in labs running right now:
+
+| rung | lab | budget |
+|---|---|---|
+| T1, T2 | `lab_weight_rsi` / `lab_compounding` | 2048 |
+| T3 | `lab_track_c.py:146` | **1200** |
+| T5 | `lab_selfplay_rsi.py:64` | **1200** |
+| probes | `lab_wall_*`, `lab_interp_probe`, … | 700–1100 |
+
+T3 and T5 resume from per-round checkpoints, and `KA_MAX_NEW=2048` is exported globally, so
+making them read the env *now* would put early rounds at 1200 and later rounds at 2048 inside a
+single cell. A within-cell budget change is worse than a consistent wrong one, so these stay as
+they are until a clean restart of those rungs.
+
+**Consequence for the paper.** Any cross-rung claim — "procedure-RSI (T3) is weaker than
+weight-RSI (T2)", "self-play (T5) shows no advantage" — is partly confounded by a 1.7x token
+budget difference and must state so. The T5 null (`L-S=+0.001`, `F-S=-0.003` at round 3) is
+*consistent with* no self-play benefit but does not isolate it from the smaller budget.
+The gate freezes all 9 values so a new one, or a change to an existing one, fails loudly.

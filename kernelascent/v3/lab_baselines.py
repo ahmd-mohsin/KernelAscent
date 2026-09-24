@@ -48,26 +48,51 @@ def _score_lists(srcs, code_lists):
         round(statistics.mean(comp), 3) if comp else 0.0, scores, correct_pairs
 
 
-def _gen_custom(tok, mdl, user_texts, k, max_new=900, temp=0.8, bs=4):
+def _gen_custom(tok, mdl, user_texts, k, max_new=None, temp=0.8, bs=None):
     """Generate k candidates for each pre-built USER text (already the full instruction, not a raw src).
-    Mirrors W.generate_batch but lets us inject refine/retrieval prompts. Frozen model (adapter disabled)."""
+    Mirrors W.generate_batch but lets us inject refine/retrieval prompts. Frozen model (adapter disabled).
+
+    Budget parity matters here. This used to hardcode max_new=900 while W.generate_batch (which
+    best_of_k and the weight-RSI arm both go through) used KA_MAX_NEW=2048. That made
+    `max(best_of_k, self_refine, retrieval)` a maximum over arms with DIFFERENT token budgets,
+    and handicapped the two baselines the headline comparison leans on. Both now read the same
+    env var, so a budget change moves every arm together or none.
+
+    retrieval's prompt carries 3 few-shot kernels, so its KV cache is far larger than
+    best_of_k's for the same bs*k -- which is what made it the only method that OOMed. Rather
+    than tune a batch size per method, halve on OOM and retry down to bs=1."""
+    max_new = W._MAX_NEW if max_new is None else max_new
+    bs = W._GEN_BS if bs is None else bs
     old = tok.padding_side; tok.padding_side = "left"
     out_lists = [[] for _ in user_texts]
     try:
         with mdl.disable_adapter() if hasattr(mdl, "disable_adapter") else W._null():
-            for i in range(0, len(user_texts), bs):
-                chunk = user_texts[i:i + bs]
-                texts = [W._chat(tok, u) for u in chunk]
-                enc = tok(texts, return_tensors="pt", padding=True).to(W._dev(mdl))
-                with torch.no_grad():
-                    o = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95,
-                                     num_return_sequences=k, max_new_tokens=max_new,
-                                     pad_token_id=tok.pad_token_id, logits_processor=W._LP)
-                new = o[:, enc["input_ids"].shape[1]:]
-                for j in range(len(chunk)):
-                    for r in range(k):
-                        out_lists[i + j].append(tok.decode(new[j * k + r], skip_special_tokens=True))
-                torch.cuda.empty_cache()
+            i = 0
+            while i < len(user_texts):
+                cur = max(1, bs)
+                while True:
+                    chunk = user_texts[i:i + cur]
+                    texts = [W._chat(tok, u) for u in chunk]
+                    try:
+                        enc = tok(texts, return_tensors="pt", padding=True).to(W._dev(mdl))
+                        with torch.no_grad():
+                            o = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95,
+                                             num_return_sequences=k, max_new_tokens=max_new,
+                                             pad_token_id=tok.pad_token_id, logits_processor=W._LP)
+                    except torch.OutOfMemoryError:
+                        torch.cuda.empty_cache()
+                        if cur == 1:
+                            raise                       # a single sequence will not fit; do not silently drop it
+                        cur = max(1, cur // 2)
+                        sys.stderr.write("OOM at bs=%d; retrying this chunk at bs=%d\n" % (cur * 2, cur))
+                        continue
+                    new = o[:, enc["input_ids"].shape[1]:]
+                    for j in range(len(chunk)):
+                        for r in range(k):
+                            out_lists[i + j].append(tok.decode(new[j * k + r], skip_special_tokens=True))
+                    torch.cuda.empty_cache()
+                    i += len(chunk)
+                    break
     finally:
         tok.padding_side = old
     return out_lists
