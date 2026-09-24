@@ -2210,3 +2210,21 @@ hand-written correct triton kernel also fails to verify here. Held until `preche
 * reachability proposed as a reportable precondition, with a ~10% refusal threshold
 * audit gates for baseline attribution and the custom-kernel rate, **with negative tests**
 * `env` prefix required for env vars (container runs with no shell)
+
+### E2 strategy-cap ablation — final (all 6 cells, 6 rounds, clean)
+
+| cap | mean ΔQ | n | n_strategies trajectory |
+|---|---|---|---|
+| 12 | −0.046 | 2 | `[7,10,10,10,11,12]`, `[8,8,9,9,9,9]` |
+| 48 | +0.021 | 2 | `[4,5,5,5,5,6]`, `[4,6,9,9,9,13]` |
+| unbounded | −0.009 | 2 | `[5,14,14,11,11,12]`, `[5,8,8,8,13,14]` |
+
+Procedures grow when permitted (6/6 runs; 3 exceed 12 strategies). **No dose-response in
+quality** — lifting the cap lets the procedure grow without making it better.
+
+Supersedes an earlier figure of +0.482 at unbounded cap, which came from `/scratch` runs with
+the EDQUOT zero signature (`Q0 = 0.000`, 4–5 exactly-zero rounds). Those are now excluded
+automatically by `scripts/scan_contamination.py`, wired into `make audit`.
+
+The T3 one-shot retraction does **not** rest on these runs — it rests on the closed-model
+pinning (5/5 runs at 11–12 strategies from round 0), visible in the already-published records.
