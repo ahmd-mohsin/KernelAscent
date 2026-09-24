@@ -2600,3 +2600,24 @@ and must not be claimed. 3B's interval [5.5%, 11.4%] overlaps 0.5B's almost enti
 kernel verifies *given* an attempt falls, with a highly significant endpoint contrast robust to
 extraction policy. **Not defensible:** a monotone decline, an ordering p-value, or "14B never
 verifies".
+
+### Operational consequences of the budget fix (2026-09-24 17:05)
+
+Raising `_gen_custom` from 900 to `KA_MAX_NEW=2048` was correct but not free, and it has two
+knock-on effects worth stating before they surprise someone.
+
+**1. Rounds got ~1.7x slower.** `lab_compounding` calls `BL.retrieval` each round for
+`C_retrieval`, and that call now generates 2.3x more tokens. Measured: `t2kc-q15-s2` round 0
+took **902s**, against ~540s for the same lab before the fix. At a 50-minute walltime that is
+~3 rounds per chunk instead of ~5. Acceptable only because resume is now correct — before
+today's adapter fix, more chunks meant more severing.
+
+Worth watching: if a single round ever exceeds the walltime, the cell completes no round, writes
+no checkpoint, and `jobman continue` resubmits it forever while the queue looks busy. That is the
+exact loop that cost 19 cells earlier. 15 min against a 50 min wall has margin; a larger model
+or a bigger `k` would not.
+
+**2. `C_retrieval` is not comparable across the fix boundary.** Cells run before ~16:00 computed
+their retrieval arm at 900 tokens; everything after uses 2048. Old `t2k_*` and new `t2kp_*` /
+`t2kc_*` retrieval columns must not be pooled or plotted on one axis. The `best_of_k` and
+weight-RSI columns are unaffected — both always went through `W.generate_batch` at 2048.
