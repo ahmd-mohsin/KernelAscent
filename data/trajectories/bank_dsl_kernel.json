@@ -894,5 +894,47 @@
     "eps": 1e-06,
     "split": "heldin_cell",
     "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_softplus_norm_f32_4096x8192_1em05",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float32\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps=1e-05\n    def forward(self, x):\n        s=torch.nn.functional.softplus(x.float()); return (s/(s.mean(-1,keepdim=True)+self.eps)).to(x.dtype)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "softplus_norm",
+    "dtype": "float32",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1e-05,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_swiglu_mlp_f32_16384x4096_1p0",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float32\nROWS, HIDDEN = 16384, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.wg=nn.Parameter((0.02*torch.randn(HIDDEN,HIDDEN,generator=g)).to(dev,dt))\n        self.wu=nn.Parameter((0.02*torch.randn(HIDDEN,HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        a=x@self.wg; b=x@self.wu; return (a*torch.sigmoid(a*1.0))*b\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L2",
+    "family": "swiglu_mlp",
+    "dtype": "float32",
+    "shape": [
+      16384,
+      4096
+    ],
+    "eps": 1.0,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_swiglu_mlp_f32_16384x4096_1p702",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float32\nROWS, HIDDEN = 16384, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.wg=nn.Parameter((0.02*torch.randn(HIDDEN,HIDDEN,generator=g)).to(dev,dt))\n        self.wu=nn.Parameter((0.02*torch.randn(HIDDEN,HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        a=x@self.wg; b=x@self.wu; return (a*torch.sigmoid(a*1.702))*b\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L2",
+    "family": "swiglu_mlp",
+    "dtype": "float32",
+    "shape": [
+      16384,
+      4096
+    ],
+    "eps": 1.702,
+    "split": "heldout_family",
+    "cpu_validated": "ok"
   }
 ]
