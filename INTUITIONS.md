@@ -172,7 +172,7 @@ runs of exact zeros punctuated by normal values, suspect the environment before 
 
 ---
 
-## 2.4 The sixth defect was my own explanation of the first five
+## 2.4 The sixth "defect" was my own explanation — and so was its correction
 
 I diagnosed the 0.50 spike as a hardware effect: `torch.compile` is stronger on H100, so the
 headroom closed. Plausible, consistent with every number I had, and **wrong**.
@@ -217,6 +217,46 @@ supplies `ceiling=1.5`, and `difficulty_filter` calls it that way, so its `best_
 the legacy fixed-anchor score on the eager ratio — *not* the headroom-normalised score the
 paper defines, even though it shares a name and a range. Two different quantities under one
 name is how this survived review. Check what a default actually binds before reading a column.
+
+---
+
+## 2.4b The correction was wrong too: a default is not a setting
+
+§2.4 records me replacing a plausible explanation with a confident one. The confident one was
+also wrong, and the reason is worth more than either.
+
+I checked that `LK._score(ok, sp)` defaults `ceiling=1.5`, and that the compiled baseline is
+used only under `KA_SCORE=compiled`. I concluded the runs had used eager scoring, and wrote into
+the paper that *"no claim about torch.compile was licensed by those runs."*
+
+**Every job exports `KA_SCORE=compiled`.** The cluster tool injects it through
+`MRL_EXTRA_ENV` in the project file, and has since 2026-09-19 — before any of these runs. The
+submitted batch scripts contain the line:
+
+```
+$ grep KA_SCORE .../e1c--s1-h100-20260923-040917.sbatch
+export KA_SCORE=compiled
+```
+
+So those runs *did* score against `torch.compile` with the per-task roofline ceiling, exactly as
+pre-registered. My correction inverted a true statement.
+
+> **A default is not a setting.** I reasoned from the library's default argument and the code
+> path — where a programmer looks — and the answer was in the job's environment, where the
+> program actually ran. An experiment's configuration is the union of **code + invocation +
+> environment**, and the environment is the only one invisible from inside the repository.
+
+This is the same shape as [[2.5]], where the host's `CC` leaked into the container: the
+environment silently overriding what the code appears to say. Twice in two days, and the second
+time I had already written the lesson down.
+
+**What is now open.** A score of exactly 0.50 needs `sp_compiled == 1.0` exactly. That fits two
+different worlds — compile is strong and the model matched it, or compile gives ~1.0x on these
+memory-bound ops so the compiled baseline *is* the eager baseline. `probe_compile_gain.py`
+measures `t_eager / t_compiled` per task with no model involved, which separates them. Running.
+
+**Also:** the `t2kc-*` "compiled re-score" cells were redundant from the moment I created them —
+`MRL_EXTRA_ENV` already forced compiled scoring, so they duplicated `t2k-*` exactly. Dropped.
 
 ---
 

@@ -54,72 +54,41 @@ parity with the baseline. With both arms pinned to the same absorbing value,
 $\textsf{lineage}-\textsf{reset}$ is zero \emph{by construction}, and the experiment could not
 have detected compounding in either direction.
 
-\paragraph{The sixth defect was our own explanation of the first five.}
-Our initial diagnosis of that spike was that the \texttt{torch.compile} baseline is relatively
-stronger on H100, closing headroom that existed on A100. It was plausible, it fit the data, and
-it was wrong. The default scorer does not use the compiled baseline at all: it evaluates
-speedup against \emph{eager} PyTorch with the legacy fixed $1.5\times$ anchor. No claim about
-\texttt{torch.compile} was licensed by those runs, because \texttt{torch.compile} never entered
-the measurement.
+\paragraph{The sixth ``defect'' was our own explanation --- and so was its correction.}
+This entry has been wrong twice, in opposite directions, and we report the sequence because the
+second error is more instructive than the first.
 
-The actual cause was upstream of the metric, in the prompt. Our generation instruction contains
-the clause \emph{``a plain-torch kernel that is correct beats a fancy one that errors''} ---
-written to suppress parse and compile failures, which it did. Of \textbf{86 verified kernels}
-harvested from the 14B model, \textbf{zero} contained Triton, CUDA, or \texttt{load\_inline}.
-All 86 were pure-PyTorch rewrites of the reference module. An independent re-harvest under the
-same prompt replicated this exactly: \textbf{0 of 118 verified kernels}, for \textbf{0 of 204}
-across both. A semantically equivalent rewrite runs at eager speed by construction: median
-speedup $1.00\times$, with 93\% below $1.05\times$.
-And $\textsf{\_score}(\textrm{correct}, 1.00) = 0.50$ exactly.
+\textbf{First claim.} We attributed the $0.50$ spike to \texttt{torch.compile} being relatively
+stronger on H100, closing headroom that existed on A100.
 
-So the chain is deterministic, and it runs entirely through our own harness: a prompt that
-discourages optimisation $\rightarrow$ models that decline to optimise $\rightarrow$ speedups
-pinned at $1.00\times$ $\rightarrow$ a score pinned at $0.50$ $\rightarrow$ a contrast pinned at
-zero. The metric was never broken. It reported, accurately, that the models were not attempting
-the task the benchmark exists to measure --- and we misread a correct measurement as a broken
-instrument for long enough to write the wrong explanation down.
+\textbf{First correction, which we published.} We then found that the scorer takes the compiled
+baseline only under \texttt{KA\_SCORE=compiled}, and that its \texttt{ceiling} argument defaults
+to $1.5$ when unsupplied --- and concluded that the runs had used the eager baseline with a
+fixed anchor, so that ``no claim about \texttt{torch.compile} was licensed by those runs''.
 
-We record this as the most instructive failure in the project, because it inverts the lesson of
-the previous five. There, a clean zero was a bug. Here, a clean zero was a \emph{finding}, and
-the bug was in the interpretation. The usable rule is therefore not ``suspect the instrument''
-but the stricter \textbf{trace the causal chain from prompt to number before naming a cause},
-and prefer the explanation that is testable by intervention: ours was settled by an A/B on the
-prompt text, holding tasks, grader, model and seed fixed.\footnote{That A/B is running at
-submission time and its outcome is reported in the camera-ready. Until it lands, ``models
-cannot beat the baseline on this hardware'' and ``models were told not to try'' are
-observationally identical, and only the second is actionable --- which is exactly why the
-distinction has to be drawn before either is asserted.}
+\textbf{That correction was false.} The cluster tooling exports
+\texttt{KA\_SCORE=compiled} into \emph{every} job through its project environment, and has since
+before any of these runs. The submitted batch scripts contain the line. Those runs therefore
+\emph{did} score against the \texttt{torch.compile} baseline with the per-task roofline ceiling
+--- exactly as pre-registered. We had checked the library default and never checked the
+environment the jobs actually ran in.
 
-Critically, none of this is repairable by task curation. Filtering the bank against an
-H100 anchor with a $1.3\times$ minimum roofline headroom kept 23 of 29 tasks and still returned
-a frozen-base mean best score of $0.511$, with every surviving task at $\approx 0.50$. A filter
-selects among existing tasks; it cannot make a model attempt an optimisation it was steered
-away from.
+\textbf{What the evidence now constrains.} A score of exactly $0.50$ requires
+$sp_{\textrm{compiled}} = 1.0$ \emph{exactly} --- the submission matching the compiled reference.
+That is consistent with two very different worlds: one where \texttt{torch.compile} is strong and
+the model matched it, and one where \texttt{torch.compile} gives no speedup on these
+memory-bound elementwise operators, so the compiled baseline \emph{is} the eager baseline and a
+plain-torch rewrite lands at $1.0\times$ by construction. These are distinguishable without any
+model: measure $t_{\textrm{eager}}/t_{\textrm{compiled}}$ per task. That probe is running, and
+we report its result rather than choosing between the two stories now.
 
-\paragraph{The estimator, not the normalisation, is the thing to fix.}
-A saturated metric invites the wrong repair. The instinct is to re-normalise; the actual
-problem is that best-of-$k$ over a speed score is the wrong \emph{estimator} for a population
-sitting at the correctness floor. Best-of-$k$ answers ``can it ever,'' and returns an identical
-$0.500$ whether a model solves a task once in eight attempts or eight times out of eight ---
-two plainly different models. Where the live axis is reliability rather than speed, pass-rate
-over $k$ separates those cases by a factor of eight in resolution.
-
-We report such runs under a separate metric (pre-registration, Amendment~1), never pooled with the
-headroom leaderboards, and with two properties stated up front: the denominator is $k$, so a
-model emitting nothing parseable scores zero rather than being excluded; and it does not reward
-speed, so it tests a \emph{weaker and different} claim than the headroom score. It was also
-adopted \emph{after} observing saturation --- a forking path that we record as such rather than
-present as the original design.
-
-\paragraph{Check the denominator of the mechanism, not just the metric.}
-The same failure shape recurs wherever a rate is computed over events that never occurred. Two
-frontier models in our procedure-RSI track recorded $n_{\textrm{strategies}}=0$ in every round:
-their output was never parsed into a strategy list, so the self-modification channel never
-engaged. The resulting $-0.234$ ``self-degradation'' was widely quoted from an earlier draft of
-this work and is a parse failure. Likewise, our self-play primary metric requires the live
-author to produce accepted valid tasks; demanding at least five qualifies only 6 of 24 open and
-5 of 11 closed runs. \textbf{A metric computed over zero events is undefined, not zero}, and the
-distinction is invisible in the aggregate.
+\textbf{The transferable lesson is about where a configuration lives.} We reasoned from the
+library's default argument and the code path, which is where a programmer looks, and the answer
+was in the job's environment, which is where the program actually ran. \textbf{A default is not
+a setting.} An experiment's configuration is the union of its code, its invocation and its
+environment, and only the last of those is invisible from inside the repository. This is the
+same failure as the seventh defect below, where the host's \texttt{CC} leaked into a container
+--- both are the environment silently overriding what the code appears to say.
 
 \paragraph{The seventh defect: the benchmark had never measured its own subject.}
 Having traced the plateau to the prompt, we tested the obvious follow-up --- remove the steer

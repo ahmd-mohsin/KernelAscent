@@ -20,30 +20,28 @@
 \contentsline {section}{\numberline {6}Instrument validity: how a self-improvement benchmark manufactures a null}{12}{section.6}%
 \contentsline {paragraph}{A clean zero is a bug hypothesis before it is a finding.}{12}{section*.7}%
 \contentsline {paragraph}{Correctness of the instrument is not sufficient; it must also have range.}{12}{section*.8}%
-\contentsline {paragraph}{The sixth defect was our own explanation of the first five.}{13}{section*.9}%
-\contentsline {paragraph}{The estimator, not the normalisation, is the thing to fix.}{14}{section*.10}%
-\contentsline {paragraph}{Check the denominator of the mechanism, not just the metric.}{14}{section*.11}%
-\contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{14}{section*.12}%
-\contentsline {paragraph}{What the corrected instrument then showed.}{15}{section*.13}%
-\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{15}{section*.14}%
-\contentsline {paragraph}{Applying the precondition to our own headline.}{16}{section*.15}%
-\contentsline {paragraph}{What we propose as standard practice.}{17}{section*.16}%
+\contentsline {paragraph}{The sixth ``defect'' was our own explanation --- and so was its correction.}{13}{section*.9}%
+\contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{14}{section*.10}%
+\contentsline {paragraph}{What the corrected instrument then showed.}{14}{section*.11}%
+\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{15}{section*.12}%
+\contentsline {paragraph}{Applying the precondition to our own headline.}{15}{section*.13}%
+\contentsline {paragraph}{What we propose as standard practice.}{16}{section*.14}%
 \contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{17}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{17}{subsection.7.1}%
-\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{17}{section*.17}%
-\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{18}{section*.18}%
-\contentsline {paragraph}{Why verified search escapes where training does not.}{18}{section*.19}%
-\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{18}{section*.20}%
-\contentsline {paragraph}{The inverted-U, mechanistically.}{18}{section*.21}%
-\contentsline {paragraph}{What would break the plateau, and what our data predict.}{18}{section*.22}%
-\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{19}{section*.23}%
-\contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{19}{section.8}%
-\contentsline {section}{\numberline {9}What would break the plateau: predictions}{20}{section.9}%
-\contentsline {section}{\numberline {10}Limitations and scope}{20}{section.10}%
+\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{17}{section*.15}%
+\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{17}{section*.16}%
+\contentsline {paragraph}{Why verified search escapes where training does not.}{17}{section*.17}%
+\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{17}{section*.18}%
+\contentsline {paragraph}{The inverted-U, mechanistically.}{18}{section*.19}%
+\contentsline {paragraph}{What would break the plateau, and what our data predict.}{18}{section*.20}%
+\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{18}{section*.21}%
+\contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{18}{section.8}%
+\contentsline {section}{\numberline {9}What would break the plateau: predictions}{19}{section.9}%
+\contentsline {section}{\numberline {10}Limitations and scope}{19}{section.10}%
 \contentsline {section}{\numberline {11}Conclusion}{20}{section.11}%
-\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{21}{appendix.A}%
-\contentsline {paragraph}{Three corrections to the earlier analysis.}{21}{section*.24}%
-\contentsline {paragraph}{Result.}{21}{section*.25}%
-\contentsline {paragraph}{What this does and does not establish.}{21}{section*.26}%
-\contentsline {paragraph}{The diagnostic.}{21}{section*.27}%
-\contentsline {paragraph}{Defensible claim.}{22}{section*.28}%
+\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{20}{appendix.A}%
+\contentsline {paragraph}{Three corrections to the earlier analysis.}{20}{section*.22}%
+\contentsline {paragraph}{Result.}{20}{section*.23}%
+\contentsline {paragraph}{What this does and does not establish.}{21}{section*.24}%
+\contentsline {paragraph}{The diagnostic.}{21}{section*.25}%
+\contentsline {paragraph}{Defensible claim.}{21}{section*.26}%
