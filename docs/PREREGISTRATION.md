@@ -140,3 +140,64 @@ If pass-rate `lineage − reset` is **also** flat while the positive control (co
 **does** move it, the loop genuinely fails to compound and we report that. If neither moves,
 the instrument still lacks range and we report *that* instead — and publish no compounding
 claim from this hardware.
+
+---
+
+# Amendment 2 — 2026-09-23: the kernel-authoring experiment set
+
+**Registered before any of these runs produced a result.** The jobs were submitted at 19:0x;
+this amendment is committed before the first completes. Nothing below was chosen after seeing
+an outcome, and the git history of this file is the evidence.
+
+## Why a new experiment set exists
+
+Every result this project has produced was measured on **correctness-preserving rewriting**, not
+kernel optimisation, because Triton kernels could not verify on our harness (host `CC` leaked
+into the container; only Triton compiles C at runtime). With that fixed, the models attempt a
+custom kernel in 0/16 samples under the published prompt and 14/16 when asked, of which 1
+verifies.
+
+That rate matters more than its value: **it is neither 0 nor high**. Every saturation this
+project hit — scores pinned at 0.50, lineage pinned at 1.000, a coverage-injection control
+exhausted by round 2 — came from measuring a task the models had already solved. Kernel
+authoring is the first task here they have not.
+
+## Registered primary analysis
+
+* **Substrate:** the 29-task bank, `KA_PROMPT=kernel`, default (headroom) scoring.
+* **Unit of replication:** the trajectory. One seed, one base checkpoint, one held split, one
+  accumulated adapter. Never the round.
+* **T2-kernel PRIMARY:** `lineage − reset`, trajectory level, reported with a 95% CI and TOST at
+  **δ = 0.05**, pooled across 1.5B/3B/7B and reported per scale.
+* **Target n:** **12 trajectories per arm** (2 scales × 6 seeds, plus 7B × 2). Fixed from a
+  power calculation, not from what finished: between-trajectory SD on the closest available
+  analogue is 0.058, giving MDE 0.120 at n=4 and 0.051 at n=12. **A result at n < 8 per arm is
+  reported as underpowered and no equivalence claim is made from it.**
+* **Positive control:** the inject arm (teacher kernels from the 14B cell on tasks the student
+  failed). Its `injected_tasks` count per round is reported alongside every result — a control
+  that stops firing has not passed, it has stopped testing.
+* **Secondary:** T1-kernel capability by scale; recursion-vs-sampling at matched generation
+  budget; mechanism probe (diversity, LoRA drift by depth, retention).
+
+## Decision rules, fixed now
+
+| outcome | conclusion |
+|---|---|
+| `lineage − reset` CI excludes 0, positive, control fires throughout | compounding, on a task the models have not saturated — the result this benchmark exists to produce |
+| CI includes 0, TOST equivalent at δ=0.05, **and** the positive control moved | a real bounded null |
+| CI includes 0 **and** the positive control did not move | the instrument cannot register compounding here; **publish no claim** |
+| either arm saturates (>30% of rounds at a bound) | report the saturation, treat magnitudes as bounds, make no trend claim |
+| n < 8 per arm | underpowered; report the interval, make no equivalence claim |
+
+## What this set may not be pooled with
+
+Not with the A100 headroom boards (different hardware, different task, and those were graded by
+a harness that silently rejected Triton). Not with the `h100/passrate` set (different metric).
+Tagged `h100/kernel-authoring`.
+
+## Falsifier
+
+If the capability curve (T1-kernel) shows a verified-kernel rate at or near zero for every scale
+including 14B, then the task is unreachable rather than unsaturated, the compounding contrast is
+uninterpretable for the same reason as before, and we report that and publish no compounding
+claim from it.
