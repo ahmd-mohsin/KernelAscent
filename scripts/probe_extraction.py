@@ -64,6 +64,12 @@ def main():
     tok, mdl = W.build(a.model, tuple(int(g) for g in str(a.gpus).split(",") if g != ""))
     max_new = int(os.environ.get("KA_MAX_NEW", "1024"))
 
+    # what a lenient extractor would recover, measured rather than assumed. Imported HERE,
+    # before the loop that uses it -- the first version placed this after the loop and died with
+    # UnboundLocalError on a GPU node, 20 minutes into the queue.
+    from kernelascent.agent_bench import extract_modelnew as _ex
+    recovered = 0
+
     counts = collections.Counter()
     classnames = collections.Counter()      # what the model NAMES its class when not ModelNew
     lens = []
@@ -91,9 +97,6 @@ def main():
                         classnames[nm] += 1
         print("  [%d/%d] %-28s %s" % (i + 1, len(names), n[:28], dict(counts)), flush=True)
 
-    # what a lenient extractor would recover, measured rather than assumed
-    from kernelascent.agent_bench import extract_modelnew as _ex
-    recovered = 0
     tot = sum(counts.values())
     print("\n=== EXTRACTION OUTCOMES (%s, k=%d over %d tasks) ===" % (a.model, a.k, len(names)))
     for c, k in counts.most_common():

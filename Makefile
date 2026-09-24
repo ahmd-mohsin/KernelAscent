@@ -16,6 +16,7 @@ audit:
 	python3 tests/test_audit_gates.py
 	python3 tests/test_provenance_shim.py
 	python3 scripts/check_resume.py --strict
+	python3 tests/test_probe_imports.py
 	python3 scripts/scan_contamination.py
 
 figures: stats
