@@ -24,5 +24,6 @@ figures: stats
 	python3 scripts/make_gallery_figures.py
 	python3 scripts/make_intervene_figures.py
 	python3 scripts/make_results_tex.py
+	python3 scripts/make_kernel_results_tex.py
 	$(MAKE) audit
 	cd paper && (tectonic figures.tex || (pdflatex -interaction=nonstopmode figures.tex && pdflatex -interaction=nonstopmode figures.tex))
