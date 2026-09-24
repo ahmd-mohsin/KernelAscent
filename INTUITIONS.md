@@ -269,6 +269,21 @@ because a green result is read as evidence. **The fix is not a better regex. It 
 test: plant the error, assert the gate fires.** Anything unverified that way should be assumed
 not to work.
 
+### Five instances, one root cause, one helper
+
+By the end of the session this had happened **five times**: a gate matching nothing because a
+number or phrase was wrapped in `\textbf{}`, `<b></b>` or `*emphasis*`. The last one flagged the
+very sentence *explaining* the problem, because `*mean* over draws` is not `mean over draws`.
+
+So it is now one shared `norm_prose()` — strip LaTeX commands, HTML tags, HTML entities and
+Markdown emphasis, collapse whitespace — used by every prose check, rather than five ad-hoc
+regexes that each get it slightly wrong.
+
+And the rule that would have caught all five is now a **meta-gate**: every check `main()` runs
+must appear in `tests/test_audit_gates.py`, or the suite fails. Verified by adding a stub gate
+with no test and watching it break. A check with no negative test is not known to work, and
+this file has now produced five proofs of that.
+
 ### And the opposite mistake, which I then made
 
 Widening that regex to catch every citation made it bind to unrelated pairs — task coverage

@@ -9,7 +9,7 @@ that it is reading real, non-empty files before it believes any result.
 
     python3 tests/test_audit_gates.py
 """
-import os, shutil, sys, tempfile
+import os, re, shutil, sys, tempfile
 
 SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -79,6 +79,25 @@ def main():
            "passrate/bestofn")
 
     assert run("all restored") == [], "repo must end clean"
+
+    # META-GATE. Five gates in this file have silently matched nothing at some point. The rule
+    # that would have caught every one of them is: a check with no negative test is not known
+    # to work. This asserts the set of checks main() runs is covered by tests here, so adding
+    # a gate without a test fails the suite rather than shipping an unverified pass.
+    print("meta: every gate main() runs must be negative-tested here")
+    src = open(os.path.join(SRC, "scripts", "consistency_audit.py")).read()
+    listed = set(re.findall(r"(check_[a-z_]+)", src[src.index("def main("):]))
+    mine = set(re.findall(r"A\.(check_[a-z_]+)\(\)", open(__file__).read()))
+    untested = sorted(listed - mine)
+    KNOWN_UNTESTED = {                      # canonical-value checks; covered by make figures
+        "check_compounding", "check_search", "check_mech", "check_selfplay", "check_trackc",
+        "check_embedded_claims", "check_wall_phrasing", "check_score_anchor",
+        "check_unverifiable_probe", "check_probe_clustered", "check_roofline_arch",
+    }
+    gap = [c for c in untested if c not in KNOWN_UNTESTED]
+    assert not gap, ("these gates have no negative test -- add one or justify it in "
+                     "KNOWN_UNTESTED: %s" % gap)
+    print("  %d gates negative-tested, %d canonical checks exempt" % (len(mine), len(KNOWN_UNTESTED)))
     shutil.rmtree(tmp)
     print("\nPASS -- every gate fires on the error it exists to catch, and clears when fixed")
     return 0

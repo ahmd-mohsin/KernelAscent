@@ -60,6 +60,31 @@ def read(path):
         return ""
 
 
+def norm_prose(text, keep_case=False):
+    """Strip LaTeX/HTML/Markdown emphasis so a check matches the WORDS, not the markup.
+
+    Five separate gates in this file have now silently matched nothing because a number or
+    phrase was wrapped in \\textbf{}, <b></b> or *emphasis*: "0 of 118" was invisible next to
+    "verified kernels", and a gate flagged the very sentence explaining a problem because
+    "*mean* over draws" did not equal "mean over draws". A check that cannot see its input
+    reports clean, which is worse than having no check.
+
+    Whitespace is collapsed so phrases survive line wrapping in the source.
+    """
+    t = re.sub(r"\\(?:textbf|emph|texttt|textit|mathbf)\{", " ", text)
+    t = re.sub(r"[{}]", " ", t)
+    t = re.sub(r"<[^>]+>", " ", t)                 # HTML tags
+    t = re.sub(r"&[a-zA-Z]+;|&#\d+;", " ", t)       # HTML entities (&mdash; etc)
+    t = t.replace("**", " ").replace("*", " ").replace("`", " ")
+    t = re.sub(r"\s+", " ", t)
+    return t if keep_case else t
+
+
+def read_prose(name_or_path):
+    """read() + norm_prose(), which is what every prose check actually wants."""
+    return norm_prose(read(PROSE.get(name_or_path, name_or_path)))
+
+
 def fail(check, msg):
     FAILS.append((check, msg))
 
@@ -442,11 +467,7 @@ def check_custom_kernel_rate():
     a check that cannot fire is worse than no check, because it reads as a pass.
     """
     def norm(t):
-        t = re.sub(r"\\textbf\{|\\emph\{|\\texttt\{|[{}]", " ", t)   # LaTeX
-        t = re.sub(r"<[^>]+>", " ", t)                                  # HTML tags
-        t = t.replace("**", " ").replace("`", " ")                      # Markdown
-        t = re.sub(r"\bzero\b", "0", t, flags=re.I)
-        return re.sub(r"\s+", " ", t)
+        return re.sub(r"\bzero\b", "0", norm_prose(t), flags=re.I)
 
     # Match "N of M" anywhere in the NEIGHBOURHOOD of "verified kernel", not only when the
     # phrase immediately follows. Requiring adjacency meant "...0 of 118, for 0 of 204 across
@@ -518,7 +539,7 @@ def check_degenerate_bestofn():
         # Strip emphasis before matching. "*mean* over draws" did not match the exemption
         # "mean over draws" and the gate flagged the very sentence that explains the problem --
         # the same markup blindness that made the custom-kernel gate inert.
-        txt = re.sub(r"[*`]|\\emph\{|\\textbf\{|\\texttt\{|[{}]", "", read(path))
+        txt = norm_prose(read(path))
         for m in pat.finditer(txt):
             seg = m.group(0)
             # a markdown table row comparing metrics is a definition, not a reported contrast
