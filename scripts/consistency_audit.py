@@ -669,6 +669,55 @@ def check_table_sums():
        % (rows, rounds))
 
 
+def check_band_table():
+    """The scale-band table must be recomputable from the data at a single binning.
+
+    The paper and the generated results used different cuts (>=9B vs >=8B) while the generated
+    file claimed the bands were "used consistently throughout" -- and the paper's largest-band
+    row MIXED them: n=21 and drift=0.726 are the >=9B cut, retention=0.339 is the >=8B value.
+    Two binnings of the same 133 runs, reported as one table.
+    """
+    import statistics as _st
+    d = load("mech_analysis.json")
+    ms = d.get("models") or []
+    if not ms:
+        return
+    bands = {"<2B": [], "2--8B": [], ">=8B": []}
+    for m in ms:
+        p_ = m.get("size_b") or 0
+        bands["<2B" if p_ < 2 else ("2--8B" if p_ < 8 else ">=8B")].append(m)
+    truth = {b: (len(g),
+                 round(_st.mean([x["drift_total"] for x in g]), 3),
+                 round(_st.mean([1.0 if x["rsi"] else 0.0 for x in g]), 2))
+             for b, g in bands.items() if g}
+    hits = []
+    for name, path in PROSE.items():
+        txt = norm_prose(read(path))
+        # Match each band UNAMBIGUOUSLY. Stripping ">=" turned ">=8B" into "8B", which also
+        # occurs inside "2--8B" -- so the gate compared the mid-band row against the top-band
+        # count and reported a mismatch that did not exist. A band label is a prefix as much as
+        # a number; match the whole thing.
+        # Math delimiters sit INSIDE the label: the TeX is "$\ge$8B", not "\ge 8B". A pattern
+        # requiring them adjacent matched nothing and the gate passed having examined no rows --
+        # the same vacuous pass that has now bitten five separate checks. `D` absorbs the $ and
+        # any braces wherever they fall.
+        D = r"[\$\s{}]*"
+        pats = {"<2B":   r"(?:<|&lt;)" + D + r"2B" + D + r"&\s*(\d+)\s*&",
+                "2--8B": r"2" + D + r"-{1,2}" + D + r"8B" + D + r"&\s*(\d+)\s*&",
+                ">=8B":  r"(?:\\ge|>=|\u2265|&ge;)" + D + r"8B" + D + r"&\s*(\d+)\s*&"}
+        for b, (n, drift, rsi) in truth.items():
+            for m in re.finditer(pats[b], txt, re.I):
+                got = int(m.group(1))
+                if got != n:
+                    hits.append("%s  band %s: table says n=%d, data says n=%d" % (name, b, got, n))
+    if hits:
+        fail("mech/band-table", "the scale-band table does not match the data:\n      "
+             + "\n      ".join(sorted(set(hits))))
+    else:
+        ok("mech/band-table", "band table matches mech_analysis.json at one binning (%s)"
+           % ", ".join("%s n=%d" % (b, v[0]) for b, v in sorted(truth.items())))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -679,7 +728,7 @@ def main():
                check_baseline_attribution, check_custom_kernel_rate,
                check_degenerate_bestofn, check_retractions_propagated,
                check_intervals_contain_estimates,
-               check_table_sums):
+               check_table_sums, check_band_table):
         fn()
     if not a.quiet:
         print("=" * 100)

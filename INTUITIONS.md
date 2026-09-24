@@ -651,6 +651,41 @@ at median 1.00×. But 1.5B produced one kernel at **1.34×**, and the partial 7B
 
 ---
 
+## 2.9g Two binnings of the same 133 runs, printed as one table
+
+The paper and the generated results reported the scale-band table differently — `≥9B` with
+n=45/21 in one, `≥8B` with n=40/26 in the other — while the generated file claimed the bands
+were "used consistently throughout". Both cuts are individually correct; neither is wrong
+arithmetically. But the paper's largest-band row **mixed them**: `n=21` and `drift=0.726` are
+the `≥9B` cut, while `retention=0.339` is the `≥8B` value. One row, two binnings.
+
+Standardised on `≥8B` (67 / 40 / 26) and gated: `check_band_table()` recomputes the bands from
+`mech_analysis.json` and fails when a printed `n` disagrees.
+
+### Three bugs in the gate, each a different way of seeing nothing
+
+1. Stripping `>=` turned `>=8B` into `8B`, which also occurs **inside** `2--8B` — so the gate
+   compared the mid-band row against the top-band count and reported a mismatch that did not
+   exist. A band label is a prefix as much as a number.
+2. Fixed that, and the pattern then required `\ge` adjacent to `8B`. The TeX is `$\ge$8B` —
+   the math delimiter sits *inside* the label. It matched **nothing** and the gate passed
+   having examined no rows.
+3. Fixed that, and the negative test still would not fire — because the test harness's
+   `copytree(ignore=ignore_patterns("data", ...))` matches by **basename**, so it was also
+   excluding `docs/data`, the canonical values every CANON gate reads. Gates returned early on
+   missing input and reported nothing, so a planted error produced no failure and the evidence
+   pointed at the gate rather than the harness.
+
+> **Three consecutive "the check sees nothing" failures in one gate, and only the negative test
+> distinguished them from success.** Each looked identical from outside: a green audit. This is
+> the strongest argument in this document for the meta-gate — a check without a test that fires
+> is indistinguishable from a check that cannot run.
+
+Note the shape of #3 in particular: **the test harness was wrong, not the code under test**, for
+the third time today. When a negative test fails to fire, suspect the harness before the gate.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

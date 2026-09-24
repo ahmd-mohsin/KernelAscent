@@ -17,8 +17,17 @@ SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def main():
     tmp = tempfile.mkdtemp()
     dst = os.path.join(tmp, "repo")
-    shutil.copytree(SRC, dst, ignore=shutil.ignore_patterns(
-        ".git", "data", "*.pdf", "__pycache__", "node_modules", ".venv"))
+    # ignore_patterns matches by BASENAME, so "data" also excluded docs/data -- the canonical
+    # values every CANON gate reads. Gates that need it then returned early on missing input and
+    # reported nothing, so a planted error produced no failure and the negative test blamed the
+    # gate. Exclude the heavy run-output tree by path instead.
+    def _ignore(d, names):
+        skip = {".git", "*.pdf", "__pycache__", "node_modules", ".venv"}
+        out = {n for n in names if n in skip or n.endswith(".pdf")}
+        if os.path.abspath(d) == os.path.abspath(SRC):
+            out.add("data")                     # top-level run outputs only, never docs/data
+        return out
+    shutil.copytree(SRC, dst, ignore=_ignore)
     sys.path.insert(0, os.path.join(dst, "scripts"))
     import consistency_audit as A
 
@@ -34,7 +43,7 @@ def main():
         A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
         A.check_degenerate_bestofn(); A.check_retractions_propagated()
-        A.check_intervals_contain_estimates(); A.check_table_sums()
+        A.check_intervals_contain_estimates(); A.check_table_sums(); A.check_band_table()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -90,6 +99,11 @@ def main():
     mutate("paper/kernelascent_full.tex",
            lambda t: t + "\nThe delta was $-0.111\\,[-0.163,-0.120]$ across all runs.\n",
            "stats/interval-contains-estimate")
+
+    print("band gate: the scale-band table must match mech_analysis.json")
+    mutate("paper/kernelascent_full.tex",
+           lambda t: t.replace("$\\ge$8B & 26 &", "$\\ge$8B & 21 &", 1),
+           "mech/band-table")
 
     assert run("all restored") == [], "repo must end clean"
 
