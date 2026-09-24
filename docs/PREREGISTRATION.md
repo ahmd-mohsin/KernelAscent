@@ -298,3 +298,56 @@ kernel (Triton/CUDA/`load_inline`), and kernel attempts that **verified**. T1-ke
 scale while solve-rate falls, the inversion is a metric artifact and we say so. If
 verify-given-attempt *also* falls with scale, that is a real and surprising capability finding
 and we report it as such.
+
+# Amendment 5 — 2026-09-24: the registered primary was invalidated by a resume defect, and is being re-run
+
+**Declared while the replacement runs, before any of its numbers exist.**
+
+## The defect
+
+`lab_weight_rsi` — which runs the registered primary — restored `history` and the round counter
+on resume, but not the trained weights. All three arms accumulate across rounds (`self` on its
+own data, `ctrl` on the frozen round-0 set `ex0`, `fresh` on frozen-base data), so every resumed
+chunk continued the round *numbering* while restarting each arm from base weights.
+
+`ex0` was lost the same way. It is frozen at round 0 and the control re-trains on it every
+round, so a resume silently re-froze the control's comparison target mid-trajectory. The
+retention denominator `round0_solved` was lost too.
+
+Nothing errored. The signature is `trainC` collapsing at exactly the round named by `resumed_at`:
+`prereg_q3_s1` 0.334 → 0.165, `prereg_q3_s2` 0.122 → 0.0. The same defect was present in
+`lab_compounding`, where it is visible in **all 18** resumed cells with no exceptions.
+
+## Why the marker was not enough
+
+The artifact already recorded `resumed_at` precisely so severed trajectories would never be
+pooled with clean ones. That safeguard failed in practice for a reason worth registering: **every
+cell hit the walltime, so every cell was marked, so the marking distinguished nothing.** A flag
+only protects an analysis if some runs lack it.
+
+## What is discarded
+
+All six `prereg_*` cells collected before 2026-09-24 15:32. They are archived as
+`prereg_*.severed-1532`, not deleted, and must not appear in any reported figure. Cells that had
+not yet resumed (`prereg_q15_s1..s3`, `prereg_q3_s3`) are also discarded despite being clean:
+without a weight checkpoint they cannot be extended, so reporting them would mean reporting a
+2–3 round trajectory as if the registered depth had been reached.
+
+## What replaces it
+
+The same six cells, re-run from round 0 against the fixed lab. Per-round checkpoints for all
+three adapters plus `ex0`, `round0_solved` and `C0`, written to a temp file and `os.replace`d,
+because the walltime kill lands mid-round by construction. A resume that finds no checkpoint now
+**exits 3 and refuses** rather than severing silently.
+
+## Registered in advance
+
+* The primary and its decision rule are **unchanged** — this amendment changes no hypothesis,
+  no metric, and no threshold. It records that the previous data collection was invalid.
+* `adapter_restored` is stamped in every artifact. Any cell reporting `false` is excluded.
+* A trajectory whose `resumed_at` is set but `adapter_restored` is absent is pre-fix data and is
+  excluded regardless of how its numbers look.
+* `scripts/check_resume.py` fails any lab that trains weights, resumes rounds, and does not
+  restore them. Negative-tested against the pre-fix source.
+* **Falsifier unchanged.** If the re-run shows no `self − fresh_frozen` effect, that is the
+  result; the defect explains discarded data, it does not license a second look at a null.
