@@ -157,6 +157,46 @@ transferable: \textbf{when an experiment begins producing a new \emph{kind} of a
 known-good gate must be re-instantiated for that kind.} ``The grader works'' was true and
 useless; ``the grader works on Triton'' was the question, and nothing was asking it.
 
+\paragraph{What the corrected instrument then showed.}
+With Triton verifying, the prompt A/B could finally be run as intended. Classifying every
+generation (rather than counting only successes) across four tasks at $k{=}4$, $n{=}16$ per arm:
+
+\begin{center}\small
+\begin{tabular}{@{}llrl@{}}
+\toprule
+\textbf{Prompt} & \textbf{Outcome} & \textbf{$n$/16} & \textbf{95\% CI} \\
+\midrule
+published & plain-torch rewrite & 16 & [81\%, 100\%] \\
+published & attempted a custom kernel & \textbf{0} & [0\%, 19\%] \\
+\midrule
+kernel & attempted a custom kernel & \textbf{14} & [64\%, 97\%] \\
+kernel & \quad of which \emph{verified correct} & \textbf{1} & --- \\
+kernel & \quad of which failed verification & 13 & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent This separates two quantities the project had conflated throughout. \textbf{The
+prompt controls whether the model attempts a kernel at all} --- 0 attempts versus 14 is an
+instruction being followed, not a capability difference. \textbf{Capability controls whether
+the attempt succeeds} --- 1 of 14 verified. The model can write a working Triton kernel and
+usually does not. With $n{=}16$ the interval is wide and the point estimate is not the claim;
+the claim is that the rate is \emph{neither zero nor high}.
+
+That distinction is the most consequential measurement in this report, because it explains every
+saturation we chased. The 0.50 floor, the ceiling at 1.000, and a coverage-injection control
+that exhausts its task set by round~2 all share one cause: \textbf{these models have already
+saturated the task the benchmark was actually measuring}, which is correctness-preserving
+rewriting rather than kernel optimisation. Any metric built on a saturated task piles up against
+one wall or the other, and we tried three --- a headroom score, a pass-rate score, and a
+456-task generated bank --- before recognising that.
+
+\textbf{The substrate problem was therefore never a metric problem.} The remedy is not a better
+scoring rule but a harder task, and the harder task only became measurable once the grader could
+verify one. We regard this as the central practical lesson of the work: when a population sits
+against a wall under every metric you try, the task is too easy, and no amount of re-normalising
+will manufacture the variance that is missing.
+
 \paragraph{Reachability: the dynamic-range precondition, made quantitative.}
 ``Check the metric has range'' is advice until it is a number, so we propose one.
 \textbf{Reachability} is the fraction of bank tasks on which the \emph{frozen base} already

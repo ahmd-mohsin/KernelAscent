@@ -596,9 +596,19 @@ Two distinct breakouts are needed and they target different deficits: \emph{accu
 more already-discoverable successes --- could make lineage finally beat reset) and \emph{frontier expansion}
 (make genuinely new strategies operationally reachable --- required once the current frontier is exhausted). A
 productive loop needs new discoveries $+$ assimilation $+$ retention $+$ headroom \emph{simultaneously}. Our
-single most informative next experiment is a \textbf{coverage-injection $\times$ diversity-preserving} factorial:
-inject stronger-model / repair / search-generated solutions on \emph{undiscovered} tasks and test whether
-inherited gains then emerge --- separating ``lack of discoveries'' from ``loss of discoveries after learning.''
+single most informative next experiment was, at the time of writing, a \textbf{coverage-injection $\times$
+diversity-preserving} factorial. The instrument work in Section~\ref{sec:instrument} has since superseded that.
+The coverage-injection control was run, and its injected-task count falls to zero by round~2 because the student
+solves the entire held set; injection cannot separate ``lack of discoveries'' from ``loss of discoveries'' on a
+task the model has already saturated.
+
+The informative experiment is now the one a repaired grader makes possible for the first time: run the
+compounding protocol on \textbf{kernel authoring} rather than correctness-preserving rewriting. Under the
+published prompt, models attempt a custom kernel in \textbf{0 of 16} samples; when asked explicitly, \textbf{14
+of 16}, of which \textbf{1} verifies. A success rate in that band is far from both the floor and the ceiling
+that defeated every metric we tried, which is precisely the regime a compounding study requires. Whether
+self-training compounds on a task the model has \emph{not} saturated is, as far as we can tell, still open ---
+and it is a question this benchmark could not previously have asked.
 
 % =====================================================================================
 \section{Limitations and scope}

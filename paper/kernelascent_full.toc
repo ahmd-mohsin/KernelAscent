@@ -24,24 +24,25 @@
 \contentsline {paragraph}{The estimator, not the normalisation, is the thing to fix.}{13}{section*.10}%
 \contentsline {paragraph}{Check the denominator of the mechanism, not just the metric.}{14}{section*.11}%
 \contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{14}{section*.12}%
-\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{14}{section*.13}%
-\contentsline {paragraph}{What we propose as standard practice.}{15}{section*.14}%
-\contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{15}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{15}{subsection.7.1}%
-\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{15}{section*.15}%
-\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{16}{section*.16}%
-\contentsline {paragraph}{Why verified search escapes where training does not.}{16}{section*.17}%
-\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{16}{section*.18}%
-\contentsline {paragraph}{The inverted-U, mechanistically.}{17}{section*.19}%
-\contentsline {paragraph}{What would break the plateau, and what our data predict.}{17}{section*.20}%
-\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{17}{section*.21}%
-\contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{17}{section.8}%
-\contentsline {section}{\numberline {9}What would break the plateau: predictions}{18}{section.9}%
-\contentsline {section}{\numberline {10}Limitations and scope}{18}{section.10}%
+\contentsline {paragraph}{What the corrected instrument then showed.}{14}{section*.13}%
+\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{15}{section*.14}%
+\contentsline {paragraph}{What we propose as standard practice.}{16}{section*.15}%
+\contentsline {section}{\numberline {7}Synthesis: why self-improvement does not compound here}{16}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Why self-improvement does not compound}{16}{subsection.7.1}%
+\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{16}{section*.16}%
+\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{17}{section*.17}%
+\contentsline {paragraph}{Why verified search escapes where training does not.}{17}{section*.18}%
+\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{17}{section*.19}%
+\contentsline {paragraph}{The inverted-U, mechanistically.}{17}{section*.20}%
+\contentsline {paragraph}{What would break the plateau, and what our data predict.}{17}{section*.21}%
+\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{18}{section*.22}%
+\contentsline {section}{\numberline {8}The accumulated intuition (what three weeks taught us)}{18}{section.8}%
+\contentsline {section}{\numberline {9}What would break the plateau: predictions}{19}{section.9}%
+\contentsline {section}{\numberline {10}Limitations and scope}{19}{section.10}%
 \contentsline {section}{\numberline {11}Conclusion}{19}{section.11}%
-\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{19}{appendix.A}%
-\contentsline {paragraph}{Three corrections to the earlier analysis.}{19}{section*.22}%
-\contentsline {paragraph}{Result.}{19}{section*.23}%
-\contentsline {paragraph}{What this does and does not establish.}{19}{section*.24}%
-\contentsline {paragraph}{The diagnostic.}{20}{section*.25}%
-\contentsline {paragraph}{Defensible claim.}{20}{section*.26}%
+\contentsline {section}{\numberline {A}Appendix: probe-as-intervention, analysed as a secondary result}{20}{appendix.A}%
+\contentsline {paragraph}{Three corrections to the earlier analysis.}{20}{section*.23}%
+\contentsline {paragraph}{Result.}{20}{section*.24}%
+\contentsline {paragraph}{What this does and does not establish.}{20}{section*.25}%
+\contentsline {paragraph}{The diagnostic.}{20}{section*.26}%
+\contentsline {paragraph}{Defensible claim.}{21}{section*.27}%
