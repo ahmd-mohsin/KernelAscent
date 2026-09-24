@@ -2819,3 +2819,47 @@ Remaining check: the artifact must stamp `adapter_restored: true`, because the A
 exclusion rule keys on it. A legitimately resumed cell has to be **included** — a rule that
 excludes severed trajectories is only half-right if it also discards valid ones. Watching for
 the round-2 write.
+
+### Verified submissions mostly restate the reference (2026-09-24 16:55)
+
+The paper owes a contamination statement and has never measured how often a submission complies
+with the kernel instruction. Both reduce to one question: how similar is a verified submission
+to the reference it was asked to beat? Measured on 143 stored submissions against the 29-task
+bank, on normalised code (comments and docstrings stripped, whitespace collapsed), no GPU and no
+model involved.
+
+| group | n | median similarity | ≥0.80 similar |
+|---|---|---|---|
+| **all verified** | 143 | 0.861 | 59% |
+| **no triton** | 58 | **0.923** | **95%** |
+| contains triton | 85 | 0.730 | 35% |
+
+| threshold | n | of which contain triton |
+|---|---|---|
+| ≥0.99 (effectively verbatim) | 9 (6%) | 2 |
+| ≥0.95 | 34 (24%) | 10 |
+| ≥0.80 | 85 (59%) | 30 |
+
+**The split is the finding.** A verified submission that contains no Triton is a near-copy of
+the reference **95% of the time**, with 9 effectively verbatim across 6 tasks. A submission that
+does contain Triton has a median similarity of 0.730 — substantively different code. So the two
+populations are not "good and bad attempts at the same task", they are *two different
+behaviours*: restating, and authoring.
+
+This is the mechanism behind correct-at-parity, now measured rather than inferred. A restatement
+verifies trivially and times at ~1.0x, which is exactly a 0.50 score. It also explains why
+solve-rate inverts with scale while verify-given-attempt falls: smaller models take the
+restating route more often and get paid for it.
+
+**As a contamination statement** it is the reassuring direction, and it should be reported as
+such rather than buried: 6% verbatim, concentrated in 6 of 29 tasks, and only 2 of those contain
+Triton. There is no evidence that models are reciting *kernels* from training data. What they
+recite is the reference implementation they were just shown in the prompt — recall of context,
+not of training corpus, which is a weaker and much more ordinary claim.
+
+**A provenance gap found while doing this.** `KA_EXTRACT` was not in `_SEMANTIC_ENV`, so no
+artifact records which extraction policy produced it — the single variable distinguishing
+`t1k_*` from `t1kl_*`. The probe's first run defaulted the missing key to `"strict"` and
+reported a policy split across all 143 submissions that was entirely fabricated. Added
+`KA_EXTRACT`, `KA_MAX_NEW` and `KA_GEN_BS` to the recorded environment; the probe now infers
+from the cell name and marks the inference with a trailing `?` rather than asserting.

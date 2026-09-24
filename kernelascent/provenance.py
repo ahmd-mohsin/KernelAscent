@@ -21,7 +21,13 @@ import subprocess
 import time
 
 # Environment variables that change what a number MEANS, not merely where it was written.
-_SEMANTIC_ENV = ("KA_SCORE", "KA_PROMPT", "KA_ROOT", "KA_DATA_DIR", "KA_GRADE_GPU",
+# KA_EXTRACT and KA_MAX_NEW were missing, and they are not incidental: the extraction
+# policy is the ONLY difference between the t1k_* and t1kl_* runs, and the token budget
+# silently changed every arm's cost and truncation rate. An artifact that cannot say which
+# policy produced it cannot be audited later -- a probe reading these files labelled all 143
+# submissions "strict" because the key was simply absent and the default filled in.
+_SEMANTIC_ENV = ("KA_SCORE", "KA_PROMPT", "KA_EXTRACT", "KA_MAX_NEW", "KA_GEN_BS",
+                 "KA_ROOT", "KA_DATA_DIR", "KA_GRADE_GPU",
                  "KA_MAX_STRATEGIES", "KA_ROOF_ARCH", "CC", "CXX")
 
 
