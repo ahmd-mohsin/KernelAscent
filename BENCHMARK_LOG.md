@@ -2299,3 +2299,18 @@ tokens, 39% of open-weight generations under the kernel prompt truncate.
 
 **The T1 leaderboard is confounded and must be re-run, or reported with the asymmetry stated.**
 Fixed: both backends now read `KA_MAX_NEW_TOKENS` (default 2048).
+
+### 2026-09-24 — 14B kernel authoring at the raised budget (k=12, 29 tasks, max_new=2048)
+
+| quantity | 0.5B | 14B |
+|---|---|---|
+| generations parseable | 118/348 (**34%**) | 331/348 (**95%**) |
+| attempted a kernel | 63% of parseable | 66% of parseable |
+| verified | 11 | **0** |
+| dominant failure | truncation (pre-grader) | verification |
+
+**The two ends of the curve fail for different reasons.** Truncation limits the small model;
+the large model extracts fine and writes 219 syntactically valid Triton attempts, none correct.
+
+Corrects an earlier speculation that truncation explained the inverted solve-rate curve — it
+does not, at the large end.

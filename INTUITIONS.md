@@ -962,6 +962,42 @@ opposite fixes, which is exactly why guessing is not acceptable here.
 
 ---
 
+## 2.9m The inversion is real at the large end, and truncation does not explain it
+
+I speculated in §2.9j that the inverted capability curve might be truncation — larger models
+write longer kernels, so a fixed budget cuts them off more. The 14B cell at the raised budget
+settles that:
+
+```
+14B, KA_PROMPT=kernel, k=12 over 29 tasks, max_new=2048
+  331 / 348 generations parseable      95% extraction
+  219 attempted a kernel               66% of parseable
+    0 verified                          0 of 331
+```
+
+**Extraction is 95%.** Truncation is not the 14B's problem — it is the 0.5B's problem (34%
+extraction). The 14B writes well-formed, parseable Triton and **none of it is correct**.
+
+So the two ends of the curve fail for different reasons, which no single number could show:
+
+| | 0.5B | 14B |
+|---|---|---|
+| extraction | **34%** (truncation-limited) | 95% |
+| attempt rate | 63% | 66% |
+| verified | 11 | **0** |
+| where it dies | before the grader | at the grader |
+
+> **My truncation hypothesis was right about the mechanism and wrong about where it applies.** A
+> confound that is real somewhere is not therefore real everywhere, and I generalised from the
+> scale I had measured to the scale I had not. The fix was cheap — measure both ends — and I
+> should have done it before writing the speculation down.
+
+**The clean finding:** a 14B model produces 219 syntactically valid Triton kernel attempts and
+zero correct ones. That is a capability statement about kernel authoring, not an instrument
+artifact, and it is the first such statement this project has been able to make.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
