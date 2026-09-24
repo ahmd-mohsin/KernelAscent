@@ -1,0 +1,32 @@
+{
+  "safe": {
+    "counts": {
+      "plain-torch-rewrite (ignored the instruction)": 16
+    },
+    "samples": []
+  },
+  "kernel": {
+    "counts": {
+      "custom kernel, FAILED verification": 13,
+      "CORRECT custom kernel": 1,
+      "plain-torch-rewrite (ignored the instruction)": 2
+    },
+    "samples": [
+      {
+        "task": "l1_1",
+        "class": "custom kernel, FAILED verification",
+        "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n\n@triton.jit\ndef rmsnorm_kernel(\n    X, weight, bias, gate, Y,\n    ROWS: tl.constexpr, HIDDEN: tl.constexpr,\n    EPS: tl.constexpr,\n    GROUP_SIZE_M: tl.constexpr\n):\n    pid = tl.program_id(axis=0)\n    bid_m = tl.program_id(axis=1)\n    bid_n = tl.program_id(axis=2)\n    block_start_m = bid_m * GROUP_SIZE_M\n    offsets_m = block_start_m + tl.arange(0, GROUP_SIZE_M)\n    offsets_n = bid_n * tl.block_size_x() + tl.arange(0, tl.block_size_x())\n    mask_m = offsets_m < ROWS\n    mask_n = offsets_n < HIDDEN\n    mask = mask_m[:, None] & mask_n[None, :]\n    x = tl.load(X + offsets_m[:, None] * HIDDEN + offsets_n[None, :], mask=mask, other=0.0)\n    xf = x.to(tl.float32)\n    mean_squares = tl.sum(xf * xf, axis=1) / HIDDEN\n    rstd = tl.rsqrt(mean_squares + EPS)\n    y = xf * rstd[:, None]\n    y_weighted = y * tl.load(weight + offsets_n, mask=mask_n, other=0.0) + tl.load(bias + offsets_n, mask=mask_n, other=0.0)\n    sigmoid_input = y_weighted * tl.load(gate + offsets_n, mask=mask_n, other=0.0)\n    sigmoid = 0.5 * (1.0 + tl.tanh(0.5 * sigmoid_input))\n    output = y_weighted * sigmoid\n    tl.store(Y + offsets_m[:, None] * HIDDEN + offsets_n[None, :], output, mask=mask)\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if"
+      },
+      {
+        "task": "l1_1",
+        "class": "custom kernel, FAILED verification",
+        "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n\n@triton.jit(device=True)\ndef fused_op(x_ptr, weight_ptr, bias_ptr, gate_ptr, out_ptr, hidden_size, eps, N, BLOCK_SIZE: tl.constexpr):\n    pid = tl.program_id(axis=0)\n    bid = tl.program_id(axis=1)\n    rows_per_block = BLOCK_SIZE // hidden_size\n    row_idx = pid * rows_per_block + bid\n    mask = row_idx < N\n    x = tl.load(x_ptr + row_idx * hidden_size, mask=mask)\n    weight = tl.load(weight_ptr, mask=mask[:, None])\n    bias = tl.load(bias_ptr, mask=mask[:, None])\n    gate = tl.load(gate_ptr, mask=mask[:, None])\n\n    # Compute RMSNorm\n    squared_sum = tl.sum(x * x, axis=1, keepdims=True)\n    rms = tl.sqrt(squared_sum / hidden_size + eps)\n    normalized_x = x / rms\n\n    # Apply per-channel affine transformation\n    affine_out = normalized_x * weight + bias\n\n    # Apply SiLU-style self-gating\n    sigmoid = tl.sigmoid(affine_out * gate)\n    gated_out = affine_out * sigmoid\n\n    # Store the result\n    tl.store(out_ptr + row_idx * hidden_size, gated_out, mask=mask)\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(de"
+      },
+      {
+        "task": "l1_1",
+        "class": "custom kernel, FAILED verification",
+        "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n\n@triton.jit\ndef rmsnorm_kernel(\n    x_ptr, weight_ptr, bias_ptr, gate_ptr, out_ptr, n_elements, eps,\n    GROUP_SIZE_M: tl.constexpr,\n):\n    pid = tl.program_id(axis=0)\n    grid_size = tl.num_programs(axis=0)\n    elements_per_block = GROUP_SIZE_M * 32  # Each warp processes 32 elements\n    start = pid * elements_per_block\n    end = min(start + elements_per_block, n_elements)\n    offsets = start + tl.arange(0, end - start)\n\n    x = tl.load(x_ptr + offsets, mask=offsets < n_elements, other=0.0)\n    xf = x.to(tl.float32)\n    ms = tl.sum(xf * xf, axis=1, keepdims=True) / HIDDEN\n    y = xf * tl.rsqrt(ms + eps)\n    y_weighted = y * tl.load(weight_ptr + offsets % HIDDEN) + tl.load(bias_ptr + offsets % HIDDEN)\n    gate = tl.sigmoid(y_weighted * tl.load(gate_ptr + offsets % HIDDEN))\n    out = y_weighted * gate\n    tl.store(out_ptr + offsets, out.to(x.dtype), mask=offsets < n_elements)\n\nclass ModelNew(nn.Module):\n    # RMSNorm (fp32 stats) -> per-channel affine -> SiLU-style self-gating -> fp16\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(device="
+      }
+    ]
+  }
+}

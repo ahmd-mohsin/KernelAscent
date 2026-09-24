@@ -20,6 +20,9 @@ PARITY = (0.49, 0.51)          # _score(correct, speedup=1.0) == 0.50 exactly
 def _load(p):
     """None for a file that has not landed yet (normal while jobs are queued); loud for a file
     that exists but will not parse, since that is a truncated or half-written result."""
+    if "pre_ccfix" in os.path.basename(p):
+        print("  !! refusing %s -- graded before the triton/CC fix" % os.path.basename(p))
+        return None
     if not os.path.exists(p):
         return None
     try:
@@ -112,6 +115,9 @@ def r2(path=None):
     print("=" * 84)
     print("ROUTES 2+4 -- prompt x scale: is the plateau prompt-induced?")
     print("=" * 84)
+    # Results graded before the CC fix are archived as *.pre_ccfix.json and MUST NOT be read
+    # here: triton could not verify under that environment, so any kernel-arm number from it is
+    # an instrument artifact. A stale local copy of one was very nearly reported as a result.
     cells = [("14B", "safe", os.path.join(D, "r4_safe_q14.json")),
              ("14B", "kernel", os.path.join(D, "r4_kernel_q14.json")),
              ("32B", "kernel", path or os.path.join(D, "r2_kernel_q32.json")),

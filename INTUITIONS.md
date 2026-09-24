@@ -427,6 +427,34 @@ construct by changing metrics and filtering banks.
 
 ---
 
+## 2g4. A stale local copy is a live hazard, not just clutter
+
+Right after the CC fix I archived the pre-fix results on the cluster as `*.pre_ccfix.json`, then
+pulled and read `r4_kernel_q14.json` locally: **0/29 solved, 0 kernels**. I was one sentence
+from reporting that the kernel arm had failed again.
+
+It was the **pre-fix file**. `mrl pull` had copied it hours earlier, the archive rename happened
+only on the cluster, and the local copy sat there looking exactly like a fresh result. The job
+that would have produced a real one was still `PENDING`.
+
+What caught it was checking the job state before believing the file — the number was
+*suspiciously identical* to the old one, which is the same instinct as §1's "a clean zero is a
+bug hypothesis first."
+
+**The intuition:** superseding an artifact has to include every copy of it, and a pull-based
+workflow guarantees there are copies. Renaming the source is not enough; the stale copy is the
+dangerous one precisely *because* it is the one you read. Where a file has been invalidated by
+an environment change, make the reader **refuse it by name** rather than relying on remembering
+which is which — `route_readout` now declines any path containing `pre_ccfix` and says why.
+
+Corollary that generalises past this project: **an artifact's validity depends on the
+environment that produced it, and nothing in the file records that.** JSON output has no
+provenance for "the grader could not compile triton when this was written". If an environment
+fix invalidates past results, rename them immediately, everywhere, and teach the tools to refuse
+them — memory will not hold.
+
+---
+
 ## 2h. The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

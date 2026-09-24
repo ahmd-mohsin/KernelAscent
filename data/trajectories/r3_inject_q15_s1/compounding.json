@@ -106,6 +106,26 @@
       "lineage_minus_reset": 0.2,
       "lineage_minus_bestofN": 0.92,
       "round_sec": 553.4
+    },
+    {
+      "round": 5,
+      "trainC": 0.988,
+      "n_ex": 79,
+      "n_injected": 0,
+      "injected_tasks": 0,
+      "n_solved_self": 20,
+      "loss": 0.015,
+      "C_lineage": 1.0,
+      "C_reset": 0.85,
+      "C_bestofN": 0.025,
+      "C_retrieval": 0.099,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": 0.0,
+      "gain_vs_C0_lineage": 0.95,
+      "marginal_gain_reset": 0.8,
+      "lineage_minus_reset": 0.15,
+      "lineage_minus_bestofN": 0.975,
+      "round_sec": 563.1
     }
   ]
 }
