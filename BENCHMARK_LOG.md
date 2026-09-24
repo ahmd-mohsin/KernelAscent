@@ -2755,3 +2755,36 @@ because their lab had no resume at all. Both times the queue looked healthy, bot
 signal was "output did not change", and both times I found it by reading logs rather than being
 told. Verified against live data: 112 cells fingerprinted, and the four stuck baselines all read
 `methods=best_of_k` — the exact unchanging value the check keys on.
+
+### Verification complete; program state (2026-09-24 16:50)
+
+The last two fixes confirmed on the cluster, so every change made today has been observed
+working rather than merely reasoned about:
+
+```
+RESUMED Qwen/Qwen2.5-Coder-3B-Instruct from round 5 (frontier_L=18, all 3 arms restored)
+continue  t5k-q3-s1  (last chunk hit 00:55:00; resuming from its checkpoint; at rounds=5)
+```
+
+The second line is the progress ledger in use — `continue` now states the fingerprint it is
+resuming from, so a repeat is visible in the message itself rather than inferable only from a
+log three layers down.
+
+| cell group | state |
+|---|---|
+| `prereg_*` (registered primary, 6 cells) | rounds=1, all with valid 3-arm checkpoints |
+| `t2kp_*` (T2, passrate, 4 cells) | rounds=2 |
+| `t3k_q7_*` | rounds=3 |
+| `t5k_q3_*` | rounds=5 / 4 |
+| `basek_*` | `methods=best_of_k`, self_refine running under the 90-min walltime |
+| `r2-probe-32b` | pending |
+
+19 jobs live, every cell advancing. Held and not resubmitting, correctly: `t1k-q14` (a genuine
+zero, complete at 29/29 — not a failure), and four `t2kc_*` cells that exited 3 refusing a
+pre-fix resume.
+
+**Seven fixes today, each verified in production**: T3 `Q0` restore; T2 lineage-adapter
+checkpoint; three-arm checkpoint in the registered primary; the refusal guard; T5 atomic
+checkpoints with fatal load failure; atomic artifact writes; and stall detection in `continue`.
+Five of the seven were found by reading real output, not by reasoning about code — and three
+were introduced by the fix for the previous one.
