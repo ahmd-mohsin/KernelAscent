@@ -14,6 +14,7 @@ stats:
 audit:
 	python3 scripts/consistency_audit.py
 	python3 tests/test_audit_gates.py
+	python3 scripts/scan_contamination.py
 
 figures: stats
 	python3 scripts/make_paper_figures.py

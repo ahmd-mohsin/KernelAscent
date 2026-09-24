@@ -28,6 +28,22 @@
       "F_g": -0.113,
       "n_strategies": 14,
       "n_archive": 14
+    },
+    {
+      "round": 3,
+      "Qg": 0.558,
+      "delta_vs_base": 0.057,
+      "F_g": 0.049,
+      "n_strategies": 11,
+      "n_archive": 14
+    },
+    {
+      "round": 4,
+      "Qg": 0.519,
+      "delta_vs_base": 0.019,
+      "F_g": 0.019,
+      "n_strategies": 11,
+      "n_archive": 14
     }
   ]
 }
