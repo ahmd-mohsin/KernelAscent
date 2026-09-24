@@ -88,25 +88,39 @@ def stamp(extra=None):
     return p
 
 
-def dump(obj, path, extra=None, **kw):
-    """Drop-in for `json.dump(obj, open(path,"w"), ...)` with `_provenance` attached.
+def dump(obj, dest, extra=None, **kw):
+    """Drop-in for `json.dump(obj, <path-or-file>, ...)` with `_provenance` attached.
 
-    Accepts and forwards json.dump kwargs (`indent`, `default`, ...). The first version did not,
-    and since the call sites were converted by replacing `json.dump(` with `PROV.dump(` in place,
-    every one of them still passed `indent=2` -- which killed the whole compounding batch with
-    TypeError AFTER the runs had done their work. A shim that is not signature-compatible with
-    the thing it replaces is a trap.
+    `dest` may be a path OR an already-open file object, because the call sites were converted
+    by replacing `json.dump(` with `PROV.dump(` in place and they use both shapes:
+
+        PROV.dump(obj, open(path, "w"), indent=2)     # lab_track_c, lab_compounding
+        PROV.dump(obj, path + ".prov.json")           # difficulty_filter
+
+    This shim has now broken the batch twice -- once by not accepting `indent`, once by
+    assuming `dest` was a string -- and both times because the test exercised a call I wrote
+    rather than the calls that exist. tests/test_provenance_shim.py now extracts the real call
+    sites from source and runs each one.
     """
     kw.setdefault("indent", 2)
+    is_handle = hasattr(dest, "write")
     try:
         if isinstance(obj, dict):
             obj = dict(obj)
             obj["_provenance"] = stamp(extra)
-        else:                                   # list payloads get a sidecar rather than a wrap
-            json.dump({"_provenance": stamp(extra)}, open(path + ".prov.json", "w"), indent=2)
+        elif not is_handle:                     # list payload with a known path -> sidecar
+            json.dump({"_provenance": stamp(extra)}, open(str(dest) + ".prov.json", "w"), indent=2)
+        else:                                   # list payload, only a handle: use its name
+            name = getattr(dest, "name", None)
+            if isinstance(name, str):
+                json.dump({"_provenance": stamp(extra)}, open(name + ".prov.json", "w"), indent=2)
     except Exception:
         pass
-    json.dump(obj, open(path, "w"), **kw)
+    if is_handle:
+        json.dump(obj, dest, **kw)
+    else:
+        with open(dest, "w") as fh:
+            json.dump(obj, fh, **kw)
 
 
 def is_valid_for_kernels(path):
