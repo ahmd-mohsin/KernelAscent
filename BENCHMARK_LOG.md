@@ -2799,3 +2799,23 @@ Worth recording because it settles a question about which defences are worth bui
 already noticed this failure mode, corrected six instances of it, and written it up. None of
 that stopped me repeating it 40 minutes later. The gate did, in one second, with the exact
 delta. A habit I have to remember is not a control; a check that runs is.
+
+### Both branches of the resume guard verified
+
+```
+RESUME  2 round(s) recorded -- continuing from round 2 (adapter restored=True)
+RESUME  no adapter checkpoint (pre-fix run) -- lineage would be severed; refusing to continue
+```
+
+The first is a post-fix cell resuming with its lineage intact; the second is a pre-fix cell
+refusing rather than severing. Until now only the refusal path had been observed, and a guard
+that only ever refuses is as untrustworthy as one that never does — the interesting case is the
+one where it must let work through.
+
+`continue` also now prints the fingerprint it is resuming from (`at rounds=2`, `at rounds=3`),
+so a cell that repeats is visible in the line itself.
+
+Remaining check: the artifact must stamp `adapter_restored: true`, because the Amendment 5
+exclusion rule keys on it. A legitimately resumed cell has to be **included** — a rule that
+excludes severed trajectories is only half-right if it also discards valid ones. Watching for
+the round-2 write.
