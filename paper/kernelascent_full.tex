@@ -85,8 +85,11 @@ part of the improver, so that improvements accumulate?
 GPU-kernel optimization is an unusually clean substrate for this question. Correctness is checkable against an
 fp32 reference with no ambiguity; speed is measurable against a roofline; the task space is procedurally
 generable at controlled difficulty; and there is a genuine, unbounded frontier (there is always a faster
-kernel). A verifier this crisp removes the usual confound of a noisy reward, so any failure to compound cannot
-be blamed on the grader.
+kernel). A verifier this crisp was intended to remove the usual confound of a
+noisy reward, so that a failure to compound could not be blamed on the grader. \textbf{That intention was not
+met.} The grader silently rejected every submission that was not plain PyTorch, for the entire history of this
+project (Section~\ref{sec:instrument}) --- the motivating irony of this report is that the property we relied
+on to make a null trustworthy is the property that failed.
 
 \intuition{If self-improvement is real anywhere, it should be visible where the reward is a clean, programmatic
 verifier and the frontier is real. Kernels are that place. So a \emph{null} here is informative in a way a null
@@ -621,7 +624,7 @@ and it is a question this benchmark could not previously have asked.
 % =====================================================================================
 \section{Limitations and scope}
 % =====================================================================================
-We claim, with strong evidence: under verified rejection-sampling SFT at the tested scales and budgets, carrying
+We claim, with moderate evidence ($\mathrm{BF}_{01}=5.6$ at the trajectory level): under verified rejection-sampling SFT at the tested scales and budgets, carrying
 the lineage forward does not beat a matched reset; verified search is a better use of the same compute; and the
 binding internal signals are coverage/formation (small scale), a mid-scale learnable frontier, and
 drift-without-gain plus diversity contraction (large scale). We do \emph{not} claim the reachable set is
@@ -633,8 +636,10 @@ strength, moving the equivalence Bayes factor from $\mathrm{BF}_{01}=14.7$ (pool
 (57 trajectories) --- strong to \emph{moderate}. The verdicts survive the correction, and the
 search-beats-training positive strengthens under it, because that contrast is made within a round. Per-trajectory
 (2--3 seed) uncertainty remains the binding constraint. Finally, all results here are A100; our H100 runs are
-reported separately and are non-comparable on two axes at once (different roofline constants, and a
-\texttt{torch.compile} baseline strong enough to close the measurement range entirely).
+reported separately and are non-comparable on two axes at once: different roofline constants, and a harness
+that silently rejected every non-PyTorch submission (Section~\ref{sec:instrument}). An earlier version of this
+sentence blamed a stronger \texttt{torch.compile} baseline; that attribution was wrong --- the default scorer
+never used the compiled baseline --- and is retracted in Section~\ref{sec:instrument}.
 
 % =====================================================================================
 \section{Conclusion}

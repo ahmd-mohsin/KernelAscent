@@ -33,7 +33,7 @@ def main():
     def run(label):
         A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
-        A.check_degenerate_bestofn()
+        A.check_degenerate_bestofn(); A.check_retractions_propagated()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -77,6 +77,13 @@ def main():
     mutate("docs/index.html",
            lambda t: t + "<p>With KA_SCORE=passrate, lineage exceeds best-of-N in 37/37 rounds.</p>\n",
            "passrate/bestofn")
+
+    print("retraction gate: a withdrawn claim must not survive as an assertion anywhere")
+    for rel, add in (("README.md", "\n### Task 3 - Procedure-RSI: real, but one-shot\n"),
+                     ("paper/kernelascent_full.tex",
+                      "\nA torch.compile baseline strong enough to close the measurement range entirely.\n"),
+                     ("docs/index.html", "<p>The gain is overwhelmingly one-shot.</p>\n")):
+        mutate(rel, (lambda a: (lambda t: t + a))(add), "retractions/propagated")
 
     assert run("all restored") == [], "repo must end clean"
 

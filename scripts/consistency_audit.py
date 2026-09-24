@@ -561,6 +561,52 @@ def check_degenerate_bestofn():
         ok("passrate/bestofn", "no best-of-N contrast reported under pass-rate")
 
 
+RETRACTED = [
+    # (label, pattern that ASSERTS the retracted claim, pattern whose presence nearby means
+    #  the text is discussing/withdrawing it rather than asserting it)
+    ("t3/one-shot",
+     r"(?:is|are|gain is)\s+(?:overwhelmingly\s+)?(?:\w+\s+){0,2}one.shot|one.shot self.modification|"
+     r"real,? but one.shot|Procedure.RSI:\s*real",
+     # word-boundaried: a bare "cap" matched "CAPability" in unrelated nearby prose and
+     # exempted a deliberately planted violation. Substring exemptions are how a gate goes quiet.
+     r"\bretract\w*|not earned|\bconfound\w*|\bappears\b|\bwithdraw\w*|\bcap\b|\bcaps\b|"
+     r"not interpretable|RETRACTED"),
+    ("torch.compile/headroom",
+     r"torch\.?compile\}?\s+baseline\s+strong\s+enough|compile\s+is\s+relatively\s+stronger",
+     r"\bretract\w*|was wrong|never used|never entered|earlier version|~~"),
+    ("positive-control/delivered",
+     r"positive control[^.]{0,80}so a null is provably distinguishable",
+     r"\bretract\w*|has not|did not fire|ran out of work|not admissible"),
+]
+
+
+def check_retractions_propagated():
+    """A retracted claim must not survive anywhere as an assertion.
+
+    The T3 'one-shot' reading was retracted in one file and left standing in four others, so the
+    released artifact set contained each retracted claim beside its own retraction. That is worse
+    than never retracting: it reads as concealment. Retractions are cheap to make and expensive
+    to propagate, so propagation is mechanical from here.
+    """
+    hits = []
+    for label, assert_pat, exempt_pat in RETRACTED:
+        ap = re.compile(assert_pat, re.I)
+        ep = re.compile(exempt_pat, re.I)
+        for name, path in PROSE.items():
+            txt = norm_prose(read(path))
+            for m in ap.finditer(txt):
+                lo, hi = max(0, m.start() - 260), m.end() + 260
+                if ep.search(txt[lo:hi]):
+                    continue
+                hits.append("%s  [%s]  %r" % (name, label, m.group(0).strip()[:70]))
+    if hits:
+        fail("retractions/propagated",
+             "a RETRACTED claim is still asserted, with no retraction nearby:\n      "
+             + "\n      ".join(hits))
+    else:
+        ok("retractions/propagated", "all %d retracted claims are withdrawn everywhere they appear" % len(RETRACTED))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -569,7 +615,7 @@ def main():
                check_trackc, check_embedded_claims, check_wall_phrasing, check_score_anchor,
                check_unverifiable_probe, check_probe_clustered, check_roofline_arch,
                check_baseline_attribution, check_custom_kernel_rate,
-               check_degenerate_bestofn):
+               check_degenerate_bestofn, check_retractions_propagated):
         fn()
     if not a.quiet:
         print("=" * 100)

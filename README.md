@@ -140,20 +140,20 @@ roofline. Among wall-crossers the discriminators are sustained **drift and reten
 compounders actually show *lower* generation diversity (0.41 vs 0.52), so "diversity collapse causes the
 null" is **not** supported on this bank.
 
-### 4. Task 3 — Procedure-RSI: real, but one-shot
+### 4. Task 3 — Procedure-RSI: gains are real; the "one-shot" reading is RETRACTED
 
 Frontier models rewrite their own strategy library + verified archive. Restricted to runs with ≥3 completed
-rounds, the gain is **76% realised at round 0** and 60% of runs are non-recursive; the archive saturates by
+rounds, the gain appears **76% realised at round 0**, but that is not interpretable: the harness asks for "≤12" strategy strings and frontier models comply exactly — 5/5 interpretable runs sit at 11–12 from round 0 and 4/5 never grow. A procedure pinned at its limit in round 0 cannot be observed to keep improving, so "the model stopped" and "the harness stopped it" are not separable; the archive saturates by
 round 1–2 while the self-written strategies stay diverse (Jaccard 0.12), so the bottleneck is converting
 strategies into capability, not strategy homogeneity.
 
 | model | rounds | Q-gain vs frozen | class |
 |---|--:|--:|---|
 | GPT-6-Astra | 6 | **+0.556** | improving (from low Q₀ — consuming headroom) |
-| Claude-Sonnet-5 | 6 | +0.401 | one-shot plateau |
+| Claude-Sonnet-5 | 6 | +0.401 | plateau (cap-confounded) |
 | Mistral-Large-3 | 6 | +0.310 | improving |
 | Nova-Pro | 5 | +0.089 | improving |
-| GPT-5.6-sol | 6 | +0.075 | one-shot plateau |
+| GPT-5.6-sol | 6 | +0.075 | plateau (cap-confounded) |
 | GPT-5.6-terra | 6 | −0.001 | ceiling |
 
 *Not interpreted (<3 completed rounds):* Kimi-K2.5 (2 rounds), Claude-Opus-5 (1), DeepSeek-V3.2 (1). The

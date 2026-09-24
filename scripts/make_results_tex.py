@@ -511,7 +511,7 @@ def build():
 reward is objectively verifiable and the performance ceiling is \emph{physically known} (the roofline), so
 headroom is an absolute number. The central artifact is a \textbf{lineage-vs-reset $\times$ scale phase
 diagram} with matched total compute and a \emph{positive control} (oracle-injected correct kernels, so a null
-is provably distinguishable from a broken harness). The benchmark's contribution is that it \emph{separates}
+is provably distinguishable from a broken harness). \textbf{We must report that this control has not yet fired} on the hardware and metric of the headline: on H100 it exhausted its task set by round~2 and returned a delta of exactly zero, so the null is reported as not admissible under our own gate rather than as a validated null. The benchmark's contribution is that it \emph{separates}
 the bottlenecks of kernel-code self-improvement --- generation, selection, weight-update, and curriculum ---
 and makes purported self-improvement hard to fake. Secondary results: an internal correctness probe beats
 uniform-random selection at matched \emph{generation} budget ($+0.124\,[+0.029,+0.218]$ clustered on base
