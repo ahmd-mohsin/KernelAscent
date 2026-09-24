@@ -66,6 +66,14 @@ def stamp(extra=None):
          "env": {k: os.environ[k] for k in _SEMANTIC_ENV if k in os.environ},
          "triton": _triton_status()}
     try:
+        # the RESOLVED roofline arch, not just the env var: a headroom number is meaningless
+        # without knowing which card's peak FLOPs normalised it
+        from kernelascent import agent_bench as _AB
+        p["roof_arch"] = _AB._detect_arch()
+        p["roof_peaks"] = _AB._ROOF_SPECS.get(p["roof_arch"])
+    except Exception:
+        pass
+    try:
         import torch
         p["torch"] = torch.__version__
         p["cuda"] = torch.version.cuda

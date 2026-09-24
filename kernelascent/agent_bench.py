@@ -120,6 +120,14 @@ def _detect_arch():
     for key in ("h200", "h100", "l40s", "a100", "a6000"):
         if key in name.replace("-", "").replace(" ", ""):
             return key
+    # Falling back is only safe when there is genuinely no GPU to identify (a login node, a
+    # CPU-only import). A GPU that IS present but unrecognised means we are about to compute
+    # headroom with another card's peak FLOPs and say nothing about it -- a silently
+    # miscalibrated ceiling, which is the defect class this project keeps producing.
+    if name:
+        sys.stderr.write("KA WARNING: unrecognised GPU %r -- roofline defaulting to %s. "
+                         "Set KA_ROOF_ARCH to one of %s.\n"
+                         % (name, ROOF_ARCH_DEFAULT, sorted(_ROOF_SPECS)))
     return ROOF_ARCH_DEFAULT
 
 
