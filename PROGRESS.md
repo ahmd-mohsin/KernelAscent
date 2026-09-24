@@ -1,4 +1,29 @@
-# KernelAscent — progress & next steps (2026-09-13)
+# KernelAscent — progress & next steps (updated 2026-09-23)
+
+> **READ THIS FIRST — scope correction, 2026-09-23.** Triton kernels could never verify on this
+> harness: the cluster's `CC` pointed at a host compiler absent inside the container, and only
+> Triton compiles C at runtime. Every non-plain-torch submission in this project's history
+> failed for an environment reason, so **the benchmark has been measuring correctness-preserving
+> rewriting, not kernel optimization.** Fixed (`APPTAINERENV_CC`); a hand-written Triton kernel
+> now verifies.
+>
+> Consequences for anything below:
+> * Speed-scored boards are **provisional** pending re-runs.
+> * T3's "frontier self-modification is one-shot" is **retracted** — the models were complying
+>   with a "≤12 strategies" instruction and are pinned from round 0.
+> * The coverage-injection experiment named below as the decisive next step **has been run and
+>   is uninformative**: injected tasks fall to 0 by round 2 because the student solves the whole
+>   held set.
+> * The live next step is the compounding protocol on **kernel authoring**, which is the first
+>   task in this project that the models have not saturated (0/16 attempts under the published
+>   prompt; 14/16 when asked, 1 of which verifies).
+>
+> Full reasoning: `INTUITIONS.md` §2b–§2k. Numbers: `BENCHMARK_LOG.md` (2026-09-23 entry).
+> Seven instrument defects and the gates that catch them: `paper/instrument_validity.tex`.
+
+---
+
+## Original snapshot (2026-09-13)
 
 Snapshot of where the benchmark stands and what to do next. Companion to `ROADMAP.md` (queue), `RESUME.md` (live fleet/ops), `BENCHMARK_LOG.md` (numbers).
 
