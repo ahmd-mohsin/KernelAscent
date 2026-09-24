@@ -2332,3 +2332,9 @@ Per Amendment 4 this is a **capability finding**, not a metric artifact. Adjacen
 one seed per scale; the claim is the endpoint contrast plus direction, not a smooth curve.
 
 Registered falsifier NOT triggered (0.5B verifies at 5.4%, so the task is reachable).
+
+**PENDING ROBUSTNESS CHECK.** These numbers use `KA_EXTRACT=strict`, which discards **66% of
+0.5B generations and 5% of 14B generations** — a filter whose severity correlates with the
+independent variable. Lenient extraction recovers 30/32 rejected generations (44% → 91%). The
+five cells are re-running under `KA_EXTRACT=lenient`; the p = 0.0038 endpoint contrast is **not
+settled** until it is shown under both policies.

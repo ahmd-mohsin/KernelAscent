@@ -1,0 +1,5 @@
+t1kl-q05	00:40:00	1	env KA_PROMPT=kernel KA_MAX_NEW=2048 KA_EXTRACT=lenient python scripts/make_teacher_kernels.py --model Qwen/Qwen2.5-Coder-0.5B-Instruct --gpus 0 --k 12 --out /users/muahmed/ka_data/t1kl_q05.json
+t1kl-q14	00:55:00	2	env KA_PROMPT=kernel KA_MAX_NEW=2048 KA_EXTRACT=lenient python scripts/make_teacher_kernels.py --model Qwen/Qwen2.5-Coder-14B-Instruct --gpus 0,1 --k 12 --out /users/muahmed/ka_data/t1kl_q14.json
+t1kl-q15	00:40:00	1	env KA_PROMPT=kernel KA_MAX_NEW=2048 KA_EXTRACT=lenient python scripts/make_teacher_kernels.py --model Qwen/Qwen2.5-Coder-1.5B-Instruct --gpus 0 --k 12 --out /users/muahmed/ka_data/t1kl_q15.json
+t1kl-q3	00:45:00	1	env KA_PROMPT=kernel KA_MAX_NEW=2048 KA_EXTRACT=lenient python scripts/make_teacher_kernels.py --model Qwen/Qwen2.5-Coder-3B-Instruct --gpus 0 --k 12 --out /users/muahmed/ka_data/t1kl_q3.json
+t1kl-q7	00:50:00	1	env KA_PROMPT=kernel KA_MAX_NEW=2048 KA_EXTRACT=lenient python scripts/make_teacher_kernels.py --model Qwen/Qwen2.5-Coder-7B-Instruct --gpus 0 --k 12 --out /users/muahmed/ka_data/t1kl_q7.json

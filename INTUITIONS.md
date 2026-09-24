@@ -1081,6 +1081,45 @@ one correct one**, with 95% extraction.
 
 ---
 
+## 2.9p The extractor was discarding half the data, and the discard rate depends on scale
+
+Lenient extraction measured rather than assumed:
+
+```
+extraction   44% strict   ->   91% lenient        (recovers 30 of 32 rejected generations)
+class names  Model 31 | ModelTriton 2 | TrinoptimizedModel 1
+```
+
+The model writes `class Model` — the reference's own name — in 31 of 34 cases. A rename doubles
+the usable sample of every kernel-prompt experiment.
+
+### The part that threatens the headline
+
+I had just reported T1-kernel's finding (verify-given-attempt falls with scale, p = 0.0038)
+computed **under strict extraction**. But strict discards:
+
+| scale | discarded by the extractor |
+|---|---|
+| 0.5B | **66%** |
+| 14B | **5%** |
+
+**The extraction policy is itself scale-dependent**, and it discards thirteen times more at the
+end of the curve that looked better. That is exactly the shape of confound that produces a
+spurious trend: a filter whose severity correlates with the independent variable.
+
+> **A preprocessing step that removes different fractions of each condition is part of the
+> experiment, not part of the plumbing.** I found this one only because I went looking for
+> recoverable data — had the recovery rate been uniform across scale I would never have
+> questioned the headline, and the question is not whether the filter is *strict* but whether it
+> is *evenly* strict.
+
+So the five T1 cells are re-running under `KA_EXTRACT=lenient`. If the finding survives both
+policies it is about the models; if it flips, it was about the extractor. I am not reporting the
+p-value as settled until both exist — and I had already written it into the log and the paper,
+which I would rather correct now than defend later.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
