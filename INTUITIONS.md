@@ -825,6 +825,36 @@ Corollary: re-derive an artifact before depending on it, especially one produced
 buggier version of the pipeline. The original teacher was harvested before several grader fixes;
 its coverage was a fossil of those bugs, not a property of the model.
 
+
+### The same mistake again, one day later — and why no single scale fixes it
+
+The T2-kernel inject arms launched pointing at the 14B harvest, because "biggest model = best
+teacher" is the obvious default. On this task the 14B harvest covers **one task with one
+kernel**. Injecting that is a no-op, and I started fourteen cells before noticing.
+
+**No single scale is a good teacher here**, and the T1 curve says why: solve-rate does not rise
+with scale (0.5B solves 8/29, 14B solves 1/29) because compliance rises with scale while
+verify-given-attempt stays low. The usual heuristic is inverted on this substrate.
+
+So the teacher is the **union across scales**, preferring real kernels over plain-torch
+rewrites:
+
+```
+union(t1k_q05, q15, q3, q7, q14)
+  tasks covered                    15
+  kernels kept                     26   (62% contain triton/CUDA)
+  tasks whose BEST is a real kernel 12/15
+```
+
+Fifteen tasks against one. Cancelled the running cells and restarted them — an uninformative
+positive control is worse than none, because it produces a number that looks like evidence.
+
+> **When the obvious source for a control is chosen by a heuristic ("bigger is better"), check
+> the heuristic against the data you already have.** The T1 curve had already shown scale runs
+> the wrong way here, and I used the default anyway. Also: injecting a plain-torch rewrite on a
+> kernel-authoring task teaches the student to *decline the task* — the very behaviour being
+> measured. A control must reinforce the thing you are testing for, not its cheapest substitute.
+
 ---
 
 ## 2.12 A stale local copy is a live hazard, not just clutter

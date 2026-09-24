@@ -57,10 +57,12 @@ do_t2() {
 --model $2 --gpus 0 --rounds 6 --seed $s --k 10 --outdir $OUT/t2k_control_$1_s$s"
       go "t2k-i-$1-s$s" "00:50:00" 1 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
 --model $2 --gpus 0 --rounds 6 --seed $s --k 10 \
---inject-kernels $OUT/t1k_q14.json --inject-per-task 1 --outdir $OUT/t2k_inject_$1_s$s"
+--inject-kernels $OUT/teacher_union.json --inject-per-task 1 --outdir $OUT/t2k_inject_$1_s$s"
     done
   done
-  echo "    NOTE: the inject arm consumes t1k_q14.json, so it must land after T1's 14B cell."
+  echo "    NOTE: the inject arm consumes teacher_union.json -- build it with"
+  echo "    scripts/make_union_teacher.py after T1 lands. The 14B cell alone covers 1 task;"
+  echo "    a control that thin cannot move, and a control that cannot move is not a control."
   echo "    DECISION RULE (fixed now): lineage-reset > 0 with a CI excluding zero, on a task"
   echo "    where neither arm saturates, is the compounding result this benchmark exists to"
   echo "    produce. Flat with a working positive control is a real null. Both flat means the"
@@ -86,7 +88,7 @@ do_power() {
 --model $2 --gpus 0 --rounds 6 --seed $s --k 10 --outdir $OUT/t2k_control_$1_s$s"
       go "t2k-i-$1-s$s" "00:50:00" 1 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
 --model $2 --gpus 0 --rounds 6 --seed $s --k 10 \
---inject-kernels $OUT/t1k_q14.json --inject-per-task 1 --outdir $OUT/t2k_inject_$1_s$s"
+--inject-kernels $OUT/teacher_union.json --inject-per-task 1 --outdir $OUT/t2k_inject_$1_s$s"
     done
   done
   for s in 1 2; do
@@ -95,7 +97,7 @@ do_power() {
 --outdir $OUT/t2k_control_q7_s$s"
     go "t2k-i-q7-s$s" "00:55:00" 2 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
 --model Qwen/Qwen2.5-Coder-7B-Instruct --gpus 0,1 --rounds 6 --seed $s --k 10 \
---inject-kernels $OUT/t1k_q14.json --inject-per-task 1 --outdir $OUT/t2k_inject_q7_s$s"
+--inject-kernels $OUT/teacher_union.json --inject-per-task 1 --outdir $OUT/t2k_inject_q7_s$s"
   done
 }
 
