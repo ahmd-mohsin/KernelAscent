@@ -39,6 +39,18 @@ Scale & Attempts & Verified & Rate & Attempts & Verified & Rate \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\caption{14B verify-given-attempt, replicated across independent routes. Two runs differing in route, sampling budget $k$, and teacher bank. The model parses as a kernel attempt in 98\% of its candidates and almost never produces one that verifies, so the result is not an artifact of extraction, prompt compliance, or a single unlucky run.}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Run & Route & $k$ & Attempted & Kernel-verified \\
+\midrule
+\texttt{t1kl\_q14} & T1 (lenient) & 12 & 338 & 2 (0.59\%) \\
+\texttt{r4\_kernel\_q14} & R4 & 6 & 171 & 1 (0.58\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]\centering\small
 \caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, under the
 registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline). \textbf{Underpowered} ($n<8$; MDE $0.120$ at $n{=}4$ against a $\delta{=}0.05$ margin), so no equivalence claim is made. 3 of 3 cells incomplete.}
 \begin{tabular}{@{}lrr@{}}
