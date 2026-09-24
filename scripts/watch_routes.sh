@@ -4,7 +4,9 @@
 # never "it crashed and my filter didn't match".
 export PATH="$HOME/.marlowe/bin:$PATH"
 REPO=/Users/muahmed/Desktop/Projects/KernelAscent
+LOG="${WATCH_LOG:-/tmp/ka_watch.log}"        # every poll recorded, so a miss is diagnosable
 prev=""
+polls=0
 while true; do
   if ! ssh -O check marlowe >/dev/null 2>&1; then
     echo "SSH MASTER DOWN -- cluster polling stopped; needs 'ssh -f -N marlowe' + Duo"
@@ -25,6 +27,15 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
   fi
   if [ "${empties:-0}" -ge 2 ]; then echo "poll recovered -- watching again"; fi
   empties=0
+  polls=$((polls + 1))
+  printf '%s poll=%d rows=%d\n' "$(date +%H:%M:%S)" "$polls" "$(wc -l <<<"$cur")" >> "$LOG"
+  printf '%s\n' "$cur" > "$LOG.last"
+  # HEARTBEAT. Without one, "no events" is ambiguous between a quiet cluster and a dead
+  # monitor -- and this monitor has now missed two real transitions while appearing healthy.
+  # One line per ~30 min keeps silence meaningful without drowning the real events.
+  if [ $((polls % 10)) -eq 1 ]; then
+    echo "heartbeat: $(grep -c "RUNNING" <<<"$cur") running, $(grep -c "PENDING" <<<"$cur") pending (poll $polls)"
+  fi
   if [ -n "$prev" ]; then
     # only lines that are new or changed since last poll
     comm -13 <(echo "$prev") <(echo "$cur") | while IFS='|' read -r id name st; do
