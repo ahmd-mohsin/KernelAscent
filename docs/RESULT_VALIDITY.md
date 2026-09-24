@@ -1,5 +1,9 @@
 # Which published results still stand — audit of 2026-09-24
 
+*Updated 15:58 with the kernel-authoring results and three instrument defects found the same day:
+the baseline token-budget asymmetry, the severed lineage on resume, and the extraction-policy
+dependence of the T1 trend shape.*
+
 Written after seven instrument defects, two retractions and a scope correction. One line per
 result the paper makes, with the evidence for its status. **Most results survive; what changed
 for most of them is what they are a measurement *of*.**
@@ -35,6 +39,13 @@ correctness-preserving *rewriting*, which is not what the title claimed.
 | **T5 self-play `L−F`** | **UNDEFINED** | Requires accepted authored tasks; only 6/24 open and 5/11 closed runs qualify. The 11 qualifying rows should be reported with an interval rather than the rung declared void. |
 | **"H100's `torch.compile` closed the headroom"** | **RETRACTED** | The default scorer never used the compiled baseline. |
 | **Any speed-scored board** | **PROVISIONAL** | Measured under a harness that silently rejected every non-PyTorch submission. |
+| **T1-kernel verify-given-attempt across scale** | **VALID, SETTLED** | All 10 cells complete across both extraction policies. Endpoint 0.5B vs 14B: p=0.0038 strict, **p=9.6e-08** lenient; Wilson intervals non-overlapping under both. Independently replicated by `r4_kernel_q14` (different route, k=6): 0.58% vs 0.59%. Registered falsifier not triggered (0.5B reaches 9.45%). |
+| **T1-kernel *monotone ordering* (p=1/120)** | **RETRACTED** | An artifact of strict extraction, whose severity correlates with scale (66% of 0.5B generations discarded vs 5% of 14B). Spearman rho -1.000 strict, **-0.900** lenient, with 3B breaking the order. The endpoint contrast survives; the staircase does not. |
+| **T2-kernel lineage−reset, headroom scoring** | **VALID ONLY ON PRE-RESUME PREFIXES** | The adapter was not checkpointed, so every round at or after `resumed_at` restarted the lineage from base weights. Valid prefixes give control +0.057 [+0.020,+0.094]. Rounds at/after `resumed_at` are excluded. |
+| **T2-kernel teacher-injection effect** (`inject` vs `control`) | **NOT DETECTED** (supersedes an earlier positive) | Previously reported as control +0.051 / inject +0.100. Does not survive dropping severed rounds and matching on round index — cells had unequal valid depth, biasing inject upward. Matched: control +0.057 [+0.020,+0.094] vs inject +0.075 [+0.035,+0.114], intervals overlapping, and the per-round difference changes sign with depth. |
+| **Registered primary** (`self − fresh_frozen`, `prereg_*`) | **DISCARDED AND RE-RUNNING** | Same resume defect in `lab_weight_rsi`; all three arms plus `ex0` were reset on resume. All pre-15:32 cells archived as `prereg_*.severed-1532` and excluded. See PREREGISTRATION Amendment 5. |
+| **Any cross-rung comparison (T2 vs T3 vs T5)** | **CONFOUNDED, must state it** | T1/T2 generate at 2048 tokens; T3 and T5 at 1200. Not changed mid-flight because both resume from checkpoints and switching would mix budgets within a cell. Any "T3 weaker than T2" or "T5 shows no benefit" claim carries a 1.7x budget gap. |
+| **Baseline `max(best_of_k, self_refine, retrieval)`** | **FIXED, RE-RUNNING** | `self_refine` and `retrieval` ran at 900 tokens while `best_of_k` and the weight-RSI arm they are compared against used 2048 — a maximum over arms at different budgets. One stale value existed and was removed. `C_retrieval` is not comparable across the ~15:20 fix boundary. |
 
 ---
 
