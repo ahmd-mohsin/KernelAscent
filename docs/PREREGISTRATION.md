@@ -201,3 +201,53 @@ If the capability curve (T1-kernel) shows a verified-kernel rate at or near zero
 including 14B, then the task is unreachable rather than unsaturated, the compounding contrast is
 uninterpretable for the same reason as before, and we report that and publish no compounding
 claim from it.
+
+---
+
+# Amendment 3 — 2026-09-24: deviations from the original registration, declared
+
+An adversarial review found that this project **departed from its own pre-registration without
+saying so**, which is worse than not having pre-registered. The deviations are listed here, and
+the runs that close them are queued.
+
+## Deviation 1 — the T2 primary metric was substituted
+
+* **Registered** (§Primary metrics): `self − fresh_frozen` — a frozen producer trained on the
+  same fresh data each round, isolating "the improver got better" from "more data".
+* **Reported**: `lineage − reset`, a different contrast, in which the control re-initialises its
+  adapter and trains on one round's data.
+* **Status**: not a defensible substitution — it was never declared. `lineage − reset` also
+  confounds accumulation with total gradient steps (lineage receives R×, reset 1×), which
+  `self − fresh_frozen` does not.
+* **Closing it**: the `prereg-*` cells run `lab_weight_rsi --fresh-gpu`, which records
+  `delta_self_minus_fresh` directly. The registered contrast becomes primary; `lineage − reset`
+  is reported as a secondary contrast with its compute confound stated.
+
+## Deviation 2 — three incompatible scoring definitions coexist
+
+* **Registered** (§Substrate & scoring): `sp` = speedup over the **`torch.compile`** baseline,
+  normalised by the **per-task roofline ceiling**.
+* **Actually used** by every reported number: `LK._score(ok, sp_eager)` — speedup over **eager**,
+  normalised by the **legacy fixed 1.5×** anchor, because `ceiling` defaults to 1.5 when not
+  supplied (`kernelascent/v3/lab_kernel.py`).
+* **Third definition**: T1 reports `fast_rate` = beating `min(eager, torch.compile)` by ≥1.10×.
+* **Consequence**: the "roofline-grounded" claim is not true of the numbers as produced — the
+  roofline never entered the scoring path.
+* **Closing it**: the `prereg-*` cells run under `KA_SCORE=compiled` with `KA_ROOF_ARCH=h100`,
+  which is the registered definition. Any number produced under the legacy scorer is labelled
+  `eager/1.5×` wherever it appears, and "roofline-grounded" is used only for numbers that were.
+
+## Deviations we are declaring but not closing
+
+* **Seed counts.** §Statistics registers ≥3 seeds per headline cell. T3 and T4 were reported at
+  n=1 per cell with no uncertainty. Those are demoted to exploratory single-run observations.
+* **H1/H2/H3.** The registered hypotheses are never reported against. H1 ("small models compound;
+  diversity collapse explains mid/large overfit") is **contradicted** by our own data:
+  compounders show *lower* generation diversity (0.41 vs 0.52). Recorded as a failed prediction.
+* **Held-out split.** §Reproducibility registers it as private and never released; the README
+  concedes it is reconstructible from the public bank. It is a development set, not a test set,
+  until an eval server exists.
+
+**Registered before these runs land**, as with Amendments 1 and 2: if `self − fresh_frozen` and
+`lineage − reset` disagree in sign, the registered contrast is the one reported as primary, and
+the disagreement is reported rather than resolved in favour of whichever is more interesting.
