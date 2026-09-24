@@ -118,17 +118,45 @@ def run(args):
     if os.path.exists(statef) and os.path.exists(histf):                    # RESUME (state restored from S3 on a new node)
         st = json.load(open(statef)); hist = json.load(open(histf)).get("history", [])
         frS, frF, frL = st["frS"], st["frF"], st["frL"]; seen = set(st["seen"]); start = st["round"] + 1
+        # A failed adapter load used to print and CONTINUE, which meant that arm silently
+        # resumed from BASE weights while the round count advanced -- the same severing that
+        # invalidated T2 and the registered primary, just quieter because it needed a corrupt
+        # file rather than a missing feature. An arm that cannot restore its weights is not a
+        # continuation of anything, so refuse the cell instead.
         for a, m in arms:
             p = os.path.join(ckptd, "adapter_%s.pt" % a)
-            if os.path.exists(p):
-                try: set_peft_model_state_dict(m, torch.load(p, map_location=next(m.parameters()).device))
-                except Exception as e: print("resume load %s failed: %s" % (a, e), flush=True)
-        print("RESUMED %s from round %d (frontier_L=%d)" % (args.model, start, len(frL)), flush=True)
+            if not os.path.exists(p):
+                print("RESUME  arm %s has no adapter checkpoint -- it would restart from base "
+                      "weights while the round count continues. Refusing. Delete %s to restart "
+                      "this cell clean." % (a, args.outdir), flush=True)
+                raise SystemExit(3)
+            try:
+                set_peft_model_state_dict(m, torch.load(p, map_location=next(m.parameters()).device))
+            except Exception as e:
+                print("RESUME  arm %s checkpoint unreadable (%r) -- refusing rather than "
+                      "continuing on base weights. Delete %s to restart clean."
+                      % (a, e, args.outdir), flush=True)
+                raise SystemExit(3)
+        print("RESUMED %s from round %d (frontier_L=%d, all 3 arms restored)"
+              % (args.model, start, len(frL)), flush=True)
     def _checkpoint(r):                                                     # persist adapters + frontier state for resume
+        # Written tmp-then-rename: the walltime kill lands mid-round by construction, so a torn
+        # file is the expected failure, not a rare one. A swallowed save error is worse still --
+        # it produces a cell that looks checkpointed and is not.
         for a, m in arms:
-            try: torch.save(get_peft_model_state_dict(m), os.path.join(ckptd, "adapter_%s.pt" % a))
-            except Exception: pass
-        json.dump({"round": r, "frS": frS, "frF": frF, "frL": frL, "seen": list(seen)}, open(statef, "w"))
+            f = os.path.join(ckptd, "adapter_%s.pt" % a)
+            try:
+                torch.save(get_peft_model_state_dict(m), f + ".tmp")
+                os.replace(f + ".tmp", f)
+            except Exception as e:
+                sys.stderr.write("WARNING: could not checkpoint arm %s (%r); a resume of this "
+                                 "cell will refuse rather than sever\n" % (a, e))
+        try:
+            json.dump({"round": r, "frS": frS, "frF": frF, "frL": frL, "seen": list(seen)},
+                      open(statef + ".tmp", "w"))
+            os.replace(statef + ".tmp", statef)
+        except Exception as e:
+            sys.stderr.write("WARNING: could not write resume state (%r)\n" % e)
     for r in range(start, args.rounds):
         t0 = time.time()
         # STATIC
