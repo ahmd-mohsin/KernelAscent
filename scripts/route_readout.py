@@ -74,9 +74,21 @@ def t1(pattern=None):
         cust = sum(1 for k in allk if any(t in k["code"] for t in
                                           ("triton", "load_inline", "__global__")))
         sp = [k["speedup_eager"] for k in allk]
-        print("%-6s %-9s %4d/%-3d %8d %7.0f%% %9.2f %9.2f %8d"
+        # ATTEMPT vs SUCCESS. Without this the solve-rate column is a compliance metric: a
+        # plain-torch rewrite verifies trivially, so a model that declines the task outscores
+        # one that attempts it. Newer artifacts carry per-task attempt counts.
+        att = d.get("attempts") or {}
+        if att:
+            cand = sum(v.get("n_candidates", 0) for v in att.values())
+            tried = sum(v.get("n_attempted_kernel", 0) for v in att.values())
+            kok = sum(v.get("n_kernel_verified", 0) for v in att.values())
+            extra = "  attempt %.0f%%  verify|attempt %.1f%%" % (
+                100 * tried / max(cand, 1), 100 * kok / max(tried, 1))
+        else:
+            extra = "  (attempt rate not recorded)"
+        print("%-6s %-9s %4d/%-3d %8d %7.0f%% %9.2f %9.2f %8d%s"
               % (lbl, status, solved, n_tasks, len(allk), 100 * cust / len(allk),
-                 st.median(sp), max(sp), sum(1 for x in sp if x > 1.05)))
+                 st.median(sp), max(sp), sum(1 for x in sp if x > 1.05), extra))
         if complete:
             done.append((lbl, solved, n_tasks, len(allk), cust, sp))
 

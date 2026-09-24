@@ -251,3 +251,47 @@ the runs that close them are queued.
 **Registered before these runs land**, as with Amendments 1 and 2: if `self − fresh_frozen` and
 `lineage − reset` disagree in sign, the registered contrast is the one reported as primary, and
 the disagreement is reported rather than resolved in favour of whichever is more interesting.
+
+
+---
+
+# Amendment 4 — 2026-09-24: T1-kernel scores compliance, not capability
+
+**Registered before the re-measurement lands.** The first T1-kernel curve completed and is
+being discarded rather than reported, for a reason worth stating in advance.
+
+## What the first curve showed
+
+| scale | solved | via plain-torch rewrite |
+|---|---|---|
+| 0.5B | 8/29 | 4/8 |
+| 1.5B | 4/29 | 2/4 |
+| 3B | 9/29 | 3/9 |
+| 7B | 3/29 | **0/3** |
+| 14B | **1/29** | **0/1** |
+
+Solve-rate falls monotonically-ish with scale. It is not a capability curve.
+
+## Why it is invalid
+
+The prompt asks for a kernel. A submission that ignores it and restates the reference in torch
+ops **verifies trivially** and counts as a solve. Compliance with the instruction rises with
+scale — 7B and 14B never take the easy route, 0.5B and 1.5B take it for half their solves — so
+the metric pays models for disobedience and the curve inverts.
+
+Zero parse failures at any scale (348 candidates each), so this is genuine verification failure,
+not malformed output.
+
+## Registered change
+
+`make_teacher_kernels` now records, per task: candidates generated, candidates **attempting** a
+kernel (Triton/CUDA/`load_inline`), and kernel attempts that **verified**. T1-kernel reports:
+
+* **attempt rate** = attempted / generated — an instruction-following measure
+* **verify-given-attempt** = verified kernels / attempted — the capability measure
+* solve-rate is reported but **never compared across scale** without both of the above
+
+**Registered now:** verify-given-attempt is the T1-kernel primary. If it is flat or rising with
+scale while solve-rate falls, the inversion is a metric artifact and we say so. If
+verify-given-attempt *also* falls with scale, that is a real and surprising capability finding
+and we report it as such.

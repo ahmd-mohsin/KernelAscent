@@ -45,6 +45,7 @@ def main():
         names = names[:a.limit]
     print("TEACHER %s over %d tasks, k=%d" % (a.model, len(names), a.k), flush=True)
 
+    attempts = {}          # per-task: candidates, kernel attempts, kernel verifies
     tok, mdl = W.build(a.model, tuple(int(g) for g in str(a.gpus).split(",") if g != ""))
 
     out, t0 = {}, time.time()
@@ -72,11 +73,27 @@ def main():
             continue
         # keep every correct candidate, best (fastest) first -- a task may need more than one
         # exemplar, and speed is the tiebreak we care about
+        # ATTEMPT vs SUCCESS, per candidate. Only verified kernels are kept below, so a failed
+        # attempt leaves no trace -- which made the T1 curve uninterpretable: 0.5B "solved" 8/29
+        # and 14B 1/29, but half the small model's solves were plain-torch rewrites (a free pass
+        # for declining the task) while 7B/14B attempted a real kernel every time. Counting "any
+        # verifying submission" scores WILLINGNESS TO TAKE THE EASY ROUTE, which is
+        # anti-correlated with instruction-following and hence with scale.
+        def _is_kernel(c):
+            return any(t_ in c for t_ in ("triton", "load_inline", "__global__"))
+        n_attempt = sum(1 for c in codes if _is_kernel(c))
+        n_kernel_ok = 0
         good = []
         for code, g in zip(codes, graded):
             ok, se = (list(g) + [0, 0])[:2]
             if ok:
-                good.append({"code": code, "speedup_eager": round(float(se), 3)})
+                good.append({"code": code, "speedup_eager": round(float(se), 3),
+                             "is_kernel": _is_kernel(code)})
+                if _is_kernel(code):
+                    n_kernel_ok += 1
+        attempts[name] = {"n_candidates": len(codes), "n_attempted_kernel": n_attempt,
+                          "n_kernel_verified": n_kernel_ok,
+                          "n_verified": sum(1 for _c, g in zip(codes, graded) if (list(g) + [0])[0])}
         good.sort(key=lambda d: -d["speedup_eager"])
         if good:
             out[name] = good
@@ -87,6 +104,7 @@ def main():
         # Record how far we actually got, and whether we reached the end. Reading a partial
         # artifact as a capability number is a live hazard: this file is rewritten every task.
         PROV.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out,
+                   "attempts": attempts,
                    "tasks_attempted": i + 1, "complete": (i + 1) == len(names)},
                   open(a.out, "w"), indent=1)
 
