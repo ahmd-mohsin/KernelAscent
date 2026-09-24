@@ -233,6 +233,46 @@ references may be easy to beat for reasons that do not transfer --- a naive refe
 strong baseline. Reachability is a necessary condition for a usable substrate, not a sufficient
 one.
 
+\paragraph{Applying the precondition to our own headline.}
+It would be evasive to propose reachability and not report it for the bank behind our own
+A100 null. Per-task frozen-base scores were not retained for those runs --- an
+artifact-retention failure we record as such --- so task-level reachability cannot be
+reconstructed. What was retained is $C_0$, the frozen-base mean on each run's held split:
+
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Scale} & \textbf{Runs} & \textbf{Median $C_0$} & \textbf{Runs with $C_0 > 0.51$} \\
+\midrule
+0.5B & 12 & 0.100 & 0\% \\
+1.5B & 20 & 0.100 & 0\% \\
+3B   & 19 & 0.381 & 0\% \\
+7B   & 5  & 0.700 & 60\% \\
+14B  & 1  & 0.599 & 100\% \\
+\midrule
+All  & 57 & 0.200 & 7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent This matters because it shows the A100 substrate does \emph{not} carry the H100
+failure signature. There, scores piled up at exactly $0.50$ --- correct-at-parity, an absorbing
+state. Here the median is $0.20$, well \emph{below} parity, rising monotonically with scale.
+Most held tasks were not solved at all rather than solved-at-parity, so the measurement had room
+to move in the direction that mattered and the saturation critique does not transfer.
+
+We state the cost of that defence in the same breath. A frozen base at $C_0 = 0.20$, with only
+4 of 57 runs above parity, means the \emph{speed} dimension was barely exercised on A100 either:
+most of the available signal was correctness, not optimisation. The A100 null is therefore best
+read as a null about \emph{acquiring correctness through self-training}, which is a narrower
+claim than the one the original framing implied --- and narrower than the title promised.
+
+The general point is uncomfortable and worth stating plainly: \textbf{we could apply our own
+proposed precondition to our own headline only partially, and only because a coarser statistic
+happened to survive.} A precondition is worth little if the artifacts needed to evaluate it are
+not retained, so we now record per-task frozen-base scores and stamp every artifact with the
+environment that produced it.
+
 \paragraph{What we propose as standard practice.}
 We ship these as executable gates rather than advice, and we recommend them for any
 self-improvement benchmark reporting a null:

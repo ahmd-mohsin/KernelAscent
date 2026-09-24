@@ -479,6 +479,47 @@ the population is not exhausted in two rounds. See [[route-1-dsl-bank]].
 
 ---
 
+## 2.9b Applying my own precondition to my own headline — and the retention failure it exposed
+
+A hostile review pointed out that we propose reachability as a precondition and never report it
+for the bank behind our own A100 null. Fair, and the answer turned out to matter:
+
+| scale | runs | median C₀ | runs above parity |
+|---|---|---|---|
+| 0.5B | 12 | 0.100 | 0% |
+| 1.5B | 20 | 0.100 | 0% |
+| 3B | 19 | 0.381 | 0% |
+| 7B | 5 | 0.700 | 60% |
+| 14B | 1 | 0.599 | 100% |
+| **all** | **57** | **0.200** | **7%** |
+
+**The A100 substrate does not carry the H100 failure signature.** On H100 scores piled at
+exactly 0.50 — correct-at-parity, an absorbing state. Here the median is 0.20, *below* parity,
+rising monotonically with scale. Most held tasks were not solved at all rather than
+solved-at-parity, so the saturation critique does not transfer and the headline null survives
+that particular attack.
+
+**The cost of the defence, stated in the same breath:** a base at 0.20 with 4/57 runs above
+parity means the *speed* dimension was barely exercised on A100 either. The null is really about
+**acquiring correctness through self-training** — narrower than the framing implied, and
+narrower than the title promised.
+
+### The part that generalises
+
+I could apply the precondition only **partially**, and only because a coarser statistic (`C0`,
+the run-level frozen-base mean) happened to survive. Per-task frozen-base scores were never
+retained, so task-level reachability for our own headline is **permanently unrecoverable**.
+
+> **A precondition is worth nothing if the artifacts needed to evaluate it are not retained.**
+> Proposing a diagnostic is the easy half; the hard half is keeping, at the time of the run, the
+> data that lets someone apply it afterwards — including you, six weeks later, when a reviewer
+> asks. Retention is part of the method, not part of the housekeeping.
+
+This is why per-task scores and `_provenance` stamping went in. Both are cheap; both were
+missing exactly when needed.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
