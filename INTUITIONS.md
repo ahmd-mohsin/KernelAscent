@@ -1064,7 +1064,11 @@ falls with scale, that is a real capability finding rather than the metric artif
 solve-rate suggested. It falls.
 
 * endpoints: 4/74 versus 0/219, **Fisher exact two-sided p = 0.0038**
-* fully monotone ordering across five scales: p = 1/120 = 0.008 under a random permutation
+* ~~fully monotone ordering across five scales: p = 1/120 = 0.008~~ **RETRACTED 2026-09-24.**
+  The staircase was an artifact of strict extraction, whose severity correlates with scale.
+  Re-run under `KA_EXTRACT=lenient` (all 5 cells complete, 29/29 tasks): Spearman rho falls
+  from -1.000 to **-0.900** and 3B breaks the order. The endpoint contrast survives and
+  strengthens to **p = 9.6e-08**; the ordering does not survive at all.
 
 **What I will not claim.** Every *adjacent* pair overlaps. One seed per scale. 29 tasks. The
 defensible statement is the endpoint contrast plus a consistent direction, not a smooth curve,
@@ -1623,3 +1627,27 @@ to shell quoting. Write the script file.
    and the two fleets have never been shown comparable. (The original reason given here, that
    H100's `torch.compile` closed the measurement range, was the §2.4 mistake: the default scorer
    never uses the compiled baseline. The separation is still right; that justification was not.)
+12. **A marker is not a safeguard when the condition it marks is universal.** `lab_compounding`
+    recorded `resumed_at` so severed trajectories would never be pooled silently. Every cell hit
+    the walltime, so every cell was marked, so the marking distinguished nothing. A flag only
+    protects you if some runs lack it — otherwise it is documentation, not a control.
+13. **Ask what a resume RESTORES, not whether it resumes.** Both `lab_compounding` and
+    `lab_weight_rsi` restored `history` and the round counter while every trained arm restarted
+    from base weights. The round numbering continued, the trajectory looked like a trajectory,
+    and the accumulation being measured was deleted at each chunk boundary. The tell was `trainC`
+    collapsing at exactly `resumed_at` — in all 18 resumed cells, no exceptions. Cross-round
+    state is not just weights: `ex0` (the control's frozen round-0 target) was silently
+    re-frozen mid-trajectory too.
+14. **Two arms of one comparison can run on different code paths.** `best_of_k` went through
+    `W.generate_batch` at 2048 tokens; `self_refine` and `retrieval` went through `_gen_custom`
+    at a hardcoded 900. `max(best_of_k, self_refine, retrieval)` was a maximum over incomparable
+    quantities. Nothing crashed and no number looked wrong. Before trusting a comparison, check
+    that every arm calls the same generator with the same budget.
+15. **Any filter whose severity correlates with the independent variable can manufacture a
+    trend.** Strict extraction discarded 66% of 0.5B generations and 5% of 14B's, and produced a
+    perfect monotone staircase that a permissive policy dissolved. The endpoint contrast was
+    real; the shape was the instrument.
+16. **Do not read a running cell as a finished one.** I twice recorded 14B as verifying *zero*
+    kernels under lenient extraction, from a cell at 108 and then 252 attempts. The completed
+    cell has 2 in 338. "Near-zero" and "zero" support different sentences, and only one of them
+    was true.

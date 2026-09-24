@@ -2360,7 +2360,7 @@ kernels** (4 → 24), so the policy is doing real work — this was not a cosmet
 
 **The finding survives the policy change.** The direction is unchanged and the endpoint contrast
 strengthens (Fisher p = 0.00027 on partial data vs 0.0038 strict). The mechanism that made 14B
-look bad under strict extraction was *not* the extractor: 14B still verifies nothing after the
+look bad under strict extraction was *not* the extractor: 14B still verifies almost nothing after the
 extractor stops rejecting it.
 
 Two cautions I am not allowed to drop when this goes in the paper:
@@ -2434,12 +2434,14 @@ The gate freezes all 9 values so a new one, or a change to an existing one, fail
 | 1.5B | 4.05% (3/74) | 2.95% (7/237) | complete |
 | 3B | 3.26% (6/184) | **7.93%** (26/328) | complete |
 | 7B | 1.53% (4/262) | 2.91% (10/344) | complete |
-| 14B | 0.00% (0/219) | **0.00%** (0/252) | *incomplete* |
+| 14B | 0.00% (0/219) | ~~0.00% (0/252)~~ **0.59% (2/338)** | *superseded; see FINAL below* |
 
 **CONFIRMED — the endpoint contrast.** Fisher exact 0.5B vs 14B: strict p = 0.0038, lenient
 p = **6.8e-08**. It did not merely survive the extraction policy, it strengthened by four orders
 of magnitude. 14B now has *more* attempts under lenient extraction than it had under strict
-(252 vs 219) and still verifies **nothing**. Whatever stops 14B producing a correct kernel, it
+(252 vs 219) and still verifies **nothing**. [SUPERSEDED 16:45 — that cell was incomplete; the
+finished cell has 2 verified in 338 attempts. 14B is near-zero, not zero.] Whatever stops 14B
+producing a correct kernel, it
 is not the extractor rejecting its output.
 
 **RETRACTED — the monotonicity claim.** The line above reading "Monotone ordering across 5
