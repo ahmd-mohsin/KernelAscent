@@ -67,6 +67,38 @@ do_t2() {
   echo "    task is still wrong and nothing is published."
 }
 
+do_power() {
+  # SEEDS 3-6, and 7B. Two reasons, both computed rather than guessed.
+  #
+  # POWER: between-trajectory SD on the closest analogue we have (the 8 pass-rate runs) is
+  # 0.058. At n=4 per arm the minimum detectable effect is 0.120 against a pre-registered
+  # equivalence margin of 0.05 -- so a flat result could not be distinguished from an
+  # underpowered one, which is the "undefined, not null" failure this project keeps making.
+  # n=12 per arm brings the MDE to 0.051, just inside the margin.
+  #
+  # SCALE: the published inverted-U (RSI peaks at 2-8B, falls above) was measured on the
+  # saturated task. Re-testing it needs a cell above 3B.
+  echo "POWER  seeds 3-6 for 1.5B/3B, plus 7B -- brings n to 12 per arm"
+  for m in "q15 Qwen/Qwen2.5-Coder-1.5B-Instruct" "q3 Qwen/Qwen2.5-Coder-3B-Instruct"; do
+    set -- $m
+    for s in 3 4 5 6; do
+      go "t2k-c-$1-s$s" "00:50:00" 1 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
+--model $2 --gpus 0 --rounds 6 --seed $s --k 10 --outdir $OUT/t2k_control_$1_s$s"
+      go "t2k-i-$1-s$s" "00:50:00" 1 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
+--model $2 --gpus 0 --rounds 6 --seed $s --k 10 \
+--inject-kernels $OUT/t1k_q14.json --inject-per-task 1 --outdir $OUT/t2k_inject_$1_s$s"
+    done
+  done
+  for s in 1 2; do
+    go "t2k-c-q7-s$s" "00:55:00" 2 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
+--model Qwen/Qwen2.5-Coder-7B-Instruct --gpus 0,1 --rounds 6 --seed $s --k 10 \
+--outdir $OUT/t2k_control_q7_s$s"
+    go "t2k-i-q7-s$s" "00:55:00" 2 "env KA_PROMPT=kernel python -m kernelascent.v3.lab_compounding \
+--model Qwen/Qwen2.5-Coder-7B-Instruct --gpus 0,1 --rounds 6 --seed $s --k 10 \
+--inject-kernels $OUT/t1k_q14.json --inject-per-task 1 --outdir $OUT/t2k_inject_q7_s$s"
+  done
+}
+
 do_bank() {
   # REACHABILITY of the DSL bank under the kernel prompt. The 456-task bank was calibrated on
   # rewriting; on authoring its difficulty distribution is a different question entirely.
@@ -111,6 +143,7 @@ do_mech() {
 case "$STEP" in
   base) do_base ;;
   mech) do_mech ;;
+  power) do_power ;;
   t1)   do_t1 ;;
   t2)   do_t2 ;;
   bank) do_bank ;;

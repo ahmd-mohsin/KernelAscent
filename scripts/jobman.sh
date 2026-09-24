@@ -33,7 +33,48 @@ fi
 
 _jid() { sed -n 's/.*job \([0-9][0-9]*\) queued.*/\1/p' <<<"$1" | head -1; }
 
+# The account caps concurrent submissions (MaxSubmitJobsPerAccount; observed limit 32). Work
+# beyond that cannot be queued, so it is parked in a backlog and submitted as slots free. This
+# is the real constraint on throughput here -- not GPU-hours, of which we have thousands.
+BACKLOG="$REPO/.jobman.backlog"
+touch "$BACKLOG"
+CAP="${KA_SUBMIT_CAP:-32}"
+
+_queued() { $MRL run "module load slurm >/dev/null 2>&1; squeue -u \$USER -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9'; }
+
 case "${1:-status}" in
+
+park)
+  # park <name> <walltime> <gpus> -- <command>   record without submitting
+  name="${2:?name}"; wall="${3:?walltime}"; gpus="${4:?gpus}"; shift 4
+  [ "${1:-}" = "--" ] && shift
+  grep -v "^$name	" "$BACKLOG" > "$BACKLOG.tmp" 2>/dev/null || true
+  printf '%s\t%s\t%s\t%s\n' "$name" "$wall" "$gpus" "$*" >> "$BACKLOG.tmp"
+  mv "$BACKLOG.tmp" "$BACKLOG"
+  echo "parked $name ($(wc -l < "$BACKLOG" | tr -d ' ') in backlog)"
+  ;;
+
+topup)
+  # Submit from the backlog while the account has room. Run it after jobs finish.
+  n="$(_queued)"; n="${n:-0}"
+  room=$(( CAP - n ))
+  echo "queued=$n cap=$CAP room=$room backlog=$(wc -l < "$BACKLOG" | tr -d ' ')"
+  [ "$room" -gt 0 ] || { echo "no room -- try again when jobs finish"; exit 0; }
+  sent=0
+  while [ "$sent" -lt "$room" ]; do
+    line="$(head -1 "$BACKLOG")"
+    [ -n "$line" ] || break
+    name="$(cut -f1 <<<"$line")"; wall="$(cut -f2 <<<"$line")"
+    gpus="$(cut -f3 <<<"$line")"; cmd="$(cut -f4- <<<"$line")"
+    if "$0" run "$name" "$wall" "$gpus" -- "$cmd" >/dev/null 2>&1; then
+      tail -n +2 "$BACKLOG" > "$BACKLOG.tmp" && mv "$BACKLOG.tmp" "$BACKLOG"
+      echo "  submitted $name"; sent=$((sent+1))
+    else
+      echo "  FAILED $name -- leaving in backlog"; break
+    fi
+  done
+  echo "topped up $sent job(s); $(wc -l < "$BACKLOG" | tr -d ' ') still parked"
+  ;;
 
 run)
   name="${2:?name}"; wall="${3:?walltime}"; gpus="${4:?gpus}"; shift 4

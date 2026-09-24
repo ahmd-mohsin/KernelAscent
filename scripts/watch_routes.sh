@@ -57,6 +57,11 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
         *)                echo "?? $st $name ($id)" ;;
       esac
     done
+    # The account caps concurrent submissions, so finished jobs free slots that parked work
+    # should claim immediately -- otherwise the queue drains and nothing replaces it overnight.
+    if [ -s "$REPO/.jobman.backlog" ]; then
+      bash "$REPO/scripts/jobman.sh" topup 2>&1 | grep -E '^  submitted|^  FAILED' || true
+    fi
     # auto-continue only walltime hits; a code failure re-run wastes allocation (standing rule 5)
     if comm -13 <(echo "$prev") <(echo "$cur") | grep -q 'TIMEOUT'; then
       bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD)' || true
