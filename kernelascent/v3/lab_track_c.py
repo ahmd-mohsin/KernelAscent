@@ -179,18 +179,25 @@ def _run_with(args, gen):
     tasks = LK.TASKS
     names = list(tasks); random.Random(1).shuffle(names)
     train, held = names[:args.n_train], names[args.n_train:]
-    U0 = {"strategies": [], "archive": {}}
     print("TRACK-C %s mode=%s train=%d held=%d k=%d" % (args.model, args.mode, len(train), len(held), args.k), flush=True)
-    Q0, _, _, _ = develop(U0, held, tasks, gen, args.k, args.grade_gpu)
-    print("Q0 base-procedure held-out = %.3f" % Q0, flush=True)
-    U = {"strategies": [], "archive": {}}; hist = []; prevU = None
+    U = {"strategies": [], "archive": {}}; hist = []; prevU = None; Q0 = None
     os.makedirs(args.outdir, exist_ok=True); statef = os.path.join(args.outdir, "resume_state.json"); start = 0
     if os.path.exists(statef):                                   # RESUME (state restored from S3) — extend rounds w/o losing progress
         try:
-            st = json.load(open(statef)); U = st["U"]; hist = st["hist"]; Q0 = st.get("Q0", Q0); start = st["round"] + 1
+            st = json.load(open(statef)); U = st["U"]; hist = st["hist"]; Q0 = st.get("Q0"); start = st["round"] + 1
             print("RESUMED track-c %s from round %d (done=%d, strat=%d, arch=%d)" % (args.model, start, len(hist), len(U["strategies"]), len(U["archive"])), flush=True)
         except Exception as e:
             print("track-c resume failed (%s); fresh" % e, flush=True)
+            U = {"strategies": [], "archive": {}}; hist = []; start = 0; Q0 = None
+    # Q0 is the FROZEN base procedure's held-out score -- it cannot change across chunks, so
+    # recomputing it on every resume bought nothing and cost a full held-out eval per chunk
+    # (~1/3 of a round at 7B). Compute it once; restore it thereafter.
+    if Q0 is None:
+        U0 = {"strategies": [], "archive": {}}
+        Q0, _, _, _ = develop(U0, held, tasks, gen, args.k, args.grade_gpu)
+        print("Q0 base-procedure held-out = %.3f" % Q0, flush=True)
+    else:
+        print("Q0 base-procedure held-out = %.3f (restored; held-out eval skipped)" % Q0, flush=True)
     for r in range(start, args.rounds):
         t0 = time.time()
         _, _, evidence, verified = develop(U, train, tasks, gen, args.k, args.grade_gpu)   # solve train -> evidence

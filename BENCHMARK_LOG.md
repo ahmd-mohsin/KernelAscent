@@ -2338,3 +2338,35 @@ Registered falsifier NOT triggered (0.5B verifies at 5.4%, so the task is reacha
 independent variable. Lenient extraction recovers 30/32 rejected generations (44% → 91%). The
 five cells are re-running under `KA_EXTRACT=lenient`; the p = 0.0038 endpoint contrast is **not
 settled** until it is shown under both policies.
+
+### Lenient re-run, partial (2026-09-24 15:06)
+
+Two of five lenient cells complete. Same tasks, same k=12, same 2048-token budget; the only
+axis that differs from the strict table above is `KA_EXTRACT`.
+
+| scale | attempts | kernel-verified | verify\|attempt | cell |
+|---|---|---|---|---|
+| 0.5B | 254 | 24 | **9.5%** | complete |
+| 1.5B | 237 | 7 | 3.0% | complete |
+| 3B | 219 | 20 | 9.1% | *incomplete* |
+| 7B | 240 | 5 | 2.1% | *incomplete* |
+| 14B | 108 | 0 | **0.0%** | *incomplete* |
+
+Lenient extraction roughly **triples attempts at 0.5B** (74 → 254) and **sextuples its verified
+kernels** (4 → 24), so the policy is doing real work — this was not a cosmetic filter.
+
+**The finding survives the policy change.** The direction is unchanged and the endpoint contrast
+strengthens (Fisher p = 0.00027 on partial data vs 0.0038 strict). The mechanism that made 14B
+look bad under strict extraction was *not* the extractor: 14B still verifies nothing after the
+extractor stops rejecting it.
+
+Two cautions I am not allowed to drop when this goes in the paper:
+
+1. **Still NOT SETTLED.** 14B has 108 of ~330 candidates. The endpoint p-value is computed on a
+   third of the eventual denominator and will move. No lenient p-value goes in the .tex until
+   `t1kl_q14` reports `complete`.
+2. **Monotonicity does not survive, even though the endpoint contrast does.** Strict gave a clean
+   5-point monotone decline (5.4 → 4.1 → 3.3 → 1.5 → 0.0). Lenient does not: 3B (9.1%) sits level
+   with 0.5B (9.5%), above 1.5B (3.0%). If that holds at completion, the honest claim is the
+   **endpoint contrast plus direction**, and the "monotone ordering p = 1/120" line must come out.
+   That line is currently in the log above and would be wrong to carry forward unqualified.
