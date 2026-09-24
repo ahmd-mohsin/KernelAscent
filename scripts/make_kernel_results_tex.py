@@ -92,48 +92,85 @@ Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
 
 
 def prereg_table():
-    """The REGISTERED primary: self - fresh_frozen, under the registered scorer."""
+    """The REGISTERED primary: self - fresh_frozen, under the registered scorer.
+
+    PREREGISTRATION Amendment 5 excludes severed trajectories rather than caveating them.
+    Until 2026-09-24 the lab restored `history` on resume but not the trained weights, so every
+    resumed chunk restarted all three arms from base weights while the round count continued.
+    An earlier version of this table kept those cells and appended an explanatory sentence to
+    the caption. That is not good enough: the number in the cell is not a measurement of the
+    registered quantity, and a caption cannot repair it.
+
+    Exclusion rule, keyed on what the artifact stamps:
+      * `resumed_at` set and `adapter_restored` is not True  -> severed, excluded
+      * `adapter_restored` absent on a resumed cell          -> pre-fix data, excluded
+      * never resumed                                        -> valid
+    """
     try:
         from clustered_stats import trajectory_level, ci as _ci
     except Exception:
         return "", []
-    traj, partial, resumed = [], 0, 0
-    for outdir in sorted(glob.glob(os.path.join(D, "prereg_*"))):
-        d = _load(os.path.join(outdir, "weight_rsi.json"))
-        if not d:
-            continue
-        rows = d.get("history") or []
-        v = [r["delta_self_minus_fresh"] for r in rows
-             if r.get("delta_self_minus_fresh") is not None]
-        if not v:
-            continue
-        traj.append(st.mean(v))
-        if d.get("resumed_at"):
-            resumed += 1
-        if len(v) < 5:
-            partial += 1
+    traj, partial, excluded, seen = [], 0, [], set()
+    for d_dir in DIRS:
+        for outdir in sorted(glob.glob(os.path.join(d_dir, "prereg_*"))):
+            cell = os.path.basename(outdir)
+            if cell in seen or ".severed" in cell:
+                continue
+            d = _load(os.path.join(outdir, "weight_rsi.json"))
+            if not d:
+                continue
+            seen.add(cell)
+            rows = d.get("history") or []
+            v = [r["delta_self_minus_fresh"] for r in rows
+                 if r.get("delta_self_minus_fresh") is not None]
+            if not v:
+                continue
+            # The discriminator is the PRESENCE of the key, not its value. `adapter_restored`
+            # was added with the fix, so a pre-fix artifact lacks it entirely, while a post-fix
+            # run that never resumed stamps it as null. Keying on truthiness alone let four
+            # stale cells through: they had resumed_at=None only because they were snapshotted
+            # before their first timeout, and a pre-fix artifact cannot evidence that its
+            # weights were ever carried across a resume.
+            if "adapter_restored" not in d:
+                excluded.append(cell + " (pre-fix artifact)")
+                continue
+            if d.get("resumed_at") and d.get("adapter_restored") is not True:
+                excluded.append(cell + " (severed)")
+                continue
+            traj.append(st.mean(v))
+            if len(v) < 5:
+                partial += 1
+    note = []
+    if excluded:
+        note.append("prereg: excluded %d severed cell(s) per Amendment 5: %s"
+                    % (len(excluded), ", ".join(sorted(excluded))))
     if len(traj) < 2:
-        return "", ["prereg: %d trajectory(ies) -- too few for an interval" % len(traj)]
+        note.append("prereg: %d valid trajectory(ies) -- too few for an interval" % len(traj))
+        return "", note
     est = trajectory_level([[x] for x in traj])
     lo, hi = _ci(est)
     powered = "" if len(traj) >= 8 else (
         r" \textbf{Underpowered} ($n<8$; MDE $0.120$ at $n{=}4$ against a $\delta{=}0.05$ margin), "
         r"so no equivalence claim is made.")
     inc = (" %d of %d cells incomplete." % (partial, len(traj))) if partial else ""
-    res = ((r" %d trajectory(ies) were resumed mid-run after a walltime timeout; LoRA state is "
-            r"not checkpointed, so those continue the round sequence while re-learning from "
-            r"recorded data." % resumed) if resumed else "")
-    return (r"""\begin{table}[h]\centering\small
-\caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, under the
-registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline).%s%s%s}
-\begin{tabular}{@{}lrr@{}}
-\toprule
-Contrast & Trajectories & Estimate (95\%% CI) \\
-\midrule
-\texttt{self} $-$ \texttt{fresh\_frozen} & %d & $%+.3f\,[%+.3f, %+.3f]$ \\
-\bottomrule
-\end{tabular}
-\end{table}""" % (powered, inc, res, len(traj), est["mean"], lo, hi)), []
+    exc = ((r" %d cell(s) excluded under PREREGISTRATION Amendment 5: a resume that did not "
+            r"restore the trained adapters restarts all three arms from base weights while the "
+            r"round count continues, so those rounds do not measure the registered quantity."
+            % len(excluded)) if excluded else "")
+    lines = [r"\begin{table}[h]\centering\small",
+             (r"\caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, "
+              r"under the registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline).%s%s%s}"
+              % (powered, inc, exc)),
+             r"\begin{tabular}{@{}lrr@{}}",
+             r"\toprule",
+             r"Contrast & Trajectories & Estimate (95\% CI) \\",
+             r"\midrule",
+             (r"\texttt{self} $-$ \texttt{fresh\_frozen} & %d & $%+.3f\,[%+.3f, %+.3f]$ \\"
+              % (len(traj), est["mean"], lo, hi)),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), note
 
 
 def t1_replication_note():
