@@ -88,8 +88,16 @@ def stamp(extra=None):
     return p
 
 
-def dump(obj, path, extra=None):
-    """json.dump with a `_provenance` key attached, for dict payloads."""
+def dump(obj, path, extra=None, **kw):
+    """Drop-in for `json.dump(obj, open(path,"w"), ...)` with `_provenance` attached.
+
+    Accepts and forwards json.dump kwargs (`indent`, `default`, ...). The first version did not,
+    and since the call sites were converted by replacing `json.dump(` with `PROV.dump(` in place,
+    every one of them still passed `indent=2` -- which killed the whole compounding batch with
+    TypeError AFTER the runs had done their work. A shim that is not signature-compatible with
+    the thing it replaces is a trap.
+    """
+    kw.setdefault("indent", 2)
     try:
         if isinstance(obj, dict):
             obj = dict(obj)
@@ -98,7 +106,7 @@ def dump(obj, path, extra=None):
             json.dump({"_provenance": stamp(extra)}, open(path + ".prov.json", "w"), indent=2)
     except Exception:
         pass
-    json.dump(obj, open(path, "w"), indent=2)
+    json.dump(obj, open(path, "w"), **kw)
 
 
 def is_valid_for_kernels(path):
