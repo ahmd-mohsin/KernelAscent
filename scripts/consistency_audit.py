@@ -607,6 +607,33 @@ def check_retractions_propagated():
         ok("retractions/propagated", "all %d retracted claims are withdrawn everywhere they appear" % len(RETRACTED))
 
 
+def check_intervals_contain_estimates():
+    """A point estimate printed beside an interval must lie inside it.
+
+    The paper reported "lineage-bestofN = -0.111 [-0.138,-0.083] (the cluster-robust interval
+    [-0.163,-0.120] agrees)". It does not agree -- it excludes -0.111, because the two are
+    different estimands (trajectory-weighted vs round-weighted) with different point estimates.
+    An interval that excludes the number quoted beside it is the first thing a careful reviewer
+    notices, and it undermines confidence in every other interval in the paper.
+    """
+    pat = re.compile(r"([+-]?\d*\.\d+)\s*\\?,?\s*\[\s*([+-]?\d*\.\d+)\s*,\s*([+-]?\d*\.\d+)\s*\]")
+    hits = []
+    for name, path in PROSE.items():
+        txt = norm_prose(read(path))
+        for m in pat.finditer(txt):
+            est, lo, hi = (float(m.group(i)) for i in (1, 2, 3))
+            if lo > hi:
+                lo, hi = hi, lo
+            if not (lo - 1e-9 <= est <= hi + 1e-9):
+                hits.append("%s  %r" % (name, m.group(0)))
+    if hits:
+        fail("stats/interval-contains-estimate",
+             "a point estimate is printed beside an interval that excludes it:\n      "
+             + "\n      ".join(hits))
+    else:
+        ok("stats/interval-contains-estimate", "every estimate printed beside an interval lies inside it")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -615,7 +642,8 @@ def main():
                check_trackc, check_embedded_claims, check_wall_phrasing, check_score_anchor,
                check_unverifiable_probe, check_probe_clustered, check_roofline_arch,
                check_baseline_attribution, check_custom_kernel_rate,
-               check_degenerate_bestofn, check_retractions_propagated):
+               check_degenerate_bestofn, check_retractions_propagated,
+               check_intervals_contain_estimates):
         fn()
     if not a.quiet:
         print("=" * 100)

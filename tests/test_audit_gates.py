@@ -34,6 +34,7 @@ def main():
         A.FAILS.clear(); A.PASSES.clear(); A.WARNS.clear()
         A.check_baseline_attribution(); A.check_custom_kernel_rate()
         A.check_degenerate_bestofn(); A.check_retractions_propagated()
+        A.check_intervals_contain_estimates()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -84,6 +85,11 @@ def main():
                       "\nA torch.compile baseline strong enough to close the measurement range entirely.\n"),
                      ("docs/index.html", "<p>The gain is overwhelmingly one-shot.</p>\n")):
         mutate(rel, (lambda a: (lambda t: t + a))(add), "retractions/propagated")
+
+    print("interval gate: an estimate must lie inside the interval printed beside it")
+    mutate("paper/kernelascent_full.tex",
+           lambda t: t + "\nThe delta was $-0.111\\,[-0.163,-0.120]$ across all runs.\n",
+           "stats/interval-contains-estimate")
 
     assert run("all restored") == [], "repo must end clean"
 

@@ -520,6 +520,37 @@ missing exactly when needed.
 
 ---
 
+## 2.9c An interval that excludes the number printed beside it
+
+The paper's strongest positive read:
+
+> `lineage − bestofN = −0.111 [−0.138, −0.083]` (CI excludes zero; the cluster-robust interval
+> `[−0.163, −0.120]` **agrees**)
+
+`−0.111` is not inside `[−0.163, −0.120]`. The two are **different estimands**: the trajectory
+estimator weights each run equally; the cluster-robust one weights each *round* equally, so
+longer runs pull it. Their point estimates genuinely differ — `−0.111` versus `−0.142` — and the
+sentence paired one estimate with the other's interval.
+
+The finding survives (same sign, both intervals exclude zero, the round-weighted effect is
+*larger*). What did not survive is the reader's trust: an interval that excludes the number
+quoted beside it is the first thing a careful reviewer notices, and it taints every other
+interval in the document.
+
+Root cause worth naming: the emitter never wrote `crve_mean` at all, so there was no way to
+print the matching estimate even if I had wanted to. **A summary that stores an interval without
+its point estimate invites exactly this pairing**, because the only estimate in scope belongs to
+a different estimator.
+
+> **Two estimators are not "in agreement" because their intervals overlap or share a sign.**
+> Report each one's own point estimate, and if they differ, say why — here, weighting runs
+> versus weighting rounds, which is a real modelling choice with a real consequence.
+
+Gated: `check_intervals_contain_estimates()` parses every `est [lo, hi]` in the prose and fails
+the build when the estimate falls outside. Negative-tested.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

@@ -172,14 +172,16 @@ def search_note():
             r"construction. Analysed at the \textbf{trajectory} level (the independent replicate; see the "
             r"compounding estimand above), pooled over NTRAJ trajectories comprising NR round-comparisons, "
             r"lineage$-$bestof$N = MEANP\,[LOP,HIP]$ --- the 95\% CI \emph{excludes zero} --- and verified "
-            r"search beats lineage in FRACRUN of \emph{runs} (FRACRND of rounds). The cluster-robust estimate "
-            r"agrees ($[CRLO,CRHI]$). Per scale: PERSCALE.TAIL Unlike the compounding result (a bounded null), "
+            r"search beats lineage in FRACRUN of \emph{runs} (FRACRND of rounds). The cluster-robust estimator "
+            r"(which weights rounds rather than runs) gives CRMEAN\\,[CRLO,CRHI] --- a larger effect of the same "
+            r"sign, its interval also excluding zero. Per scale: PERSCALE.TAIL Unlike the compounding result (a bounded null), "
             r"this is a \emph{significant positive}: verified search converts a fixed generation budget into "
             r"capability more efficiently than distilling that same budget into weights. The practical corollary "
             r"(with the coverage gap) is that in domains with cheap dense verification and low cross-task "
             r"transfer, compute is better spent on search than on self-training."
             .replace("NTRAJ", str(p["n_trajectories"])).replace("NR", str(p["n_rounds"]))
             .replace("MEANP", "%+.3f" % p["mean"]).replace("LOP", "%+.3f" % p["lo"]).replace("HIP", "%+.3f" % p["hi"])
+            .replace("CRMEAN", "$%+.3f$" % p.get("crve_mean", float("nan")))
             .replace("CRLO", "%+.3f" % p["crve_lo"]).replace("CRHI", "%+.3f" % p["crve_hi"])
             .replace("FRACRUN", "{:.0f}".format(100 * p["traj_wins_frac"]) + r"\%")
             .replace("FRACRND", "{:.0f}".format(100 * p["round_wins_frac"]) + r"\%")

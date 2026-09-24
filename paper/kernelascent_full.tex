@@ -473,7 +473,7 @@ right'' to ``is it fast.''}
 \subsection{Search beats training at matched compute}
 Analysed at the trajectory level over 57 trajectories / 228 round-comparisons
 (\texttt{search\_vs\_train.json}), lineage$-$bestof$N = -0.111\,[-0.138,-0.083]$ (CI excludes zero; the
-cluster-robust interval $[-0.163,-0.120]$ agrees), and verified search beats lineage in \textbf{84\% of runs}
+cluster-robust estimator, which weights rounds rather than runs, gives $-0.142\,[-0.163,-0.120]$ --- a larger effect, same sign, and its interval also excludes zero), and verified search beats lineage in \textbf{84\% of runs}
 (76\% of rounds); every well-powered scale is individually negative (0.5B $-0.123$, 1.5B $-0.114$,
 3B $-0.123$; 7B $-0.018$ at $n{=}5$ is not interpreted). Unlike the compounding null, this positive
 \emph{strengthens} under the clustering correction, because the contrast is made within a round. A separate matched-budget baseline sweep (\texttt{baselines.json},

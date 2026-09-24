@@ -103,7 +103,7 @@ def main():
     t, c = an["trajectory"], an["crve"]
     out["pooled"] = {"n_trajectories": t["n"], "n_rounds": t["n_rounds"],
                      "mean": round(t["mean"], 5), "lo": round(t["ci"][0], 5), "hi": round(t["ci"][1], 5),
-                     "crve_lo": round(c["ci"][0], 5), "crve_hi": round(c["ci"][1], 5),
+                     "crve_mean": round(c["mean"], 5), "crve_lo": round(c["ci"][0], 5), "crve_hi": round(c["ci"][1], 5),
                      **{k: round(v, 4) for k, v in w.items()}}
     survives = t["ci"][1] < 0 and c["ci"][1] < 0
     out["pooled"]["ci_excludes_zero"] = bool(survives)
