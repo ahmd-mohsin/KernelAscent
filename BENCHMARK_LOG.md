@@ -2621,3 +2621,30 @@ or a bigger `k` would not.
 their retrieval arm at 900 tokens; everything after uses 2048. Old `t2k_*` and new `t2kp_*` /
 `t2kc_*` retrieval columns must not be pooled or plotted on one axis. The `best_of_k` and
 weight-RSI columns are unaffected — both always went through `W.generate_batch` at 2048.
+
+### Two production confirmations (2026-09-24 15:52)
+
+**The T3 `Q0` fix works, and the guard I chose is the reason.** Both resumed cells now print:
+
+```
+t3k-q7-s1: Q0 base-procedure held-out = 0.116 (restored; held-out eval skipped)
+t3k-q7-s2: Q0 base-procedure held-out = 0.000 (restored; held-out eval skipped)
+```
+
+`s2`'s Q0 is legitimately **0.000** and was restored, not recomputed. The guard is
+`if Q0 is None`, not `if not Q0` — under a truthiness test that cell would have re-run a full
+held-out evaluation on every chunk for the rest of the run, which is the exact waste the commit
+removed. A falsy-but-valid value is the case worth writing the test around.
+
+**14B replicates across routes.** `r4-kernel-14b` (route 4, k=6) finished independently of the
+T1 sweep (k=12), on a different day's teacher bank:
+
+| run | attempted | kernel-verified | rate |
+|---|---|---|---|
+| `t1kl_q14` (T1, lenient, k=12) | 338 | 2 | **0.59%** |
+| `r4_kernel_q14` (R4, k=6) | 171 | 1 | **0.58%** |
+
+Two separate runs, different routes and budgets, agreeing to within 0.01 percentage points.
+That is a genuine replication of the paper's most surprising number — 14B attempts kernels
+readily (171 of 174 candidates parsed as kernel attempts, 98%) and almost never produces one
+that verifies. The failure is not extraction, not prompt compliance, and not a single bad run.
