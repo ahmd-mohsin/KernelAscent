@@ -196,6 +196,47 @@ verify one. We regard this as the central practical lesson of the work: when a p
 against a wall under every metric you try, the task is too easy, and no amount of re-normalising
 will manufacture the variance that is missing.
 
+\paragraph{The loss cascade: where submissions actually die.}
+A benchmark that reports ``the model solved $n$ of $N$ tasks'' compresses a pipeline with
+several independent failure stages into one number. Decomposing it changed what we believed at
+three separate points, so we report the decomposition as a required artifact.
+
+For a 0.5B model under the kernel prompt, $k{=}12$ over 29 tasks:
+
+\begin{center}\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+\textbf{Stage} & \textbf{Survivors} & \textbf{Loss} & \textbf{Dominant cause} \\
+\midrule
+generations & 348 & --- & \\
+parse into a submission & 118 & \textbf{66\%} & truncation (39\% of all generations) \\
+\quad \emph{after raising the budget} & --- & --- & wrong class name (67\%) \\
+attempt a kernel & 74 & 37\% & the model complies \\
+verify & 4 & \textbf{95\%} & incorrect kernels \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Three facts fall out that the solve-rate number cannot express.
+
+\textbf{The largest loss was a configuration constant.} Generation was capped at 900 tokens,
+which is comfortable for a plain-torch rewrite and insufficient for a Triton kernel; 39\% of
+generations were truncated mid-output and discarded. Raising it to 2048 drove truncation to 5\%.
+A fixed budget is a confound whenever the artifact being measured has a length, and it biases
+\emph{across scale} because larger models write longer code.
+
+\textbf{Fixing the top cause did not fix the loss.} Extraction rose only from 38\% to 41\%: the
+generations that previously truncated now complete, and name their class \texttt{Model} --- the
+reference's own name --- rather than \texttt{ModelNew}. Truncation had been masking a larger
+failure. We report this because the natural write-up (``raising the budget recovered the
+pipeline's largest loss'') would have been true of the mechanism and false of the outcome.
+
+\textbf{The stages fail differently at different scales.} At 14B, extraction is 95\% --- there
+is no truncation problem --- and \emph{zero} of 331 parsed candidates verify. The small model
+dies before the grader; the large model dies at it. A single solve-rate column reports both as
+``low capability'' and reports the 0.5B as the \emph{better} model, which is how we came to
+publish an inverted capability curve.
+
 \paragraph{Reachability: the dynamic-range precondition, made quantitative.}
 ``Check the metric has range'' is advice until it is a number, so we propose one.
 \textbf{Reachability} is the fraction of bank tasks on which the \emph{frozen base} already

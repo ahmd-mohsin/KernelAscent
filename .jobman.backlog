@@ -1,1 +1,0 @@
-probe-lenient	00:25:00	1	env KA_PROMPT=kernel KA_MAX_NEW=2048 python scripts/probe_extraction.py --model Qwen/Qwen2.5-Coder-0.5B-Instruct --tasks 8 --k 8 --out /users/muahmed/ka_data/extraction_lenient.json
