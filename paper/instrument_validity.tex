@@ -89,6 +89,37 @@ environment, and only the last of those is invisible from inside the repository.
 same failure as the seventh defect below, where the host's \texttt{CC} leaked into a container
 --- both are the environment silently overriding what the code appears to say.
 
+\paragraph{Settling it by measurement: the compiled baseline is a real baseline.}
+Rather than choose between the two stories above, we measured the quantity that separates them
+--- $t_{\textrm{eager}}/t_{\textrm{compiled}}$ per task, with no model involved:
+
+\begin{center}\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{\texttt{torch.compile} gain over eager} & \textbf{tasks (of 29)} \\
+\midrule
+$<1.1\times$ (no meaningful gain) & \textbf{0} \\
+$1.1$--$1.5\times$ & 15 \\
+$>3\times$ & 14 \\
+\midrule
+median $1.34\times$, max $21.85\times$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent \texttt{torch.compile} beats eager on \emph{every} task in the bank. So the compiled
+baseline is not a naive reference, and the second story is the right one: a submission scoring
+$0.50$ under the compiled scorer has \textbf{matched an optimised baseline}, which is a
+meaningfully stronger statement than we had been making. The instrument was measuring something
+harder than we credited it with.
+
+This also resolves the numbers that looked contradictory. Under the \emph{calibration} scorer
+(eager, fixed $1.5\times$ anchor, which \texttt{difficulty\_filter} invokes directly and which no
+environment variable affects), a plain-torch rewrite lands at exactly parity --- hence the
+cluster at $0.50$. Under the \emph{run} scorer (compiled, per-task roofline), the same rewrite
+scores \emph{below} parity, which is why the frozen-base capability on those runs is $0.401$ and
+not $0.50$. Two scorers, two distributions, one of which we had been quoting as the other.
+
 \paragraph{The seventh defect: the benchmark had never measured its own subject.}
 Having traced the plateau to the prompt, we tested the obvious follow-up --- remove the steer
 and ask explicitly for a Triton kernel. The model solved \textbf{0 of 29} tasks, against 25 of

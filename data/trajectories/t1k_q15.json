@@ -49,6 +49,34 @@
     "speedup_eager": 1.009,
     "is_kernel": true
    }
+  ],
+  "l2_12": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\n# Realistic transformer residual block with LayerScale:\n#   y = x + gamma * gelu(x @ W^T + b)\n# Shapes: tokens = 8 x 2048 = 16384, hidden = 4096  (Llama-7B-like projection)\n# GEMM: 16384 x 4096 x 4096 (~550 GFLOP) followed by a bias->GELU->scale->residual epilogue.\n_B, _S, _H = 8, 2048, 4096\n\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(1234)\n        w = torch.randn(_H, _H, generator=g) * (1.0 / math.sqrt(_H))\n        b = torch.randn(_H, generator=g) * 0.02\n        gamma = 0.1 + 0.05 * torch.rand(_H, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)   # [N, K]\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)     # [N]\n        self.gamma = nn.Parameter(gamma.to(device=dev, dtype=dt), requires_grad=False)  # [N] layer-scale\n\n    def forward(self, x):\n        h = self._fused_gemm_and_gelu(x, self.weight, self.bias)\n        return x + self.gamma * h\n\n    def _fused_gemm_and_gelu(self, x, w, b):\n        # Fused GEMM and Gelu operations\n        result = x.matmul(w.T) + b\n        return F.gelu(result)\n\n\nif __name__ == \"__main__\":\n    inputs = get_inputs()\n    model = ModelNew()\n    outputs = model(*inputs)\n",
+    "speedup_eager": 0.906,
+    "is_kernel": false
+   }
+  ],
+  "l2_13": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\nfrom typing import Tuple\n\nDT = torch.float16\nDEVICE = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n\n\nclass ModelNew(nn.Module):\n    \"\"\"Dense projection with a fused epilogue:\n        y = x + gamma * gelu_tanh(x @ W^T + b)\n    (bias + activation + per-channel LayerScale + residual add).\n    \"\"\"\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(0)\n        w = torch.randn(HIDDEN, HIDDEN, generator=g) * (1.0 / HIDDEN ** 0.5)\n        b = torch.randn(HIDDEN, generator=g) * 0.02\n        gamma = 0.5 + torch.rand(HIDDEN, generator=g)  # LayerScale-style per-channel scale in [0.5, 1.5)\n        self.weight = nn.Parameter(w.to(device=DEVICE, dtype=dt), requires_grad=False)   # [N, K]\n        self.bias = nn.Parameter(b.to(device=DEVICE, dtype=dt), requires_grad=False)     # [N]\n        self.gamma = nn.Parameter(gamma.to(device=DEVICE, dtype=dt), requires_grad=False)  # [N]\n\n    def forward(self, x):\n        # Fused elementwise chain\n        h = F.linear(x, self.weight, self.bias)      # [B, S, N] fp16 GEMM (fp32 accumulate) + bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        h *= self.gamma                          # per-channel scale\n        return x + h                                 # residual add\n\n\ndef get_inputs():\n    g = torch.Generator(device=DEVICE).manual_seed(1234)\n    x = torch.randn(BATCH, SEQ, HIDDEN, device=DEVICE, generator=g).to(DT)\n    return [x]\n\n\nif __name__ == \"__main__\":\n    model = ModelNew()\n    inputs = get_inputs()\n    outputs = model(*inputs)\n    print(outputs.dtype)\n",
+    "speedup_eager": 0.981,
+    "is_kernel": false
+   }
+  ],
+  "l2_14": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nDT = torch.float16\n\n# Transformer-style projection with LayerScale + residual:\n#   y = x + scale * gelu(x @ W^T + b)\n# B*S = 16384 tokens, hidden = 4096  ->  ~550 GFLOP GEMM + fused epilogue\nB, S, K, N = 8, 2048, 4096, 4096\n\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        w = torch.randn(N, K, generator=g) * (K ** -0.5)\n        b = torch.randn(N, generator=g) * 0.02\n        s = 0.5 + 0.5 * torch.rand(N, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.scale = nn.Parameter(s.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = F.linear(x, self.weight, self.bias)      # GEMM + bias\n        h = F.gelu(h, approximate=\"tanh\")            # activation\n        h *= self.scale                            # per-channel scale + residual\n        return x + h                                # add residual\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator(device=\"cpu\").manual_seed(1)\n    x = torch.randn(B, S, K, generator=g)\n    return [x.to(device=dev, dtype=DT)]\n",
+    "speedup_eager": 0.981,
+    "is_kernel": false
+   }
+  ],
+  "l2_15": [
+   {
+    "code": "import torch\nimport torch.nn as nn\n\nDT = torch.float16\n\nclass ModelNew(nn.Module):\n    # LayerScale residual branch with a single GEMM and fused epilogue:\n    #   y = x + gamma * gelu(x @ W^T + b)\n    # x: [B, S, D] fp16 (M = B*S = 8192), W: [D, D] (K = N = 4096), b / gamma: [D]\n    def __init__(self, dt=DT):\n        super().__init__()\n        D = 4096\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        w = torch.randn(D, D, generator=g) * (D ** -0.5)\n        b = torch.randn(D, generator=g) * 0.02\n        gamma = 0.5 + torch.rand(D, generator=g)\n        self.weight = nn.Parameter(w.to(device=dev, dtype=dt), requires_grad=False)\n        self.bias = nn.Parameter(b.to(device=dev, dtype=dt), requires_grad=False)\n        self.gamma = nn.Parameter(gamma.to(device=dev, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        h = nn.functional.linear(x, self.weight, self.bias)   # GEMM + bias\n        h = nn.functional.gelu(h, approximate=\"tanh\")        # activation\n        return x + self.gamma * h                             # per-channel scale + residual\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator(device=dev).manual_seed(1234)\n    x = torch.randn(4, 2048, 4096, generator=g, device=dev, dtype=torch.float32)\n    return [x.to(DT)]\n",
+    "speedup_eager": 1.0,
+    "is_kernel": false
+   }
   ]
  },
  "attempts": {
@@ -177,12 +205,54 @@
    "n_attempted_kernel": 3,
    "n_kernel_verified": 0,
    "n_verified": 0
+  },
+  "l2_12": {
+   "n_candidates": 4,
+   "n_attempted_kernel": 1,
+   "n_kernel_verified": 0,
+   "n_verified": 1
+  },
+  "l2_13": {
+   "n_candidates": 9,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 1
+  },
+  "l2_14": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 3,
+   "n_kernel_verified": 0,
+   "n_verified": 1
+  },
+  "l2_15": {
+   "n_candidates": 7,
+   "n_attempted_kernel": 3,
+   "n_kernel_verified": 0,
+   "n_verified": 1
+  },
+  "l3_1": {
+   "n_candidates": 3,
+   "n_attempted_kernel": 0,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_2": {
+   "n_candidates": 3,
+   "n_attempted_kernel": 0,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_4": {
+   "n_candidates": 5,
+   "n_attempted_kernel": 0,
+   "n_kernel_verified": 0,
+   "n_verified": 0
   }
  },
- "tasks_attempted": 21,
- "complete": false,
+ "tasks_attempted": 29,
+ "complete": true,
  "_provenance": {
-  "utc": "2026-09-24T20:28:24Z",
+  "utc": "2026-09-24T20:30:29Z",
   "host": "n29",
   "git": null,
   "python": "3.11.10",

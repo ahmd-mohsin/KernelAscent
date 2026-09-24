@@ -2267,3 +2267,20 @@ Zero parse failures at any scale (348 candidates each).
 scale: 7B/14B never fall back to a plain-torch rewrite, while 0.5B/1.5B get half their solves
 that way, and such a rewrite verifies trivially. The metric pays models for ignoring the
 instruction. T1-kernel needs attempt-rate and verify-given-attempt reported separately.
+
+### 2026-09-24 — compile-gain probe (no model; reference only, 29 tasks)
+
+| `torch.compile` gain over eager | tasks |
+|---|---|
+| < 1.1× (no gain) | **0** |
+| 1.1–1.5× | 15 |
+| > 3× | 14 |
+
+median **1.34×**, mean 6.61×, min 1.23×, max 21.85× (`l1_6`).
+
+**The compiled baseline is a real baseline** — compile beats eager on every task. A submission
+scoring 0.50 under the compiled scorer has matched an *optimised* reference.
+
+Resolves the apparent contradiction: the 0.50 cluster is in the **calibration** data (eager +
+fixed 1.5× anchor, which `difficulty_filter` invokes directly, unaffected by `KA_SCORE`), while
+the **run** scorer is compiled — which is why frozen-base capability there is 0.401, not 0.50.

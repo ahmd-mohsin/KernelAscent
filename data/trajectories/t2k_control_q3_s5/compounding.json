@@ -27,10 +27,31 @@
       "lineage_minus_reset": 0.1,
       "lineage_minus_bestofN": -0.099,
       "round_sec": 762.8
+    },
+    {
+      "round": 1,
+      "score_mode": "compiled",
+      "trainC": 0.118,
+      "n_ex": 5,
+      "n_injected": 0,
+      "injected_tasks": 0,
+      "n_solved_self": 5,
+      "loss": 0.174,
+      "C_lineage": 0.1,
+      "C_reset": 0.199,
+      "C_bestofN": 0.2,
+      "C_retrieval": 0.199,
+      "transfer_C": 0.0,
+      "marginal_gain_lineage": -0.1,
+      "gain_vs_C0_lineage": -0.099,
+      "marginal_gain_reset": -0.0,
+      "lineage_minus_reset": -0.099,
+      "lineage_minus_bestofN": -0.1,
+      "round_sec": 792.4
     }
   ],
   "_provenance": {
-    "utc": "2026-09-24T20:15:28Z",
+    "utc": "2026-09-24T20:28:40Z",
     "host": "n26",
     "git": null,
     "python": "3.11.10",

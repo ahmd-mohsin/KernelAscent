@@ -1,1 +1,0 @@
-probe-extraction	00:30:00	1	env KA_PROMPT=kernel python scripts/probe_extraction.py --model Qwen/Qwen2.5-Coder-0.5B-Instruct --tasks 8 --k 8
