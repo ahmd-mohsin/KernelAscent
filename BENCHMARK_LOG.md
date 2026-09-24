@@ -2756,7 +2756,7 @@ signal was "output did not change", and both times I found it by reading logs ra
 told. Verified against live data: 112 cells fingerprinted, and the four stuck baselines all read
 `methods=best_of_k` — the exact unchanging value the check keys on.
 
-### Verification complete; program state (2026-09-24 16:50)
+### Verification complete; program state (2026-09-24 16:34)
 
 The last two fixes confirmed on the cluster, so every change made today has been observed
 working rather than merely reasoned about:
@@ -2788,3 +2788,14 @@ checkpoint; three-arm checkpoint in the registered primary; the refusal guard; T
 checkpoints with fatal load failure; atomic artifact writes; and stall detection in `continue`.
 Five of the seven were found by reading real output, not by reasoning about code — and three
 were introduced by the fix for the previous one.
+
+### The timestamp gate caught me doing it again
+
+Within an hour of adding it, `log/timestamp-future` failed on my own entry: I stamped a section
+16:50 while the clock read 16:37. Same error, same direction, same session — after writing the
+gate *and* the lesson about it.
+
+Worth recording because it settles a question about which defences are worth building. I had
+already noticed this failure mode, corrected six instances of it, and written it up. None of
+that stopped me repeating it 40 minutes later. The gate did, in one second, with the exact
+delta. A habit I have to remember is not a control; a check that runs is.
