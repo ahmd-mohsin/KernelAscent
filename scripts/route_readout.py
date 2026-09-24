@@ -343,7 +343,7 @@ def e2(pattern=None):
     pats = [pattern] if pattern else [
         os.path.join(ROOT, "data", "**", "track_c*.json"),
     ]
-    rows, seen = [], set()
+    rows, seen, skipped = [], set(), []
     for pat in pats:
         for f in sorted(glob.glob(pat, recursive=True)):
             d = _load(f)
@@ -361,6 +361,16 @@ def e2(pattern=None):
             ns = [h.get("n_strategies", 0) for h in hist]
             qs = [h["Qg"] for h in hist]
             q0 = d.get("Q0", 0.0)
+            # CONTAMINATION GATE. Runs whose data dir sat on the inode-exhausted /scratch have
+            # Q0 = 0.000 and long runs of exactly-zero rounds: build_ref_c raised EDQUOT and the
+            # grader returned False for every candidate (INTUITIONS 2c). Their "gain" is
+            # recovery from a spurious zero baseline, and averaging them produced a +0.482
+            # dose-response that reached the paper. Documented, then used anyway -- so the
+            # exclusion is now mechanical rather than remembered.
+            zeros = sum(1 for q in qs if q == 0.0)
+            if q0 == 0.0 or zeros >= 2:
+                skipped.append((cell, q0, zeros))
+                continue
             gain, r0 = qs[-1] - q0, qs[0] - q0
             cap = d.get("max_strategies")
             rows.append(dict(
@@ -372,6 +382,12 @@ def e2(pattern=None):
                 # 0.10 is the smallest denominator at which the ratio is stable here.
                 share=(r0 / gain if abs(gain) >= 0.10 else float("nan")),
                 grew=(ns[-1] > ns[0]), nmax=max(ns) if ns else 0))
+    if skipped:
+        print("  !! EXCLUDED %d run(s) with the EDQUOT zero signature (Q0=0 or >=2 zero rounds):"
+              % len(skipped))
+        for cell, q0, z in skipped:
+            print("       %-26s Q0=%.3f  zero-rounds=%d" % (cell, q0, z))
+        print("     Their apparent gain is recovery from a spurious zero baseline, not a result.")
     live = [r for r in rows if r["rounds"] >= 3 and max(r["ns"]) > 0]
     if not live:
         print("  no interpretable E2/Track-C output yet"); return

@@ -355,11 +355,20 @@ procedure pinned at its limit in round~0 \emph{cannot be observed to keep improv
 improving its procedure'' and ``the harness stopped letting it'' are not separable in this design, and the
 one-shot interpretation is not earned by these data.
 
-Re-running the same harness with an open model at caps $\{12, 48, \text{unbounded}\}$ corroborates this.
-Procedures grow when permitted (5 of 6 runs; three exceed 12 strategies, reaching 18), and total gain rises
-monotonically with the cap: mean $\Delta Q = -0.018$ at cap~12, $-0.003$ at cap~48, and $\mathbf{+0.482}$
-unbounded. In the unbounded runs \emph{none} of the gain arrives at round~0 --- the opposite of the one-shot
-signature.
+Re-running the same harness with an open model at caps $\{12, 48, \text{unbounded}\}$ shows procedures
+\emph{do} grow when permitted --- 6 of 6 clean runs grow, two exceeding 12 strategies --- confirming that the
+cap binds something real. It does \textbf{not}, however, produce a dose-response in quality: on the clean runs
+mean $\Delta Q$ is $-0.046$ at cap~12, $+0.021$ at cap~48 and $-0.063$ unbounded ($n{=}2$ per cell, unbounded
+runs incomplete). Lifting the cap lets the procedure grow without making it better.
+
+We flag a correction here rather than silently reporting the clean figures. An earlier version of this
+analysis reported a monotone rise to $\mathbf{+0.482}$ unbounded. That came from runs whose data directory sat
+on an inode-exhausted filesystem, where the reference build raised \texttt{EDQUOT} and the grader returned
+\texttt{False} for every candidate: those runs have $Q_0 = 0.000$ and four to five exactly-zero rounds, so
+their apparent ``gain'' was recovery from a spurious zero baseline. We had already documented that failure
+mode (it is defect~5 in Table~\ref{tab:defects}) and used the affected runs regardless. The exclusion is now
+enforced in the analysis script rather than left to memory: any run with $Q_0 = 0$ or two or more
+exactly-zero rounds is dropped, loudly.
 
 We state the limits plainly. There are two seeds per cap cell; open-versus-closed is confounded with model
 family; and because the cap is a soft request, the open model does not comply with it reliably, so these runs

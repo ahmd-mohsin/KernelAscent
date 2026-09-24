@@ -470,6 +470,42 @@ inert.
 
 ---
 
+## 2g5. I used data I had already documented as contaminated
+
+The E2 write-up claimed a monotone dose-response — mean ΔQ rising to **+0.482** at unbounded cap
+— and it reached the paper and the website. It was contamination.
+
+Those runs had their data directory on the inode-exhausted `/scratch`, where `build_ref_c`
+raises `EDQUOT` and the grader returns `False` for every candidate. Their signature is
+unmistakable:
+
+```
+e2_capunbounded_s1   Q0=0.000   Q=[0.0, 0.0, 0.0, 0.0, 0.0, 0.458]
+e2_capunbounded_s2   Q0=0.000   Q=[0.0, 0.0, 0.0, 0.0, 0.507, 0.505]
+```
+
+`ΔQ = 0.458 − 0.000`. **The entire "gain" is recovery from a spurious zero baseline.** On the
+clean runs there is no dose-response at all: −0.046 / +0.021 / −0.063.
+
+**I wrote §2c about this exact failure mode, then used the affected runs anyway.** Not because I
+forgot it existed — I had the signature written down — but because the contaminated runs were
+sitting in a directory that a glob picked up, and nothing between the glob and the paper asked
+"is this run valid?".
+
+> **Knowing about a contamination does not protect you from it; only a filter does.** A lesson
+> recorded in prose is a lesson you must remember to apply, at exactly the moment you are
+> excited about a result and least likely to. Every contamination you can characterise should
+> become a predicate in the analysis code the same day you characterise it.
+
+Now mechanical: `route_readout` drops any run with `Q0 == 0` or ≥2 exactly-zero rounds, prints
+which and why, and the paper and site carry the correction rather than the quiet fix.
+
+Second-order: the contaminated and clean runs had **identical cell names** in different
+directories, so a glob over both returned duplicates that looked like extra seeds. [[2g4]] was
+the same hazard with a stale file. Directory is not provenance — see `kernelascent/provenance.py`.
+
+---
+
 ## 2h. The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
@@ -654,8 +690,7 @@ E2 and the stored records settle it:
 |---|---|
 | closed frontier | **5/5** runs at 11–12 strategies from round 0; **4/5 never grew**. Astra, Sonnet 5, Mistral Large 3 are literally `12,12,12,12,12,12` |
 | open 7B, cap varied | 5/6 runs **grew**; 3 exceeded 12, reaching 18 |
-| mean ΔQ by cap | 12 → −0.018 · 48 → −0.003 · **unbounded → +0.482** |
-| round-0 share | closed **77%** · unbounded open **0%** |
+| mean ΔQ by cap (clean runs) | 12 → −0.046 · 48 → +0.021 · unbounded → −0.063 · **no dose-response** |
 
 **The intuition:** the cap is a *soft request* — the stored list is never truncated — so what it
 really measures is **instruction compliance**. Frontier models comply exactly, and that is
