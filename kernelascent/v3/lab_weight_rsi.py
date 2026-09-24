@@ -478,7 +478,13 @@ def run(args):
                     _sd = torch.load(os.path.join(args.outdir, "adapter_%s.pt" % nm), map_location="cpu")
                     set_peft_model_state_dict(m, {k: v.to(_dev(m)) for k, v in _sd.items()})
                 _aux = json.load(open(_aux_f))
-                ex0 = [tuple(p) for p in (_aux.get("ex0") or [])] or None
+                # `ex0 or None` collapsed a legitimately EMPTY ex0 to None, which makes the
+                # round loop re-freeze it from a later round's data -- silently redefining the
+                # round0-replay control mid-trajectory. An empty ex0 is a real state: round 0
+                # can solve nothing (prereg_q15_s1 round 0: trainC=0.000, ex=0). Distinguish
+                # "never set" (key absent) from "set to empty".
+                _ex0 = _aux.get("ex0")
+                ex0 = [tuple(p) for p in _ex0] if _ex0 is not None else None
                 round0_solved = _aux.get("round0_solved")
                 C0 = _aux.get("C0", C0)
                 adapter_restored = True

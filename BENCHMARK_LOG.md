@@ -2686,3 +2686,47 @@ of candidates at exactly zero is the same two-state pattern the scorer shows (0 
 correct-at-parity). That it appears in an independent difficulty sweep argues the saturation is
 a property of the task/grader pair, not of any one lab's scoring path — which is the strongest
 support yet for the Amendment 1 claim that headroom scoring has only two reachable states here.
+
+### All four fixes verified in production (2026-09-24 16:25)
+
+Not "the code is right and the gates pass" — observed on the cluster.
+
+**1. The registered primary checkpoints all three arms.**
+```
+prereg_q15_s1: adapter_ctrl.pt  adapter_fresh.pt  adapter_self.pt  resume_aux.json  weight_rsi.json
+```
+17.5 MB each for self/ctrl, 8.8 MB for fresh; `resume_aux.json` carries `C0`, `ex0`,
+`round0_solved`. `adapter_restored` is stamped (value `null` — a fresh run that never resumed),
+which is precisely the key the Amendment 5 exclusion rule tests for.
+
+**2. T2 writes its lineage adapter**, and the passrate metric behaves as Amendment 1 predicted:
+```
+round 0 C_lin=0.040 C_reset=0.020 C_bon=0.040 transfer=0.025 | lin-reset=+0.020
+```
+Those values are **not** quantised to multiples of 0.1, which is the whole point — the headroom
+score gave `lineage_minus_reset` in steps of ~0.1 because ~10 held tasks each scored 0 or ~0.50.
+Passrate resolves 0.040 vs 0.020. The saturation that drove the T2 contrast to zero was the
+metric, and this is the direct evidence.
+
+**3. The refusal guard fires on a pre-fix cell**, rather than silently severing:
+```
+RESUME  no adapter checkpoint (pre-fix run) -- lineage would be severed; refusing to
+        continue. Delete the outdir to restart this cell clean.
+```
+
+**4. No stranded `.tmp` files** from the atomic writes.
+
+#### One more bug, found by reading the verification output rather than the code
+
+`prereg_q15_s1` round 0 logged `trainC=0.000 ex=0`, so `ex0` is legitimately `[]`. My restore
+wrote `[tuple(p) for p in (_aux.get("ex0") or [])] or None`, and `[] or None` is `None` — so a
+resumed run would have treated "round 0 solved nothing" as "ex0 was never set" and **re-frozen
+the round0-replay control's target from a later round's data**, silently redefining the control
+mid-trajectory. Exactly the class of defect this whole session has been about, introduced by the
+fix for it.
+
+An empty `ex0` is a real state, distinct from an absent one. Now keyed on whether the key is
+present. Only the empty case changes behaviour; both other cases are identical.
+
+The lesson that keeps recurring: **a falsy-but-valid value is where these bugs live.** This is
+the second today — the first was `Q0 = 0.000` needing `is None` rather than a truthiness test.
