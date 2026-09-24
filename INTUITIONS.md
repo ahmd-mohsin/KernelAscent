@@ -286,6 +286,39 @@ the writing, not to teach the checker to guess.
 
 ---
 
+## 2g2. Defect #7, confirmed: the harness cannot grade triton
+
+Three-point calibration on a GPU node:
+
+| case | result | reason |
+|---|---|---|
+| plain-torch identical to the reference | **ok=True** | `ok` |
+| deliberately wrong kernel | ok=False | `wrong/imprecise` |
+| **hand-written correct triton kernel** | **ok=False** | **`FileNotFoundError(2)`** |
+
+The controls behave, so the precheck is trustworthy and the grader does discriminate. And
+triton fails on a **missing file** — not a wrong answer, not a tolerance, not a timeout.
+
+So `KA_PROMPT=kernel` returning **0/29** says nothing whatever about whether models can write
+kernels. It is an environment fault, and it was one step from being written up as a
+pre-registered capability finding.
+
+**This is the first defect caught before it reached prose**, and the only reason is that the
+standing rule was applied to the *specific new input*: the arm had started producing triton, so
+the known-good input had to be triton. A precheck that only ever asserts what the pipeline
+already handles will pass forever and protect nothing.
+
+> **When an experiment starts producing a new KIND of artifact, the known-good gate has to be
+> re-instantiated for that kind.** "The grader works" was true and useless; "the grader works on
+> triton" was the question, and nobody was asking it.
+
+Note also that this was only diagnosable because the failure reason now propagates (§2h). Before
+that fix the result would have been a bare `False`, indistinguishable from a wrong kernel — and
+the natural reading of "model writes triton, triton grades False" is *the model is bad at
+triton*. The dropped `msg` would have cost this one too.
+
+---
+
 ## 2h. The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
