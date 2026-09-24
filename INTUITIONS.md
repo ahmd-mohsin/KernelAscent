@@ -385,6 +385,48 @@ already handles will pass forever and protect nothing.
 
 ---
 
+## 2g3. The answer, once the instrument worked: the prompt sets ambition, capability sets success
+
+First honest measurement of the prompt A/B, run after the `CC` fix, classifying every
+generation rather than just counting successes (n=16 per arm, 4 tasks x k=4):
+
+| prompt | outcome | n/16 | 95% CI |
+|---|---|---|---|
+| safe | plain-torch rewrite | **16** | [81%, 100%] |
+| safe | attempted a custom kernel | **0** | [0%, 19%] |
+| kernel | attempted a custom kernel | **14** | [64%, 97%] |
+| kernel | &nbsp;&nbsp;of which **VERIFIED correct** | **1** | [1%, 28%] |
+| kernel | &nbsp;&nbsp;of which failed verification | 13 | [57%, 93%] |
+
+Two separable things, which a coverage number alone had conflated for the entire project:
+
+* **The prompt controls whether the model tries.** 0/16 attempts under the published prompt,
+  14/16 under the kernel prompt. That is not a capability difference; it is an instruction
+  being followed.
+* **Capability controls whether the attempt works.** 1 of 14 verified. The model *can* write a
+  working triton kernel, and usually does not.
+
+`n=16` is small and the interval is wide, so the point estimate is not the finding. The finding
+is that **the rate is neither 0 nor high**.
+
+### Why that is the most useful number of the session
+
+Every measurement problem chased today — the 0.50 floor, the 1.000 ceiling, injection running
+out of work by round 2 — had the same cause: **the models had already saturated the task being
+measured.** Correctness-preserving rewriting is easy for them, so every metric built on it
+piles up against one wall or the other.
+
+Kernel-writing is not saturated. A success rate in this band is far from both walls, which is
+exactly the regime a compounding study needs and the one I have spent all day failing to
+construct by changing metrics and filtering banks.
+
+> **The substrate problem was never a metric problem.** I tried a headroom score, then a
+> pass-rate score, then a 456-task bank, and each time the population sat against a wall. The
+> fix was not a better ruler — it was measuring a harder task, which only became possible once
+> the grader could verify one.
+
+---
+
 ## 2h. The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
