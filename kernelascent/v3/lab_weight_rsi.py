@@ -104,19 +104,31 @@ class _Sanitize(LogitsProcessor):
 _LP = LogitsProcessorList([_Sanitize()])
 
 
-def generate(tok, mdl, task_src, k, max_new=900, temp=0.8, adapter=True):
+# Generation budget. 900 was enough for a plain-torch rewrite and is NOT enough for a triton
+# kernel: imports + an @triton.jit function + a ModelNew class runs well past it. Measured on
+# the 0.5B cell under KA_PROMPT=kernel, 39% of ALL generations were truncated -- 63% of every
+# extraction failure, and the single largest loss anywhere in the pipeline, larger than the
+# verification failure it precedes.
+#
+# It also biases ACROSS SCALE, which is worse than being merely low: larger models write longer,
+# more elaborate kernels, so a fixed budget truncates them more often. An apparent capability
+# curve can invert for no reason but the token limit.
+_MAX_NEW = int(os.environ.get("KA_MAX_NEW", "2048"))
+
+
+def generate(tok, mdl, task_src, k, max_new=None, temp=0.8, adapter=True):
     ctx = mdl.disable_adapter() if not adapter else _null()
     with ctx:
         text = _chat(tok, _prompt(task_src))
         enc = tok([text], return_tensors="pt").to(_dev(mdl))
         with torch.no_grad():
             out = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95, num_return_sequences=k,
-                               max_new_tokens=max_new, pad_token_id=tok.pad_token_id, logits_processor=_LP)
+                               max_new_tokens=(max_new or _MAX_NEW), pad_token_id=tok.pad_token_id, logits_processor=_LP)
         gen = out[:, enc["input_ids"].shape[1]:]
         return [tok.decode(g, skip_special_tokens=True) for g in gen]
 
 
-def generate_batch(tok, mdl, srcs, k, max_new=900, temp=0.8, adapter=True, bs=4):
+def generate_batch(tok, mdl, srcs, k, max_new=None, temp=0.8, adapter=True, bs=4):
     """Generate k candidates for EACH src, batching several prompts per forward pass to parallelize on the
     GPU (left-padded). Returns a list (per src) of k decoded strings. This is the big throughput win over
     calling generate() once per task."""
@@ -131,7 +143,7 @@ def generate_batch(tok, mdl, srcs, k, max_new=900, temp=0.8, adapter=True, bs=4)
                 enc = tok(texts, return_tensors="pt", padding=True).to(_dev(mdl))
                 with torch.no_grad():
                     out = mdl.generate(**enc, do_sample=True, temperature=temp, top_p=0.95,
-                                       num_return_sequences=k, max_new_tokens=max_new,
+                                       num_return_sequences=k, max_new_tokens=(max_new or _MAX_NEW),
                                        pad_token_id=tok.pad_token_id, logits_processor=_LP)
                 new = out[:, enc["input_ids"].shape[1]:]      # (len(chunk)*k, gen_len), grouped by prompt
                 for j in range(len(chunk)):

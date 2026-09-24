@@ -846,6 +846,47 @@ formatting, truncation, or refusal of the format is now the most valuable thing 
 
 ---
 
+## 2.9j The largest loss in the pipeline was a token limit
+
+66% of generations never extracted into a submission. Classifying every generation (0.5B,
+`KA_PROMPT=kernel`, k=8 over 8 tasks):
+
+| outcome | share |
+|---|---|
+| **truncated** | **39%** |
+| extracted | 38% |
+| wrong-class-name | 17% |
+| fenced-but-no-class | 6% |
+| prose-only | **0%** |
+
+**Truncation is 63% of every extraction failure**, and the model *never* declines the format.
+Mean generation: 2846 characters. The limit was `max_new=900`, hardcoded in
+`lab_weight_rsi.generate`.
+
+900 tokens is comfortable for a plain-torch rewrite and **not enough for a Triton kernel** —
+imports, an `@triton.jit` function and a `ModelNew` class run well past it. So the kernel prompt
+asks for strictly more code against an unchanged budget.
+
+### Why this is worse than a low setting
+
+**It biases across scale.** Larger models write longer, more elaborate kernels, so a fixed token
+budget truncates them more often. That is a mechanism which can invert an apparent capability
+curve for no reason but the limit — and I have an inverted capability curve (0.5B solves 8/29,
+14B solves 1/29) that I attributed entirely to compliance. **Compliance is still real** (7 of 11
+solves came from declining the task), but truncation is now a second, independent explanation
+for the same inversion, and I cannot yet say how the two divide.
+
+> **A fixed budget is a confound whenever the thing being measured has a length.** It reads as a
+> neutral configuration constant and acts as a scale-dependent penalty. Any benchmark whose
+> submissions vary in length needs its budget reported as a parameter and tested for saturation,
+> exactly like any other instrument setting.
+
+Now `KA_MAX_NEW`, default 2048. A confirmation probe at the new budget is queued: if truncation
+collapses and extraction rises, the fix is real and **every kernel-prompt result so far was
+measured through a 900-token aperture**.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
