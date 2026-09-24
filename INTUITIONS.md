@@ -686,6 +686,46 @@ the third time today. When a negative test fails to fire, suspect the harness be
 
 ---
 
+## 2.9h T1-kernel complete: the capability curve inverts, because the metric rewards disobedience
+
+All five cells finished, k=12 over 29 tasks, `KA_PROMPT=kernel`, triton verified working:
+
+| scale | solved | verified kernels | per-candidate | solves via plain-torch |
+|---|---|---|---|---|
+| 0.5B | 8/29 | 10 | 2.9% | **4 / 8** |
+| 1.5B | 4/29 | 5 | 1.4% | **2 / 4** |
+| 3B | 9/29 | 11 | 3.2% | 3 / 9 |
+| 7B | 3/29 | 4 | 1.1% | **0 / 3** |
+| 14B | **1/29** | 1 | 0.3% | **0 / 1** |
+
+Read naively, capability *falls* with scale — a 0.5B model solving eight times what a 14B
+model solves. That is not what happened.
+
+**Compliance with the instruction rises with scale.** 7B and 14B never fall back to a
+plain-torch rewrite; 0.5B and 1.5B get *half* their solves that way. And a plain-torch rewrite
+of the reference verifies trivially — it is a free solve for declining the task.
+
+So the curve inverts because **the metric rewards non-compliance**. Counting "any verifying
+submission" pays a model for ignoring the instruction, and the models that did what they were
+asked score worst. Neither scale had a single parse failure (0 across 348 candidates each), so
+this is genuine verification failure, not malformed output: the 14B produced twelve parseable
+Triton kernels per task and one of 348 was correct.
+
+> **A capability metric that accepts any valid submission is a compliance metric in disguise.**
+> When the instruction asks for something hard and an easy alternative also scores, the score
+> measures *willingness to take the easy route* — and that is anti-correlated with instruction
+> following, which is itself correlated with scale. Score the thing you asked for, or do not
+> ask for it.
+
+This is the same defect shape as the whole project in miniature: two different behaviours
+collapsed into one number, and the number then read as a statement about capability.
+
+**Consequence for the design:** T1-kernel must report **attempt rate** and **verify-given-attempt**
+separately, and a submission that ignores the kernel instruction should score zero rather than
+counting as a solve. Until that lands, the solve-rate column is uninterpretable across scale.
+
+---
+
 ## 2.10 The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:

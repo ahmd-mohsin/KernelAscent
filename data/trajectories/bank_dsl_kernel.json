@@ -656,5 +656,131 @@
     "eps": 1.0,
     "split": "train",
     "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_fused_elemwise_bf16_16384x2048_1p0",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.a=nn.Parameter((0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n        self.b=nn.Parameter((0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return torch.relu(x*self.a+self.b)*torch.sigmoid(x*1.0)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "fused_elemwise",
+    "dtype": "bfloat16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1.0,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_fused_elemwise_f32_4096x8192_0p7",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float32\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.a=nn.Parameter((0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n        self.b=nn.Parameter((0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return torch.relu(x*self.a+self.b)*torch.sigmoid(x*0.7)\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "fused_elemwise",
+    "dtype": "float32",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 0.7,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_f16_8192x2048_1p702",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 8192, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.702))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "float16",
+    "shape": [
+      8192,
+      2048
+    ],
+    "eps": 1.702,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_f16_32768x4096_1p702",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.702))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "float16",
+    "shape": [
+      32768,
+      4096
+    ],
+    "eps": 1.702,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_f16_16384x2048_1p0",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float16\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.0))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "float16",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1.0,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_bf16_8192x2048_1p0",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 8192, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.0))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "bfloat16",
+    "shape": [
+      8192,
+      2048
+    ],
+    "eps": 1.0,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_bf16_8192x2048_1p702",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 8192, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.702))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "bfloat16",
+    "shape": [
+      8192,
+      2048
+    ],
+    "eps": 1.702,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_bf16_4096x8192_1p702",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.bfloat16\nROWS, HIDDEN = 4096, 8192\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.702))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "bfloat16",
+    "shape": [
+      4096,
+      8192
+    ],
+    "eps": 1.702,
+    "split": "train",
+    "cpu_validated": "ok"
+  },
+  {
+    "name": "dsl_sigmoid_gate_f32_16384x2048_1p0",
+    "source": "import torch\nimport torch.nn as nn\nDT = torch.float32\nROWS, HIDDEN = 16384, 2048\n\nclass Model(nn.Module):\n    def __init__(self, dt=DT, hidden=HIDDEN):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.w=nn.Parameter((1.0+0.1*torch.randn(HIDDEN,generator=g)).to(dev,dt))\n    def forward(self, x):\n        return (x*torch.sigmoid(x*1.0))*self.w\n\ndef get_inputs():\n    g = torch.Generator().manual_seed(1)\n    return [(torch.randn(ROWS, HIDDEN, generator=g)).to(torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\"), DT)]\n",
+    "tier": "L1",
+    "family": "sigmoid_gate",
+    "dtype": "float32",
+    "shape": [
+      16384,
+      2048
+    ],
+    "eps": 1.0,
+    "split": "heldin_cell",
+    "cpu_validated": "ok"
   }
 ]

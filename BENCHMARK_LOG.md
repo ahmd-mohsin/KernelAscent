@@ -2248,3 +2248,22 @@ the smallest scale, so kernel authoring is reachable.
 **But the speed wall survives**: the model writes correct Triton kernels that run at eager speed.
 Neither previous explanation applies — it is not the prompt (asked and complied) and not the
 grader (triton builds, these verified). Awaiting 3B/7B/14B for the curve.
+
+### 2026-09-24 — T1-kernel COMPLETE (all 5 scales, k=12, 29 tasks, KA_PROMPT=kernel)
+
+| scale | solved | verified | per-candidate | via plain-torch | max speedup |
+|---|---|---|---|---|---|
+| 0.5B | 8/29 | 10 | 2.9% | 4/8 | 1.01× |
+| 1.5B | 4/29 | 5 | 1.4% | 2/4 | 1.34× |
+| 3B | 9/29 | 11 | 3.2% | 3/9 | 1.01× |
+| 7B | 3/29 | 4 | 1.1% | 0/3 | **1.83×** |
+| 14B | 1/29 | 1 | 0.3% | 0/1 | 1.00× |
+
+Zero parse failures at any scale (348 candidates each).
+
+**Registered falsifier NOT triggered** — the task is reachable (up to 3.2% per candidate).
+
+**The solve-rate curve inverts and must not be read as capability.** Compliance rises with
+scale: 7B/14B never fall back to a plain-torch rewrite, while 0.5B/1.5B get half their solves
+that way, and such a rewrite verifies trivially. The metric pays models for ignoring the
+instruction. T1-kernel needs attempt-rate and verify-given-attempt reported separately.
