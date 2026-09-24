@@ -506,6 +506,49 @@ the same hazard with a stale file. Directory is not provenance — see `kernelas
 
 ---
 
+## 2g6. Sweeping for a contamination I had already found once
+
+Having used contaminated runs without noticing (§2g5), the obvious question was whether E2 was
+the only place. `scripts/scan_contamination.py` now sweeps every stored artifact.
+
+**The first version reported 11 contaminated files and 7 of them were false positives.** Its
+predicate was "has ≥2 exactly-zero rounds", which matches a *weak model legitimately scoring
+zero* — which is the published correctness-wall result. I had built a detector that would have
+made me retract a real finding.
+
+The distinguishing fact is mechanical: `EDQUOT` fires in `build_ref_c`, **before any candidate
+is graded**, so it zeroes *every arm of a round simultaneously*. A weak model zeroes only its
+own arm — `C_lineage = 0.0` while `C_reset = 0.3` is a measurement, not a failure. The correct
+predicate is **all arms zero in the same round**, never "this series contains zeros".
+
+> **A contamination detector needs a predicate tied to the MECHANISM, not to the symptom.**
+> "Scored zero" is the symptom and it has innocent causes; "every arm zeroed at once" can only
+> be produced by a failure upstream of grading. Over-detection retracts real results, which is
+> the same damage as under-detection, pointed the other way.
+
+Final sweep: 5 contaminated artifacts, 4 in the `/scratch` E2 set and **one round inside the
+published trajectory set** (`compounding_q15s8`, 1 of 6 rounds, all arms zero).
+
+### Quantifying it rather than assuming
+
+That last one sits inside the paper's primary result, so "negligible" had to be measured:
+
+```
+published (all rounds)      n=57 traj, 228 rounds   -0.0096 [-0.0348, +0.0156]  EQUIV
+drop all-arms-zero round    n=57 traj, 227 rounds   -0.0097 [-0.0349, +0.0156]  EQUIV
+```
+
+Unchanged. **The published null stands.**
+
+A near-miss worth recording: my first ad-hoc check globbed every `compounding_*` directory and
+got n=83, mean −0.033, TOST **not** equivalent — which looks like the primary result failing.
+It was not: `equivalence_tost.py` applies a `_CLEAN` tag filter that excludes soak and debug
+runs, and I had silently used a different population. **Before reporting that a result does not
+replicate, check you are running it on the same set** — an inclusion rule is part of the
+result, and reproducing the number without it is not a replication.
+
+---
+
 ## 2h. The grader knew why, and threw it away
 
 Chasing why a hand-written triton kernel would not verify, I found this in `grade_batch.py`:
