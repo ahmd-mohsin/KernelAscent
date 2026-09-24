@@ -61,7 +61,10 @@ with the A100 boards.
 
 Running the compounding protocol on Marlowe (H100) with Qwen2.5-Coder 1.5B/3B:
 
-* **76% of all scores, across every run and round, were exactly 0.50.**
+* **75% of the frozen base's *non-zero* scores on the 29-task bank land within ±0.01 of parity** (18 of 24 solved tasks), under the eager/1.5x calibration scorer.
+  *(Corrected 2026-09-24: an earlier version said "76% of all scores, across every run and
+  round, were exactly 0.50" — overstating both precision and scope. It is a band, not an
+  exact value, and it describes the frozen-base calibration on one bank, not the run scores.)*
 * `0.50` is precisely `_score(correct, speedup = 1.0)` — correct, not one bit faster.
 * Calibrating the bank against a 3B H100 anchor (`--min-ceiling 1.3`) kept 23/29 tasks but
   reported a frozen-base mean best of **0.511**, with every kept task at ≈0.50 and all four L3

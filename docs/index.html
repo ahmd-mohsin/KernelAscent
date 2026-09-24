@@ -89,7 +89,7 @@
     <li>The generation prompt says <i>&ldquo;a plain-torch kernel that is correct beats a fancy one that errors&rdquo;</i> &mdash; written to suppress parse failures, which it did.</li>
     <li>Models complied: <b>0 of 86</b> verified kernels from the 14B model contained Triton, CUDA or <code>load_inline</code> &mdash; all pure-PyTorch rewrites of the reference. An independent re-harvest under the same prompt replicated it exactly: <b>0 of 118</b>, for <b>0 of 204</b> across both.</li>
     <li>A semantically equivalent rewrite runs at reference speed by construction: median <b>1.00&times;</b>, 93% below 1.05&times;.</li>
-    <li>And <code>score(correct, 1.00) = 0.50</code> <b>exactly</b> &mdash; the value 76% of all H100 scores took.</li>
+    <li>And <code>score(correct, 1.00) = 0.50</code> &mdash; <b>75% of the frozen base's <i>non-zero</i> scores on the 29-task bank land within &plusmn;0.01 of parity</b> (18 of 24 solved tasks) under the calibration scorer. <i>(Corrected: an earlier version said "76% of all H100 scores" were exactly 0.50.)</i></li>
     <li>Both arms pinned at 0.50 &rArr; <code>lineage &minus; reset &equiv; 0</code>, by construction.</li>
   </ul>
   <p class="small">So the metric was never broken. It reported, accurately, that the models were not attempting the task the benchmark exists to measure &mdash; and we misread a correct measurement as a dead instrument. This <i>inverts</i> the lesson of the first five: there, a clean zero was a bug; here a clean zero was a finding and the bug was in the interpretation. The rule we now hold is stricter: <b>trace the causal chain from prompt to number before naming a cause, and prefer the explanation an intervention can kill over the one that merely fits.</b></p>

@@ -79,7 +79,7 @@ control  +0.016 [-0.028, +0.061]   n=4 trajectories
 inject   -0.004 [-0.037, +0.029]   n=4
 ```
 
-But **76% of all scores across every run and round were exactly 0.50**.
+But ~~76% of all scores across every run and round were exactly 0.50~~ — **corrected**: **75% of the frozen base's *non-zero* scores on the 29-task bank land within ±0.01 of parity** (18 of 24 solved tasks), under the eager/1.5x calibration scorer. See §2.4c.
 
 `0.50` is not a value models drift toward. It is precisely `_score(ok=True, speedup=1.0)`:
 correct, and not one bit faster than the baseline. Models climb to the correctness floor in
@@ -257,6 +257,47 @@ measures `t_eager / t_compiled` per task with no model involved, which separates
 
 **Also:** the `t2kc-*` "compiled re-score" cells were redundant from the moment I created them —
 `MRL_EXTRA_ENV` already forced compiled scoring, so they duplicated `t2k-*` exactly. Dropped.
+
+---
+
+## 2.4c A number I could not reproduce, in three artifacts
+
+Chasing the §2.4b correction, I went to re-derive the figure the whole instrument-validity
+section opens with — *"76% of all scores across every run and round were exactly 0.50"* — and
+**could not reproduce it from any retained artifact**:
+
+| source | exactly 0.500 |
+|---|---|
+| E1 round-level capability values | 3% |
+| 29-task calibration, per task | 14% |
+| 456-task DSL calibration, per task | 10% |
+
+The real number is **75% of the frozen base's *non-zero* scores on the 29-task bank land within
+±0.01 of parity** (18 of 24 solved tasks). Two errors in the write-up:
+
+* **"exactly 0.50"** — it is a *band*, ±0.01. Scores sit at 0.500, 0.501, 0.502.
+* **"across every run and round"** — it is the frozen-base *calibration* on one bank, under the
+  eager/1.5× scorer. The E1 run scores use the compiled scorer and do not show it.
+
+**The finding survives; its stated scope and precision did not.** Most tasks the model solves,
+it solves at parity — that is still the point, and it is still what makes the metric useless as
+a contrast.
+
+> **A number becomes load-bearing the moment it opens a section, and mine was never re-derived
+> from the data after I first computed it.** Every other figure in this paper is regenerated at
+> build time by `make_results_tex`; this one was typed once, into prose, and then propagated by
+> hand into the pre-registration, the website and the log. **Hand-carried numbers are the ones
+> that drift**, and the fix is not care — it is making them impossible to hand-carry.
+
+Corrected in all five artifacts, with the old value struck through rather than deleted so the
+correction is auditable.
+
+### Why this one is worse than the others
+
+It is the opening evidence for the paper's central methodological claim. Had a reviewer tried
+to reproduce it — exactly what our own proposed standard #5 demands — they would have found a
+figure that appears nowhere in the data, in a paper arguing that benchmarks must re-derive every
+number from their artifacts at build time.
 
 ---
 

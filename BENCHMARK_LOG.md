@@ -2177,7 +2177,7 @@ Full reasoning in `INTUITIONS.md` §2b–§2i; this is the dated record of what 
 |---|---|
 | custom-kernel rate, 14B, published prompt | **0 / 86**, replicated **0 / 118** → 0/204 across two harvests |
 | best speedup vs **eager** (not compile), 14B | median **1.00x**, 93% below 1.05x |
-| score distribution, H100 E1 | **76%** of all scores exactly 0.50 = `_score(correct, 1.0)` |
+| score distribution, 29-task calibration | **75%** of *non-zero* frozen-base scores within ±0.01 of parity (18/24 solved) — *corrected from "76% of all scores exactly 0.50"* |
 | reachability, hand-curated bank | **1 / 29 (3.4%)** clear the 1.5x-over-eager anchor |
 | reachability, generated DSL bank (456 tasks, complete) | **57 / 456 (12.5%)**; 180 admitted |
 | Track-C strategy counts, closed frontier | **5/5** runs at 11–12 from round 0; **4/5 never grew** |

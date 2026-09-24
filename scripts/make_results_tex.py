@@ -124,7 +124,7 @@ def compounding_note():
         r"kernel-grade put round~0 alone beyond 2.5\,h), so the coverage \emph{mechanism} is established "
         r"indirectly from the $p$-maps, the sharpening geometry and the 0-score forensics. A tractable "
         r"coverage-injection positive control has since been run on H100 and returned flat in \emph{both} arms "
-        r"--- but on that hardware the primary metric is saturated (76\% of all scores exactly $0.50$; see the "
+        r"--- but on that hardware the primary metric is saturated (75\% of non-zero frozen-base calibration scores within $\pm0.01$ of parity; see the "
         r"instrument-validity section), so it licenses no conclusion in either direction. \textbf{A control that "
         r"is flat because the instrument cannot move is not a control.} Re-running it under a metric with "
         r"demonstrated range on that hardware remains the decisive outstanding experiment." "\n"

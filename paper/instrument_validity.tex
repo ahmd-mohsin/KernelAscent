@@ -48,8 +48,7 @@ This is the failure mode we consider most transferable, because it defeats the o
 Our headroom-normalised score is
 $0.5 + 0.5\cdot\mathrm{clamp}\!\left(\frac{sp-1}{\mathrm{ceiling}-1}\right)$,
 which is well-formed, was verified end-to-end on known-good inputs, and was working exactly as
-specified. It was nonetheless useless as a contrast: on H100, \textbf{76\% of all scores across
-every run and round were exactly $0.50$} --- precisely the value of a correct submission at
+specified. It was nonetheless useless as a contrast: on H100, \textbf{75\% of the frozen base's \emph{non-zero} scores on the 29-task bank land within $\pm0.01$ of parity} (18 of 24 solved tasks) --- precisely the value of a correct submission at
 parity with the baseline. With both arms pinned to the same absorbing value,
 $\textsf{lineage}-\textsf{reset}$ is zero \emph{by construction}, and the experiment could not
 have detected compounding in either direction.
