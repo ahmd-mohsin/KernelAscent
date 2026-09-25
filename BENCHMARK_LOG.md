@@ -3467,3 +3467,41 @@ then. A single cell is an anecdote whichever direction it points.
 `n_ex = 0` rounds: n=8, mean **−0.0125**. `n_ex > 0` rounds: n=13, mean **+0.0178**.
 Difference **+0.0303**, up from +0.0288 at 20 rounds. Still the direction starvation predicts,
 still nowhere near significance, still reported as a trend rather than a mechanism.
+
+### 32B may invert the T1 decline, on a matched task set (PARTIAL)
+
+The 32B probe runs now that its memory budget fits the model. 12 of 29 tasks in 18 minutes,
+against 0 in 101 minutes before the fix. Its raw rate looks like it reverses the scale trend, so
+the first thing to check is whether that is a tier artifact. Its 12 completed tasks are `l1_1`
+through `l1_10` plus `l2_1` and `l2_2`, which is the easy end of the bank.
+
+**Restricting every scale to those same 12 tasks**, all under `KA_EXTRACT=strict`:
+
+| scale | attempts | kernel-verified | verify\|attempt |
+|---|---|---|---|
+| 0.5B | 48 | 3 | 6.25% |
+| 1.5B | 37 | 2 | 5.41% |
+| 3B | 89 | 3 | 3.37% |
+| 7B | 115 | 3 | 2.61% |
+| 14B | 103 | 0 | **0.00%** |
+| **32B** | 72 | 5 | **6.94%** |
+
+The monotone decline holds from 0.5B to 14B on this subset, and **32B is the highest of any
+scale**. If that survives the full sweep the T1 shape is a U, not a decline, and the headline
+result changes from "verify-given-attempt falls with scale" to "it falls, then recovers at the
+top". A U-shape is a different claim with a different mechanism, and it would make 14B the
+minimum rather than the endpoint.
+
+**Why this is recorded as partial and not reported.** The comparison is matched and therefore
+valid on these 12 tasks. What is not established is 32B's rate over the full 29. The remaining
+17 are L2 and L3 heavy, every scale drops on those tiers, and 32B's final number will move. One
+seed. And the 14B zero that anchors the contrast is itself 0 of 103 attempts here.
+
+Two things that are already solid. 32B attempted a kernel in **72 of 72 candidates**, a 100%
+attempt rate, continuing the pattern that instruction-following rises with scale while
+verification does not. And it produced a **24.35x** speedup on `l1_10`, the largest single
+result in the project so far.
+
+The resume added an hour ago now protects this run. The artifact reads
+`tasks_attempted=12, complete=false`, so a walltime kill costs the remaining tasks rather than
+all of them.
