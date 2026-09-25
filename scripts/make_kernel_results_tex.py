@@ -283,9 +283,67 @@ Scale & Attempts & Verified & Rate & Attempts & Verified & Rate \\
     return tex.replace("WARN", warn), []
 
 
+def nonllm_baseline_table():
+    """What the strongest non-LLM tool scores, on the benchmark's own terms.
+
+    The standard objection to the kernel results is that models "only" reach 0.50. This table
+    answers it with a number rather than an argument: max-autotune, scored exactly as a model
+    candidate is, lands at 0.41 -- below correct-at-parity -- because it is slower than default
+    torch.compile on 27 of 29 tasks. A model matching the compiled baseline is beating
+    production autotuning, not failing to beat a weak baseline.
+
+    Reported per tier because compile gain over eager differs by 12x between them (L1 15.5x,
+    L2 1.26x), so a single pooled number would repeat the mistake the compile-gain headline made.
+    """
+    import statistics as _st
+    d = _load(_find("nonllm_baselines.json"))
+    if not d:
+        return "", ["non-LLM baseline: nonllm_baselines.json not found"]
+    rows = [r for r in (d.get("rows") or [])
+            if r.get("max_autotune_benchmark_score") is not None]
+    if not rows:
+        return "", ["non-LLM baseline: no scored rows"]
+    if d.get("n_scored") != d.get("n_tasks"):
+        return "", ["non-LLM baseline: %s of %s tasks scored; not reporting a partial sweep"
+                    % (d.get("n_scored"), d.get("n_tasks"))]
+
+    by = {}
+    for r in rows:
+        by.setdefault(r["task"].split("_")[0], []).append(r)
+    body = ""
+    for tier in sorted(by):
+        sc = [x["max_autotune_benchmark_score"] for x in by[tier]]
+        sp = [x["max_autotune_speedup_vs_compiled"] for x in by[tier]]
+        body += "%s & %d & %.3f & %.3f \\\\\n" % (tier.upper(), len(sc), _st.median(sc), _st.median(sp))
+    allsc = [x["max_autotune_benchmark_score"] for x in rows]
+    allsp = [x["max_autotune_speedup_vs_compiled"] for x in rows]
+    body += "\\midrule\nAll & %d & \\textbf{%.3f} & %.3f \\\\\n" % (
+        len(allsc), _st.median(allsc), _st.median(allsp))
+    beats = d.get("n_beating_compiled", sum(1 for x in allsp if x > 1.03))
+
+    lines = [r"\begin{table}[h]\centering\small",
+             (r"\caption{A non-LLM baseline on the benchmark's own terms: "
+              r"\texttt{torch.compile(mode=\"max-autotune\")} scored exactly as a model submission is "
+              r"(speedup over the compiled baseline, same per-task roofline ceiling, same timing "
+              r"harness). It lands \emph{below} correct-at-parity because it is slower than default "
+              r"\texttt{torch.compile} on %d of %d tasks. A model scoring 0.50 therefore beats "
+              r"production autotuning here. Reported per tier because compile gain over eager differs "
+              r"by ${\sim}12\times$ between L1 and L2.}" % (len(rows) - beats, len(rows))),
+             r"\begin{tabular}{@{}lrrr@{}}",
+             r"\toprule",
+             r"Tier & Tasks & Median score & Median speedup vs compiled \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
-    for fn in (t1_table, t1_robustness_table, t1_replication_note, prereg_table):
+    for fn in (t1_table, t1_robustness_table, t1_replication_note,
+               nonllm_baseline_table, prereg_table):
         tex, n = fn()
         if tex:
             parts.append(tex)
