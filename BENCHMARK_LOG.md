@@ -3805,3 +3805,34 @@ that best-of-k cannot see a difference the same runs contain, which is a claim a
 best-of-k measures rather than a claim that +0.436 is the true effect size. Pass rate has its own
 ceiling at 1.0, reached in three of four cells, and Amendment 1 keeps the boards separate for
 exactly this reason.
+
+### Fed round 0: the loop is fed, and the contrast is positive (n=1 round)
+
+`fed_q15_s1` round 0, at `n_train=35` on the 124-task DSL bank:
+
+| | registered config | fed config |
+|---|---|---|
+| `n_ex` | 0.96 mean, **zero in 41%** of rounds | **6** |
+| `trainC` | 0.000 in most rounds | 0.088 |
+| `C_self` / `C_fresh` | — | 0.187 / 0.113 |
+| `self − fresh_frozen` | oscillates near zero | **+0.074** |
+
+**The loop is no longer starved.** `n_ex = 6` is six times the registered configuration's mean
+and three times the Amendment 6 inclusion floor, so this trajectory counts as a measurement
+rather than a starved cell.
+
+**My prediction was 9.8 and the answer is 6.** The estimate used the curated bank's yield of
+0.032 per generation, and the DSL bank is harder — `C0` is 0.063 against 0.174. Recomputing on
+this round, the DSL yield is 6/350 = **0.017**, about half. The arithmetic was right in form and
+the input was borrowed from the wrong bank.
+
+**What this is, and what it is not.** It is **one round of one cell**. The registered config's
+contrast oscillated between roughly −0.10 and +0.15 across 27 rounds, so a single +0.074 sits
+inside that spread and is not yet distinguishable from noise. What is already solid is the
+`n_ex` count, because it is a raw number and not a contrast.
+
+Amendment 6 fixed both readings in advance and neither has fired yet. The null branch requires
+`self − fresh` at or below zero *with healthy `n_ex` sustained across rounds*, and the
+yield-binds branch required `n_ex` near zero, which is now excluded. A third outcome is in play —
+starvation was the binding constraint and feeding the loop reveals an effect — and it needs
+several more rounds and the second seed before it can be claimed.
