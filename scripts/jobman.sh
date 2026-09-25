@@ -16,6 +16,11 @@
 #   scripts/jobman.sh status                                      manifest vs live queue
 set -uo pipefail
 
+# watch_routes.sh exports this and jobman did not, so jobman worked when the watcher invoked it
+# and failed when a shell invoked it directly -- every $MRL call returning empty, which `continue`
+# then reported as "no record yet" for all 21 cells and exited 0. The environment a script needs
+# is the script's business, not the caller's.
+export PATH="$HOME/.marlowe/bin:$PATH"
 MRL="${MRL:-mrl}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAN="$REPO/.jobman.tsv"        # name <TAB> walltime <TAB> gpus <TAB> command
@@ -69,7 +74,18 @@ for p in sorted(glob.glob(os.path.join(root, '*'))):
         if fp is None:
             f = os.path.join(p, 'baselines.json')
             if os.path.exists(f):
-                try: fp = 'methods=%s' % ','.join(sorted(json.load(open(f)).get('results') or {}))
+                # A baselines cell is done once it carries all three non-recursive arms. Its
+                # fingerprint is 'methods=...' and never the literal 'complete', so the
+                # done-verdict below could not fire for it and basek-q3-s1 -- which holds all
+                # three, written atomically before an OOM killed the process -- would be
+                # reported as needing a look on every continue, forever. That is the same
+                # alert-fatigue failure t1k-q14 caused, in a second shape.
+                # The partial form stays verbatim, because the stall detector compares it
+                # across continues to tell a cell that is progressing from one that is repeating.
+                try:
+                    _m = sorted(json.load(open(f)).get('results') or {})
+                    fp = 'complete' if set(_m) >= {'best_of_k', 'retrieval', 'self_refine'} \
+                         else 'methods=%s' % ','.join(_m)
                 except Exception: fp = 'unreadable'
         if fp is None:
             fp = 'files=%d' % len(os.listdir(p))
@@ -181,11 +197,27 @@ continue)
   # currently queued or running. TIMEOUT is the only state we auto-continue: the lab wrote its
   # checkpoint, so the same command picks up at the next round. A FAILED job is left alone --
   # three failures in this project were code bugs that would have produced a plausible zero.
+  # FAIL CLOSED on an unreachable cluster. `live` empty is ambiguous: it means either "no job
+  # is queued" or "the query failed", and the two lead to opposite actions -- the first says
+  # resubmit everything, the second says touch nothing. A transient made every remote call in
+  # one invocation return empty, and `continue` printed "skip (no record yet)" for all 21
+  # cells and exited 0, which reads as "nothing to do". `_queued` was hardened against exactly
+  # this; `continue` was not.
+  #
+  # The probe is a sentinel the login node always answers. If it comes back wrong, the cluster
+  # is not being read and no decision taken from these queries is worth acting on.
+  if [ "$($MRL run "echo JOBMAN_OK" 2>/dev/null | tr -d '[:space:]')" != "JOBMAN_OK" ]; then
+    echo "ABORT  cannot reach the cluster -- not resubmitting anything." >&2
+    echo "       A failed query looks identical to an empty queue, and acting on it would" >&2
+    echo "       either duplicate running work or silently continue nothing." >&2
+    exit 2
+  fi
   live="$($MRL run "module load slurm >/dev/null 2>&1; squeue -u \$USER -h -o %j 2>/dev/null" 2>/dev/null)"
   FP_NOW="$(_fingerprints)"
-  n=0
+  n=0; blank=0; seen=0
   while IFS=$'\t' read -r name wall gpus cmd; do
     [ -n "$name" ] || continue
+    seen=$((seen + 1))
     if grep -qx "$name" <<<"$live"; then continue; fi          # still queued/running
     st="$($MRL run "module load slurm >/dev/null 2>&1; sacct -u \$USER -n -X -o JobName%40,State -P -S now-3days 2>/dev/null | grep '^$name|' | tail -1" 2>/dev/null)"
     state="${st##*|}"
@@ -220,7 +252,7 @@ continue)
         echo "continue  $name  (timed out; resubmitting with $wall${now_fp:+, at $now_fp})"
         "$0" run "$name" "$wall" "$gpus" -- "$cmd" ; n=$((n+1)) ;;
       COMPLETED*) : ;;                                          # done, nothing to do
-      "")         echo "skip      $name  (no record yet)" ;;
+      "")         blank=$((blank + 1)); echo "skip      $name  (no record yet)" ;;
       *)
         # A cell whose artifact says `complete` needs no look, whatever its exit state. t1k-q14
         # exits non-zero because its teacher bank is empty -- which IS the result (14B attempts
@@ -234,6 +266,13 @@ continue)
         fi ;;
     esac
   done < "$MAN"
+  # Every cell blank, with more than a couple considered, means sacct answered nothing at all
+  # rather than that every cell is genuinely unrecorded. Say so instead of reporting a clean run.
+  if [ "$seen" -gt 2 ] && [ "$blank" = "$seen" ]; then
+    echo "ABORT  sacct returned no state for any of $seen cells -- the query is failing, not" >&2
+    echo "       the manifest. Nothing was resubmitted; re-run once the cluster answers." >&2
+    exit 2
+  fi
   echo "continued $n cell(s)"
   ;;
 
