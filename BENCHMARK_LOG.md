@@ -3588,3 +3588,47 @@ The T2 story is now complete in both metrics and they disagree by construction, 
 Headroom saturates at 0.50 after two rounds and reports nothing. Pass-rate resolves a +0.44
 effect and saturates at 1.0 after four. The same runs, the same arms, two scorers, and the
 responsible property of each is stated.
+
+### 32B sweep COMPLETE — 14B is a minimum, not an endpoint
+
+The full 29-task sweep finished. **It corrects the partial reading I recorded earlier**: on its
+first 12 (L1-heavy) tasks 32B scored 6.94%, and over all 29 it is **2.99%**. The tier confound
+was real, which is why that entry was filed as partial and not reported.
+
+| scale | attempts | kernel-verified | verify\|attempt | Wilson 95% |
+|---|---|---|---|---|
+| 0.5B | 74 | 4 | 5.41% | [2.1, 13.1] |
+| 1.5B | 74 | 3 | 4.05% | [1.4, 11.3] |
+| 3B | 184 | 6 | 3.26% | [1.5, 6.9] |
+| 7B | 262 | 4 | 1.53% | [0.6, 3.9] |
+| **14B** | 219 | **0** | **0.00%** | [0.0, 1.7] |
+| **32B** | 167 | 5 | **2.99%** | [1.3, 6.8] |
+
+**The shape is a U, and 14B is its floor.**
+
+| contrast | Fisher p |
+|---|---|
+| 14B vs 32B (the recovery) | **0.015** |
+| 0.5B vs 14B (the decline) | 0.0038 |
+| 0.5B vs 32B | 0.46 |
+| 3B vs 32B | 1.00 |
+
+The recovery at 32B is significant, and 32B is statistically indistinguishable from 3B and from
+0.5B. So the honest description is no longer "verify-given-attempt falls with scale". It is that
+the rate falls from 0.5B to a **minimum at 14B**, then recovers, and the endpoint contrast that
+has anchored this result is a contrast with the *floor* rather than with the largest model.
+
+**Instruction-following keeps rising, monotonically at the top.** Attempt rate: 62.7%, 56.1%,
+72.7%, 78.2%, 66.2%, and **96.5%** at 32B. The largest model attempts a real kernel in
+essentially every candidate, which strengthens the compliance-versus-capability separation the
+rung was built to make.
+
+**Caveat that belongs with the number.** 32B ran at k=6 while the T1 cells ran at k=12, so it
+contributes 173 candidates against their 331. The comparison is between *rates*, which are
+budget-independent in expectation, but 32B's estimate is the noisiest on the board and its
+Wilson interval [1.3, 6.8] overlaps every scale except 14B.
+
+**What must change in the write-up.** The T1 section currently frames a monotone-ish decline
+with 14B as the endpoint. That framing is now wrong at the top of the ladder, and the paper
+needs the U with the 14B minimum stated as such. This is the second time today the T1 shape has
+had to be restated, after monotonicity was retracted under lenient extraction.
