@@ -22,8 +22,7 @@ Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
 \caption{T1-kernel robustness to extraction policy. Verify-given-attempt under
 \texttt{KA\_EXTRACT=strict} and \texttt{lenient}; identical tasks, $k$, and token budget,
 differing only in how a generation is converted to a candidate. The endpoint contrast
-(0.5B vs 14B) holds under both policies and strengthens under \texttt{lenient}. The monotone
-ordering does not: it is an artifact of a filter whose severity correlates with scale.}
+(0.5B vs 14B) holds under both policies and strengthens under \texttt{lenient}. Note that 14B is the curve's \emph{minimum} and not its largest scale: the completed 32B sweep recovers to $3.0\%$ (Fisher $p{=}0.015$ against 14B), so this is a contrast with the floor. The monotone ordering does not: it is an artifact of a filter whose severity correlates with scale.}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 & \multicolumn{3}{c}{\texttt{strict}} & \multicolumn{3}{c}{\texttt{lenient}} \\
