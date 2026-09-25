@@ -3340,3 +3340,35 @@ reason, and I had been reporting them as separate limitations.
 silently delivering 5 caps what can be observed. `--n-train=3` caps what can be learned.
 `KA_PROMPT=kernel` sets the yield at 0.028. All three are one-line changes, and the 124-task DSL
 bank supplies the task count both of the first two need.
+
+### The starvation hypothesis leans my way and is not established
+
+Two `prereg` cells are now complete and all six have valid trajectories with
+`adapter_restored=True`. Pooled over 20 rounds, `n_ex` mean **0.95**, zero in **8 rounds (40%)**.
+
+The direct test of my own hypothesis, that the registered contrast is driven by whether the self
+arm had data rather than by the quality of that data:
+
+| | n | self−fresh mean |
+|---|---|---|
+| rounds with `n_ex` = 0 | 8 | **−0.0125** |
+| rounds with `n_ex` > 0 | 12 | **+0.0163** |
+| difference | | +0.0288 |
+
+Spearman rho(`n_ex`, self−fresh) = **+0.387**, n=20, t=1.78, df=18, **two-tailed p = 0.092**.
+
+**Not significant at 0.05.** The direction is what starvation predicts and the effect size is
+comparable to the contrast itself, but this does not establish the mechanism, and I am not going
+to write it up as though it does. The cell-level picture is consistent and equally underpowered:
+`prereg_q15_s1` harvested 1 example across 5 rounds and has self−fresh **−0.046**, while
+`prereg_q15_s2` harvested 9 and has **+0.065**. One counter-example, `prereg_q3_s2`, has zero
+examples and a positive mean.
+
+So the honest statement is narrower than I wanted. What is **measured** is that the self arm
+receives 0.95 examples per round and nothing in 40% of rounds, which is a fact about the
+configuration and needs no inference. What is **suggested but unproven** is that this explains
+the sign of the registered contrast.
+
+The `fed` cells test it directly at 12x the input, and Amendment 6 already fixes both readings
+in advance. Until they land, "the loop is starved" stands on the arithmetic, and "starvation
+explains the contrast" stands on p = 0.09.
