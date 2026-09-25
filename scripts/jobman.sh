@@ -213,7 +213,11 @@ continue)
           echo "          or make the lab checkpoint at a finer granularity. Not resubmitting."
           continue
         fi
-        echo "continue  $name  (last chunk hit $wall; resuming from its checkpoint${now_fp:+; at $now_fp})"
+        # Say what the NEXT chunk gets, not "the last chunk hit $wall". $wall is read from the
+        # manifest and may have been raised since the dead job started, so the old phrasing
+        # claimed a 90-minute job had hit a 3-hour wall. Diagnostic output that misstates what
+        # happened is worse than none, and this file exists because of exactly that class of bug.
+        echo "continue  $name  (timed out; resubmitting with $wall${now_fp:+, at $now_fp})"
         "$0" run "$name" "$wall" "$gpus" -- "$cmd" ; n=$((n+1)) ;;
       COMPLETED*) : ;;                                          # done, nothing to do
       "")         echo "skip      $name  (no record yet)" ;;
