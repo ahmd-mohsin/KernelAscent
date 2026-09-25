@@ -46,10 +46,34 @@ def main():
     print("TEACHER %s over %d tasks, k=%d" % (a.model, len(names), a.k), flush=True)
 
     attempts = {}          # per-task: candidates, kernel attempts, kernel verifies
+    out, t0 = {}, time.time()
+
+    # RESUME. The artifact is rewritten after every task and carries `tasks_attempted`, so a
+    # walltime kill leaves a usable prefix -- but without this the next chunk started at task 0
+    # and threw it away. That is affordable at 0.5B and not at 32B, where loading the weights
+    # alone costs an hour and a 3-hour chunk harvests 29 tasks exactly once.
+    _start = 0
+    if os.path.exists(a.out):
+        try:
+            _d = json.load(open(a.out))
+            if not _d.get("complete") and _d.get("tasks_attempted"):
+                out = _d.get("kernels") or {}
+                attempts = _d.get("attempts") or {}
+                _start = int(_d["tasks_attempted"])
+                print("RESUME  %d of %d tasks already harvested -- continuing at task %d"
+                      % (_start, len(names), _start), flush=True)
+            elif _d.get("complete"):
+                print("already complete (%d tasks); nothing to do" % _d.get("tasks_attempted", 0), flush=True)
+                return 0
+        except Exception as e:
+            print("RESUME failed (%r) -- starting clean" % e, flush=True)
+            out, attempts, _start = {}, {}, 0
+
     tok, mdl = W.build(a.model, tuple(int(g) for g in str(a.gpus).split(",") if g != ""))
 
-    out, t0 = {}, time.time()
     for i, name in enumerate(names):
+        if i < _start:
+            continue
         src = LK.TASKS[name]
         try:
             # adapter=False: the teacher is frozen, we only want what it can already do
@@ -103,10 +127,10 @@ def main():
         # half-finished harvest is indistinguishable from a complete one with poor coverage.
         # Record how far we actually got, and whether we reached the end. Reading a partial
         # artifact as a capability number is a live hazard: this file is rewritten every task.
-        PROV.dump({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out,
+        PROV.dump_atomic({"teacher": a.model, "k": a.k, "n_tasks": len(names), "kernels": out,
                    "attempts": attempts,
                    "tasks_attempted": i + 1, "complete": (i + 1) == len(names)},
-                  open(a.out, "w"), indent=1)
+                  a.out, indent=1)
 
     cov = len(out)
     print("\n=== TEACHER COVERAGE ===")
