@@ -74,8 +74,15 @@ for p in sorted(glob.glob(os.path.join(root, '*'))):
         if fp is None:
             fp = 'files=%d' % len(os.listdir(p))
     elif p.endswith('.json'):
-        try: fp = 'bytes=%d' % os.path.getsize(p)
-        except Exception: fp = 'gone'
+        # A file-output cell records its own completeness. Without this, a cell that FINISHED
+        # (t1k-q14: complete, 29/29 tasks, a genuine zero) is flagged 'needs a look' on every
+        # single continue, forever -- which is how a watchdog stops being read.
+        try:
+            _d = json.load(open(p))
+            fp = 'complete' if isinstance(_d, dict) and _d.get('complete') else 'bytes=%d' % os.path.getsize(p)
+        except Exception:
+            try: fp = 'bytes=%d' % os.path.getsize(p)
+            except Exception: fp = 'gone'
     if fp: print('%s\t%s' % (name, fp))
 PYEOF" 2>/dev/null
 }
@@ -210,7 +217,17 @@ continue)
         "$0" run "$name" "$wall" "$gpus" -- "$cmd" ; n=$((n+1)) ;;
       COMPLETED*) : ;;                                          # done, nothing to do
       "")         echo "skip      $name  (no record yet)" ;;
-      *)          echo "HOLD      $name  (last state '$state' -- not auto-continued; needs a look)" ;;
+      *)
+        # A cell whose artifact says `complete` needs no look, whatever its exit state. t1k-q14
+        # exits non-zero because its teacher bank is empty -- which IS the result (14B attempts
+        # kernels and almost never verifies), not a failure to re-run.
+        cell="$(_cell_of "$cmd")"
+        fp="$(awk -F'\t' -v c="$cell" '$1==c{print $2; exit}' <<<"$FP_NOW")"
+        if [ "$fp" = "complete" ]; then
+          echo "done      $name  (artifact complete; exit state '$state' is not a failure)"
+        else
+          echo "HOLD      $name  (last state '$state' -- not auto-continued; needs a look)"
+        fi ;;
     esac
   done < "$MAN"
   echo "continued $n cell(s)"
