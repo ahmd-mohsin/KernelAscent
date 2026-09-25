@@ -31,6 +31,36 @@ OUT = os.path.join(ROOT, "paper", "kernel_results_auto.tex")
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 
+def _cells(pattern):
+    """Every cell matching `pattern` across both artifact roots, one entry per cell name.
+
+    A cell can exist in both roots: `mrl pull` writes the live copy into data/trajectories while
+    an older snapshot of the same name sits in data/marlowe_h100. Iterating DIRS and taking the
+    first hit resolved three prereg cells to 2-round snapshots taken before their first timeout,
+    and their completed 5-round runs -- sitting unread in the other root -- never reached the
+    table. The snapshots predate the adapter fix, so they lack `adapter_restored` and were
+    reported as excluded pre-fix artifacts. That reason was wrong: those cells finished, and
+    they are starved. A wrong exclusion reason is worse than a wrong number, because it tells
+    the reader to go looking in the wrong place.
+
+    Resolution: most rounds wins, DIRS order breaks a tie.
+    """
+    best = {}
+    for d_dir in DIRS:
+        for outdir in sorted(glob.glob(os.path.join(d_dir, pattern))):
+            cell = os.path.basename(outdir)
+            if ".severed" in cell:
+                continue
+            n = 0
+            for fname in ("weight_rsi.json", "compounding.json"):
+                d = _load(os.path.join(outdir, fname))
+                if d:
+                    n = max(n, len(d.get("history") or []))
+            if cell not in best or n > best[cell][0]:
+                best[cell] = (n, outdir)
+    return [(cell, best[cell][1]) for cell in sorted(best)]
+
+
 def _load(p):
     try:
         return json.load(open(p))
@@ -80,7 +110,7 @@ def t1_table():
              r"contributes half the candidates. The reported quantity is a \emph{rate} and is "
              r"budget-independent in expectation, but 32B's estimate is correspondingly noisier. "
              r"The curve is a \textbf{U}: it falls from 0.5B to a minimum of $0$ at 14B and recovers to "
-             r"$3.0\%%$ at 32B (Fisher $p{=}0.015$ against 14B). ")
+             r"$3.0\%$ at 32B (Fisher $p{=}0.015$ against 14B). ")
     polnote = (kdiff + r"Extraction policy: \texttt{%s}. Under \texttt{strict} the extractor discards "
                r"66\%% of 0.5B generations and 5\%% of 14B generations, so any trend across scale "
                r"must be shown under both policies before it is attributed to the models." % pol)
@@ -118,46 +148,41 @@ def prereg_table():
         from clustered_stats import trajectory_level, ci as _ci
     except Exception:
         return "", []
-    traj, partial, excluded, starved, seen = [], 0, [], [], set()
-    for d_dir in DIRS:
-        for outdir in sorted(glob.glob(os.path.join(d_dir, "prereg_*"))):
-            cell = os.path.basename(outdir)
-            if cell in seen or ".severed" in cell:
-                continue
-            d = _load(os.path.join(outdir, "weight_rsi.json"))
-            if not d:
-                continue
-            seen.add(cell)
-            rows = d.get("history") or []
-            v = [r["delta_self_minus_fresh"] for r in rows
-                 if r.get("delta_self_minus_fresh") is not None]
-            if not v:
-                continue
-            # The discriminator is the PRESENCE of the key, not its value. `adapter_restored`
-            # was added with the fix, so a pre-fix artifact lacks it entirely, while a post-fix
-            # run that never resumed stamps it as null. Keying on truthiness alone let four
-            # stale cells through: they had resumed_at=None only because they were snapshotted
-            # before their first timeout, and a pre-fix artifact cannot evidence that its
-            # weights were ever carried across a resume.
-            if "adapter_restored" not in d:
-                excluded.append(cell + " (pre-fix artifact)")
-                continue
-            if d.get("resumed_at") and d.get("adapter_restored") is not True:
-                excluded.append(cell + " (severed)")
-                continue
-            # PREREGISTRATION Amendment 6: a trajectory whose self arm received almost no data
-            # is reported as STARVED, not as a measurement of the contrast. Without this the
-            # table published -0.019 [-0.156, +0.118] from three cells whose mean n_ex was 0.20,
-            # 1.80 and 1.20 -- a contrast between an arm that trained on nothing and one that
-            # trained on frozen-base data. I registered the rule and did not implement it.
-            _nex = [r.get("n_ex", 0) for r in rows]
-            _mean_nex = (sum(_nex) / len(_nex)) if _nex else 0.0
-            if _mean_nex < 2.0:
-                starved.append("%s (mean n_ex %.2f)" % (cell, _mean_nex))
-                continue
-            traj.append(st.mean(v))
-            if len(v) < 5:
-                partial += 1
+    traj, partial, excluded, starved = [], 0, [], []
+    for cell, outdir in _cells("prereg_*"):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        rows = d.get("history") or []
+        v = [r["delta_self_minus_fresh"] for r in rows
+             if r.get("delta_self_minus_fresh") is not None]
+        if not v:
+            continue
+        # The discriminator is the PRESENCE of the key, not its value. `adapter_restored`
+        # was added with the fix, so a pre-fix artifact lacks it entirely, while a post-fix
+        # run that never resumed stamps it as null. Keying on truthiness alone let four
+        # stale cells through: they had resumed_at=None only because they were snapshotted
+        # before their first timeout, and a pre-fix artifact cannot evidence that its
+        # weights were ever carried across a resume.
+        if "adapter_restored" not in d:
+            excluded.append(cell + " (pre-fix artifact)")
+            continue
+        if d.get("resumed_at") and d.get("adapter_restored") is not True:
+            excluded.append(cell + " (severed)")
+            continue
+        # PREREGISTRATION Amendment 6: a trajectory whose self arm received almost no data
+        # is reported as STARVED, not as a measurement of the contrast. Without this the
+        # table published -0.019 [-0.156, +0.118] from three cells whose mean n_ex was 0.20,
+        # 1.80 and 1.20 -- a contrast between an arm that trained on nothing and one that
+        # trained on frozen-base data. I registered the rule and did not implement it.
+        _nex = [r.get("n_ex", 0) for r in rows]
+        _mean_nex = (sum(_nex) / len(_nex)) if _nex else 0.0
+        if _mean_nex < 2.0:
+            starved.append("%s (mean n_ex %.2f)" % (cell, _mean_nex))
+            continue
+        traj.append(st.mean(v))
+        if len(v) < 5:
+            partial += 1
     note = []
     if starved:
         note.append("prereg: %d cell(s) STARVED per Amendment 6, self arm received <2 examples/round "
@@ -343,6 +368,7 @@ def nonllm_baseline_table():
     beats = d.get("n_beating_compiled", sum(1 for x in allsp if x > 1.03))
 
     lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:nonllm}",
              (r"\caption{A non-LLM baseline on the benchmark's own terms: "
               r"\texttt{torch.compile(mode=\"max-autotune\")} scored exactly as a model submission is "
               r"(speedup over the compiled baseline, same per-task roofline ceiling, same timing "
@@ -405,6 +431,7 @@ def t2_passrate_table():
     delta = _st.mean(by.get("inject", [0])) - _st.mean(by.get("control", [0]))
 
     lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:passrate}",
              (r"\caption{T2 weight-RSI under pass rate ($n_{\mathrm{ok}}/k$), the "
               r"\texttt{h100/passrate} set. Reported trajectory-level: one value per cell, the mean of its "
               r"last two rounds, since rounds inside a cell share an adapter. Lineage beats a matched reset "
@@ -464,6 +491,7 @@ def metric_contrast_table():
             cell.replace("t2kc_", "").replace("_", "\\_"), i, cl, cr, hv, mark,
             ("%+.3f" % pv) if pv is not None else "--")
     lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:contrast}",
              (r"\caption{The same experiment under two scorers. \texttt{t2kc} and \texttt{t2kp} differ in "
               r"\texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a "
               r"round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all %d such "
@@ -505,6 +533,15 @@ def main():
     # backspace and tab on the way into THIS file, and the generator then emitted
     # "<BS>egin{tabular}" without complaining. LaTeX control sequences are all backslash + a
     # letter that doubles as an escape, so this corruption is silent and easy to reintroduce.
+    # `\%%` is invisible to a control-character check and silently comments out the rest of
+    # the line, including a caption's closing brace. It arose from Python operator precedence:
+    # `%` binds tighter than `+`, so a concatenated fragment never saw the %-format that its
+    # doubled escape was written for. LaTeX then ate the closing brace and the build died with
+    # "File ended while scanning use of \@xdblarg", which names neither the file nor the cause.
+    import re as _re
+    for _m in _re.finditer(r"\\%%+", out):
+        raise SystemExit("refusing to write %s: literal '\\%%%%' at offset %d starts a LaTeX "
+                         "comment and will swallow the rest of the line" % (OUT, _m.start()))
     ctrl = sorted({c for c in out if ord(c) < 32 and c != "\n"})
     if ctrl:
         raise SystemExit("refusing to write %s: contains control characters %r -- a LaTeX "
