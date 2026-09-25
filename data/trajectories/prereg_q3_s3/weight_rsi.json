@@ -2,11 +2,11 @@
   "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
   "seed": 3,
   "C0_frozen": 0.1535283700638015,
-  "C0_ci": 0.08852304845800181,
+  "C0_ci": 0.08899681563607617,
   "C0_correct_rate": 0.308,
-  "C0_compiled_sp": 0.307,
-  "resumed_at": null,
-  "adapter_restored": null,
+  "C0_compiled_sp": 0.309,
+  "resumed_at": 2,
+  "adapter_restored": true,
   "history": [
     {
       "round": 0,
@@ -30,6 +30,84 @@
       "round_sec": 2551.7,
       "cum_gpu_hours": 2.126,
       "n_gens": 90
+    },
+    {
+      "round": 1,
+      "trainC": 0.335,
+      "n_ex": 2,
+      "loss": 0.171,
+      "C_self": 0.154,
+      "C_self_ci": 0.089,
+      "C_ctrl": 0.27,
+      "C_ctrl_ci": 0.096,
+      "C_fresh": 0.116,
+      "C_fresh_ci": 0.081,
+      "correct_rate_self": 0.308,
+      "compiled_sp_self": 0.317,
+      "delta_self": 0.001,
+      "delta_self_minus_ctrl": -0.116,
+      "delta_self_minus_fresh": 0.038,
+      "n_uniq_self": 2,
+      "diversity_self": 0.672,
+      "retention": 0.429,
+      "round_sec": 2588.5,
+      "cum_gpu_hours": 2.157,
+      "n_gens": 90
+    },
+    {
+      "round": 2,
+      "trainC": 0.335,
+      "n_ex": 2,
+      "loss": 0.289,
+      "C_self": 0.154,
+      "C_self_ci": 0.089,
+      "C_ctrl": 0.232,
+      "C_ctrl_ci": 0.096,
+      "C_fresh": 0.212,
+      "C_fresh_ci": 0.095,
+      "correct_rate_self": 0.308,
+      "compiled_sp_self": 0.312,
+      "delta_self": 0.001,
+      "delta_self_minus_ctrl": -0.077,
+      "delta_self_minus_fresh": -0.058,
+      "n_uniq_self": 2,
+      "diversity_self": 0.749,
+      "retention": 0.429,
+      "round_sec": 2600.3,
+      "cum_gpu_hours": 2.167,
+      "n_gens": 90
     }
-  ]
+  ],
+  "_provenance": {
+    "utc": "2026-09-25T05:06:09Z",
+    "host": "n05",
+    "git": null,
+    "python": "3.11.10",
+    "env": {
+      "KA_SCORE": "compiled",
+      "KA_PROMPT": "kernel",
+      "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+      "KA_DATA_DIR": "/users/muahmed/ka_data",
+      "KA_ROOF_ARCH": "h100",
+      "CC": "/usr/bin/gcc",
+      "CXX": "/usr/bin/g++"
+    },
+    "triton": {
+      "import": true,
+      "version": "3.1.0",
+      "cc": "/usr/bin/gcc",
+      "cc_exists": true
+    },
+    "roof_arch": "h100",
+    "roof_peaks": {
+      "fp16": 989.0,
+      "bf16": 989.0,
+      "fp32": 67.0,
+      "tf32": 495.0,
+      "bw": 3350.0
+    },
+    "torch": "2.5.1+cu124",
+    "cuda": "12.4",
+    "gpu": "NVIDIA H100 80GB HBM3"
+  }
 }

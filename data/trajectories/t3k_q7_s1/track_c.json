@@ -36,11 +36,27 @@
       "F_g": 0.052,
       "n_strategies": 2,
       "n_archive": 1
+    },
+    {
+      "round": 4,
+      "Qg": 0.121,
+      "delta_vs_base": 0.005,
+      "F_g": 0.01,
+      "n_strategies": 5,
+      "n_archive": 1
+    },
+    {
+      "round": 5,
+      "Qg": 0.176,
+      "delta_vs_base": 0.06,
+      "F_g": -0.047,
+      "n_strategies": 5,
+      "n_archive": 4
     }
   ],
   "_provenance": {
-    "utc": "2026-09-25T00:12:22Z",
-    "host": "n14",
+    "utc": "2026-09-25T04:39:42Z",
+    "host": "n04",
     "git": null,
     "python": "3.11.10",
     "env": {

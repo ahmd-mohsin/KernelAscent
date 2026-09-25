@@ -1,0 +1,248 @@
+{
+ "teacher": "Qwen/Qwen2.5-Coder-32B-Instruct",
+ "k": 6,
+ "n_tasks": 29,
+ "kernels": {
+  "l1_1": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=torch.float16, hidden=4096, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.bias = nn.Parameter((0.05 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.gate = nn.Parameter((0.5 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n\n    @staticmethod\n    @triton.jit\n    def fused_forward_kernel(\n        x_ptr,  # *Pointer to input data\n        w_ptr,  # *Pointer to weight data\n        b_ptr,  # *Pointer to bias data\n        g_ptr,  # *Pointer to gate data\n        y_ptr,  # *Pointer to output data\n        rows,   # Number of rows\n        cols,   # Number of columns\n        BLOCK_SIZE: tl.constexpr,  # Block size for parallelization\n        EPS: tl.constexpr  # Epsilon value for numerical stability\n    ):\n        row_idx = tl.program_id(0)\n        col_idx = tl.arange(0, BLOCK_SIZE)\n\n        # Load data into registers\n        x = tl.load(x_ptr + row_idx * cols + col_idx, mask=col_idx < cols, other=0.0)\n        \n        # Compute mean of squares\n        x_sq = x * x\n        sum_x_sq = tl.sum(x_sq, axis=0)\n        mean_x_sq = sum_x_sq / cols\n        \n        # Compute RMSNorm\n        rms = tl.sqrt(mean_x_sq + EPS)\n        y = x / rms\n        \n        # Apply weight and bias\n        w = tl.load(w_ptr + col_idx, mask=col_idx < cols, other=0.0)\n        b = tl.load(b_ptr + col_idx, mask=col_idx < cols, other=0.0)\n        y = y * w + b\n        \n        # Apply gating\n        g = tl.load(g_ptr + col_idx, mask=col_idx < cols, other=0.0)\n        y_gated = y * tl.sigmoid(y * g)\n        \n        # Store the result\n        tl.store(y_ptr + row_idx * cols + col_idx, y_gated, mask=col_idx < cols)\n\n    def forward(self, x):\n        rows, cols = x.shape\n        y = torch.empty_like(x)\n        grid = (rows,)\n        self.fused_forward_kernel[grid](x, self.weight, self.bias, self.gate, y, rows, cols, BLOCK_SIZE=cols, EPS=self.eps)\n        return y\n\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator().manual_seed(1)\n    x = torch.randn(32768, 4096, generator=g).to(device=dev, dtype=torch.float16)\n    return [x]\n\n\n# Example usage\nif __name__ == \"__main__\":\n    model_new = ModelNew()\n    x = get_inputs()[0]\n    y = model_new(x)\n    print(y.shape)\n",
+    "speedup_eager": 19.359,
+    "is_kernel": true
+   },
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 32768, 4096  # batch*seq x hidden, ~256 MiB in / ~256 MiB out (fp16)\n\nclass ModelNew(nn.Module):\n    # RMSNorm (fp32 stats) -> per-channel affine -> SiLU-style self-gating -> fp16\n    def __init__(self, dt=DT, hidden=HIDDEN, eps=1e-5):\n        super().__init__()\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.eps = eps\n        self.weight = nn.Parameter((1.0 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.bias = nn.Parameter((0.05 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n        self.gate = nn.Parameter((0.5 + 0.1 * torch.randn(hidden, generator=g)).to(device=dev, dtype=dt))\n\n    @staticmethod\n    @triton.jit\n    def fused_kernel(\n        x_ptr, w_ptr, b_ptr, g_ptr, out_ptr,\n        rows, cols, stride_x, stride_w, stride_b, stride_g, stride_out,\n        eps, BLOCK_SIZE: tl.constexpr,\n    ):\n        row = tl.program_id(0)\n        col_offset = tl.arange(0, BLOCK_SIZE)\n        x_offset = row * stride_x + col_offset\n\n        x = tl.load(x_ptr + x_offset, mask=col_offset < cols, other=0.0).to(tl.float32)\n        w = tl.load(w_ptr + col_offset, mask=col_offset < cols, other=0.0).to(tl.float32)\n        b = tl.load(b_ptr + col_offset, mask=col_offset < cols, other=0.0).to(tl.float32)\n        g = tl.load(g_ptr + col_offset, mask=col_offset < cols, other=0.0).to(tl.float32)\n\n        x2 = x * x\n        mean_x2 = tl.sum(x2, axis=0) / cols\n        rms_x = tl.rsqrt(mean_x2 + eps)\n        \n        y = x * rms_x\n        y = y * w + b\n        \n        sigmoid_yg = 1 / (1 + tl.exp(-y * g))\n        out = y * sigmoid_yg\n        \n        tl.store(out_ptr + x_offset, out.to(tl.float16), mask=col_offset < cols)\n\n    def forward(self, x):\n        rows, cols = x.shape\n        assert cols == HIDDEN, \"Hidden dimension mismatch\"\n        out = torch.empty_like(x)\n        grid = (rows,)\n        self.fused_kernel[grid](\n            x_ptr=x, w_ptr=self.weight, b_ptr=self.bias, g_ptr=self.gate, out_ptr=out,\n            rows=rows, cols=cols, stride_x=x.stride(0), stride_w=self.weight.stride(0),\n            stride_b=self.bias.stride(0), stride_g=self.gate.stride(0), stride_out=out.stride(0),\n            eps=self.eps, BLOCK_SIZE=triton.next_power_of_2(cols)\n        )\n        return out\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator().manual_seed(1)\n    x = torch.randn(ROWS, HIDDEN, generator=g).to(device=dev, dtype=DT)\n    return [x]\n",
+    "speedup_eager": 18.56,
+    "is_kernel": true
+   }
+  ],
+  "l1_4": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\nROWS = 32768   # tokens (e.g. batch 16 x seq 2048)\nCOLS = 4096    # hidden size\n\n@triton.jit\ndef fused_kernel(\n    x_ptr, ln_weight_ptr, ln_bias_ptr, gate_scale_ptr, gate_shift_ptr,\n    out_ptr, ROWS, COLS, EPS, TEMP, BLOCK_SIZE: tl.constexpr,\n):\n    row_id = tl.program_id(0)\n    col_offsets = tl.arange(0, BLOCK_SIZE)\n\n    # Load data\n    x = tl.load(x_ptr + row_id * COLS + col_offsets, mask=col_offsets < COLS)\n    \n    # Convert to float32 for computation\n    x = x.to(tl.float32)\n    \n    # Mean reduction\n    mean = tl.sum(x, axis=0) / COLS\n    \n    # Variance reduction\n    xc = x - mean\n    var = tl.sum(xc * xc, axis=0) / COLS\n    \n    # LayerNorm\n    h = xc * tl.rsqrt(var + EPS)\n    ln_weight = tl.load(ln_weight_ptr + col_offsets, mask=col_offsets < COLS, other=0.0).to(tl.float32)\n    ln_bias = tl.load(ln_bias_ptr + col_offsets, mask=col_offsets < COLS, other=0.0).to(tl.float32)\n    h = h * ln_weight + ln_bias\n    \n    # Gated activation\n    gate_scale = tl.load(gate_scale_ptr + col_offsets, mask=col_offsets < COLS, other=0.0).to(tl.float32)\n    gate_shift = tl.load(gate_shift_ptr + col_offsets, mask=col_offsets < COLS, other=0.0).to(tl.float32)\n    z = h * tl.sigmoid(h * gate_scale + gate_shift)\n    z = z / TEMP\n    \n    # Softmax\n    z_max = tl.max(z, axis=0)\n    z_exp = tl.exp(z - z_max)\n    z_sum = tl.sum(z_exp, axis=0)\n    out = z_exp / z_sum\n    \n    # Store result\n    tl.store(out_ptr + row_id * COLS + col_offsets, out, mask=col_offsets < COLS)\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        self.eps = 1e-5\n        self.temperature = 0.7\n        self.ln_weight = nn.Parameter(\n            (1.0 + 0.1 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.ln_bias = nn.Parameter(\n            (0.1 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.gate_scale = nn.Parameter(\n            (0.5 + 0.5 * torch.rand(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.gate_shift = nn.Parameter(\n            (0.2 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        # Allocate output tensor\n        out = torch.empty_like(x)\n        \n        # Launch Triton kernel\n        grid = (ROWS,)\n        fused_kernel[grid](\n            x, self.ln_weight, self.ln_bias, self.gate_scale, self.gate_shift,\n            out, ROWS, COLS, self.eps, self.temperature, BLOCK_SIZE=COLS\n        )\n        return out\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1234)\n    row_scale = 0.5 + 3.0 * torch.rand(ROWS, 1, generator=g)\n    row_shift = torch.randn(ROWS, 1, generator=g)\n    x = torch.randn(ROWS, COLS, generator=g) * row_scale + row_shift\n    return [x.to(device=device, dtype=DT)]\n",
+    "speedup_eager": 26.59,
+    "is_kernel": true
+   },
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\nROWS = 32768   # tokens (e.g. batch 16 x seq 2048)\nCOLS = 4096    # hidden size\n\n@triton.jit\ndef fused_kernel(\n    x_ptr,  # input\n    out_ptr,  # output\n    ln_weight_ptr, ln_bias_ptr,\n    gate_scale_ptr, gate_shift_ptr,\n    eps, temperature,\n    N, D,\n    BLOCK_SIZE_D: tl.constexpr,\n):\n    pid = tl.program_id(0)\n    cols = tl.arange(0, BLOCK_SIZE_D)\n    row = pid\n    if row >= N:\n        return\n    \n    x_block = tl.load(x_ptr + row * D + cols, mask=cols < D, other=0.0)\n    mean = tl.sum(x_block) / D\n    x_centered = x_block - mean\n    var = tl.sum(x_centered * x_centered) / D\n    inv_std = 1.0 / tl.sqrt(var + eps)\n    \n    ln_weight = tl.load(ln_weight_ptr + cols, mask=cols < D, other=0.0)\n    ln_bias = tl.load(ln_bias_ptr + cols, mask=cols < D, other=0.0)\n    h = x_centered * inv_std\n    h = h * ln_weight + ln_bias\n    \n    gate_scale = tl.load(gate_scale_ptr + cols, mask=cols < D, other=0.0)\n    gate_shift = tl.load(gate_shift_ptr + cols, mask=cols < D, other=0.0)\n    z = h * tl.sigmoid(h * gate_scale + gate_shift)\n    z = z / temperature\n    \n    max_z = tl.max(z, axis=0)\n    z = z - max_z\n    exp_z = tl.exp(z)\n    sum_exp_z = tl.sum(exp_z, axis=0)\n    softmax_out = exp_z / sum_exp_z\n    \n    tl.store(out_ptr + row * D + cols, softmax_out, mask=cols < D)\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n        g = torch.Generator(device=\"cpu\").manual_seed(0)\n        self.eps = 1e-5\n        self.temperature = 0.7\n        self.ln_weight = nn.Parameter(\n            (1.0 + 0.1 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.ln_bias = nn.Parameter(\n            (0.1 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.gate_scale = nn.Parameter(\n            (0.5 + 0.5 * torch.rand(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n        self.gate_shift = nn.Parameter(\n            (0.2 * torch.randn(COLS, generator=g)).to(device=device, dtype=dt), requires_grad=False)\n\n    def forward(self, x):\n        # x: [ROWS, COLS] fp16\n        out = torch.empty_like(x)\n        grid = (ROWS,)\n        fused_kernel[grid](\n            x_ptr=x,\n            out_ptr=out,\n            ln_weight_ptr=self.ln_weight,\n            ln_bias_ptr=self.ln_bias,\n            gate_scale_ptr=self.gate_scale,\n            gate_shift_ptr=self.gate_shift,\n            eps=self.eps,\n            temperature=self.temperature,\n            N=ROWS,\n            D=COLS,\n            BLOCK_SIZE_D=COLS,\n        )\n        return out\n\ndef get_inputs():\n    device = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n    g = torch.Generator(device=\"cpu\").manual_seed(1234)\n    row_scale = 0.5 + 3.0 * torch.rand(ROWS, 1, generator=g)\n    row_shift = torch.randn(ROWS, 1, generator=g)\n    x = torch.randn(ROWS, COLS, generator=g) * row_scale + row_shift\n    return [x.to(device=device, dtype=DT)]\n",
+    "speedup_eager": 25.721,
+    "is_kernel": true
+   }
+  ],
+  "l1_10": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\nROWS, HIDDEN = 16384, 4096  # 16K tokens x 4096 hidden -> 128 MB in, 128 MB out (fp16)\n_DEV = \"cuda\" if torch.cuda.is_available() else \"cpu\"\n\n@triton.jit\ndef fused_kernel(\n    x_ptr, ln_weight_ptr, ln_bias_ptr, out_scale_ptr, y_ptr,\n    rows, cols,\n    eps,\n    BLOCK_SIZE: tl.constexpr\n):\n    # Compute the offsets\n    row_id = tl.program_id(axis=0)\n    col_offset = tl.arange(0, BLOCK_SIZE)\n    x_offset = row_id * cols + col_offset\n    mask = col_offset < cols\n\n    # Load data\n    x = tl.load(x_ptr + x_offset, mask=mask, other=0.0)\n\n    # Compute mean\n    mean = tl.sum(x, axis=0) / cols\n\n    # Compute centered x and variance\n    xc = x - mean\n    x_sq = xc * xc\n    var = tl.sum(x_sq, axis=0) / cols\n\n    # LayerNorm\n    ln_weight = tl.load(ln_weight_ptr + col_offset, mask=mask, other=0.0)\n    ln_bias = tl.load(ln_bias_ptr + col_offset, mask=mask, other=0.0)\n    denom = tl.rsqrt(var + eps)\n    h = xc * denom * ln_weight + ln_bias\n\n    # Quick GELU\n    a = h * tl.sigmoid(1.702 * h)\n\n    # RMS\n    a_sq = a * a\n    rms = tl.sqrt(tl.sum(a_sq, axis=0) / cols + eps)\n\n    # Output scaling\n    out_scale = tl.load(out_scale_ptr + col_offset, mask=mask, other=0.0)\n    y = a / rms * out_scale\n\n    # Store the result\n    tl.store(y_ptr + x_offset, y, mask=mask)\n\nclass ModelNew(nn.Module):\n    def __init__(self, dt=DT):\n        super().__init__()\n        g = torch.Generator().manual_seed(1234)\n        w = 1.0 + 0.10 * torch.randn(HIDDEN, generator=g)\n        b = 0.05 * torch.randn(HIDDEN, generator=g)\n        s = 1.0 + 0.05 * torch.randn(HIDDEN, generator=g)\n        self.ln_weight = nn.Parameter(w.to(device=_DEV, dtype=dt), requires_grad=False)\n        self.ln_bias = nn.Parameter(b.to(device=_DEV, dtype=dt), requires_grad=False)\n        self.out_scale = nn.Parameter(s.to(device=_DEV, dtype=dt), requires_grad=False)\n        self.eps = 1e-5\n\n    def forward(self, x):\n        y = torch.empty_like(x)\n        fused_kernel[(ROWS,)](\n            x, self.ln_weight, self.ln_bias, self.out_scale, y,\n            x.shape[0], x.shape[1],\n            self.eps,\n            BLOCK_SIZE=HIDDEN\n        )\n        return y\n\ndef get_inputs():\n    g = torch.Generator(device=_DEV).manual_seed(0)\n    x = torch.randn(ROWS, HIDDEN, generator=g, device=_DEV, dtype=torch.float32)\n    x = (x * 1.5 + 0.25).to(DT)\n    return [x]\n\n# Example usage\nif __name__ == \"__main__\":\n    x = get_inputs()[0]\n    model_new = ModelNew().to(_DEV)\n    y = model_new(x)\n    print(y.shape, y.dtype)\n",
+    "speedup_eager": 24.35,
+    "is_kernel": true
+   }
+  ]
+ },
+ "attempts": {
+  "l1_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 2,
+   "n_verified": 2
+  },
+  "l1_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_4": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 2,
+   "n_verified": 2
+  },
+  "l1_5": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_6": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_7": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_8": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_9": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_10": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 1,
+   "n_verified": 1
+  },
+  "l2_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_4": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_5": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_6": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_7": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_8": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_9": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_10": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_11": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_12": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_13": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_14": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_15": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_4": {
+   "n_candidates": 5,
+   "n_attempted_kernel": 0,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  }
+ },
+ "tasks_attempted": 29,
+ "complete": true,
+ "_provenance": {
+  "utc": "2026-09-25T04:59:32Z",
+  "host": "n17",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}
