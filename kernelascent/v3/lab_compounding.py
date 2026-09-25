@@ -103,8 +103,23 @@ def run(args):
     transfer = fam.get(held_family, [])[:args.n_held]              # held-out FAMILY (never trained on)
     pool = [n for n in names if n not in set(transfer)]
     train, held = pool[:args.n_train], pool[args.n_train:args.n_train + args.n_held]
-    print("COMPOUNDING %s seed=%d train=%d held=%d transfer_family=%s(%d) rounds=%d" %
-          (args.model, args.seed, len(train), len(held), held_family, len(transfer), args.rounds), flush=True)
+    # Python slicing does not raise when the stop index runs past the end, so a bank too small
+    # for train+held silently hands back a SHORTER held set than was asked for. On the 29-task
+    # bank with n_train=20 this turned a requested n_held=20 into an actual 5, and nothing said
+    # so. The consequence is not a wrong number, it is a quartered evaluation set: held=5 at
+    # k=10 caps a round at 50 verified candidates, which is the ceiling I first mistook for a
+    # property of the scoring metric. Record it in the artifact so the bound travels with the
+    # data instead of living in a log line nobody re-reads.
+    if len(held) < args.n_held or len(train) < args.n_train:
+        sys.stderr.write(
+            "WARNING: bank too small for the requested split. train %d/%d, held %d/%d "
+            "(bank=%d, transfer_family=%d). A round can yield at most held*k = %d verified "
+            "candidates, which bounds every per-round score.\n"
+            % (len(train), args.n_train, len(held), args.n_held, len(names), len(transfer),
+               len(held) * args.k))
+    print("COMPOUNDING %s seed=%d train=%d/%d held=%d/%d transfer_family=%s(%d) rounds=%d" %
+          (args.model, args.seed, len(train), args.n_train, len(held), args.n_held,
+           held_family, len(transfer), args.rounds), flush=True)
     os.makedirs(args.outdir, exist_ok=True)
 
     teacher = _load_teacher(args.inject_kernels)
@@ -227,6 +242,9 @@ def run(args):
         print("round %d C_lin=%.3f C_reset=%.3f C_bon=%.3f transfer=%.3f | lin-reset=%+.3f lin-bon=%+.3f (%.0fs)" %
               (r, C_lin, C_reset, C_bon, C_tr, C_lin - C_reset, C_lin - C_bon, time.time() - t0), flush=True)
         PROV.dump_atomic({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
+                         "n_train_requested": args.n_train, "n_train_actual": len(train),
+                         "n_held_requested": args.n_held, "n_held_actual": len(held),
+                         "verified_cap_per_round": len(held) * args.k,
                    "adapter_restored": adapter_restored,
                    "arm": ("inject" if teacher else "control"),
                    "inject_kernels": args.inject_kernels, "inject_per_task": args.inject_per_task,
