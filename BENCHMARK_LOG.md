@@ -2920,3 +2920,52 @@ instrument-first framing: the ladder's null results are substantially a property
 against T1/T2's 2048, so cross-rung comparison carries that confound; and the author-yield
 number is the reportable finding here, not `L−F`, whose interval this single trajectory cannot
 support.
+
+### T2 under pass-rate: compounding is real, and headroom was hiding it (2026-09-24, provisional)
+
+This reverses the T2 conclusion recorded earlier today, and it is the most consequential result
+of the session. Reported as the `h100/passrate` set per Amendment 1 — **never pooled with, or
+compared against, the headroom boards.**
+
+`lineage − reset`, which decayed to exactly zero under headroom scoring, **grows monotonically**
+under pass-rate:
+
+| cell | r0 | r1 | r2 | r3 |
+|---|---|---|---|---|
+| control s1 | +0.020 | +0.080 | +0.220 | **+0.440** |
+| control s2 | +0.020 | −0.020 | +0.080 | +0.380 |
+| inject s1 | +0.040 | +0.280 | +0.520 | +0.460 |
+| inject s2 | −0.020 | +0.240 | +0.480 | **+0.560** |
+
+Three properties make this a compounding result rather than a metric artifact in the other
+direction:
+
+**1. It beats a reset learner.** Both arms see the same data each round; only lineage retains
+weights. That difference *is* the accumulation hypothesis.
+
+**2. It beats matched-budget search.** `C_bestofN` is the frozen base at cumulative budget
+`k*(r+1)`, and it stays flat (0.000–0.047) while lineage reaches 0.98.
+`lineage − best-of-N` reaches **+0.940**. Sampling harder does not buy this.
+
+**3. It transfers to a held-out FAMILY** (`l3`, never trained on): 0.025 → **0.875** (control
+s1), 0.100 → 0.875 (inject s2). This is the check that rules out sharpening on the held set,
+and it is the reason the result can be called capability rather than memorisation.
+
+#### Why headroom erased it
+
+Pass-rate measures the fraction of `k` candidates that verify. Headroom measures best-of-k
+speedup, which saturates at 0.50 the moment *one* candidate is correct-at-parity. A model going
+from 1-in-10 correct to 9-in-10 is enormous progress in reliability and **exactly zero** movement
+in best-of-k. That is the whole T2 null, and the T5 null, and the inject-vs-control null.
+
+#### What this is NOT yet
+
+* **Provisional: 4 of 8 rounds.** No number here goes in the .tex until the cells complete.
+* **n=2 per arm, one scale (1.5B).**
+* **Small denominators**: held = 5 tasks, transfer family = 4 tasks. Pass-rate over k=10 gives
+  0.02 granularity on the mean, so the values are not quantisation artifacts — but the *task*
+  sample is small and the interval will be wide.
+* Pass-rate is a **post-hoc** metric (Amendment 1), declared with its falsifier before these
+  results existed. It must be presented as such, not as the registered primary.
+* `inject > control` is suggestive (+0.46/+0.56 vs +0.44/+0.38) but the arms overlap and this is
+  not the matched comparison that showed no effect under headroom.
