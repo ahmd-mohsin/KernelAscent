@@ -389,3 +389,24 @@ author yield of 2.3%. Both self-referential loops starve.
   binding constraint and no training-split size rescues the design at this scale and prompt.
 * Every artifact records `n_ex` per round. Any trajectory whose mean `n_ex` is below 2 is
   reported as starved rather than as a measurement of the contrast.
+
+## Amendment 6, addendum — how the `fed` set may and may not be compared
+
+Written before the first `fed` round lands, because the temptation runs the other way once
+numbers exist.
+
+The `fed` cells use the 124-task DSL bank and the registered cells use the 29-task curated bank.
+The frozen-base scores differ accordingly: `C0 = 0.063` on the DSL bank against `C0 = 0.174` on
+the curated one, so the DSL held set is materially harder.
+
+* **Not comparable**: absolute `C_self`, `C_fresh`, `C_ctrl` across the two sets. Different
+  tasks, different difficulty, different base rate.
+* **Comparable in kind**: `self − fresh_frozen`, because it is a within-cell difference between
+  two arms evaluated on the same held set in the same round.
+* **Comparable directly**: `n_ex`, the count of verified self-generated training examples per
+  round. That is the quantity Amendment 6 is about, and it is a raw count.
+
+A caution on the contrast itself. A difference between two arms can scale with the base rate, so
+a smaller `self − fresh_frozen` on the harder bank is not automatically a weaker effect. If the
+fed contrast comes back near zero **with healthy `n_ex`**, the honest reading is a null on this
+bank at this scale, not a general null, and the bank difference is stated alongside it.
