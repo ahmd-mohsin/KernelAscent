@@ -3264,3 +3264,31 @@ underpowered, not corrupt, and refusing would kill the metric-contrast cells now
 **What this cost.** Two wrong diagnoses, a proposed metric I had to retract, and a ceiling I
 wrote into a paper-structure rubric as a property of the scorer. All of it recoverable, and all
 of it avoidable by a line that compared what was asked for against what was returned.
+
+### T5 complete at two seeds — the rung is UNDEFINED, not zero
+
+`t5k-q3-s2` finished, so both 3B self-play trajectories are complete at 6 rounds.
+
+| | seed 1 | seed 2 |
+|---|---|---|
+| L−F by round | −0.038, +0.039, +0.116, +0.004, −0.105, −0.001 | +0.000, −0.154, −0.039, −0.000, −0.000, −0.000 |
+| L−F mean | **+0.0025** | **−0.0322** |
+| accepted proposals | 2 of 68 (2.9%) | 2 of 105 (1.9%) |
+| degenerate rejections | 6, 6, 3, 8, 21, 22 | 12, 15, 14, 20, 21, 21 |
+| final S / F / L | 0.501 / 0.502 / 0.502 | 0.502 / 0.502 / 0.502 |
+
+**The registered floor is ≥5 accepted model-authored tasks before a row may be interpreted.
+Both seeds have 2.** So `L−F` here is **undefined**, not measured-and-equal. The two means have
+opposite signs and both sit near zero, which is what an undefined quantity looks like. Reporting
+"no co-evolution effect" from these rows would violate our own gate.
+
+**The mechanism replicates across seeds and is the reportable finding.** Author yield is
+**4 accepted of 173 proposed, 2.3%**, and degeneracy rises in both runs. Seed 2 proposed 105
+tasks against seed 1's 68 and accepted the same 2, so trying harder produced a worse rate. The
+author does not improve at proposing as it trains.
+
+**All six arm-endpoints land at 0.501–0.502.** That is the held-set ceiling again, now visible in
+a third lab. With `held=5` and best-of-k scoring, every arm pins at correct-at-parity by the
+final round, so the three-arm decomposition has no room left to separate anything. T5 is
+therefore bounded twice over — by an author that yields 2.3% and by an evaluation set that caps
+the contrast — and the second bound is fixable with `KA_KERNEL_BANK` today.
