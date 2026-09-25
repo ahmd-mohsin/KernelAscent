@@ -3372,3 +3372,38 @@ the sign of the registered contrast.
 The `fed` cells test it directly at 12x the input, and Amendment 6 already fixes both readings
 in advance. Until they land, "the loop is starved" stands on the arithmetic, and "starvation
 explains the contrast" stands on p = 0.09.
+
+### The 32B memory fix works, and the first complete baselines cell lands
+
+```
+device_map budget {0: '67GiB', 1: '67GiB'} (model shards across 2 GPU(s))
+```
+
+134 GiB of budget against the old flat 40 GiB, so a 62 GiB model is now fully resident instead
+of being half-offloaded to host RAM. The stderr line exists because the previous behaviour was
+silent, and it is the reason this took one look rather than another 101 minutes.
+
+**`basek_q15_s1` is the first baselines cell complete on all three methods at 2048 tokens.**
+
+| method | C | ci | correct_rate |
+|---|---|---|---|
+| **self_refine** | **0.4208** | 0.069 | 0.846 |
+| best_of_k | 0.2868 | 0.095 | 0.577 |
+| retrieval | 0.1539 | 0.089 | 0.308 |
+
+So `max(best_of_k, self_refine, retrieval) = 0.4208`, and the maximum is **self_refine**, not
+best-of-k. Two things follow.
+
+**Retrieval is the worst baseline, by a wide margin.** A growing few-shot archive of the model's
+own verified kernels scores 0.154 against 0.287 for plain sampling at the same budget. Showing
+a small model its own past solutions *hurts* here. That is worth reporting rather than burying
+in a max, and it is consistent with the reference-overlap finding that these models copy what
+is in front of them.
+
+**The comparison the RSI arm must beat is 0.42, not 0.29.** The weight-RSI lineage arm reaches
+about 0.50 on the headroom board, so the margin over the strongest baseline is far thinner than
+the margin over best-of-k alone. Any claim that self-training beats search has to name which
+baseline it beat.
+
+The 900-token value I deleted this afternoon was `basek_q3_s2` self_refine at 0.3448, on a
+different model, so the like-for-like budget contrast still waits on that cell.
