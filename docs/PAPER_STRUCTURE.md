@@ -95,9 +95,21 @@ contribution is the *contrast*, which is destroyed if either is presented as the
 
 ## Framing
 
-Lead with the instrument. The strongest, most novel, most defensible contribution is that a
-two-arm self-improvement benchmark manufactures nulls cheaply, with seven worked examples and
-the gates that catch each. The RSI ladder becomes the case study that produced them.
+Lead with the instrument, and lead the instrument with **one table**.
+
+`t2kc` against `t2kp` is the paper's centrepiece. Two cells that differ in `KA_SCORE` and nothing
+else — same model, seed, k, lab, bank, arms — where six rounds with both arms at parity report a
+headroom contrast within 0.004 of zero against a pass-rate mean of +0.433 on the same rounds.
+No statistics, no pooling, no appeal to definitions. A reviewer checks it by reading twelve rows.
+
+Everything else supports that. The seven worked defects explain how a benchmark arrives at such a
+state. The starved rungs (T2 at 0.8 examples per round, T3 at an archive of 4 or 0, T5 at 2.3%
+author yield) show the second way a self-improvement result can be vacuous, and the throughput
+arithmetic shows both are computable before a run rather than after.
+
+The older framing said the contribution was that a two-arm benchmark manufactures nulls cheaply.
+That is still true and still the abstract's claim. What changed on 2026-09-24 is that it stopped
+being an argument supported by examples and became a measurement with a control.
 
 This is also the only framing immune to the strongest attack available: that by our own proposed
 criteria (positive control required, reachability precondition) our own headline null is
