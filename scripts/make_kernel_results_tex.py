@@ -468,10 +468,14 @@ def metric_contrast_table():
               r"\texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a "
               r"round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all %d such "
               r"rounds the headroom contrast is within $%.3f$ of zero (mean $%+.4f$), while the same rounds "
-              r"report a mean of $%+.3f$ under pass rate. A difference between two arms survives only while "
-              r"they sit at different levels, and a matched reset learner reaches parity within three or four "
-              r"rounds, after which best-of-$k$ cannot distinguish the arms and reports that inability as a "
-              r"confident zero. The two boards are never \emph{pooled} (Amendment 1); they are placed side by "
+              r"report a mean of $%+.3f$ under pass rate. The contrast measures the \emph{gap} between the "
+              r"arms and nothing else: across all four headroom cells and both scales, the 14 rounds with arms "
+              r"within $0.02$ of each other average $-0.0004$ and never exceed $0.004$, while the 10 rounds "
+              r"with a gap average $+0.131$. It is not broken by saturation and recovers when a gap reopens "
+              r"(\texttt{q3\_s2} reads $+0.002$ at $0.50/0.50$ then $+0.201$ at $0.50/0.30$). The difficulty is "
+              r"that best-of-$k$ compresses both arms onto correct-at-parity and holds them there, and a "
+              r"matched reset learner arrives within three or four rounds, so the measurement's useful "
+              r"lifetime is fixed by the control arm rather than by the treatment. The two boards are never \emph{pooled} (Amendment 1); they are placed side by "
               r"side here to compare the scorers, not the results.}"
               % (len(dead_h), max(abs(x) for x in dead_h), _st.mean(dead_h), _st.mean(dead_p))),
              r"\begin{tabular}{@{}lrrrr@{}}",
