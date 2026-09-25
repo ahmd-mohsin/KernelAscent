@@ -2887,3 +2887,36 @@ T3 `Q0` restore; T2 lineage checkpoint and restore; the primary's three-arm chec
 and empty-`ex0` handling; the refusal guard on pre-fix cells; T5 atomic checkpoints with fatal
 load failure; atomic artifact writes; stall detection in `continue`; and `KA_EXTRACT` now
 recorded in provenance.
+
+### T5 self-play complete (seed 1): no co-evolution, and the mechanism is author yield
+
+`t5k-q3-s1` finished all 6 rounds on 3B. This is the first T5 trajectory collected under the
+hardened checkpointing, and it resumed cleanly (`all 3 arms restored`).
+
+**No co-evolution advantage.** `L−F` by round:
+`[-0.038, +0.039, +0.116, +0.004, -0.105, -0.001]`, mean **+0.0025**, with the sign changing on
+2 of 5 steps. A live author is indistinguishable from a frozen one.
+
+**The mechanism is that the author cannot produce usable tasks.**
+
+| round | 0 | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|---|
+| accepted proposals | 0 | 0 | 0 | 0 | 1 | 1 |
+| rejected as degenerate | 6 | 6 | 3 | 8 | **21** | **22** |
+
+**2 accepted of 68 proposed (2.9%)**, and degeneracy *rises roughly 3x* across the run. The
+author does not get better at proposing as it trains; it gets worse. The frozen-author arm even
+grew its frontier further than the live one (+8 vs +5). So the failure is not that self-play
+helps a little and we lacked power to see it — the curriculum never forms.
+
+**Same saturation as T2, again.** All three arms finish within 0.002 of parity:
+S=0.501, F=0.502, L=0.502. Whatever separation existed mid-run is gone by the end because the
+headroom score has nowhere left to go. `L−F` at round 5 is −0.001 **by construction**, not by
+measurement. This is now the third place the two-state metric has erased a contrast (T2 lineage
+vs reset, T2 inject vs control, T5 live vs frozen author), which is a strong argument for the
+instrument-first framing: the ladder's null results are substantially a property of the scorer.
+
+**Bounded claims.** One completed seed (s2 still running); T5 generates at **1200 tokens**
+against T1/T2's 2048, so cross-rung comparison carries that confound; and the author-yield
+number is the reportable finding here, not `L−F`, whose interval this single trajectory cannot
+support.
