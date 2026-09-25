@@ -3865,3 +3865,35 @@ What can be said at n=2 round 0: the starvation intervention works as an interve
 contrast it was meant to reveal is not yet visible. Amendment 6's null branch requires healthy
 `n_ex` *sustained across rounds* with the contrast at or below zero, and one round does not test
 that either.
+
+### The mechanism, quantified across every headroom cell (2026-09-25)
+
+Four cells, two scales, 24 rounds. Partitioning every round by whether the two arms sit at the
+same level:
+
+| | rounds | mean contrast | max \|value\| |
+|---|---|---|---|
+| arms within 0.02 of each other | **14** | **−0.0004** | **0.004** |
+| arms differ | **10** | **+0.1307** | — |
+
+Clean separation with no overlap. The largest contrast ever recorded with equal arms is 0.004;
+the mean with unequal arms is 0.131.
+
+**`t2kc_q3_s2` settles it.** Its round 2 is `0.50 / 0.50 → +0.002` and its round 3 is
+`0.50 / 0.30 → +0.201`. The reset arm fell back, the gap reopened, and **the contrast returned**.
+So best-of-k is not permanently broken after saturation and the metric is not "dead". It reports
+the gap between the arms, faithfully, at all times. The problem is that best-of-k compresses both
+arms onto the same value and holds them there, so the gap it faithfully reports is zero.
+
+That is the final form of this mechanism, after three earlier and less accurate versions today
+("the metric saturates", "it dies when both arms reach parity", "it dies when the arms are
+equal"). The accurate statement is:
+
+> `lineage − reset` measures the gap between two arms and nothing else. Best-of-k drives every
+> arm to correct-at-parity and keeps it there, so the gap is structurally zero for as long as
+> both arms remain saturated, and recovers the moment one of them leaves. A matched reset learner
+> reaches parity in three or four rounds, so the measurement's useful lifetime is three or four
+> rounds by construction.
+
+The last clause is the part that matters for benchmark design. The blindness is not a risk that
+might materialise, it is scheduled.
