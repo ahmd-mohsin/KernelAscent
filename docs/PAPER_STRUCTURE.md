@@ -45,6 +45,29 @@ A result earns **main text** only if it clears all four:
 | **DSL kernel bank** (124 tasks) | 456 screened, 27% kept | held-out-family split | — | supporting | **MAIN (one line) + APPENDIX** — answers "only 29 tasks" |
 | **Cross-rung budget asymmetry** | n/a | n/a | n/a | **yes** | **MAIN — stated as a limitation**: T1/T2 at 2048 tokens, T3/T5 at 1200 |
 
+## The thesis, restated after the starvation finding (2026-09-24, late)
+
+Three rungs of this ladder do not produce nulls. They produce **undefined measurements**, and
+for one shared reason: the self-referential loop has no throughput.
+
+| rung | what fails | measured |
+|---|---|---|
+| T2 registered primary | solver yields no self-generated data | `n_ex` zero in 8 of 19 rounds, mean 0.84, expected 0.8/round by arithmetic |
+| T5 self-play | author yields no accepted tasks | 4 accepted of 173 proposed (2.3%), both seeds below the registered floor of 5 |
+| T2 / T5 endpoints | evaluation set too small to separate arms | `held=5` caps a round at 50 verified candidates, every arm pins at 0.50 |
+
+This is the paper's strongest claim and it is not "RSI does not compound". It is that **a
+self-improvement benchmark must demonstrate its loop has throughput before any contrast it
+reports means anything**, and that the throughput is computable in advance. Expected training
+examples per round is n_train x k x yield. At the registered configuration that is
+3 x 10 x 0.028 = 0.8, which no number of seeds can rescue. We ran 57 trajectories and 228
+rounds of a loop that was arithmetically incapable of compounding, and the arithmetic needed one
+line.
+
+Reachability was already in the paper as a precondition. The starvation finding shows it is not
+one precondition among several, it is **the** precondition, and the same quantity governs the
+solver rung and the author rung alike.
+
 ## The framing changed on 2026-09-24
 
 The pass-rate board altered what this paper is. Previously the strongest claim was "a two-arm
