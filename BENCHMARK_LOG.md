@@ -3928,3 +3928,15 @@ the prediction was that **feeding the loop is what makes the contrast measurable
 makes the contrast positive. The first of those is already confirmed by `n_ex` alone and does not
 depend on how the deltas come out. The second is what these cells are running to find out, and it
 can come out either way without touching the first.
+
+**Update, same session.** `fed_q15_s2` produced its second round: `-0.001, -0.088`. Against
+`s1`'s `+0.074, +0.132`, the two seeds of one configuration are now moving in opposite
+directions at equal depth. The paragraph above was written while only `s1` had two rounds and
+said the second seed did not corroborate it; it now contradicts it. Recorded because this is the
+moment the rising seed would otherwise have become the remembered one — and because it is the
+sixth instance of the pattern in INTUITIONS #23, arriving inside an hour of my writing that the
+pattern was worth watching for.
+
+Nothing about the throughput result moves: both seeds receive 6 to 10 examples per round and
+neither has an empty round, so the loop is fed in both. What the divergence costs is any reading
+of the *sign* at this depth. Registered depth is 5 rounds a seed and both are at 2.
