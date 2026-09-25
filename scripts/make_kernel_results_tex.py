@@ -340,10 +340,73 @@ def nonllm_baseline_table():
     return "\n".join(lines), []
 
 
+def t2_passrate_table():
+    """The h100/passrate board. Amendment 1 forbids pooling this with any headroom result.
+
+    Reported trajectory-level, one value per cell from the mean of its last two rounds, because
+    rounds inside a cell share an adapter and are not independent. No confidence interval is
+    quoted: n=2 trajectories per arm, and an interval on a two-point mean would imply precision
+    the design cannot support. The four per-cell values are the honest presentation.
+    """
+    import statistics as _st
+    cells = []
+    for d_dir in DIRS:
+        for outdir in sorted(glob.glob(os.path.join(d_dir, "t2kp_*"))):
+            name = os.path.basename(outdir)
+            if any(c[0] == name for c in cells):
+                continue
+            d = _load(os.path.join(outdir, "compounding.json"))
+            if not d:
+                continue
+            h = d.get("history") or []
+            lr = [r.get("lineage_minus_reset") for r in h if r.get("lineage_minus_reset") is not None]
+            if not lr:
+                continue
+            cells.append((name, d.get("arm"), len(h), lr, (h[-1] or {}).get("C_lineage")))
+    if not cells:
+        return "", ["t2 pass-rate: no cells found"]
+    TARGET = 8
+    short = [c[0] for c in cells if c[2] < TARGET]
+    if short:
+        return "", ["t2 pass-rate: %d cell(s) below %d rounds (%s); not reporting a partial board"
+                    % (len(short), TARGET, ", ".join(sorted(short)))]
+
+    by = {}
+    for name, arm, n, lr, cfin in cells:
+        by.setdefault(arm, []).append(_st.mean(lr[-2:]))
+    body = ""
+    for name, arm, n, lr, cfin in sorted(cells, key=lambda c: (c[1], c[0])):
+        body += "\\texttt{%s} & %s & %d & %+.3f & %.2f \\\\\n" % (
+            name.replace("t2kp_", "").replace("_", "\\_"), arm, n, _st.mean(lr[-2:]), cfin or 0.0)
+    body += "\\midrule\n"
+    for arm in sorted(by):
+        body += "\\multicolumn{3}{@{}l}{%s, trajectory mean} & \\textbf{%+.3f} & \\\\\n" % (arm, _st.mean(by[arm]))
+    delta = _st.mean(by.get("inject", [0])) - _st.mean(by.get("control", [0]))
+
+    lines = [r"\begin{table}[h]\centering\small",
+             (r"\caption{T2 weight-RSI under pass rate ($n_{\mathrm{ok}}/k$), the "
+              r"\texttt{h100/passrate} set. Reported trajectory-level: one value per cell, the mean of its "
+              r"last two rounds, since rounds inside a cell share an adapter. Lineage beats a matched reset "
+              r"learner that sees identical per-round data, which isolates weight accumulation. Teacher "
+              r"injection changes it by %+.3f. \textbf{No interval is quoted} at $n{=}2$ trajectories per arm. "
+              r"$C_{\mathrm{lineage}}$ reaches the metric's ceiling of 1.0 in three of four cells, so the final "
+              r"rounds measure the bound rather than the learner. Per PREREGISTRATION Amendment 1 this board is "
+              r"never pooled with, or compared against, any headroom result.}" % delta),
+             r"\begin{tabular}{@{}llrrr@{}}",
+             r"\toprule",
+             r"Cell & Arm & Rounds & lineage $-$ reset & final $C_{\mathrm{lineage}}$ \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
-               nonllm_baseline_table, prereg_table):
+               nonllm_baseline_table, t2_passrate_table, prereg_table):
         tex, n = fn()
         if tex:
             parts.append(tex)

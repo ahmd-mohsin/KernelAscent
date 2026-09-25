@@ -66,12 +66,29 @@ All & 29 & \textbf{0.408} & 0.865 \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\caption{T2 weight-RSI under pass rate ($n_{\mathrm{ok}}/k$), the \texttt{h100/passrate} set. Reported trajectory-level: one value per cell, the mean of its last two rounds, since rounds inside a cell share an adapter. Lineage beats a matched reset learner that sees identical per-round data, which isolates weight accumulation. Teacher injection changes it by +0.005. \textbf{No interval is quoted} at $n{=}2$ trajectories per arm. $C_{\mathrm{lineage}}$ reaches the metric's ceiling of 1.0 in three of four cells, so the final rounds measure the bound rather than the learner. Per PREREGISTRATION Amendment 1 this board is never pooled with, or compared against, any headroom result.}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Cell & Arm & Rounds & lineage $-$ reset & final $C_{\mathrm{lineage}}$ \\
+\midrule
+\texttt{control\_q15\_s1} & control & 8 & +0.450 & 0.88 \\
+\texttt{control\_q15\_s2} & control & 8 & +0.430 & 0.98 \\
+\texttt{inject\_q15\_s1} & inject & 8 & +0.500 & 1.00 \\
+\texttt{inject\_q15\_s2} & inject & 8 & +0.390 & 1.00 \\
+\midrule
+\multicolumn{3}{@{}l}{control, trajectory mean} & \textbf{+0.440} & \\
+\multicolumn{3}{@{}l}{inject, trajectory mean} & \textbf{+0.445} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]\centering\small
 \caption{The \emph{pre-registered} T2 primary, \texttt{self}$-$\texttt{fresh\_frozen}, under the registered scorer (\texttt{KA\_SCORE=compiled}, per-task roofline). \textbf{Underpowered} ($n<8$; MDE $0.120$ at $n{=}4$ against a $\delta{=}0.05$ margin), so no equivalence claim is made. 3 of 3 cells incomplete. 3 cell(s) excluded under PREREGISTRATION Amendment 5: a resume that did not restore the trained adapters restarts all three arms from base weights while the round count continues, so those rounds do not measure the registered quantity.}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 Contrast & Trajectories & Estimate (95\% CI) \\
 \midrule
-\texttt{self} $-$ \texttt{fresh\_frozen} & 3 & $-0.038\,[-0.211, +0.135]$ \\
+\texttt{self} $-$ \texttt{fresh\_frozen} & 3 & $-0.022\,[-0.192, +0.148]$ \\
 \bottomrule
 \end{tabular}
 \end{table}
