@@ -1,0 +1,67 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "seed": 1,
+  "C0_frozen": 0.06263567862550022,
+  "C0_ci": 0.0346882258351244,
+  "C0_correct_rate": 0.124,
+  "C0_compiled_sp": 0.151,
+  "resumed_at": null,
+  "adapter_restored": null,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.088,
+      "n_ex": 6,
+      "loss": 0.262,
+      "C_self": 0.187,
+      "C_self_ci": 0.051,
+      "C_ctrl": 0.136,
+      "C_ctrl_ci": 0.047,
+      "C_fresh": 0.113,
+      "C_fresh_ci": 0.044,
+      "correct_rate_self": 0.371,
+      "compiled_sp_self": 0.424,
+      "delta_self": 0.125,
+      "delta_self_minus_ctrl": 0.051,
+      "delta_self_minus_fresh": 0.074,
+      "n_uniq_self": 6,
+      "diversity_self": 0.81,
+      "retention": 1.0,
+      "round_sec": 3588.9,
+      "cum_gpu_hours": 2.991,
+      "n_gens": 1050
+    }
+  ],
+  "_provenance": {
+    "utc": "2026-09-25T06:50:23Z",
+    "host": "n30",
+    "git": null,
+    "python": "3.11.10",
+    "env": {
+      "KA_SCORE": "compiled",
+      "KA_PROMPT": "kernel",
+      "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+      "KA_DATA_DIR": "/users/muahmed/ka_data",
+      "KA_ROOF_ARCH": "h100",
+      "CC": "/usr/bin/gcc",
+      "CXX": "/usr/bin/g++"
+    },
+    "triton": {
+      "import": true,
+      "version": "3.1.0",
+      "cc": "/usr/bin/gcc",
+      "cc_exists": true
+    },
+    "roof_arch": "h100",
+    "roof_peaks": {
+      "fp16": 989.0,
+      "bf16": 989.0,
+      "fp32": 67.0,
+      "tf32": 495.0,
+      "bw": 3350.0
+    },
+    "torch": "2.5.1+cu124",
+    "cuda": "12.4",
+    "gpu": "NVIDIA H100 80GB HBM3"
+  }
+}

@@ -2,10 +2,10 @@
   "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
   "seed": 2,
   "C0_frozen": 0.19243990430371827,
-  "C0_ci": 0.09356858819630388,
+  "C0_ci": 0.09341769154673744,
   "C0_correct_rate": 0.385,
   "C0_compiled_sp": 0.389,
-  "resumed_at": 3,
+  "resumed_at": 4,
   "adapter_restored": true,
   "history": [
     {
@@ -99,11 +99,34 @@
       "round_sec": 2794.9,
       "cum_gpu_hours": 2.329,
       "n_gens": 90
+    },
+    {
+      "round": 4,
+      "trainC": 0.0,
+      "n_ex": 0,
+      "loss": 0.0,
+      "C_self": 0.173,
+      "C_self_ci": 0.092,
+      "C_ctrl": 0.135,
+      "C_ctrl_ci": 0.085,
+      "C_fresh": 0.135,
+      "C_fresh_ci": 0.085,
+      "correct_rate_self": 0.346,
+      "compiled_sp_self": 0.35,
+      "delta_self": -0.019,
+      "delta_self_minus_ctrl": 0.039,
+      "delta_self_minus_fresh": 0.039,
+      "n_uniq_self": 0,
+      "diversity_self": 0.0,
+      "retention": 1.0,
+      "round_sec": 2785.2,
+      "cum_gpu_hours": 2.321,
+      "n_gens": 90
     }
   ],
   "_provenance": {
-    "utc": "2026-09-25T06:18:40Z",
-    "host": "n05",
+    "utc": "2026-09-25T07:36:25Z",
+    "host": "n10",
     "git": null,
     "python": "3.11.10",
     "env": {
