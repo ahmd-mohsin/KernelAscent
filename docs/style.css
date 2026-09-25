@@ -96,12 +96,15 @@ pre code{background:none;padding:0;color:inherit;font-size:12px}
 .cmdlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-top:14px}
 
 /* kpi row */
-.kpis{display:flex;gap:26px;flex-wrap:wrap;padding:16px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin:22px 0 0}
+/* A four-up grid rather than a wrapping flex row: at this measure the fourth item wrapped
+   onto a line of its own and read as a separate statement instead of the fourth of four. */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:16px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin:22px 0 0}
 .kpi-n{font-size:21px;font-weight:600;letter-spacing:-.02em}
 .kpi-l{font-size:11.5px;color:var(--sub)}
 
 footer{max-width:var(--measure);margin:0 auto;padding:26px 24px 60px;border-top:1px solid var(--hair);color:var(--mid);font-size:12.5px;line-height:1.55}
-@media(max-width:640px){body{font-size:15px}h1{font-size:30px}.dek{font-size:16px}h2{font-size:21px}}
+@media(max-width:640px){body{font-size:15px}h1{font-size:30px}.dek{font-size:16px}h2{font-size:21px}
+  .kpis{grid-template-columns:1fr 1fr}}
 
 /* scroll reveal */
 .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
