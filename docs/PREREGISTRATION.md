@@ -364,6 +364,13 @@ cells and 19 completed rounds, the verified yield is **0.028 per generation**, g
 **0.84 training examples per round**. Observed: `n_ex` is **zero in 8 of 19 rounds (42%)**, mean
 0.84, max 3, with `loss = 0.0` in the empty rounds confirming no SFT ran.
 
+> These figures are the measurement **as of this amendment, 2026-09-24, from 19 completed
+> rounds**, and they are not revised afterwards: a pre-registration that is edited to match
+> later data is not a pre-registration. The live value is recomputed from the artifacts at
+> build time and printed in Table `tab:starved`; as further rounds landed it moved to 0.93
+> per round over 30 rounds, 43% empty. The amendment's rule keyed on a floor of 2 examples
+> per round, which both readings clear from the same side, so nothing downstream changes.
+
 ## What this means for the registered contrast
 
 On those rounds `self − fresh_frozen` compares an **untrained** model against one trained on

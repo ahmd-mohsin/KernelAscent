@@ -46,7 +46,7 @@ def main():
         A.check_intervals_contain_estimates(); A.check_table_sums(); A.check_band_table()
         A.check_extraction_policy_stated()
         A.check_log_timestamps_not_future()
-        A.check_recursion_gain_sign()
+        A.check_recursion_gain_sign(); A.check_starvation()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -152,6 +152,26 @@ def main():
     try:
         assert "baselines/recursion-sign" not in run("+ qualified mention (must stay clean)"), \
             "the gate fires on a mention that already carries its correction"
+    finally:
+        open(_p, "w").write(_orig)
+
+    # A superseded loop-throughput figure presented as current. The paper printed 0.96 per
+    # round over 27 rounds for a day after the artifacts said 0.93 over 30, because that table
+    # was hand-typed. It is generated now; this catches the copies.
+    print("starvation gate: a superseded throughput rate must not be stated as current")
+    mutate("README.md",
+           lambda t: t + "\nThe learner receives 0.72 training examples per round.\n",
+           "starvation/stale")
+    # and a figure that names the window it came from is a dated record, not a stale copy --
+    # the pre-registration's own number must survive, because a pre-registration edited to
+    # match later data is not a pre-registration.
+    _p = os.path.join(dst, "README.md")
+    _orig = open(_p).read()
+    open(_p, "w").write(_orig + "\nAs registered, 0.84 training examples per round, "
+                                "measured from 19 completed rounds.\n")
+    try:
+        assert "starvation/stale" not in run("+ dated record (must stay clean)"), \
+            "the gate fires on a figure that states the window it was measured over"
     finally:
         open(_p, "w").write(_orig)
 

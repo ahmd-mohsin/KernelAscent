@@ -801,6 +801,55 @@ def check_log_timestamps_not_future():
         ok("log/timestamp-future", "no dated entry is stamped in the future")
 
 
+def check_starvation():
+    """The loop-throughput figure is canonical, and stale copies of it must not survive.
+
+    This number is the report's lead, and it moves: three prereg cells finished their fifth
+    round and it went from 0.96 examples per round over 27 rounds to 0.93 over 30, empty
+    fraction 41% -> 43%, while the paper kept printing the old pair from a hand-typed table.
+    The table is generated now, which fixes the source. This fixes the copies.
+
+    The gate reports the canonical value and then looks for any OTHER two-decimal rate stated
+    as examples per round. Reporting the current value as a literal is fine; reporting a
+    superseded one is what this catches.
+    """
+    d = load("headline.json").get("starvation") or {}
+    if not d:
+        fail("starvation/canon", "docs/data/headline.json has no starvation block "
+                                 "(run scripts/build_site_headline.py)")
+        return
+    mean, frac, n = d["mean_per_round"], d["frac_empty"], d["n_rounds"]
+    ok("starvation/canon", "%.2f verified examples/round over %d rounds, %d empty (%.0f%%)"
+       % (mean, n, d["n_empty"], 100 * frac))
+
+    cur = "%.2f" % mean
+    hits = []
+    for name, path in PROSE.items():
+        if name in ("starvation_auto.tex", "headline.json"):
+            continue
+        txt = norm_prose(read(path))
+        for m in re.finditer(r"(\d\.\d\d)\s*(?:verified\s+)?(?:training\s+)?examples?\s+per\s+round"
+                             r"|(\d\.\d\d)\s+per\s+round", txt):
+            v = m.group(1) or m.group(2)
+            if v in (cur, "0.96"):      # 0.96 is the PREDICTION, n_train x k x yield, and is fixed
+                continue
+            # A figure that names the window it was computed from is a dated record, not a
+            # stale copy. The pre-registration's 0.84 over 19 rounds must NOT be rewritten to
+            # today's value -- a pre-registration edited to match later data is not one. So the
+            # gate asks whether the sentence scopes itself, and only fails when it does not.
+            window = txt[max(0, m.start() - 400):m.end() + 400]
+            if re.search(r"\bof \d+ rounds\b|\b\d+ completed rounds\b|as of this amendment"
+                         r"|at the time|as registered", window, re.I):
+                continue
+            line = read(path)[:0].count("\n")  # path-level report; the value is what matters
+            hits.append("%s: %r is not the canonical %s per round" % (name, m.group(0)[:48], cur))
+    if hits:
+        fail("starvation/stale", "a superseded loop-throughput figure is still stated:\n      "
+             + "\n      ".join(hits))
+    else:
+        ok("starvation/stale", "no superseded throughput rate in prose (canonical %s, prediction 0.96)" % cur)
+
+
 def check_recursion_gain_sign():
     """No page may present a per-cell recursion gain as if it were the contrast.
 
@@ -862,7 +911,7 @@ def main():
                check_table_sums, check_band_table,
                check_extraction_policy_stated,
                check_log_timestamps_not_future,
-               check_recursion_gain_sign):
+               check_recursion_gain_sign, check_starvation):
         fn()
     if not a.quiet:
         print("=" * 100)
