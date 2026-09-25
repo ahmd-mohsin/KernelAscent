@@ -3776,3 +3776,32 @@ short and predictable lifetime.
 This is the third refinement of this mechanism today. First "the metric saturates", then "it
 dies when both arms reach parity", now "it dies when the arms are equal, and parity is where
 that becomes permanent". Each was prompted by a row that did not fit the previous version.
+
+### Metric contrast COMPLETE — both boards at 8 rounds
+
+`t2kc_q15_s1` and `s2` finished, so both sides of the controlled comparison are at 8 of 8.
+
+**Ten rounds have both arms at correct-at-parity.** Across those ten:
+
+| scorer | mean | max \|value\| | min |
+|---|---|---|---|
+| headroom (best-of-k) | **−0.0002** | **0.004** | — |
+| pass rate | **+0.4360** | — | **+0.360** |
+
+The two ranges are separated by a factor of about 90 and do not approach each other. Headroom's
+largest excursion across ten rounds is 0.004; pass rate's smallest is 0.360.
+
+`s1` is the cleanest single trajectory in the project: the contrast rises +0.101, +0.200,
++0.304 while the arms are at different levels, then reads −0.004, +0.000, −0.000, +0.001, −0.001
+for five consecutive rounds once reset catches up. Five rounds of a quantity that is not noisy
+but *identically zero*, while the same rounds of the same run report +0.44, +0.52, +0.38, +0.38,
++0.52.
+
+This is the paper's centrepiece and it is now closed. One experimental design, one seed, one
+environment variable changed, sixteen rows, and no statistics required to read it.
+
+**What the number is not.** It is not evidence that pass rate is the correct metric. It shows
+that best-of-k cannot see a difference the same runs contain, which is a claim about what
+best-of-k measures rather than a claim that +0.436 is the true effect size. Pass rate has its own
+ceiling at 1.0, reached in three of four cells, and Amendment 1 keeps the boards separate for
+exactly this reason.
