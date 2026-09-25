@@ -3227,3 +3227,40 @@ This also rules out the fix I was most confident in an hour ago, which is the us
 next thing to build is not a third score. It is a task generator whose difficulty tracks the
 learner, with the DSL mutation space and the validity and learnability gates applied to the
 frontier rather than to a fixed held set.
+
+### The ceiling was a slicing shortfall, not a metric property
+
+Three explanations in one session, each replacing the last, and only the third was right.
+
+1. The headroom contrast dies because best-of-k saturates at 0.50. True, and not the whole story.
+2. Pass-rate ceilings too, so the ladder needs an unbounded score. **Wrong** — I computed the
+   proposed score and it plateaus for a different reason.
+3. `--n-held` defaults to **20** and every T2 run received **5**.
+
+`pool[args.n_train:args.n_train + args.n_held]` does not raise when the stop index runs past the
+end. On the 29-task bank the transfer family takes 4, leaving a pool of 25, and `train` takes
+20 — so `held` is whatever remains. Five tasks. The logs printed `held=5` from the first run of
+the session and I read it as a chosen parameter every time.
+
+| bank | n_train | n_held requested | held actual | verified cap per round |
+|---|---|---|---|---|
+| 29 (current) | 20 | 20 | **5** | 50 |
+| 124 (DSL, unused) | 20 | 20 | **20** | **200** |
+
+At k=10 a five-task held set caps a round at 50 verified candidates. Every per-round score
+inherits that bound whatever its functional form, which is why changing headroom to pass-rate
+moved the ceiling without removing it, and why my throughput proposal plateaued. The bound was
+never in the numerator.
+
+The fix costs one environment variable. `KA_KERNEL_BANK` already points `lab_kernel` at a
+different bank, and the 124-task DSL bank with its family splits is built and validated. That is
+a 4x larger evaluation set and a 4x finer granularity with no new code.
+
+The lab now warns on stderr and stamps `n_held_requested`, `n_held_actual` and
+`verified_cap_per_round` into every artifact. I chose a warning over a refusal: held=5 is
+underpowered, not corrupt, and refusing would kill the metric-contrast cells now running.
+`lab_weight_rsi` takes held as the remainder and never had this failure.
+
+**What this cost.** Two wrong diagnoses, a proposed metric I had to retract, and a ceiling I
+wrote into a paper-structure rubric as a property of the scorer. All of it recoverable, and all
+of it avoidable by a line that compared what was asked for against what was returned.
