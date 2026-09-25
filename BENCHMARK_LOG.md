@@ -3836,3 +3836,32 @@ Amendment 6 fixed both readings in advance and neither has fired yet. The null b
 yield-binds branch required `n_ex` near zero, which is now excluded. A third outcome is in play —
 starvation was the binding constraint and feeding the loop reveals an effect — and it needs
 several more rounds and the second seed before it can be claimed.
+
+### Fed seed 2 does not replicate seed 1's contrast (2026-09-25)
+
+Both fed cells now have round 0.
+
+| cell | `n_ex` | `self − fresh_frozen` |
+|---|---|---|
+| `fed_q15_s1` | 6 | **+0.074** |
+| `fed_q15_s2` | 7 | **−0.001** |
+
+**The feeding replicates. The contrast does not.** `n_ex` is 6 and 7, both far above the
+Amendment 6 floor of 2 and six to seven times the registered configuration's 0.96 mean, so the
+intervention did what it was designed to do in both cells. But the contrast reads +0.074 in one
+seed and −0.001 in the other, and their mean of +0.037 sits well inside the −0.10 to +0.15 spread
+the starved configuration produced across 27 rounds.
+
+I reported the previous entry as "the loop is fed, and the contrast is positive". The first half
+holds at n=2. The second half was one cell, and I led with it. **Fifth time today a single cell
+carried a conclusion the next one declined to support** — after the T1 partial, the retrieval
+baseline, T3 seed 2, and the 32B prefix.
+
+The pattern across all five is the same and worth naming precisely: the misleading cell always
+pointed the way I already expected. Starvation predicts that feeding the loop helps, so +0.074
+read as confirmation and −0.001 would have read as noise if it had come first.
+
+What can be said at n=2 round 0: the starvation intervention works as an intervention, and the
+contrast it was meant to reveal is not yet visible. Amendment 6's null branch requires healthy
+`n_ex` *sustained across rounds* with the contrast at or below zero, and one round does not test
+that either.
