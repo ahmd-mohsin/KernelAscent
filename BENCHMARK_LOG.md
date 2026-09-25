@@ -3632,3 +3632,36 @@ Wilson interval [1.3, 6.8] overlaps every scale except 14B.
 with 14B as the endpoint. That framing is now wrong at the top of the ladder, and the paper
 needs the U with the 14B minimum stated as such. This is the second time today the T1 shape has
 had to be restated, after monotonicity was retracted under lenient extraction.
+
+### The metric contrast, as a controlled experiment
+
+`t2kc` and `t2kp` differ in exactly one variable. Same model, same seed, same k, same lab, same
+task bank, same arms. `KA_SCORE=compiled` against `KA_SCORE=passrate`.
+
+**Seed 1**, the clean case:
+
+| round | headroom `lin−reset` | headroom `C_lin` | pass-rate `lin−reset` | pass-rate `C_lin` |
+|---|---|---|---|---|
+| 0 | +0.101 | 0.201 | +0.020 | 0.040 |
+| 1 | +0.200 | 0.400 | +0.080 | 0.120 |
+| 2 | **+0.304** | 0.505 | +0.220 | 0.280 |
+| 3 | **−0.004** | **0.502** | **+0.440** | 0.700 |
+
+The headroom contrast rises to +0.304, then collapses to zero in a single round — at precisely
+the round `C_lineage` reaches 0.502, which is correct-at-parity. The pass-rate cell, running the
+same experiment, is at +0.440 at that round and continues to +0.52.
+
+**Seed 2** is noisier but lands identically at the crossing: round 3 gives `C_lin = 0.501` with
+`lin−reset = +0.001`, against +0.380 on pass rate.
+
+So at round 3 both headroom cells read approximately **zero** with `C_lineage` at parity, while
+both pass-rate cells read **+0.38 to +0.44** on the same runs.
+
+**This is the instrument thesis as an experiment rather than an argument.** The claim has been
+that best-of-k cannot distinguish 1-in-k from k-in-k, so it goes blind exactly when a model
+becomes reliable. Here that is not inferred from two separate boards or from a definitional
+argument. One design, one seed, one variable changed, and the contrast dies at the saturation
+point while the same underlying learning keeps registering on the other scorer.
+
+A reviewer can check this in one table. That is worth more than the +0.44 effect size, because
+the effect size is a result about these models and this is a result about the measurement.
