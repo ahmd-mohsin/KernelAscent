@@ -27,7 +27,8 @@ A result earns **main text** only if it clears all four:
 | **Compile-gain probe**, reported PER TIER (L1 15.5x, L2 1.26x, L3 4.53x) | yes | n/a | n/a | yes | **MAIN** (short) — the 1.34x single-number median is L2's value and must not stand alone |
 | **T1-kernel** endpoint contrast | 1 seed, **replicated across routes** | yes | **yes — both policies** | yes | **MAIN** |
 | ~~T1-kernel *monotone ordering*~~ | — | — | **fails under lenient** | — | **CUT** (retracted; artifact of strict extraction) |
-| **T2-kernel** compounding (headroom) | valid prefixes only | control fires 73% | **metric saturates at 0.50** | yes | **MAIN as an instrument result**, not an RSI one |
+| **T2-kernel** compounding (headroom) | valid prefixes only | control fires 73% | **two bounds, not one** | yes | **MAIN as an instrument result**, not an RSI one |
+| **The ceiling, correctly attributed** | n/a | n/a | n/a | **yes** | **MAIN** — best-of-k saturates at 0.50, *and* `--n-held=20` silently delivered 5, capping a round at held·k = 50 verified candidates. Every per-round score inherits the second bound whatever its form. Report both, and do not repeat my first two diagnoses. |
 | **T2-kernel** teacher injection | matched n=44/arm | — | — | no | **APPENDIX** — not detected; supersedes an earlier positive |
 | **T2-kernel** under pass-rate | running (r3/8, n=2/arm) | **transfers to held-out family** | beats reset AND matched-budget search | **yes — the positive result** | **MAIN if it completes** — see below |
 | **prereg** `self−fresh_frozen` | **re-running from round 0** (Amendment 5) | — | registered scorer | **yes** | **MAIN if n≥8** — all pre-15:32 data discarded |
