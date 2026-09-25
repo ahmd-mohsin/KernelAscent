@@ -38,7 +38,7 @@ A result earns **main text** only if it clears all four:
 | WHY-RSI mechanism | yes (133) | associations only | binning fixed | supporting | **APPENDIX** |
 | E2 strategy-cap ablation | n=2/cell | yes | yes | supports a retraction | **APPENDIX** |
 | Probe-as-intervention | **n=12** | weakest comparator | — | no | **APPENDIX** |
-| T3 procedure-RSI gains | n=1/cell | cap-confounded | — | retracted reading | APPENDIX, gains only |
+| T3 procedure-RSI | n=2 complete (H100) | **archive holds 4 kernels over 6 rounds, or 0** | — | **yes — third instance of the thesis** | **MAIN**, as a starved loop rather than a null. `F_g` mean −0.004 and −0.087; seed 2's base procedure scores 0.000 so reachability failed before the rung began |
 | T4 closed→open | **n=1** | no seeds, no CI | — | no | **CUT** to appendix line |
 | T5 self-play `L−F` | 11 qualifying rows | author-yield failure | **1200-token budget vs T1/T2's 2048** | no | **APPENDIX** with interval *and* the budget gap |
 | 32B scale probe | retried (queued) | — | — | no | **CUT unless it lands** — group quota is 31x over its block limit and 166x over inodes; not ours to fix |
@@ -48,12 +48,16 @@ A result earns **main text** only if it clears all four:
 ## The thesis, restated after the starvation finding (2026-09-24, late)
 
 Three rungs of this ladder do not produce nulls. They produce **undefined measurements**, and
-for one shared reason: the self-referential loop has no throughput.
+for one shared reason: the self-referential loop has no throughput. Each rung was designed around a
+*different* channel — weights, procedures, curricula — in *different* labs, and each channel received
+almost no input. That is what makes this a claim about benchmark design rather than three unlucky
+experiments.
 
 | rung | what fails | measured |
 |---|---|---|
 | T2 registered primary | solver yields no self-generated data | `n_ex` zero in 8 of 19 rounds, mean 0.84, expected 0.8/round by arithmetic |
 | T5 self-play | author yields no accepted tasks | 4 accepted of 173 proposed (2.3%), both seeds below the registered floor of 5 |
+| T3 procedure-RSI | archive of verified kernels stays empty | 4 entries over 6 rounds (seed 1), 0 (seed 2) |
 | T2 / T5 endpoints | evaluation set too small to separate arms | `held=5` caps a round at 50 verified candidates, every arm pins at 0.50 |
 
 This is the paper's strongest claim and it is not "RSI does not compound". It is that **a
