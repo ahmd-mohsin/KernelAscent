@@ -3545,3 +3545,46 @@ undefined quantity looks like, the same as T5's `L−F`.
 cell was still running. It finished at 6 rounds and the mean is **−0.058**. Fourth time today
 I have read a running cell as a finished one, and the second time within a single entry's life.
 The archive is unchanged and is the part that matters: **0 across all six rounds**.
+
+### T2 pass-rate board COMPLETE — large sustained compounding, no injection effect
+
+All four cells reached 8 of 8 rounds. Reported as the `h100/passrate` set per Amendment 1 and
+never pooled with the headroom boards.
+
+| cell | `lineage − reset` by round | final C_lineage |
+|---|---|---|
+| control s1 | +0.02 +0.08 +0.22 +0.44 +0.52 +0.38 +0.38 **+0.52** | 0.88 |
+| control s2 | +0.02 −0.02 +0.08 +0.38 +0.36 +0.52 +0.40 **+0.46** | 0.98 |
+| inject s1 | +0.04 +0.28 +0.52 +0.46 +0.52 +0.52 +0.52 **+0.48** | 1.00 |
+| inject s2 | −0.02 +0.24 +0.48 +0.56 +0.56 +0.46 +0.36 **+0.42** | 1.00 |
+
+**Trajectory-level**, one value per cell (mean of its last two rounds), because rounds inside a
+cell are not independent:
+
+| arm | per-cell values | mean | n |
+|---|---|---|---|
+| control | +0.450, +0.430 | **+0.440** | 2 |
+| inject | +0.500, +0.390 | **+0.445** | 2 |
+| pooled | | **+0.4425** | 4 |
+
+**Compounding is large and sustained.** Lineage beats a matched reset learner by about **+0.44**
+at the end of every cell, with all four trajectories between +0.39 and +0.50. Both arms see
+identical per-round data and only lineage retains weights, so this is the accumulation channel.
+
+**Teacher injection does nothing.** `inject − control = +0.005` at trajectory level. This
+confirms the earlier matched-round analysis and finally settles a contrast that the headroom
+board first reported as positive (+0.100 vs +0.051), an artifact of unequal valid depth.
+
+**Two bounds that must travel with this number.**
+
+* n=2 trajectories per arm. I am not quoting a confidence interval on a two-point mean; the
+  four per-cell values are the honest presentation.
+* `C_lineage` finishes at 0.88, 0.98, 1.00, 1.00. Three of four cells hit the pass-rate ceiling
+  exactly, so the last rounds measure the bound and not the learner. The plateau after round 4
+  is the ruler, which is the same defect the held-set shortfall caused everywhere else and the
+  reason the fed cells run on 89 held tasks instead of 5.
+
+The T2 story is now complete in both metrics and they disagree by construction, not by accident.
+Headroom saturates at 0.50 after two rounds and reports nothing. Pass-rate resolves a +0.44
+effect and saturates at 1.0 after four. The same runs, the same arms, two scorers, and the
+responsible property of each is stated.
