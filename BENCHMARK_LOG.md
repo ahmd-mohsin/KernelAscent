@@ -3002,3 +3002,22 @@ found nothing, so why should we care".
 
 `docs/RESULT_VALIDITY.md` updated: the A100 null stays **VALID**, with its scope corrected from
 "null about acquiring correctness" to "null about best-of-k correctness, blind to reliability".
+
+### The walltime fix worked, and the budget fix moved a baseline
+
+Three of four `basek` cells now record `methods=best_of_k,self_refine` — `self_refine` fits
+inside 90 minutes where it did not fit inside 50. The progress ledger reads `stall=0` for all 14
+tracked cells, which is the correct reading: everything is advancing.
+
+`basek-q15-s1` self_refine at the corrected budget: **C=0.4208, ci=0.0692, correct_rate=0.846.**
+
+This is worth watching. The one stale value I deleted this afternoon was `basek_q3_s2`
+self_refine **C=0.3448** at 900 tokens (backed up as `baselines.json.bak-900tok`). That is a
+different model, so it is NOT a like-for-like comparison and must not be reported as one — but
+`basek_q3_s2` is still running and will give the direct 900-vs-2048 contrast on identical
+config. If the gap is anything like this size, the baseline that the registered primary is
+compared against was being under-measured by roughly a fifth, purely from truncation.
+
+That would make the budget defect worse than "arms were incomparable". It would mean the
+comparison was biased in a specific direction: **against** the baselines and therefore **in
+favour** of any RSI claim built on beating them.
