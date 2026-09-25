@@ -101,18 +101,19 @@ def main():
 
     print("retraction gate: a withdrawn claim must not survive as an assertion anywhere")
     for rel, add in (("README.md", "\n### Task 3 - Procedure-RSI: real, but one-shot\n"),
-                     ("paper/kernelascent_full.tex",
+                     ("paper/05_synthesis.tex",
                       "\nA torch.compile baseline strong enough to close the measurement range entirely.\n"),
                      ("docs/index.html", "<p>The gain is overwhelmingly one-shot.</p>\n")):
         mutate(rel, (lambda a: (lambda t: t + a))(add), "retractions/propagated")
 
     print("interval gate: an estimate must lie inside the interval printed beside it")
-    mutate("paper/kernelascent_full.tex",
+    mutate("paper/04_rungs.tex",
            lambda t: t + "\nThe delta was $-0.111\\,[-0.163,-0.120]$ across all runs.\n",
            "stats/interval-contains-estimate")
 
     print("band gate: the scale-band table must match mech_analysis.json")
-    mutate("paper/kernelascent_full.tex",
+    # the band table moved into 04_rungs.tex when the report was consolidated
+    mutate("paper/04_rungs.tex",
            lambda t: t.replace("$\\ge$8B & 26 &", "$\\ge$8B & 21 &", 1),
            "mech/band-table")
 

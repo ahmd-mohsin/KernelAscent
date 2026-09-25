@@ -6,7 +6,7 @@ labelled as a different estimand. This script recomputes the canonical value of 
 cross-referenced quantity FROM THE DATA, then checks the prose artifacts against it:
 
   * paper/results_auto.tex      (auto-generated -- should always agree by construction)
-  * paper/kernelascent_full.tex (hand-written -- the usual source of drift)
+  * paper/*.tex, the consolidated report (hand-written sections -- the usual source of drift)
   * paper/discussion.tex
   * README.md
   * docs/data/*.json            embedded `claim` / `note` strings that the website renders
@@ -33,7 +33,6 @@ D = os.path.join(ROOT, "docs", "data")
 # worse than having no check at all.
 PROSE = {
     "results_auto.tex": os.path.join(ROOT, "paper", "results_auto.tex"),
-    "kernelascent_full.tex": os.path.join(ROOT, "paper", "kernelascent_full.tex"),
     "discussion.tex": os.path.join(ROOT, "paper", "discussion.tex"),
     "instrument_validity.tex": os.path.join(ROOT, "paper", "instrument_validity.tex"),
     # The consolidated report's own sections. Without these the gates policed the old root

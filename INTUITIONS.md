@@ -6,7 +6,7 @@ each section. This is the file to read before designing the next experiment.
 Sections 2.x are one session's chain of instrument defects, in the order they were
 found -- each one was a publishable-looking result first.
 
-Companion to `BENCHMARK_LOG.md` (dated record of numbers) and `PROGRESS.md` (state).
+Companion to `BENCHMARK_LOG.md` (dated record of numbers) and `paper/kernelascent.tex` (the report).
 `~/.marlowe/MARLOWE_FACTS.md` holds cluster facts.
 
 ---

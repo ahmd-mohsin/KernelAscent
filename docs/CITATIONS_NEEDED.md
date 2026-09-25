@@ -30,8 +30,8 @@ substring collisions.
 | rejection sampling | 7 | `discussion.tex:79` | rejection-sampling fine-tuning, the training method |
 | TOST | 7 | `discussion.tex:80` | two one-sided tests, for every equivalence claim |
 | STaR | 1 | `discussion.tex:19` | the self-taught-reasoner line, already named in prose |
-| Wilson interval | 1 | `kernelascent_full.tex:192` | Wilson score interval |
-| Bayes factor | 1 | `kernelascent_full.tex:636` | the BF₀₁ convention and its interpretation thresholds |
+| Wilson interval | 1 | `04_rungs.tex` (T1 coverage intervals) | Wilson score interval |
+| Bayes factor | 1 | `05_synthesis.tex` (the BF01 convention) | the BF₀₁ convention and its interpretation thresholds |
 
 ## Why the statistical rows matter more than they look
 
