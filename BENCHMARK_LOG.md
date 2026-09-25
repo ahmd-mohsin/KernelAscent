@@ -3514,9 +3514,9 @@ newer self-written procedure beats the older one on held-out tasks.
 | | seed 1 | seed 2 |
 |---|---|---|
 | Q0 (frozen base procedure) | 0.116 | **0.000** |
-| Q by round | 0.000, 0.056, 0.132, 0.111, 0.121, **0.176** | 0.000, 0.056, 0.000, 0.000, 0.000 |
-| `F_g` mean | **−0.004** | **−0.087** |
-| archive size by round | 0, 0, 1, 1, 1, **4** | 0, 0, 0, 0, **0** |
+| Q by round | 0.000, 0.056, 0.132, 0.111, 0.121, **0.176** | 0.000, 0.056, 0.000, 0.000, 0.000, 0.056 |
+| `F_g` mean | **−0.004** | **−0.058** |
+| archive size by round | 0, 0, 1, 1, 1, **4** | 0, 0, 0, 0, 0, **0** |
 
 **Seed 1 improves over its base** (`delta_vs_base` −0.116 → +0.060) while `F_g` sits at −0.004,
 so the gain is not compounding round over round. Seed 2 never leaves zero and its base procedure
@@ -3530,7 +3530,7 @@ weight-RSI. Seed 1 collected **4 over six rounds**. Seed 2 collected **none**.
 | rung | the loop's fuel | measured |
 |---|---|---|
 | T2 primary | self-generated training examples | 0.95 per round, zero in 40% of rounds |
-| T3 | verified kernels in the archive | 4 over 6 rounds, or 0 |
+| T3 | verified kernels in the archive | 4 over 6 rounds, or **0 across all 6** |
 | T5 | accepted authored tasks | 4 of 173 proposed, 2.3% |
 
 Three rungs, three different mechanisms named in the design, one shared cause. Each rung was
@@ -3538,5 +3538,10 @@ built to test whether a specific channel compounds, and in each the channel rece
 input. The ladder does not report three nulls about recursive self-improvement. It reports three
 starved loops, and a precondition nobody measured before running them.
 
-`F_g` at n=2 with means of −0.004 and −0.087 is not a null worth claiming either. It is what an
+`F_g` at n=2 with means of −0.004 and −0.058 is not a null worth claiming either. It is what an
 undefined quantity looks like, the same as T5's `L−F`.
+
+**Correction, same hour.** I recorded T3 seed 2 at 5 rounds with `F_g` mean −0.087 while the
+cell was still running. It finished at 6 rounds and the mean is **−0.058**. Fourth time today
+I have read a running cell as a finished one, and the second time within a single entry's life.
+The archive is unchanged and is the part that matters: **0 across all six rounds**.

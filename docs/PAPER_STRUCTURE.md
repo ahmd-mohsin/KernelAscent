@@ -38,7 +38,7 @@ A result earns **main text** only if it clears all four:
 | WHY-RSI mechanism | yes (133) | associations only | binning fixed | supporting | **APPENDIX** |
 | E2 strategy-cap ablation | n=2/cell | yes | yes | supports a retraction | **APPENDIX** |
 | Probe-as-intervention | **n=12** | weakest comparator | — | no | **APPENDIX** |
-| T3 procedure-RSI | n=2 complete (H100) | **archive holds 4 kernels over 6 rounds, or 0** | — | **yes — third instance of the thesis** | **MAIN**, as a starved loop rather than a null. `F_g` mean −0.004 and −0.087; seed 2's base procedure scores 0.000 so reachability failed before the rung began |
+| T3 procedure-RSI | n=2 complete (H100) | **archive holds 4 kernels over 6 rounds, or 0** | — | **yes — third instance of the thesis** | **MAIN**, as a starved loop rather than a null. `F_g` mean −0.004 and −0.058; seed 2's base procedure scores 0.000 so reachability failed before the rung began |
 | T4 closed→open | **n=1** | no seeds, no CI | — | no | **CUT** to appendix line |
 | T5 self-play `L−F` | 11 qualifying rows | author-yield failure | **1200-token budget vs T1/T2's 2048** | no | **APPENDIX** with interval *and* the budget gap |
 | 32B scale probe | retried (queued) | — | — | no | **CUT unless it lands** — group quota is 31x over its block limit and 166x over inodes; not ours to fix |
