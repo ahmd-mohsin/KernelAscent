@@ -29,7 +29,7 @@ A result earns **main text** only if it clears all four:
 | ~~T1-kernel *monotone ordering*~~ | — | — | **fails under lenient** | — | **CUT** (retracted; artifact of strict extraction) |
 | **T2-kernel** compounding (headroom) | valid prefixes only | control fires 73% | **metric saturates at 0.50** | yes | **MAIN as an instrument result**, not an RSI one |
 | **T2-kernel** teacher injection | matched n=44/arm | — | — | no | **APPENDIX** — not detected; supersedes an earlier positive |
-| **T2-kernel** under pass-rate | running (rounds=2) | — | resolves 0.040 vs 0.020 | yes | **MAIN if it reaches depth** — the metric that does not saturate |
+| **T2-kernel** under pass-rate | running (r3/8, n=2/arm) | **transfers to held-out family** | beats reset AND matched-budget search | **yes — the positive result** | **MAIN if it completes** — see below |
 | **prereg** `self−fresh_frozen` | **re-running from round 0** (Amendment 5) | — | registered scorer | **yes** | **MAIN if n≥8** — all pre-15:32 data discarded |
 | A100 compounding null | yes (57) | **control never fired** | — | yes | MAIN, flagged not admissible under our own gate |
 | Search beats training | yes (57) | yes | yes | yes | **MAIN** |
@@ -43,6 +43,27 @@ A result earns **main text** only if it clears all four:
 | 32B scale probe | retried (queued) | — | — | no | **CUT unless it lands** — group quota is 31x over its block limit and 166x over inodes; not ours to fix |
 | **DSL kernel bank** (124 tasks) | 456 screened, 27% kept | held-out-family split | — | supporting | **MAIN (one line) + APPENDIX** — answers "only 29 tasks" |
 | **Cross-rung budget asymmetry** | n/a | n/a | n/a | **yes** | **MAIN — stated as a limitation**: T1/T2 at 2048 tokens, T3/T5 at 1200 |
+
+## The framing changed on 2026-09-24
+
+The pass-rate board altered what this paper is. Previously the strongest claim was "a two-arm
+self-improvement benchmark manufactures nulls cheaply, here are seven worked examples". That is
+still true and still leads. But it now has a companion result that makes it far harder to
+dismiss: **the same experimental design returns a tight null under one scorer and a large,
+family-transferring effect under another.**
+
+That pairing is the paper. Not "we found nothing and here is why benchmarks are hard", but
+"here is a null and the effect it was hiding, measured on the same runs, with the responsible
+property of the scorer named exactly": best-of-k cannot distinguish 1-in-k from k-in-k, so every
+reliability gain registers as zero.
+
+It also answers the sharpest attack on the old framing — that by our own admissibility criteria
+our headline null was inadmissible. Under the new pairing that is not a wound at all: the null
+is valid, narrow, and its narrowness is the finding.
+
+**What must not happen**: reporting the pass-rate positive as though it supersedes the headroom
+null. It does not. They measure different axes, Amendment 1 forbids pooling them, and the
+contribution is the *contrast*, which is destroyed if either is presented as the "real" answer.
 
 ## Framing
 
