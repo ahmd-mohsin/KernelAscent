@@ -3897,3 +3897,34 @@ equal"). The accurate statement is:
 
 The last clause is the part that matters for benchmark design. The blindness is not a risk that
 might materialise, it is scheduled.
+
+---
+
+## 2026-09-25 02:43 — the fed cells are the first loop that is not starved
+
+`fed-q15-s1/s2` run `lab_weight_rsi` with `KA_KERNEL_BANK` set, so the learner is fed verified
+kernels rather than relying on what the policy happens to generate. This is the intervention the
+throughput precondition implies, and it is the first cell in this project where the precondition
+is met.
+
+    cell          rounds  n_ex per round   delta_self_minus_fresh
+    fed_q15_s1      2      6, 10            +0.074, +0.132
+    fed_q15_s2      1      7                -0.001
+
+The throughput is the point. The registered primary receives **0.93** verified examples per round
+with 43% of rounds empty; these receive **6 to 10**, an order of magnitude more, and no round has
+been empty. Amendment 6 excludes a trajectory below 2 examples per round as starved; these clear
+that floor by a factor of three or more, so for the first time the contrast is *defined*.
+
+**What this does not yet say.** s1 rises across two rounds in the direction the hypothesis
+predicts, and s2 reads flat at round 1. Two rounds of one seed is not a curve, and the second
+seed does not corroborate it yet. INTUITIONS #23 records five occasions in this project where a
+single cell misled, and in every one of them the misleading cell agreed with the hypothesis in
+play — which is exactly the shape of a two-point rise in the arm we would like to rise. No claim
+is entered, the paper is unchanged, and the registered depth is 5 rounds per seed.
+
+The thing worth recording now, before the numbers land and make it tempting to say otherwise:
+the prediction was that **feeding the loop is what makes the contrast measurable**, not that it
+makes the contrast positive. The first of those is already confirmed by `n_ex` alone and does not
+depend on how the deltas come out. The second is what these cells are running to find out, and it
+can come out either way without touching the first.
