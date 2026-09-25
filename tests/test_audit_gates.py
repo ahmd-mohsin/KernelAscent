@@ -133,6 +133,13 @@ def main():
     mutate("BENCHMARK_LOG.md",
            lambda t: t + "\n\n### A section stamped tomorrow (2099-01-01 09:00)\n\nbody\n",
            "log/timestamp-future")
+    # The BARE heading form, which is what every entry in BENCHMARK_LOG actually uses. The gate
+    # required parentheses and was blind to this, so it passed a heading stamped nine minutes
+    # ahead of the clock -- the exact fabrication it exists to catch. The parenthesised case
+    # above had been the only one ever exercised.
+    mutate("BENCHMARK_LOG.md",
+           lambda t: t + "\n\n## 2099-01-01 09:00 -- a section stamped in the future\n\nbody\n",
+           "log/timestamp-future")
 
     # A per-cell recursion gain quoted without the replicate that reverses its sign. The site
     # carried exactly this for a week: +0.055 for one run of one model, on a page that also

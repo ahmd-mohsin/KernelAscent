@@ -3940,3 +3940,30 @@ pattern was worth watching for.
 Nothing about the throughput result moves: both seeds receive 6 to 10 examples per round and
 neither has an empty round, so the loop is fed in both. What the divergence costs is any reading
 of the *sign* at this depth. Registered depth is 5 rounds a seed and both are at 2.
+
+## 2026-09-25 04:17 — t2kc-q3 completes at 8/8, and the two seeds disagree about whether the benchmark can see anything
+
+Both 3B headroom cells reached their registered depth. Same model, same seed count, same budget,
+same code path; they differ only in the seed.
+
+    t2kc_q3_s1  +0.000 +0.112 +0.100 -0.001 +0.000 +0.000 +0.000 -0.001   final arms 0.50/0.50
+    t2kc_q3_s2  +0.201 +0.100 +0.002 +0.201 +0.101 +0.201 +0.301 +0.201   final arms 0.50/0.20
+
+`s1` is live for two rounds, its reset arm reaches correct-at-parity at round 3, and from there
+the contrast reads zero for five consecutive rounds and never recovers. `s2`'s reset arm never
+saturates, and its gap is the widest in the run at round 7.
+
+This is the scheduled-blindness claim as a within-configuration comparison rather than an
+argument. Whether this benchmark registers anything at all was decided by whether the **control**
+arm happened to saturate — not by the treatment, not by the metric's correctness, and not by
+anything a longer run would fix. `s1` ran five more rounds after going blind and they cost the
+same compute as `s2`'s informative ones.
+
+The arm-separation partition, recomputed over all four headroom cells at their new depth: 18
+rounds with the arms within 0.02 average -0.0003 and never exceed 0.004; 14 rounds with a gap
+average +0.144. Both counts grew and the separation widened. Printed in the caption of
+`tab:contrast`, computed at build time.
+
+Note what did **not** change: the scorer contrast itself is still -0.0002 against +0.436 over 10
+parity rounds, because it is paired against the `t2kp` pass-rate cells and only the 1.5B pair has
+those. The q3 cells enter through the partition, which is their correct role.

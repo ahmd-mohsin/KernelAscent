@@ -774,7 +774,13 @@ def check_log_timestamps_not_future():
     """
     import datetime as _dt
     now = _dt.datetime.now()
-    pat = re.compile(r"\((\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})\)")
+    # The parentheses were REQUIRED here, so the gate saw "(2026-09-25 04:26)" and was blind to
+    # "## 2026-09-25 04:26 --", which is the heading form every entry in BENCHMARK_LOG actually
+    # uses. I then stamped a heading 04:26 while the clock read 04:17 and this gate reported
+    # clean -- the very failure it was written to stop, passing because it could not see the
+    # format. Third instance of "a check that cannot see its input reports clean" in this file,
+    # and the most expensive, because its subject is my own fabrication.
+    pat = re.compile(r"(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})")
     bad = []
     # PROSE does not include the running logs, and the dated entries live almost entirely there.
     # The first version of this gate scanned PROSE alone, read none of the text it was written
