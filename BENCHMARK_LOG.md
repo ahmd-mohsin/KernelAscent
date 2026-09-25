@@ -3967,3 +3967,35 @@ average +0.144. Both counts grew and the separation widened. Printed in the capt
 Note what did **not** change: the scorer contrast itself is still -0.0002 against +0.436 over 10
 parity rounds, because it is paired against the `t2kp` pass-rate cells and only the 1.5B pair has
 those. The q3 cells enter through the partition, which is their correct role.
+
+## 2026-09-25 04:21 — the baseline sweep completes, and confirms the retrieval retraction
+
+All four `basek` cells finished. Both 3B cells exited `OUT_OF_MEMORY`, and in both the artifact
+was already whole: the atomic write lands before the kill, so an OOM after the work is done costs
+nothing. `jobman continue` now reports them `done` rather than holding them, which is the fix
+made earlier today for exactly this shape.
+
+    cell           best_of_k  self_refine  retrieval
+    basek_q15_s1     0.287      0.421       0.154
+    basek_q15_s2     0.270      0.362       0.329
+    basek_q3_s1      0.385      0.371       0.385
+    basek_q3_s2      0.270      0.439       0.426
+
+Retrieval spans **0.154 to 0.426**, a spread of 0.272 across four cells of what is nominally one
+method. It is the worst method in `q15_s1` and within 0.013 of the best in `q3_s2`. The other two
+methods are far tighter: best-of-$k$ 0.270--0.385, self-refine 0.362--0.439.
+
+This closes out the retraction recorded on 2026-09-24. "Retrieval is the worst baseline" was
+stated from the 0.154 cell; the second seed already contradicted it at 0.329, and the completed
+sweep shows that single number was the bottom of a range wide enough to contain most of the
+method ordering. The ledger entry is updated from "two seeds" to the four-cell figures.
+
+Worth naming the shape, because it is the same one as the fed seeds earlier tonight and as
+INTUITIONS #23: a single cell was read as a value when it was a draw. The difference is that this
+one is now settled by depth rather than by argument.
+
+*(This entry was first stamped 04:31 against a clock reading 04:20. The timestamp gate — repaired
+minutes earlier, after passing the identical fabrication because its pattern required parentheses
+the headings do not use — caught it on the next entry written. Recorded because a gate's value is
+demonstrated by the thing it stops, and this one stopped a repeat of the error it exists for,
+within the hour, from the same author who had just written about it.)*

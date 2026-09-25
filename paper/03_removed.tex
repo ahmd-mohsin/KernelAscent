@@ -43,9 +43,11 @@ removed exactly the information a reader needs in order to calibrate the rest.
   \textbf{Not detected.}
 
 \item[{``Retrieval is the worst baseline''.}]
-  Stated from one cell at $0.154$. The second seed puts it at $0.329$, ahead of best-of-$k$. Its
-  spread across two seeds of one configuration exceeds the gap between any two methods within
-  either cell. Retrieval is high variance, not reliably weak.
+  Stated from one cell at $0.154$. The completed four-cell sweep puts retrieval at $0.154$,
+  $0.329$, $0.385$ and $0.426$ --- a spread of $0.272$, against within-cell gaps between any two
+  methods of at most $0.27$ and typically half that. It is the worst method in one cell and
+  within $0.013$ of the best in another. Retrieval is high variance, not reliably weak, and the
+  original claim was an artifact of reading the low end of that range as the value.
 
 \item[{``76\% of all scores were exactly 0.50''.}]
   Not reproducible from any artifact. The defensible figure is that 75\% of \emph{non-zero}
