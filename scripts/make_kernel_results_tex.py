@@ -118,7 +118,7 @@ def prereg_table():
         from clustered_stats import trajectory_level, ci as _ci
     except Exception:
         return "", []
-    traj, partial, excluded, seen = [], 0, [], set()
+    traj, partial, excluded, starved, seen = [], 0, [], [], set()
     for d_dir in DIRS:
         for outdir in sorted(glob.glob(os.path.join(d_dir, "prereg_*"))):
             cell = os.path.basename(outdir)
@@ -145,15 +145,29 @@ def prereg_table():
             if d.get("resumed_at") and d.get("adapter_restored") is not True:
                 excluded.append(cell + " (severed)")
                 continue
+            # PREREGISTRATION Amendment 6: a trajectory whose self arm received almost no data
+            # is reported as STARVED, not as a measurement of the contrast. Without this the
+            # table published -0.019 [-0.156, +0.118] from three cells whose mean n_ex was 0.20,
+            # 1.80 and 1.20 -- a contrast between an arm that trained on nothing and one that
+            # trained on frozen-base data. I registered the rule and did not implement it.
+            _nex = [r.get("n_ex", 0) for r in rows]
+            _mean_nex = (sum(_nex) / len(_nex)) if _nex else 0.0
+            if _mean_nex < 2.0:
+                starved.append("%s (mean n_ex %.2f)" % (cell, _mean_nex))
+                continue
             traj.append(st.mean(v))
             if len(v) < 5:
                 partial += 1
     note = []
+    if starved:
+        note.append("prereg: %d cell(s) STARVED per Amendment 6, self arm received <2 examples/round "
+                    "on average: %s" % (len(starved), ", ".join(sorted(starved))))
     if excluded:
         note.append("prereg: excluded %d severed cell(s) per Amendment 5: %s"
                     % (len(excluded), ", ".join(sorted(excluded))))
     if len(traj) < 2:
-        note.append("prereg: %d valid trajectory(ies) -- too few for an interval" % len(traj))
+        note.append("prereg: %d trajectory(ies) survive both amendments -- not reporting a contrast"
+                    % len(traj))
         return "", note
     est = trajectory_level([[x] for x in traj])
     lo, hi = _ci(est)
