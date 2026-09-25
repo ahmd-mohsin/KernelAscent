@@ -411,10 +411,72 @@ def t2_passrate_table():
     return "\n".join(lines), []
 
 
+def metric_contrast_table():
+    """One design, one seed, one variable changed, opposite conclusions.
+
+    t2kc and t2kp differ only in KA_SCORE. Same model, seed, k, lab, bank and arms. This is the
+    instrument argument as an experiment rather than a definitional claim, and it needs no
+    statistics: once both arms reach correct-at-parity the headroom contrast is identically zero,
+    while the same rounds of the same run report ~+0.4 under pass rate.
+
+    Per PREREGISTRATION Amendment 1 the two boards are never pooled. This table places them side
+    by side to compare the SCORERS, which is a different act from pooling their results, and the
+    caption says so.
+    """
+    import statistics as _st
+    pairs = [("t2kc_q15_s1", "t2kp_control_q15_s1"), ("t2kc_q15_s2", "t2kp_control_q15_s2")]
+    rows, dead_h, dead_p = [], [], []
+    for hc, pc in pairs:
+        h = _load(_find(os.path.join(hc, "compounding.json"))) or _load(os.path.join(DIRS[1], hc, "compounding.json"))
+        p = _load(_find(os.path.join(pc, "compounding.json"))) or _load(os.path.join(DIRS[1], pc, "compounding.json"))
+        if not h or not p:
+            continue
+        hh, ph = h.get("history") or [], p.get("history") or []
+        for r in hh:
+            i = r["round"]
+            pv = ph[i]["lineage_minus_reset"] if i < len(ph) else None
+            both = r["C_lineage"] >= 0.49 and r["C_reset"] >= 0.49
+            rows.append((hc, i, r["C_lineage"], r["C_reset"], r["lineage_minus_reset"], pv, both))
+            if both and pv is not None:
+                dead_h.append(r["lineage_minus_reset"]); dead_p.append(pv)
+    if not rows:
+        return "", ["metric contrast: paired cells not found locally"]
+    if not dead_h:
+        return "", ["metric contrast: no round yet has both arms at parity; not reporting"]
+
+    body = ""
+    for cell, i, cl, cr, hv, pv, both in rows:
+        mark = r"$\dagger$" if both else ""
+        body += "%s & %d & %.2f / %.2f & %+.3f%s & %s \\\\\n" % (
+            cell.replace("t2kc_", "").replace("_", "\\_"), i, cl, cr, hv, mark,
+            ("%+.3f" % pv) if pv is not None else "--")
+    lines = [r"\begin{table}[h]\centering\small",
+             (r"\caption{The same experiment under two scorers. \texttt{t2kc} and \texttt{t2kp} differ in "
+              r"\texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a "
+              r"round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all %d such "
+              r"rounds the headroom contrast is within $%.3f$ of zero (mean $%+.4f$), while the same rounds "
+              r"report a mean of $%+.3f$ under pass rate. A difference between two arms survives only while "
+              r"they sit at different levels, and a matched reset learner reaches parity within three or four "
+              r"rounds, after which best-of-$k$ cannot distinguish the arms and reports that inability as a "
+              r"confident zero. The two boards are never \emph{pooled} (Amendment 1); they are placed side by "
+              r"side here to compare the scorers, not the results.}"
+              % (len(dead_h), max(abs(x) for x in dead_h), _st.mean(dead_h), _st.mean(dead_p))),
+             r"\begin{tabular}{@{}lrrrr@{}}",
+             r"\toprule",
+             r"Cell & Round & $C_{\mathrm{lin}}$ / $C_{\mathrm{reset}}$ & headroom & pass rate \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
-               nonllm_baseline_table, t2_passrate_table, prereg_table):
+               nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
+               prereg_table):
         tex, n = fn()
         if tex:
             parts.append(tex)
