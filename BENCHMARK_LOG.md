@@ -3647,9 +3647,29 @@ task bank, same arms. `KA_SCORE=compiled` against `KA_SCORE=passrate`.
 | 2 | **+0.304** | 0.505 | +0.220 | 0.280 |
 | 3 | **−0.004** | **0.502** | **+0.440** | 0.700 |
 
-The headroom contrast rises to +0.304, then collapses to zero in a single round — at precisely
-the round `C_lineage` reaches 0.502, which is correct-at-parity. The pass-rate cell, running the
-same experiment, is at +0.440 at that round and continues to +0.52.
+The headroom contrast rises to +0.304, then collapses to zero in a single round. The pass-rate
+cell, running the same experiment, is at +0.440 at that round and continues to +0.52.
+
+**Correction to my first reading of this.** I wrote that the collapse happens when `C_lineage`
+reaches parity. It does not, and the distinction matters because the mechanism is the
+contribution. `lineage − reset` is a *difference*, so it survives while the arms sit at
+different levels and dies only when **both** reach the 0.50 bound:
+
+| cell | round | `C_lin` | `C_reset` | `lin−reset` |
+|---|---|---|---|---|
+| q15_s1 | 2 | 0.51 | **0.20** | **+0.30** |
+| q15_s1 | 3 | 0.50 | **0.51** | **−0.004** |
+| q15_s2 | 3 | 0.50 | **0.50** | **+0.001** |
+
+At round 2 lineage is already at parity and the contrast is at its maximum, because reset is
+still at 0.20. One round later reset catches up and the contrast is gone. Across all four
+headroom cells, **every** round with both arms above 0.49 has `lin−reset` within 0.004 of zero,
+and every round with a gap between the arms has a visible contrast.
+
+So the precise claim is that best-of-k reports a difference until the *weaker* arm saturates,
+and correct-at-parity is a low enough bar that a matched reset learner clears it in three or
+four rounds. That is worse than "the metric saturates", because the blinding is triggered by the
+control arm improving, which is the thing a control arm is supposed to be allowed to do.
 
 **Seed 2** is noisier but lands identically at the crossing: round 3 gives `C_lin = 0.501` with
 `lin−reset = +0.001`, against +0.380 on pass rate.
