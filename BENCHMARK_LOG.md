@@ -3437,3 +3437,33 @@ now sits near 10 per round and `self − fresh_frozen` is still at or below zero
 null about the quality of self-generated data and gets reported as one. If `n_ex` is still near
 zero at n_train=35, then the 0.028 yield binds and no training-split size rescues this design at
 this scale and prompt.
+
+### Correction: "retrieval is the worst baseline" was n=1 and does not replicate
+
+I wrote that a few entries above, from a single cell, and called it "worth reporting rather
+than burying in a max". The second cell says otherwise.
+
+| cell | best_of_k | retrieval | self_refine | max |
+|---|---|---|---|---|
+| `basek_q15_s1` | 0.287 | **0.154** | 0.421 | self_refine |
+| `basek_q15_s2` | 0.270 | **0.329** | 0.362 | self_refine |
+
+Retrieval is the worst arm in s1 and beats best-of-k in s2. Its spread across two seeds of the
+same configuration is 0.154 to 0.329, which is larger than the gap between any two methods
+within either cell. So retrieval is **high variance**, not reliably weak, and the claim that
+showing a model its own past solutions hurts is withdrawn. Two seeds is not enough to replace
+it with the opposite claim either.
+
+**What does replicate at n=2**: `self_refine` is the maximum in both cells, at 0.421 and 0.362.
+That is the number the RSI arm has to beat, and it is not best-of-k. The substantive point from
+the earlier entry survives, and the colourful one does not.
+
+This is the third time today I have stated a conclusion that only its first cell supported, and
+it is the one where I had the least excuse, because I had already written the lesson twice by
+then. A single cell is an anecdote whichever direction it points.
+
+### Starvation test, 21 rounds
+
+`n_ex = 0` rounds: n=8, mean **−0.0125**. `n_ex > 0` rounds: n=13, mean **+0.0178**.
+Difference **+0.0303**, up from +0.0288 at 20 rounds. Still the direction starvation predicts,
+still nowhere near significance, still reported as a trend rather than a mechanism.
