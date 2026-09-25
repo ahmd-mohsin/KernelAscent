@@ -212,7 +212,7 @@ the wall pass@$K\gg$pass@1 (12--17$\times$) --- the wall is a low-per-sample-pro
 artifact, not absent capability. At 14B the ratio collapses to $\sim$1$\times$ (pass@1${=}0.66$): the teacher is
 reliably-per-sample, not sampling-limited. Rejection-sampling self-training can only \emph{sharpen} the thin
 low-$p$ frontier a small model already covers; it cannot manufacture the coverage a larger model has --- the
-mechanism behind the compounding null.
+mechanism behind the compounding null \emph{as measured by best-of-$k$}. Sharpening is exactly what a best-of-$k$ score cannot see, since that statistic is identical for a model solving a task 1-in-$k$ and $k$-in-$k$; re-scoring the same runs by pass rate turns the null into a large effect. The two readings are consistent and are reported as separate experiment sets.
 \begin{table}[h]\centering\footnotesize
 \caption{Per-task correctness $p$-maps across scale (Qwen2.5-Coder / same task bank). Coverage $=$ tasks with
 $\geq1$ verified-correct sample; K-ratio $=$ pass@$K$/pass@1.}
@@ -366,7 +366,7 @@ def selfplay_mech_note():
             r"into compounding capability. \textbf{Not interpreted:} UNDERNAMES did not complete enough rounds "
             r"to distinguish a genuine ceiling or self-degradation from an interrupted run; in particular the "
             r"apparent DeepSeek-V3.2 ``self-degrade'' is a single-round artifact and is not a finding. This "
-            r"mirrors the weight-RSI compounding null on the API track."
+            r"mirrors the weight-RSI best-of-$k$ compounding null on the API track."
             .replace("NOK", str(len(ok))).replace("MINR", str(MINR))
             .replace("R0", "%+.3f" % r0).replace("REC", "%+.3f" % rec)
             .replace("PCT", "%.0f" % pct_r0).replace("FRAC", "%.0f" % frac).replace("CONV", "%.2f" % conv)
