@@ -3999,3 +3999,35 @@ minutes earlier, after passing the identical fabrication because its pattern req
 the headings do not use — caught it on the next entry written. Recorded because a gate's value is
 demonstrated by the thing it stops, and this one stopped a repeat of the error it exists for,
 within the hour, from the same author who had just written about it.)*
+
+## 2026-09-25 05:13 — correcting the fed reading: the seeds are not diverging, and the yield is
+
+Two things have moved since the 03:13 entry, and the first of them makes that entry's
+characterisation wrong.
+
+    cell         n_ex per round      delta_self_minus_fresh
+    fed_q15_s1   6, 10, 46, 88       +0.074, +0.132, +0.206, +0.130
+    fed_q15_s2   7, 5, 11            -0.001, -0.088, +0.073
+
+**The divergence claim does not survive.** At 03:13 I recorded that the two seeds were "moving in
+opposite directions at equal depth". `s2` has since turned positive at round 3, and `s1` fell from
+$+0.206$ to $+0.130$ at round 4. Neither seed is monotone and neither is cleanly opposed to the
+other. What I described as a contradiction was two seeds at two rounds each, which is not enough
+depth to be either a contradiction or an agreement. The entry stands as written, with this
+correction attached, because the error in it is instructive: I had just finished warning against
+reading a two-point trend and then read a two-point trend, in the opposite direction, as evidence
+that there was nothing to read.
+
+**The yield is the real finding, and it is not about the contrast.** `n_ex` is per-round, not
+cumulative --- `pairs` is rebuilt from `eval_tasks` every round (`lab_weight_rsi.py:516`). At
+`--n-train 35 --k 10` a round draws 350 generations, so `s1`'s trajectory is a verified yield of
+1.7%, 2.9%, 13%, 25% across four rounds. The registered primary's yield is 0.32% and flat.
+
+That growth is a property of the *input* to the loop. It is what a self-improvement loop is
+supposed to do and what this benchmark has never once observed: each round's model verifies more
+of what it generates, so the next round trains on more. Whether it converts into a producer-quality
+gain is the `delta` column, and that column is not yet readable at this depth.
+
+`s2` does not show it at the same magnitude (7, 5, 11), so even the yield growth is seed-dependent
+and is recorded as an observation on one seed, not a result. Both cells are at 4 and 3 of a
+registered 5.
