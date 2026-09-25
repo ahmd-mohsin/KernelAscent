@@ -351,3 +351,41 @@ because the walltime kill lands mid-round by construction. A resume that finds n
   restore them. Negative-tested against the pre-fix source.
 * **Falsifier unchanged.** If the re-run shows no `self − fresh_frozen` effect, that is the
   result; the defect explains discarded data, it does not license a second look at a null.
+
+# Amendment 6 — 2026-09-24: the registered primary's self arm receives ~0.8 examples per round
+
+**Declared before the replacement cells produce any number.**
+
+## The measurement
+
+`--n-train` defaults to **3** in `lab_weight_rsi` and no registered command overrode it. A round
+therefore draws n_train × k = 3 × 10 = 30 generations for the self arm. Measured across six
+cells and 19 completed rounds, the verified yield is **0.028 per generation**, giving an expected
+**0.84 training examples per round**. Observed: `n_ex` is **zero in 8 of 19 rounds (42%)**, mean
+0.84, max 3, with `loss = 0.0` in the empty rounds confirming no SFT ran.
+
+## What this means for the registered contrast
+
+On those rounds `self − fresh_frozen` compares an **untrained** model against one trained on
+frozen-base data. The negative values are explained by the self arm having no input. The
+contrast does not measure the quality of self-generated data against frozen-generated data,
+which is what it was registered to measure.
+
+This is **not** a null result about recursive self-improvement. It is a configuration in which
+the recursion has no input, and it is the same failure as T5, where `L−F` is undefined at an
+author yield of 2.3%. Both self-referential loops starve.
+
+## Registered now
+
+* The six `prereg_*` cells are **run to completion and reported**, as the documented measurement
+  of the starvation. They are **not** interpreted as evidence for or against compounding.
+* A separate set, tagged `fed`, runs the same lab at `--n-train 35` against the 124-task DSL bank
+  via `KA_KERNEL_BANK`, which raises the expected input to **9.8 examples per round**.
+* **The `fed` set is NOT the registered primary and must never be pooled with it.** It differs in
+  training-split size and in task bank. It is exploratory and is reported as such.
+* **Registered in advance.** If the `fed` set shows `self − fresh_frozen` at or below zero while
+  `n_ex` is comfortably above zero every round, that is a real null about self-generated data
+  quality and we report it as one. If `n_ex` is still near zero at n_train=35, the yield is the
+  binding constraint and no training-split size rescues the design at this scale and prompt.
+* Every artifact records `n_ex` per round. Any trajectory whose mean `n_ex` is below 2 is
+  reported as starved rather than as a measurement of the contrast.
