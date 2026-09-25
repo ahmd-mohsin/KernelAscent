@@ -3111,3 +3111,43 @@ L2 is the plurality at 48%, not the whole story. **Any claim about what a 0.50 s
 to be made per tier**, because the baseline it is being measured against differs by an order of
 magnitude between them. The single-number headline should be replaced with the three-row table
 wherever it appears.
+
+### Non-LLM baseline: max-autotune scores 0.41, BELOW correct-at-parity
+
+`torch.compile(mode="max-autotune")` submitted to this benchmark and scored exactly as a model
+candidate is (speedup over the compiled baseline, same per-task roofline ceiling, same timing
+harness). 29/29 tasks scored.
+
+| | median score | median speedup vs compiled baseline |
+|---|---|---|
+| **all** | **0.4084** | **0.865** |
+| L1 | 0.381 | 0.611 |
+| L2 | 0.408 | 0.868 |
+| L3 | 0.505 | 1.063 |
+
+**max-autotune is slower than default `torch.compile` on 27 of 29 tasks**, by 13.5% at the
+median and 39% on L1. Only 2 tasks beat the compiled baseline at all, and only L3 clears parity.
+
+This is the first branch of the read-out I committed before running it, and it is stronger than
+I expected — I predicted ~0.50 and got 0.41.
+
+**What it means for the paper.** The most common objection to the kernel results is "the models
+only reach 0.50, so they are failing". That objection now has a quantitative answer: **0.50
+beats the strongest readily available non-LLM tool on this benchmark.** A model matching the
+compiled baseline is not failing to beat a weak baseline — it is outperforming production
+autotuning. The roofline headroom these tasks expose is not reachable by current compiler
+tooling either, which makes it a property of the task set rather than a model deficiency.
+
+**Honest caveats, because this result is convenient.**
+
+* This says max-autotune does not help **on these 29 ops at these shapes**. It is not a general
+  claim about max-autotune, which exists mainly for shapes where template search pays off.
+* Only runtime is measured. max-autotune's large *compile-time* cost is not counted anywhere,
+  so this comparison is generous to it on wall-clock and still it loses.
+* L3 (n=4) is the one tier where it wins, and n=4 is too small to carry a claim on its own.
+* Two tasks beating the baseline is consistent with noise; the finding is the median and the
+  direction, not any individual task.
+
+Falsifier for this result, stated now: if a future run on a matmul-heavy or dynamic-shape bank
+shows max-autotune clearing 0.50 comfortably, then this is a property of the current task mix
+and must be reported as such rather than as a general ceiling claim.
