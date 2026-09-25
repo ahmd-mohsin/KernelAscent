@@ -3685,3 +3685,37 @@ point while the same underlying learning keeps registering on the other scorer.
 
 A reviewer can check this in one table. That is worth more than the +0.44 effect size, because
 the effect size is a result about these models and this is a result about the measurement.
+
+### The metric contrast, final form: six dead rounds against +0.43
+
+Both headroom cells reached 6 rounds. The pattern is no longer a single crossing, it is a floor
+the contrast never leaves.
+
+**Seed 1** (`C_lin` / `C_reset` → `lin−reset`), with the pass-rate cell's value for the same round:
+
+| r | headroom arms | headroom contrast | pass-rate contrast |
+|---|---|---|---|
+| 0 | 0.20 / 0.10 | +0.101 | +0.02 |
+| 1 | 0.40 / 0.20 | +0.200 | +0.08 |
+| 2 | 0.51 / **0.20** | **+0.304** | +0.22 |
+| 3 | 0.50 / **0.51** | **−0.004** | **+0.44** |
+| 4 | 0.50 / 0.50 | **+0.000** | **+0.52** |
+| 5 | 0.50 / 0.50 | **−0.000** | **+0.38** |
+
+**Seed 2** reaches the floor a round earlier and stays: +0.001, −0.000, +0.001 at rounds 3–5,
+against +0.38, +0.36, +0.52 on pass rate.
+
+**Across both cells, every round with both arms at parity reports a contrast within 0.004 of
+zero — six rounds, no exceptions — while the same rounds of the same experiment report +0.36 to
++0.52 under pass rate.** The headroom contrast is not noisy at saturation. It is identically
+zero, because both arms are pinned to the same value and a difference of two equal numbers has
+no variance to report.
+
+This is the whole instrument argument in one table, and it needs no statistics. One design, one
+seed, one variable changed, and a quantity that reads 0.000 for three consecutive rounds while
+the same runs measured differently read 0.43 on average.
+
+The mechanism, stated precisely: best-of-k pins at correct-at-parity once any candidate is
+correct, so a contrast between two arms survives only while they sit at *different* levels. A
+matched reset learner reaches parity within three or four rounds. After that the metric cannot
+distinguish the arms no matter what they do, and it reports that inability as a confident zero.
