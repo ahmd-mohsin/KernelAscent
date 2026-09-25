@@ -3719,3 +3719,30 @@ The mechanism, stated precisely: best-of-k pins at correct-at-parity once any ca
 correct, so a contrast between two arms survives only while they sit at *different* levels. A
 matched reset learner reaches parity within three or four rounds. After that the metric cannot
 distinguish the arms no matter what they do, and it reports that inability as a confident zero.
+
+### The stall detector fired on real data, and it was right
+
+```
+HOLD  basek-q3-s1  (2 consecutive chunks recorded nothing new: methods=best_of_k,self_refine)
+```
+
+First production firing. Two consecutive 90-minute chunks produced no new method, so `retrieval`
+does not fit a 90-minute walltime at 3B. The cell was held rather than resubmitted a third time,
+which is the behaviour the ledger exists for. Before it existed, this cell would have burned
+walltime indefinitely while the queue looked healthy — the failure that cost 19 cells earlier.
+
+**It matters for the result, not just for the compute.** In `basek_q3_s1` the ordering is
+currently `best_of_k` 0.385 above `self_refine` 0.371, unlike both q15 cells where `self_refine`
+leads. So this is the one cell where the max over baselines is genuinely unsettled, and a missing
+`retrieval` could change which arm the RSI result has to beat. The held cell was not a
+bookkeeping problem.
+
+Walltime raised to 3 hours for all four `basek` cells, and the ledger rows cleared so the new
+walltime gets a fair two chunks before the detector can hold them again. Leaving stale stall
+counts in place would have the detector judging the new configuration on the old one's failures.
+
+**Standing count of walltime corrections today**: 50 min to 90 min for baselines when the token
+budget grew, 70 min to 2 hours for the fed cells when the split grew, and now 90 min to 3 hours
+for the retrieval arm. Each is the same lesson — *the smallest resumable unit must fit inside one
+walltime* — and each was found after the fact except the fed one, which was caught by arithmetic
+before the first timeout.
