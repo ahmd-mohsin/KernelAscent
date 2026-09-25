@@ -1,8 +1,9 @@
 {
   "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
   "seed": 5,
-  "C0": 0.09013513024862993,
+  "C0": 0.19113647354672594,
   "held_family": "l3",
+  "resumed_at": 5,
   "arm": "inject",
   "inject_kernels": "/users/muahmed/ka_data/teacher_union.json",
   "inject_per_task": 1,
@@ -111,11 +112,32 @@
       "lineage_minus_reset": 0.0,
       "lineage_minus_bestofN": -0.004,
       "round_sec": 617.7
+    },
+    {
+      "round": 5,
+      "score_mode": "compiled",
+      "trainC": 0.073,
+      "n_ex": 11,
+      "n_injected": 8,
+      "injected_tasks": 8,
+      "n_solved_self": 3,
+      "loss": 0.17,
+      "C_lineage": 0.301,
+      "C_reset": 0.401,
+      "C_bestofN": 0.404,
+      "C_retrieval": 0.101,
+      "transfer_C": 0.375,
+      "marginal_gain_lineage": -0.2,
+      "gain_vs_C0_lineage": 0.11,
+      "marginal_gain_reset": 0.21,
+      "lineage_minus_reset": -0.1,
+      "lineage_minus_bestofN": -0.103,
+      "round_sec": 1177.2
     }
   ],
   "_provenance": {
-    "utc": "2026-09-24T21:24:07Z",
-    "host": "n27",
+    "utc": "2026-09-24T22:21:34Z",
+    "host": "n06",
     "git": null,
     "python": "3.11.10",
     "env": {

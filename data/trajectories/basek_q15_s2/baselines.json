@@ -11,6 +11,14 @@
       "ci": 0.096,
       "correct_rate": 0.538,
       "compiled_sp": 0.548
+    },
+    "self_refine": {
+      "method": "self_refine",
+      "iters": 6,
+      "k": 10,
+      "C": 0.3625,
+      "ci": 0.0847,
+      "correct_rate": 0.731
     }
   }
 }

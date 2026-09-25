@@ -1,0 +1,224 @@
+{
+ "teacher": "Qwen/Qwen2.5-Coder-14B-Instruct",
+ "k": 6,
+ "n_tasks": 29,
+ "kernels": {
+  "l3_2": [
+   {
+    "code": "import torch\nimport torch.nn as nn\nimport triton\nimport triton.language as tl\n\nDT = torch.float16\n\nclass ModelNew(nn.Module):\n    # LLaMA-style causal self-attention sublayer on a realistic decoder shape:\n    #   RMSNorm -> fused QKV GEMM -> RoPE (fp32) -> grouped-query causal attention\n    #   (fp16 QK^T, fp32 mask+softmax, fp16 PV) -> out-proj -> residual -> RMSNorm\n    B, S, D = 4, 2048, 2048\n    N_HEADS, N_KV_HEADS = 16, 4\n    HEAD_DIM = D // N_HEADS  # 128\n    EPS = 1e-5\n\n    def __init__(self, dt=DT):\n        super().__init__()\n        S, D, H, HKV, HD = self.S, self.D, self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM\n        dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n        g = torch.Generator().manual_seed(0)\n        self.norm1_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev, dt))\n        self.norm2_w = nn.Parameter((1.0 + 0.1 * torch.randn(D, generator=g)).to(dev, dt))\n        self.w_qkv = nn.Parameter(\n            (torch.randn((H + 2 * HKV) * HD, D, generator=g) * D ** -0.5).to(dev, dt)\n        )\n        self.w_o = nn.Parameter((torch.randn(D, D, generator=g) * D ** -0.5).to(dev, dt))\n        inv_freq = 1.0 / (10000.0 ** (torch.arange(0, HD, 2, dtype=torch.float32) / HD))\n        freqs = torch.outer(torch.arange(S, dtype=torch.float32), inv_freq)\n        emb = torch.cat([freqs, freqs], dim=-1)  # [S, HD]\n        self.register_buffer(\"cos\", emb.cos().to(dev), persistent=False)\n        self.register_buffer(\"sin\", emb.sin().to(dev), persistent=False)\n        self.register_buffer(\n            \"mask\", torch.triu(torch.ones(S, S, dtype=torch.bool), diagonal=1).to(dev), persistent=False\n        )\n\n    @staticmethod\n    def _rotate_half(t):\n        t1, t2 = t.chunk(2, dim=-1)\n        return torch.cat([-t2, t1], dim=-1)\n\n    def _rmsnorm(self, t, w):\n        tf = t.float()\n        tf = tf * torch.rsqrt(tf.pow(2).mean(-1, keepdim=True) + self.EPS)\n        return (tf * w.float()).to(t.dtype)\n\n    def forward(self, x):\n        b, s, _ = x.shape\n        H, HKV, HD, D = self.N_HEADS, self.N_KV_HEADS, self.HEAD_DIM, self.D\n\n        h = self._rmsnorm(x, self.norm1_w)\n        qkv = h @ self.w_qkv.t()  # [B, S, (H+2*HKV)*HD]\n        q, k, v = torch.split(qkv, [H * HD, HKV * HD, HKV * HD], dim=-1)\n        q = q.view(b, s, H, HD).transpose(1, 2)  # [B, H, S, HD]\n        k = k.view(b, s, HKV, HD).transpose(1, 2)  # [B, HKV, S, HD]\n        v = v.view(b, s, HKV, HD).transpose(1, 2)\n\n        cos = self.cos[:s][None, None]\n        sin = self.sin[:s][None, None]\n        qf, kf = q.float(), k.float()\n        q = (qf * cos + self._rotate_half(qf) * sin).to(x.dtype)\n        k = (kf * cos + self._rotate_half(kf) * sin).to(x.dtype)\n\n        rep = H // HKV\n        k = k.repeat_interleave(rep, dim=1)  # [B, H, S, HD]\n        v = v.repeat_interleave(rep, dim=1)\n\n        scores = torch.matmul(q, k.transpose(-1, -2)).float() * (HD ** -0.5)  # [B, H, S, S]\n        scores = scores.masked_fill(self.mask[:s, :s], float(\"-inf\"))\n        p = torch.softmax(scores, dim=-1).to(x.dtype)\n        o = torch.matmul(p, v)  # [B, H, S, HD]\n        o = o.transpose(1, 2).reshape(b, s, D)\n        o = o @ self.w_o.t()\n\n        return self._rmsnorm(x + o, self.norm2_w)\n\ndef get_inputs():\n    dev = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n    g = torch.Generator().manual_seed(1)\n    return [torch.randn(ModelNew.B, ModelNew.S, ModelNew.D, generator=g).to(dev, DT)]\n",
+    "speedup_eager": 1.0,
+    "is_kernel": true
+   }
+  ]
+ },
+ "attempts": {
+  "l1_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_4": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_5": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_6": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_7": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_8": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_9": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l1_10": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_4": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_5": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_6": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_7": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_8": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_9": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_10": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_11": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_12": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_13": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_14": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l2_15": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_1": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_2": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 6,
+   "n_kernel_verified": 1,
+   "n_verified": 1
+  },
+  "l3_3": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  },
+  "l3_4": {
+   "n_candidates": 6,
+   "n_attempted_kernel": 5,
+   "n_kernel_verified": 0,
+   "n_verified": 0
+  }
+ },
+ "tasks_attempted": 29,
+ "complete": true,
+ "_provenance": {
+  "utc": "2026-09-24T22:48:06Z",
+  "host": "n07",
+  "git": null,
+  "python": "3.11.10",
+  "env": {
+   "KA_SCORE": "compiled",
+   "KA_PROMPT": "kernel",
+   "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+   "KA_DATA_DIR": "/users/muahmed/ka_data",
+   "KA_ROOF_ARCH": "h100",
+   "CC": "/usr/bin/gcc",
+   "CXX": "/usr/bin/g++"
+  },
+  "triton": {
+   "import": true,
+   "version": "3.1.0",
+   "cc": "/usr/bin/gcc",
+   "cc_exists": true
+  },
+  "roof_arch": "h100",
+  "roof_peaks": {
+   "fp16": 989.0,
+   "bf16": 989.0,
+   "fp32": 67.0,
+   "tf32": 495.0,
+   "bw": 3350.0
+  },
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3"
+ }
+}

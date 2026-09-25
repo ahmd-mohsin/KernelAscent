@@ -1,8 +1,9 @@
 {
   "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
   "seed": 1,
-  "C0": 0.09999845020886158,
+  "C0": 0.09999579242231037,
   "held_family": "l3",
+  "resumed_at": 3,
   "arm": "control",
   "inject_kernels": null,
   "inject_per_task": 1,
@@ -69,11 +70,32 @@
       "lineage_minus_reset": -0.003,
       "lineage_minus_bestofN": -0.204,
       "round_sec": 1044.8
+    },
+    {
+      "round": 3,
+      "score_mode": "compiled",
+      "trainC": 0.1,
+      "n_ex": 4,
+      "n_injected": 0,
+      "injected_tasks": 0,
+      "n_solved_self": 4,
+      "loss": 0.097,
+      "C_lineage": 0.0,
+      "C_reset": 0.2,
+      "C_bestofN": 0.199,
+      "C_retrieval": 0.2,
+      "transfer_C": 0.25,
+      "marginal_gain_lineage": -0.099,
+      "gain_vs_C0_lineage": -0.1,
+      "marginal_gain_reset": 0.1,
+      "lineage_minus_reset": -0.2,
+      "lineage_minus_bestofN": -0.199,
+      "round_sec": 1687.7
     }
   ],
   "_provenance": {
-    "utc": "2026-09-24T20:53:46Z",
-    "host": "n26",
+    "utc": "2026-09-24T22:16:21Z",
+    "host": "n02",
     "git": null,
     "python": "3.11.10",
     "env": {
