@@ -10,7 +10,7 @@ Site: https://ahmd-mohsin.github.io/KernelAscent/ · Full record and every numbe
 
 ---
 
-KernelAscent asks whether models get better at writing GPU kernels — and, crucially, whether that improvement **compounds recursively**. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline (eager today; a unified `torch.compile` baseline is reported separately). Scores are headroom-normalized against a per-task roofline so the ceiling is the *model's* skill, never the benchmark's.
+KernelAscent asks whether models get better at writing GPU kernels — and, crucially, whether that improvement **compounds recursively**. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline (eager today; a unified `torch.compile` baseline is reported separately). Scores are headroom-normalized against a per-task roofline so the ceiling is the *model's* skill rather than a fixed anchor. **Caveat, measured 2026-09-24:** this score is a *best-of-k* quantity, and best-of-k cannot distinguish a model that solves a task 1-in-k from one that solves it k-in-k. On this task bank it saturates at 0.50 (correct-at-parity) as soon as one candidate is correct, which erases reliability gains entirely. A separate pass-rate board exists for that axis (see [`docs/PREREGISTRATION.md`](docs/PREREGISTRATION.md) Amendment 1); the two are never pooled.
 
 The benchmark is a ladder of five tasks. Tasks 1–4 are building blocks; **Task 5 (self-play) is the intended true-recursive-self-improvement metric** — though in the current runs the live authors did not yield enough valid tasks for it to be measurable (see [Findings](#5-task-5--self-play-undefined-at-the-current-author-yield)).
 
@@ -18,7 +18,7 @@ The benchmark is a ladder of five tasks. Tasks 1–4 are building blocks; **Task
 - **Task 2 — Weight-RSI.** An open-weight model LoRA-trains on its own correct kernels; does held-out capability keep rising? (weights are the improvement channel)
 - **Task 3 — Procedure-RSI.** A model rewrites its own executable strategy library + verified archive; improvement without touching weights (works for closed models).
 - **Task 4 — Closed→Open.** A closed frontier model rewrites the *training harness* of an open trainee; measures improvement transferred through tooling.
-- **Task 5 — Self-play (true RSI).** The model authors its own strictly-harder tasks **and** solves+improves on them, so difficulty and capability co-evolve. This is the design intended to make recursive compounding falsifiable. Runs for both open-weight (weight channel) and closed (procedure channel) models. *Status: free-form task proposal collapses — the author yield is too low for `L−F` to be defined, so this rung is currently a negative result about task proposal, not a measurement of co-evolution.*
+- **Task 5 — Self-play (true RSI).** The model authors its own strictly-harder tasks **and** solves+improves on them, so difficulty and capability co-evolve. This is the design intended to make recursive compounding falsifiable. Runs for both open-weight (weight channel) and closed (procedure channel) models. *Status: free-form task proposal collapses — the author yield is too low for `L−F` to be defined, so this rung is currently a negative result about task proposal, not a measurement of co-evolution. Measured on a completed 3B trajectory (2026-09-24): **2 accepted proposals out of 68**, with degenerate rejections rising ~3x across the run (6 → 22) — the author gets **worse** at proposing as it trains, and the frozen-author arm grew its frontier further than the live one (+8 vs +5).*
 
 Capability is a snapshot of raw skill. Tasks 2–5 measure the *slope*, and Task 5 measures whether the slope feeds itself.
 
@@ -87,7 +87,9 @@ with `python3 scripts/equivalence_tost.py --dir data/trajectories` and
 
 ### 1. Persistent self-improvement: lineage ≈ matched reset (bounded null)
 
-Carrying the self-trained lineage forward does **not** beat restarting from base at equal compute.
+Carrying the self-trained lineage forward does **not** beat restarting from base at equal compute, *as measured by the best-of-k headroom score*.
+
+> **Scope, added 2026-09-24.** This is a null about **best-of-k** capability. Because best-of-k is > identical for a model solving 1-in-k and k-in-k, it is blind to gains in *reliability*. A > pass-rate board measuring that axis is running; it is a separate experiment set and is not pooled > with these numbers. Until it completes, read this row as "no compounding in best-of-k", not as > "no compounding".
 
 | scale | traj. n | rounds | lineage − reset (95% CI) | TOST δ=0.05 | BF₀₁ |
 |---|--:|--:|---|---|--:|
