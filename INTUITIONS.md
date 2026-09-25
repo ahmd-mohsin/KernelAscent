@@ -1678,3 +1678,20 @@ to shell quoting. Write the script file.
     reported a resume I had just written as missing, because it knew the shifted-range idiom and
     not the in-loop guard. A false positive costs a minute. A false negative invites you to add
     what already exists, or to certify a clean sweep over a set you never checked.
+23. **The cell that misleads you points the way you already expected.** Five times in one day a
+    single cell carried a conclusion the next one declined to support, and every time the first
+    cell agreed with the hypothesis in play. T1's 32B prefix read 6.94% and the full sweep gave
+    2.99%; retrieval looked like the worst baseline at 0.154 and the second seed put it at 0.329
+    ahead of best-of-k; T3 seed 2 read F mean −0.087 at five rounds and −0.058 at six; fed seed 1
+    gave `self − fresh` of +0.074 and seed 2 gave −0.001. In each case the confirming number
+    arrived first and felt like evidence, and the disconfirming one would have read as noise had
+    the order been reversed. **The rule that would have caught all five: a number that supports
+    what you already believe needs a second cell before it is written down, and a number that
+    contradicts it needs the same.** Symmetry is the whole point — applying the standard only to
+    inconvenient results is how a confirming anecdote becomes a finding.
+24. **Borrowed constants carry their origin.** I predicted the fed loop would yield 9.8 examples
+    per round using a verified-yield of 0.032 measured on the *curated* bank, and got 6, because
+    the DSL bank is harder (`C0` 0.063 against 0.174) and its yield is 0.017. The arithmetic was
+    right and the input came from the wrong population. This is the same shape as `--n-held=20`
+    silently returning 5 and `KA_MAXMEM_GIB=20` being sized for a 1.5B arm: a number that was
+    correct where it was measured, reused where it was not.
