@@ -1,0 +1,94 @@
+\section{Why this benchmark exists, and what it found}
+\label{sec:motivation}
+
+A self-improvement benchmark reports a number. The number is only worth reading if the
+measurement could have moved. This section states the four results that make the rest of the
+report worth reading, each of which is about whether the instrument can see what it claims to
+measure.
+
+\subsection{The same runs, two scorers, opposite conclusions}
+\label{sec:motivation:contrast}
+
+The central result is a controlled comparison of two scoring rules on one experiment. Two cells
+differ in a single environment variable and in nothing else --- same base model, same seed, same
+sampling budget $k$, same task bank, same three arms, same code path. One scores each round with
+the headroom-normalised best-of-$k$ rule the benchmark was designed around; the other scores the
+identical generations by pass rate, the fraction of $k$ candidates that verify.
+
+Across the ten rounds in which both the lineage and reset arms have reached correct-at-parity,
+the headroom contrast reports a mean of $-0.0002$ and never departs from zero by more than
+$0.004$. The same ten rounds report a mean of $+0.436$ under pass rate, with a minimum of
+$+0.360$. The two ranges are separated by a factor of roughly ninety and do not approach one
+another.
+
+This is not a claim that pass rate is the correct metric; it has a ceiling of its own, reached in
+three of four cells. It is a demonstration that a benchmark can return a confident null on a
+difference its own runs contain. Table~\ref{tab:contrast} is the evidence, and it requires no
+statistics to read.
+
+\subsection{The blindness is scheduled, not accidental}
+
+Best-of-$k$ is identical for a model that solves a task one time in $k$ and one that solves it
+$k$ times in $k$. Self-training acts on exactly that quantity. The consequence is visible in the
+arm levels rather than in any summary statistic: across all four headroom cells and both model
+scales, the fourteen rounds in which the two arms sit within $0.02$ of each other average
+$-0.0004$ and never exceed $0.004$, while the ten rounds with a gap average $+0.131$.
+
+The contrast is therefore measuring the gap between the arms and nothing else, faithfully, at all
+times. Best-of-$k$ compresses both arms onto correct-at-parity and holds them there, so the gap
+it faithfully reports is zero. It recovers the moment a gap reopens: one cell reads $+0.002$ at
+arm levels $0.50/0.50$ and $+0.201$ one round later at $0.50/0.30$.
+
+The design consequence is the part worth carrying: a matched reset learner reaches parity within
+three or four rounds, so the measurement's useful lifetime is fixed by the \emph{control} arm
+rather than by the treatment. This cannot be repaired by choosing a better treatment or running
+longer. A well-behaved control ends the measurement by behaving well.
+
+\subsection{Three rungs did not produce nulls; they produced undefined measurements}
+\label{sec:motivation:starved}
+
+Three of the five rungs failed for one shared reason, and it is computable before a run rather
+than diagnosed after. Each rung was built around a different channel, in a different lab, and in
+each the channel received almost no input.
+
+\begin{table}[H]\centering\small
+\caption{The self-referential loop's throughput, measured. Each rung was designed to test whether
+a specific channel compounds; each channel was starved.}
+\label{tab:starved}
+\begin{tabular}{@{}llr@{}}
+\toprule
+Rung & What feeds the loop & Measured \\
+\midrule
+T2 (weight-RSI) & verified self-generated training examples & 0.96 per round, \textbf{zero in 41\%} of rounds \\
+T3 (procedure-RSI) & kernels entering the archive after grading & \textbf{4} across six rounds, or \textbf{0} \\
+T5 (self-play) & accepted model-authored tasks & \textbf{4 of 173} proposed (2.3\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The arithmetic was available in advance. Expected training examples per round is
+$n_{\mathrm{train}} \times k \times \text{yield}$. At the registered configuration this is
+$3 \times 10 \times 0.032 = 0.96$, and the artifacts agree. We ran 57 trajectories and 228 rounds
+of a loop that could not compound, and the calculation that says so is one line.
+
+The claim this supports is not that recursive self-improvement fails. It is that \textbf{a
+self-improvement benchmark must demonstrate that its loop has throughput before any contrast it
+reports carries information}, and that this is a precondition to check rather than a result to
+discover.
+
+\subsection{A non-LLM baseline that scores below parity}
+
+The most common objection to results in this domain is that a model reaching correct-at-parity is
+simply failing. We answered it by submitting a non-LLM tool to the benchmark on its own terms.
+\texttt{torch.compile(mode="max-autotune")}, scored exactly as a model candidate is, reaches a
+median of $0.408$ --- below correct-at-parity --- because it is slower than default
+\texttt{torch.compile} on 27 of 29 tasks. A model matching the compiled baseline is therefore
+outperforming production autotuning on this bank, not failing to beat a weak baseline.
+
+\subsection{What the reader should take from the rest of this report}
+
+The four results above are about the instrument. The remainder of the report is the ladder that
+produced them: five rungs, their designs, their controls, and every number with its uncertainty
+and its scope. Section~\ref{sec:removed} lists every result that was removed or narrowed during
+the work, with the evidence that forced each change, because a report that only shows its
+surviving claims has hidden the part a reader most needs in order to trust the rest.

@@ -1,0 +1,129 @@
+\section{What was removed, narrowed, or retracted --- and why}
+\label{sec:removed}
+
+Every claim this project has withdrawn or restricted is listed here with the evidence that forced
+the change. Nothing is dropped silently. A report that shows only its surviving results has
+removed exactly the information a reader needs in order to calibrate the rest.
+
+\subsection{Retracted: claims the data does not support}
+
+\begin{description}[leftmargin=1.4em,style=nextline]
+\item[{T1-kernel monotone ordering ($p = 1/120$).}]
+  The perfectly ordered five-point decline was an artifact of \texttt{KA\_EXTRACT=strict}, a
+  candidate filter that discards 66\% of 0.5B generations and 5\% of 14B generations --- a
+  severity that correlates with the independent variable. Under the permissive policy Spearman
+  $\rho$ moves from $-1.000$ to $-0.900$ and 3B breaks the order. \textbf{The endpoint contrast
+  survives both policies and is retained}; the ordering claim and its $p$-value are withdrawn.
+
+\item[{T1-kernel ``14B verifies nothing''.}]
+  Recorded twice from a cell that was still running (0 verified at 108 and at 252 attempts). The
+  finished cell has 2 verified in 338. 14B is near-zero, not zero, and the falsifier language now
+  says so.
+
+\item[{T3 ``frontier self-modification is one-shot''.}]
+  The harness requests at most 12 strategies; 5 of 5 interpretable runs sit at 11--12 from round
+  0 and 4 of 5 never grow. The observed plateau is the cap, not the model. Gains against a frozen
+  procedure remain real and are reported.
+
+\item[{T3 cap dose-response ($+0.482$ at unbounded).}]
+  Came from runs carrying the EDQUOT signature ($Q_0 = 0.000$ and four to five all-zero rounds), a
+  filesystem failure in which the grader raises and every candidate scores zero. Clean runs show
+  no dose-response: $-0.046 / +0.021 / -0.009$.
+
+\item[{``H100's \texttt{torch.compile} closed the headroom''.}]
+  Offered as the explanation for a spike of scores at exactly $0.50$. It is false: the default
+  scorer never touched the compiled baseline at the time. The spike is a plain-torch rewrite
+  landing at parity, which is a different and more consequential fact.
+
+\item[{Teacher injection improves compounding.}]
+  First reported as $+0.100$ against $+0.051$ for the control. It does not survive dropping
+  rounds whose lineage was severed by a resume defect, nor matching on round index, since the
+  arms had unequal valid depth. Matched: control $+0.057\,[+0.020,+0.094]$ versus inject
+  $+0.075\,[+0.035,+0.114]$; and on the completed pass-rate board, $+0.440$ versus $+0.445$.
+  \textbf{Not detected.}
+
+\item[{``Retrieval is the worst baseline''.}]
+  Stated from one cell at $0.154$. The second seed puts it at $0.329$, ahead of best-of-$k$. Its
+  spread across two seeds of one configuration exceeds the gap between any two methods within
+  either cell. Retrieval is high variance, not reliably weak.
+
+\item[{``76\% of all scores were exactly 0.50''.}]
+  Not reproducible from any artifact. The defensible figure is that 75\% of \emph{non-zero}
+  scores fall within $\pm 0.01$ of parity on the 29-task calibration set.
+\end{description}
+
+\subsection{Narrowed: claims that hold with a smaller scope}
+
+\begin{description}[leftmargin=1.4em,style=nextline]
+\item[{The compounding null ($n=57$ trajectories, \bfz{}$\,{=}\,5.6$).}]
+  Valid, and narrowed twice. It is a null about acquiring \emph{correctness} rather than
+  optimisation, and specifically about \textbf{best-of-$k$} correctness, which by construction
+  cannot see a reliability gain. The pass-rate board finds a large, family-transferring effect on
+  that axis. These are not contradictory: the null is valid and narrow, and its narrowness was
+  invisible until a metric existed that could see past it.
+
+\item[{T1-kernel shape across scale.}]
+  Reported as a decline with 14B as the endpoint. The completed 32B sweep recovers to $2.99\%$
+  from 14B's $0.00\%$ (Fisher $p = 0.015$), so the curve is a \textbf{U} with 14B as its
+  \emph{minimum}. The 0.5B-versus-14B contrast is a contrast with the floor, not with the largest
+  model.
+
+\item[{Compile-gain ``$1.34\times$ median''.}]
+  Correct and misleading alone. The distribution is bimodal: L1 $15.51\times$, L2 $1.26\times$,
+  L3 $4.53\times$. The median is simply L2's value because L2 is the majority tier. Reported per
+  tier throughout, because the argument that a plain-torch rewrite scores $0.50$ ``without
+  compile being strong'' holds on L2 and fails on L1.
+\end{description}
+
+\subsection{Excluded: data that cannot answer the question it was collected for}
+
+\begin{description}[leftmargin=1.4em,style=nextline]
+\item[{Severed trajectories (Amendment 5).}]
+  \texttt{lab\_compounding} and \texttt{lab\_weight\_rsi} restored round history on resume but not
+  the trained adapter. Every resumed chunk continued the round numbering while restarting each
+  arm from base weights. The signature is unambiguous: \texttt{trainC} collapses at exactly the
+  round named by \texttt{resumed\_at}, in all 18 resumed cells with no exceptions. All affected
+  rounds are excluded, and the generator refuses to report a cell whose artifact cannot evidence
+  that its weights survived a resume.
+
+\item[{Starved trajectories (Amendment 6).}]
+  A trajectory whose self arm received fewer than two verified examples per round on average is
+  reported as starved rather than as a measurement of the contrast. At the registered
+  configuration every cell qualifies, so \textbf{the registered primary currently reports no
+  number at all}, which is the correct outcome rather than a missing one.
+
+\item[{The 32B probe's first reading.}]
+  Its first 12 tasks are L1-heavy and gave $6.94\%$. Restricting every scale to those same 12
+  tasks is the valid comparison; the full 29-task sweep gives $2.99\%$. The partial figure is
+  recorded and not reported.
+\end{description}
+
+\subsection{Provisional: retained but not load-bearing}
+
+\begin{description}[leftmargin=1.4em,style=nextline]
+\item[{Probe-as-intervention ($+0.124\,[+0.029,+0.218]$).}]
+  $n=12$ checkpoints, 5--12 tasks per run, against the weakest available comparator (uniform
+  random). Reported in the appendix, not near the abstract.
+
+\item[{T4 closed$\to$open.}]
+  $n = 1$ per cell against a registered minimum of three seeds, with no interval. Exploratory.
+
+\item[{Any A100 speed-scored board.}]
+  Measured under a harness that silently rejected every non-PyTorch submission. Retained with the
+  defect stated, never pooled with H100 sets.
+\end{description}
+
+\subsection{Known confounds carried into the results}
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Cross-rung token budgets differ.} T1 and T2 generate at 2048 tokens; T3 and T5 at
+  1200. Both resume from per-round checkpoints, so changing them mid-flight would mix budgets
+  inside a single cell, which is worse than a consistent difference. Any cross-rung comparison
+  carries a $1.7\times$ gap and says so.
+\item \textbf{The held set is 5 tasks, not the 20 requested.} A slice does not raise when it runs
+  past the end, so a 25-task pool with 20 taken for training returns whatever remains. At $k=10$
+  this caps a round at 50 verified candidates, which bounds every per-round score regardless of
+  its functional form.
+\item \textbf{$n = 2$ trajectories per arm} on the pass-rate board. No interval is quoted on a
+  two-point mean; the per-cell values are given instead.
+\end{itemize}

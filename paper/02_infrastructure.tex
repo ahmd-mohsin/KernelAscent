@@ -1,0 +1,42 @@
+\section{Infrastructure: three weeks on 72 GPUs}
+% =====================================================================================
+The experiments ran on a 9-node, 72-GPU cluster (A100-class), continuously for three weeks. A few
+infrastructure decisions shaped what was learnable, and several operational lessons are worth recording because
+they materially affected the results.
+
+\paragraph{Compute discipline.} Every rung's recursive arm is compute-matched to its control by a full ledger
+that counts generation \emph{and} verification \emph{and} training tokens/steps. Without this, ``self-training
+helped'' is unfalsifiable --- it may just be more sampling. The matched ledger is what turns T2 from a demo into
+a test.
+
+\paragraph{Resumability.} All runs checkpoint to S3 on a 300\,s daemon so an instance death never loses more
+than one interval, and pods push independently of the operator's credentials. This is what made a three-week
+run survive tunnel drops, credential expiry, and node churn.
+
+\paragraph{Operational lessons (recorded because they bit us).}
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{Grading dominates wall-clock.} Crash-isolated per-kernel grading (each candidate graded in its own
+process so a segfaulting kernel cannot take down the harness) costs ${\sim}12$\,s/kernel. For coverage-style
+experiments requiring hundreds of grades per evaluation, a single round can exceed 2.5 hours --- which made the
+randomized coverage-transplant experiment \emph{computationally infeasible} and forced us to establish the
+coverage mechanism more cheaply from $p$-maps and forensics instead.
+\item \textbf{Large-model rounds are slow.} A 7B compounding round costs ${\sim}64$ minutes. At six rounds per
+seed that is ${\sim}6.4$ hours per seed, so the large-scale arms accumulate statistical power slowly and are
+sensitive to any run reset from node churn --- the reason our 7B/14B equivalence is pooled-significant but not
+yet individually powered.
+\item \textbf{Measurement hygiene is a result-integrity issue.} We twice caught inflated counts caused by stale
+local caches masking a silently-failed sync, and once caught a ``fleet collapse'' that was merely a dropped
+port-forward tunnel hiding two dozen busy GPUs. Every headline number in this report is taken from a
+\emph{verified} re-read of canonical storage, not a convenience cache.
+\item \textbf{A single silent bug can fabricate a finding.} An early ``compounding collapse'' (both train and
+held-out $C$ dropping to exactly $0.000$ after one SFT step) was a generation-after-SFT bug, not a scientific
+null; a zero-update adapter evaluated correctly, which is how we distinguished the two. Pre-fix runs are
+therefore \emph{uninterpretable} and are excluded from every statistic by a canonical-seed allowlist.
+\end{itemize}
+
+\intuition{The most dangerous failure mode in an autonomous, long-horizon run is not a crash --- it is a
+\emph{plausible wrong number}. Crashes announce themselves; a stale cache or a contaminated seed quietly shifts
+an estimate. The single highest-leverage habit of the whole run was refusing to trust any number that had not
+been re-derived from canonical storage with the broken seeds excluded.}
+
+% =====================================================================================

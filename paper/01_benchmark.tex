@@ -1,0 +1,97 @@
+\section{The benchmark}
+\label{sec:benchmark}
+
+\subsection{The task}
+
+A task is a self-contained PyTorch module with a fixed dtype, a shape, and an input generator. A
+submission replaces its \texttt{forward} with a faster implementation that produces the same
+output. Correctness is graded against an \textbf{fp32 gold} model built from the same weights,
+with a per-task tolerance derived from the reference's own dtype error rather than a global
+epsilon,
+\[
+  \text{bound} \;=\; \max\!\left(2\times 10^{-2},\; 2\,\varepsilon_{\mathrm{ref}}\right),
+\]
+so a task whose reference is itself numerically loose does not silently accept a wrong kernel.
+Every candidate executes in an isolated subprocess: a malformed kernel can crash, hang, or
+corrupt a CUDA context without affecting the trainer that produced it.
+
+\subsection{Scoring}
+
+Speed is normalised per task against a roofline ceiling rather than a fixed anchor. With $s$ the
+candidate's speedup over the \texttt{torch.compile} baseline and $c$ the achievable ceiling,
+\[
+  c \;=\; \mathrm{clip}\!\left(\frac{t_{\mathrm{compiled}}}{t_{\mathrm{roofline}}},\,1.1,\,50\right),
+  \qquad
+  t_{\mathrm{roofline}} \;=\; \max\!\left(\frac{\mathrm{FLOPs}}{\text{peak}},\; \frac{\text{bytes}}{\text{bandwidth}}\right),
+\]
+\[
+  \mathrm{score}(s) \;=\; 0.5 \;+\; 0.5\,\mathrm{clip}\!\left(\frac{s-1}{c-1},\,0,\,1\right).
+\]
+A score of $0.5$ is correct-at-parity with the baseline; $1.0$ is the physically achievable
+ceiling for that task. Normalising by the roofline makes a task with $1.1\times$ of available
+slack and a task with $40\times$ contribute equally to a mean, which a fixed anchor does not.
+
+\paragraph{The second scorer.} Pass rate, $\hat{p} = n_{\mathrm{ok}}/k$, is the fraction of the
+$k$ sampled candidates that verify. It is an unbiased estimator of the per-sample success
+probability and, unlike best-of-$k$, its sensitivity does not vanish as that probability rises.
+It was declared post-hoc in a pre-registration amendment with its falsifier fixed in advance, is
+reported as its own experiment set, and is \textbf{never pooled with} the headroom boards.
+Section~\ref{sec:motivation:contrast} is the reason both exist.
+
+\subsection{The recurrence under test}
+
+Write $\theta(t)$ for the adapter weights after round $t$, $\pi(\theta)$ for the sampling
+distribution they induce, $D(t)$ for the kernels the model generated and the grader verified in
+round $t$, and $C(t)$ for held-out capability. A round is
+\[
+  \theta(t{+}1) \;=\; T\big(\theta(t),\, D(t)\big), \qquad D(t) \sim \pi\big(\theta(t)\big).
+\]
+Compounding is a claim about the derivative of that map: this round's gain grows with the
+capability already reached, $\partial C(t{+}1)/\partial C(t) > 0$. The claim is trivially
+confoundable with ``the model sampled more'', so every rung is a \emph{differenced} design in
+which the contrast isolates one causal channel.
+
+\subsection{The five rungs}
+
+\begin{description}[leftmargin=1.4em,style=nextline]
+\item[{T1 --- Capability.}] One-shot kernel authoring at a fixed budget. No recursion. Establishes
+  whether the task is reachable at all, which is a precondition for every rung above it, and
+  separates \emph{attempting} a kernel from \emph{verifying} one.
+
+\item[{T2 --- Weight-RSI.}] Three arms at matched compute. \textbf{Lineage} LoRA-trains on its own
+  verified kernels and carries weights forward. \textbf{Reset} re-initialises every round and
+  trains only on that round's producer data. \textbf{Best-of-$N$} never trains and samples the
+  frozen base at the cumulative budget $k(r{+}1)$. Both learners see byte-identical per-round
+  data, so $\text{lineage} - \text{reset}$ isolates weight \emph{accumulation}, and
+  $\text{lineage} - \text{best-of-}N$ separates training from search at equal samples.
+
+\item[{T3 --- Procedure-RSI.}] The model rewrites its own executable strategy library and keeps an
+  archive of verified kernels, with weights frozen. The registered signal $F_g$ is the amount by
+  which a newer self-written procedure beats the older one on held-out tasks, which is a
+  producer-quality contrast rather than a capability curve.
+
+\item[{T4 --- Closed$\to$Open.}] A closed frontier model rewrites the training harness of an open
+  trainee. Improvement, if any, transfers through tooling rather than through weights.
+
+\item[{T5 --- Self-play.}] Three arms that differ only in who writes the tasks. \textbf{S} holds the
+  frontier fixed; \textbf{F} escalates it with tasks written by the frozen base; \textbf{L}
+  escalates it with tasks written by the evolving model. $L-S$ is the total curriculum effect,
+  $F-S$ the effect with no author update, and $L-F$ the cross term between author quality and
+  solver quality --- the only self-referential term in the ladder. Every authored task passes a
+  gate rejecting constant-output, identity, no-op and trivial-runtime proposals, and its
+  provenance is logged as model-proposed or programmatic backstop.
+\end{description}
+
+\subsection{Preconditions, and why they are stated before the results}
+
+Two quantities determine whether any rung's contrast can carry information, and both are
+computable before a run.
+
+\paragraph{Reachability.} If the frozen base cannot clear the scoring anchor on a task, that task
+contributes no signal to any arm. T1 measures this directly.
+
+\paragraph{Throughput.} The self-referential loop must receive input. Expected training examples
+per round is $n_{\mathrm{train}} \times k \times \text{yield}$, and the analogous quantity for T3
+is archive growth and for T5 is accepted authored tasks. Section~\ref{sec:motivation:starved}
+reports what these were, and they are the reason three rungs report undefined quantities rather
+than nulls.

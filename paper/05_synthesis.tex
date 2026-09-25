@@ -1,0 +1,91 @@
+\section{Synthesis: why self-improvement does not compound here}
+% =====================================================================================
+% discussion.tex carries its own \section + \paragraph structure; demote its \section to a
+% subsection locally so it nests cleanly under this Synthesis header.
+{\let\section\subsection \input{discussion}}
+
+% =====================================================================================
+\section{The accumulated intuition (what three weeks taught us)}
+% =====================================================================================
+This section is the part that does not fit in a conference paper: the qualitative model we now carry in our
+heads about RSI in this domain.
+
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{Self-training is a sharpening operator, not an exploration operator.} It concentrates probability
+on already-reachable successes faster than it expands what is reachable. Everything else follows from this.
+
+\item \textbf{Coverage is the currency, and it is not self-generated.} A round of self-training can only reuse
+solutions the model already finds; it cannot manufacture coverage on tasks where the per-sample success
+probability is effectively zero at the evaluated budget. Compounding is coverage-limited, and coverage is
+exogenous to the loop.
+
+\item \textbf{The bottleneck is discovery$\to$assimilation, not knowledge.} The model represents correctness it
+cannot reliably generate (probe result), and search --- which uses discoveries directly --- beats training,
+which must assimilate them into weights and retain them. The lossy step is assimilation-and-retention.
+
+\item \textbf{``Operational plateau,'' not ``local optimum.''} We are careful: the null is a protocol-relative
+fixed point of the tested verified-SFT loop, not a claim that the weights sit at a parameter-space local
+optimum. Finite-budget coverage is \emph{not} invariant; a better loop could still move.
+
+\item \textbf{Diversity contraction is a plausible reinforcing lock.} Selected-sample SFT can raise probability
+on current winners at the cost of the rare decompositions that would enable \emph{later} discoveries. We flag
+this as association, not proof --- the clean test is a diversity-preserving intervention.
+
+\item \textbf{The open contribution is a better \emph{harness}, not a better model.} Because RSI is a protocol
+we run, the way to break the plateau is to change the protocol: inject coverage on undiscovered tasks, preserve
+diversity in the accepted set, amplify the ``expert'' with search before assimilation. This is exactly what the
+public benchmark's harness-submission track exists to surface.
+\end{enumerate}
+
+% =====================================================================================
+\section{What would break the plateau: predictions}
+% =====================================================================================
+Two distinct breakouts are needed and they target different deficits: \emph{accumulation} (retain and express
+more already-discoverable successes --- could make lineage finally beat reset) and \emph{frontier expansion}
+(make genuinely new strategies operationally reachable --- required once the current frontier is exhausted). A
+productive loop needs new discoveries $+$ assimilation $+$ retention $+$ headroom \emph{simultaneously}. Our
+single most informative next experiment was, at the time of writing, a \textbf{coverage-injection $\times$
+diversity-preserving} factorial. The instrument work in Section~\ref{sec:instrument} has since superseded that.
+The coverage-injection control was run, and its injected-task count falls to zero by round~2 because the student
+solves the entire held set; injection cannot separate ``lack of discoveries'' from ``loss of discoveries'' on a
+task the model has already saturated.
+
+The informative experiment is now the one a repaired grader makes possible for the first time: run the
+compounding protocol on \textbf{kernel authoring} rather than correctness-preserving rewriting. Under the
+published prompt, models attempt a custom kernel in \textbf{0 of 16} samples; when asked explicitly, \textbf{14
+of 16}, of which \textbf{1} verifies. A success rate in that band is far from both the floor and the ceiling
+that defeated every metric we tried, which is precisely the regime a compounding study requires. Whether
+self-training compounds on a task the model has \emph{not} saturated is, as far as we can tell, still open ---
+and it is a question this benchmark could not previously have asked.
+
+% =====================================================================================
+\section{Limitations and scope}
+% =====================================================================================
+We claim, with moderate evidence ($\mathrm{BF}_{01}=5.6$ at the trajectory level): under verified rejection-sampling SFT at the tested scales and budgets, carrying
+the lineage forward does not beat a matched reset; verified search is a better use of the same compute; and the
+binding internal signals are coverage/formation (small scale), a mid-scale learnable frontier, and
+drift-without-gain plus diversity contraction (large scale). We do \emph{not} claim the reachable set is
+mathematically invariant, that the weights sit at a genuine local optimum, or that RL/RLVR (as opposed to
+rejection-sampling SFT) cannot expand capability. All primary intervals are now computed at the
+\emph{trajectory} level rather than the round level, since rounds within a run share a base checkpoint, a seed,
+a held-out split and an accumulated adapter; this is the honest unit of replication and it costs us evidential
+strength, moving the equivalence Bayes factor from $\mathrm{BF}_{01}=14.7$ (pooling 228 rounds) to $5.6$
+(57 trajectories) --- strong to \emph{moderate}. The verdicts survive the correction, and the
+search-beats-training positive strengthens under it, because that contrast is made within a round. Per-trajectory
+(2--3 seed) uncertainty remains the binding constraint. Finally, all results here are A100; our H100 runs are
+reported separately and are non-comparable on two axes at once: different roofline constants, and a harness
+that silently rejected every non-PyTorch submission (Section~\ref{sec:instrument}). An earlier version of this
+sentence blamed a stronger \texttt{torch.compile} baseline; that attribution was wrong --- the default scorer
+never used the compiled baseline --- and is retracted in Section~\ref{sec:instrument}.
+
+% =====================================================================================
+\section{Conclusion}
+% =====================================================================================
+Three weeks of clean-verifier, compute-matched experiments across five rungs of recursion and scales from 0.5B
+to 14B converge on one picture: in GPU-kernel optimization, verified self-training \emph{sharpens what a model
+already covers but does not explore}, so improvement does not compound --- not because the models lack
+capability, but because the loop's feedback channel assimilates rare discoveries lossily and cannot manufacture
+the coverage it would need to keep going. The result is a strong, honest null flanked by two positive findings
+(search beats training; the correctness wall is a sampling artifact) that together localize the failure and
+point at the intervention most likely to break it. KernelAscent ships that intervention as an open, automated
+submission track, so the community can try to turn the null into a curve.

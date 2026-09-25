@@ -1,0 +1,368 @@
+\subsection{T1 --- Capability}
+On the E0 gate (15 fixed Medium procedural tasks, $k{=}5$, 75 trials/model, 95\% Wilson CIs), capability
+separates into \emph{two walls}: correctness ranks the low/mid band, while \emph{speed}
+(\texttt{fast\_rate}, the fraction beating the $\min(\text{eager},\texttt{torch.compile})$ roofline by
+$\ge1.10\times$) is the frontier discriminator.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccc}
+\toprule
+Model & correct & fast & mean $C$ \\
+\midrule
+GPT-5.6 Terra (api) & 0.920 & 0.667 & 0.793 \\
+GPT-5.6 Sol (api)   & 0.907 & 0.600 & 0.753 \\
+Kimi K2.5           & 0.387 & 0.240 & 0.313 \\
+Fable 5.1           & 0.360 & 0.227 & 0.293 \\
+Palmyra-X5          & 0.533 & 0.040 & 0.287 \\
+gpt-oss-120b        & 0.467 & 0.080 & 0.273 \\
+Qwen2.5-Coder-7B (open) & 0.280 & 0.000 & 0.140 \\
+\bottomrule
+\end{tabular}
+\caption{T1 capability (top rows). \emph{Every} open model $\le$14B has $\texttt{fast\_rate}=0$: they can
+sometimes write a correct kernel but essentially never a frontier-fast one; Coder-14B and Gemma-3-27B
+additionally hallucinate \texttt{torch} internals. Source: \texttt{leaderboard.json}.}
+\end{table}
+
+\intuition{The two walls matter for everything above: T1 shows that below the frontier, models are
+\emph{correctness}-limited long before they are \emph{speed}-limited. So the RSI rungs are mostly testing
+whether a model can compound its way \emph{up the correctness wall}, not whether it can shave microseconds ---
+which is why ``where $C$ moves, it moves via correctness acquisition, not speed'' recurs throughout.}
+
+\subsection{T2 --- Weight-RSI: a rigorously-powered compounding null}
+The title claim is where the strongest evidence lives, and it is a \emph{null}. Over multi-round rejection-sampling
+SFT, carrying the lineage forward does not beat a matched reset.
+
+\finding{The independent replicate is the \emph{trajectory} (one seed, one base checkpoint, one held
+split, one accumulated adapter), not the round: rounds within a run are serially dependent, and an earlier
+draft of this report pooled them as if independent. Pooled across scales (0.5B--14B) over
+\textbf{57 trajectories} comprising 228 round-comparisons, \lmr{}\ $=-0.010\,[-0.035,+0.016]$, TOST-equivalent
+at $\delta{=}0.05$ with $\bfz{=}5.6$ --- \emph{moderate} evidence for the null. A cluster-robust estimate
+clustered on trajectory agrees ($-0.002\,[-0.024,+0.020]$, $\bfz{=}7.4$). The naive round-level pooling would
+have reported $\bfz{=}14.7$; that figure is an artifact of the clustering and we do not claim it. The verdict
+is robust: restricting to trajectories with $\geq3$ rounds ($n{=}36$) gives $\bfz\,{\approx}\,5.9$ and to
+full-length $\geq6$-round trajectories ($n{=}29$) gives $\bfz\,{\approx}\,4.9$, both EQUIV.}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Scale & traj.\ $n$ & rounds & \lmr{} (95\% CI) & TOST & \bfz{} \\
+\midrule
+Qwen2.5-Coder-0.5B & 12 & 51 & $-0.014\,[-0.058,+0.030]$ & EQUIV & 2.6 \\
+Qwen2.5-Coder-1.5B & 20 & 93 & $-0.001\,[-0.037,+0.035]$ & EQUIV & 4.5 \\
+Qwen2.5-Coder-3B   & 19 & 78 & $-0.027\,[-0.086,+0.032]$ & not equiv. & 2.7 \\
+Qwen2.5-Coder-7B   & 5  & 5  & $+0.024\,[-0.126,+0.174]$ & underpowered & 2.0 \\
+Qwen2.5-Coder-14B  & 1  & 1  & --- & n/a (single run) & --- \\
+\midrule
+\textbf{Pooled}    & \textbf{57} & \textbf{228} & $\mathbf{-0.010\,[-0.035,+0.016]}$ & \textbf{EQUIV} & \textbf{5.6} \\
+\bottomrule
+\end{tabular}
+\caption{Lineage vs.\ matched reset at the \textbf{trajectory} level (primary estimand;
+\texttt{equivalence\_tost.py}). $n$ counts independent trajectories; ``rounds'' counts the round-comparisons
+they contain. Intra-trajectory ICC${=}0.093$ (design effect $1.28$), so the naive $n{=}228$ rounds carry the
+evidence of ${\approx}178$ independent observations. Individual scales are now only moderately powered --- 3B
+is \emph{not} individually equivalent once clustering is respected, and 7B ($n{=}5$) is not interpreted.
+Per-round, \lmr{} shows a \emph{transient} early advantage (rounds 1--2) decaying to $\approx0$ by round 3.}
+\end{table}
+
+\noindent The uncontrolled T2 boards (\texttt{rsi\_leaderboard.json}, \texttt{tier\_speed\_rsi.json}) do show
+apparent per-model ``compounding'' --- the strongest being \textbf{stable-code-3b}, self$-$fresh-frozen
+$+0.226$, sign-consistent across 2 seeds; and starcoder2-15b $+0.074$ across 3 seeds. But the decisive
+recursion-interruption fork (A1, \texttt{fork.json}) dissolves it: for deepseek-1.3b, continuing to self-train
+vs.\ freezing the producer at the fork gives self$-$ckpt $=-0.001$ --- a \textbf{one-time upgrade, not
+compounding}. Where $C$ does move it is almost entirely \emph{correctness acquisition}, not speed
+(\texttt{decomp.json}: deepseek-1.3b $\Delta_{\text{correct}}+0.89$ vs $\Delta_{\text{speed}}+0.38$).
+
+\intuition{The lineage-vs-reset null is the cleanest single fact in the project, and it is stronger than
+``updates are small.'' If updates were merely small, lineage and reset would both drift slowly but lineage would
+still inch ahead. Instead they are \emph{indistinguishable} --- which means the accumulated weight state carries
+\emph{no useful cumulative information} beyond what one round of fresh self-training recovers. That is a
+statement about the \emph{state}, not the step size.}
+
+\subsubsection*{An H100 replication under a correctness-reliability metric}
+The A100 compounding null above is measured on the headroom score. On H100 that score has no
+range (Section~\ref{sec:instrument}), so we re-ran the same protocol under a pre-registered
+second metric --- \emph{pass-rate}, the fraction of the $k$ sampled candidates that verify
+(pre-registration, Amendment~1). Eight trajectories, 1.5B and 3B, two seeds per arm:
+
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Arm} & $\textsf{lineage}-\textsf{reset}$ & \textbf{95\% CI} \\
+\midrule
+control (published protocol) & $+0.184$ & $[+0.080, +0.287]$ \\
+inject (teacher coverage on failed tasks) & $+0.184$ & $[+0.089, +0.278]$ \\
+\midrule
+inject $-$ control & $+0.000$ & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Both CIs exclude zero: on this metric, accumulation beats a matched reset. This is the
+first non-degenerate compounding measurement we obtained on H100, and we report it with three
+limits that between them prevent it from supporting a compounding claim.
+
+\textbf{First, the search baseline is degenerate under this metric and we do not report it.}
+Best-of-$N$'s mechanism is the \emph{maximum} over $k(r{+}1)$ draws; pass-rate is a
+\emph{mean}, which is invariant to the number of draws. Measured: as the budget grew
+five-fold, $C_{\textsf{best-of-}N}$ moved $-0.024$. The apparent
+$\textsf{lineage}-\textsf{best-of-}N = +0.676$ (positive in 37/37 rounds) would therefore
+\emph{reverse} our search-beats-training result using an artifact. \textbf{A baseline is only a
+baseline with respect to a scoring rule}; changing the rule silently changes what every
+comparator means, and each must be re-derived rather than carried over.
+
+\textbf{Second, the metric saturates at the top.} $C_{\textsf{lineage}} = 1.000$ in 18 of 37
+rounds (49\%) on a five-task held set. Once lineage pins at the ceiling the difference measures
+only how far \emph{reset} fell below it, so the magnitude is a lower bound and the
+across-round trend is unreadable. Having diagnosed a floor effect and built a metric with range
+at the floor, we landed in a ceiling effect: \textbf{saturation is a property of the match
+between task difficulty and model ability, not of the metric}, and changing the metric only
+moves where the wall sits.
+
+\textbf{Third, the contrast is not training-compute matched.} Lineage retains its adapter and
+trains every round ($R \times$ steps); reset re-initialises and trains on one round's data
+($1 \times$ steps). Under a metric scoring reliability of correctness, ``more supervised
+fine-tuning on verified-correct outputs raises the rate of correct outputs'' is close to
+tautological. The result is evidence that accumulation improves correctness \emph{reliability};
+it is not evidence of recursive self-improvement.
+
+Finally, the positive control did not fail --- it ran out of work. Injected-task counts per
+round run $[15,2,1,0,0]$ and $[19,3,0,0,0,0]$: injection targets tasks the student failed, and
+by round~2 it solves everything, which is why the inject--control delta is exactly zero. A
+five-task held set that a 1.5B model exhausts in two rounds cannot support a compounding claim
+under any scoring rule. The remedy is the 456-task generated bank (Table~\ref{tab:reach}), not
+a third metric.
+
+\subsection{T3 --- Procedure-RSI}
+When a frozen-weight model rewrites its own executable procedure, frontier models improve it substantially
+(\texttt{trackc.json}): GPT-6 Astra $Q$ $0.298\!\to\!0.854$ (\textbf{+0.556}, growing over 6 rounds), Claude
+Sonnet 5 \textbf{+0.401}, Mistral Large 3 \textbf{+0.310}; a frozen-procedure control (Fable-5.1) sits at
+$+0.009$. But the self-modify mechanism (\texttt{selfplay\_mech.json}) shows the gain is
+\textbf{68\% realized at round~0} (one-shot), \textbf{75\% non-recursive}, with the archive saturating by
+round 1--2 and strategy sets already diverse (Jaccard 0.12).
+
+\finding{The only models with \emph{sustained} per-round procedure gain (Astra, Mistral) are the ones that
+started from \emph{low} $Q_0$ --- i.e.\ they are consuming headroom, not demonstrating recursive self-insight.
+DeepSeek-V3.2's $-0.234$ ``self-degrade'' is a 1-round interrupted-run artifact and should not be read as a
+finding.}
+
+\paragraph{The one-shot reading is confounded by the harness, and we retract it.}
+The procedure is a list of strategy strings, and the harness asks the model for ``$\le 12$'' of them while
+displaying only 12 back. It is a \emph{soft} request --- the stored list is never truncated --- so what it
+actually measures is instruction compliance. Frontier models comply exactly:
+
+\begin{center}\small
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Model} & \textbf{Strategies per round} & \textbf{Total $\Delta Q$} \\
+\midrule
+GPT-6 Astra & 12, 12, 12, 12, 12, 12 & $+0.556$ \\
+Claude Sonnet 5 & 12, 12, 12, 12, 12, 12 & $+0.401$ \\
+Mistral Large 3 & 12, 12, 12, 12, 12, 12 & $+0.310$ \\
+GPT-5.6 Sol & 12, 12, 11, 12, 11, 11 & --- \\
+GPT-5.6 Terra & 10, 12, 12, 12, 12, 11 & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Five of five interpretable runs sit at 11--12 from round~0; four of five never grow at all. A
+procedure pinned at its limit in round~0 \emph{cannot be observed to keep improving}, so ``the model stopped
+improving its procedure'' and ``the harness stopped letting it'' are not separable in this design, and the
+one-shot interpretation is not earned by these data.
+
+Re-running the same harness with an open model at caps $\{12, 48, \text{unbounded}\}$ shows procedures
+\emph{do} grow when permitted --- 6 of 6 clean runs grow, two exceeding 12 strategies --- confirming that the
+cap binds something real. It does \textbf{not}, however, produce a dose-response in quality: on the clean runs
+mean $\Delta Q$ is $-0.046$ at cap~12, $+0.021$ at cap~48 and $-0.009$ unbounded ($n{=}2$ per cell, all six runs complete at six rounds). Lifting the cap lets the procedure grow without making it better.
+
+We flag a correction here rather than silently reporting the clean figures. An earlier version of this
+analysis reported a monotone rise to $\mathbf{+0.482}$ unbounded. That came from runs whose data directory sat
+on an inode-exhausted filesystem, where the reference build raised \texttt{EDQUOT} and the grader returned
+\texttt{False} for every candidate: those runs have $Q_0 = 0.000$ and four to five exactly-zero rounds, so
+their apparent ``gain'' was recovery from a spurious zero baseline. We had already documented that failure
+mode (it is defect~5 in Table~\ref{tab:defects}) and used the affected runs regardless. The exclusion is now
+enforced in the analysis script rather than left to memory: any run with $Q_0 = 0$ or two or more
+exactly-zero rounds is dropped, loudly.
+
+We state the limits plainly. There are two seeds per cap cell; open-versus-closed is confounded with model
+family; and because the cap is a soft request, the open model does not comply with it reliably, so these runs
+corroborate rather than replicate. The strong evidence is the closed-model pinning, which is visible in the
+\emph{already-published} run records and requires no new experiment. Settling the question properly requires
+re-running frontier models at several caps. Until then we report the procedure gains as real and withdraw the
+claim that they are one-shot.
+
+\subsection{T4 --- Closed$\to$Open}
+A closed researcher rewriting an open trainee's training harness can help substantially
+(\texttt{combined\_rsi.json}): Fable-5.1 $\to$ Qwen-1.5B reaches improved$-$frozen \textbf{+0.472} (peak 0.472,
+$C$ $0.147\!\to\!0.501$ vs frozen 0.029), and Fable-5.1 $\to$ Qwen-7B \textbf{+0.313}. But the sign is
+\emph{pair-dependent}: the same researcher \emph{hurts} other trainees (Fable$\to$OpenCoder-1.5B $-0.265$,
+Fable$\to$DeepSeek-1.3B $-0.444$), and many researcher rows are flat. As with T4's cousin T2, an open question
+(ROADMAP A4) is whether the $+0.472$ is correctness rather than speed.
+
+\intuition{Improvement \emph{does} transmit through authored tooling --- a closed model that cannot change its
+own weights can still cause a better open model. But it is brittle and trainee-specific, which reads less like
+``the researcher discovered a better training recipe'' and more like ``it happened to match this trainee's
+correctness headroom.'' Transmitted improvement is real but not yet a reliable, general channel.}
+
+\subsection{T5 --- Self-play: an author-yield failure, not a measured null}
+The primary signal is \lf{} (extra gain from a co-evolving author beyond an escalating curriculum). \lf{} is
+only defined if the live author actually produced accepted, valid, novel tasks. \textbf{It did not, at the
+yield needed to measure anything.}
+
+\textbf{Open} (\texttt{selfplay.json}, 24 runs): most models $\le$15B report $\lf\approx0$. Requiring at least
+five accepted model-authored tasks before a row is interpreted, only 6/24 open runs qualify.
+\textbf{Closed} (\texttt{selfplay\_closed.json}, procedure channel, 11 runs): 10/11 rows are \emph{exactly}
+$\lf=0.0$ --- including runs whose authors proposed 36--37 tasks across 24 rounds. An exact zero across 24
+rounds with non-zero proposal counts indicates the co-evolution channel never engaged, not that it engaged and
+returned nothing. \textbf{Open-ended} (\texttt{open\_rsi.json}, 16 runs): all verdicts are ``one-time
+(open $=$ fixed)''.
+
+\finding{The two rows previously quoted as positives do not survive the yield floor: starcoder2-15b
+$\lf=+0.232$ rests on \textbf{one} accepted authored task over 6 rounds, and deepseek-coder-6.7b-base
+$\lf=+0.154$ on \textbf{three} over 3 rounds. Their per-round \lf{} traces oscillate in sign. We therefore
+withdraw both from the headline claims and report T5 as \emph{undefined at the current author yield}.}
+
+\noindent\textbf{What the dedicated diagnosis run actually shows.} The self-play diagnosis
+(\texttt{selfplay\_diag.json}, Qwen2.5-Coder-3B, 8 rounds) authored \textbf{zero} valid tasks in every round.
+Consequently every per-round diagnostic in that file --- authored solve-rate, trivial and unsolvable
+fractions, authored headroom --- is \texttt{null}, and all three arms scored $C{=}0$. An earlier draft of this
+report read that run as showing a \emph{bimodal} authored-difficulty distribution (tasks either trivial or
+unsolvable, rarely in a learnable band). \textbf{That conclusion is not in the data and we retract it}: the
+bimodality is a plausible hypothesis the run was unable to test, because nothing was authored to measure. The
+supported statement is narrower: \emph{free-form task proposal collapses}. Without constrained, executable
+task mutation, the author does not manufacture a frontier, so self-play cannot be tested at all --- which
+makes structured mutation with validity and learnability gates a prerequisite experiment, not an extension.
+
+\noindent (Note: an earlier README listed closed Sonnet-5 $+0.045$ / GPT-5.6-Sol $+0.041$ as ``emerging
+positives''; these are \emph{not} in the current data and have been removed.)
+
+% =====================================================================================
+\section{Cross-cutting analyses: the mechanism}
+% =====================================================================================
+The rung-by-rung results tell us \emph{whether} improvement compounds. The following analyses tell us
+\emph{why} it does not, and together they form the mechanistic core of the report.
+
+\subsection{Coverage vs.\ scale, and the ``correctness wall'' as a sampling artifact}
+Per-task $p$-maps on a fixed 29-task bank (\texttt{pmap\_curve.json}) trace coverage (tasks with $\ge1$
+verified-correct sample) from 13.8\% at 0.5B to 86.2\% at 14B, and show that below the wall pass@$K$ dwarfs
+pass@1:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Size & $K$ & coverage & pass@1 & pass@$K$ & $K$-ratio \\
+\midrule
+0.5B & 64 & 13.8\% & 0.009 & 0.109 & ${\sim}12\times$ \\
+1.5B & 64 & 27.6\% & 0.014 & 0.235 & ${\sim}17\times$ \\
+3B   & 64 & 82.8\% & 0.112 & 0.777 & ${\sim}7\times$ \\
+7B   & 48 & 82.8\% & 0.079 & 0.799 & ${\sim}10\times$ \\
+14B  & 24 & 86.2\% & \textbf{0.655} & 0.862 & ${\sim}1\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Coverage and sharpening across scale. The sharpening geometry (results\_auto.tex): the
+\emph{sharpenable} band ($0{<}p{<}0.2$) is 14\%/28\%/59\%/79\%/0\% at 0.5/1.5/3/7/14B --- it peaks mid-scale
+and collapses at 14B, where all mass is already \emph{reliable} ($p\ge0.2$).}
+\end{table}
+
+\intuition{The sub-2B ``correctness wall'' is not an inability --- it is a \emph{low per-sample success
+probability}. Give a small model enough draws and correct kernels appear (pass@$K \gg$ pass@1). This reframes
+the entire problem: self-training does not need to \emph{learn to be correct}, it needs to \emph{reliably
+reproduce} a correctness that is already latent in the sampling tail. That is a sharpening problem, not an
+exploration problem.}
+
+\subsection{Zero-score forensics: the wall is a formation failure}
+Classifying \emph{why} each 0-score candidate failed (\texttt{forensics\_summary.json}) shows the sub-3B wall is
+a \textbf{kernel-formation} wall (no parseable \texttt{ModelNew}), not runnable-but-wrong code: \texttt{no\_extract}
+dominates at 0.5B (72\%), DeepSeek-1.3B (90\%), Yi-1.5B (96\%). The failure \emph{locus marches downstream with
+scale}: incoherence $\to$ truncation/syntax (Qwen-7B: 75\% syntax) $\to$ API-hallucination $\to$ wrong-output
+$\to$ correct (Qwen-14B: 65\% correct, only 0.2\% \texttt{no\_extract}).
+
+\intuition{Small models do not fail by writing subtly-wrong kernels --- they fail by not producing a
+well-formed kernel at all. That is why coverage is so low and why self-training starves: there is nothing
+correct to train on. As scale rises the bottleneck migrates from ``can it write a kernel'' to ``is the kernel
+right'' to ``is it fast.''}
+
+\subsection{Search beats training at matched compute}
+Analysed at the trajectory level over 57 trajectories / 228 round-comparisons
+(\texttt{search\_vs\_train.json}), lineage$-$bestof$N = -0.111\,[-0.138,-0.083]$ (CI excludes zero; the
+cluster-robust estimator, which weights rounds rather than runs, gives $-0.142\,[-0.163,-0.120]$ --- a larger effect, same sign, and its interval also excludes zero), and verified search beats lineage in \textbf{84\% of runs}
+(76\% of rounds); every well-powered scale is individually negative (0.5B $-0.123$, 1.5B $-0.114$,
+3B $-0.123$; 7B $-0.018$ at $n{=}5$ is not interpreted). Unlike the compounding null, this positive
+\emph{strengthens} under the clustering correction, because the contrast is made within a round. A separate matched-budget baseline sweep (\texttt{baselines.json},
+budget 20) is weaker and mixed --- Qwen-1.5B recursion\_gain $+0.055$ over its best non-recursive baseline, but
+starcoder2-3b $-0.073$ --- so the strong, consistent statement is the search-vs-lineage one.
+
+\finding{At a matched compute ledger, best-of-$N$ verified search beats lineage self-training (lineage$-$bestof$N
+= -0.111\,[-0.138,-0.083]$ over 57 trajectories, CI excludes zero). The useful solutions are \emph{already reachable by sampling};
+search exploits them directly, while training must compress them into shared weights and have the gain survive.}
+
+\subsection{WHY-RSI: the weight-level mechanism and the inverted-U in scale}
+Across 133 weight-RSI runs (\texttt{mech\_analysis.json}) the correctness wall is the primary gate: crossing
+rises from 54\% below 2B to 92\% at $\ge$2B. Among the 97 wall-crossers, RSI is an \textbf{inverted-U in scale}:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lccccc}
+\toprule
+Band & $n$ & wall-cross & LoRA drift & retention & frac RSI \\
+\midrule
+$<$2B  & 67 & 0.54 & 0.019 & 0.013 & 0.03 \\
+2--8B  & 40 & 1.00 & 0.271 & 0.180 & \textbf{0.50} \\
+$\ge$8B & 26 & 0.81 & \textbf{0.596} & 0.339 & 0.23 \\
+\bottomrule
+\end{tabular}
+\caption{The inverted-U (\texttt{mech\_analysis.json}, $n{=}133$). RSI peaks at 2--8B; the largest models drift
+\emph{most} in weight space yet compound \emph{least} --- motion without progress near the roofline. 28/133
+runs met the compounding criterion (stable-code-3b recurs). When drift occurs it localizes to \emph{late} layers (task
+adaptation) and the held-family transfer gap is $\approx0$ (no transferable meta-skill).}
+\end{table}
+
+\finding{A subtle and important nuance: on this bank, compounders have \emph{lower} generation diversity than
+flat runs (0.41 vs 0.52), not higher. The discriminator between compounding and flat among wall-crossers is
+\textbf{sustained LoRA drift + retention} (${\sim}5\times$ higher in compounders), \emph{not} diversity
+preservation. So ``diversity collapse causes the null'' is \emph{not} supported by our weight-RSI data ---
+compounding here looks like \emph{productive convergence onto a good basin}. Diversity contraction remains a
+plausible \emph{cross-round option-value} lock (see the Discussion) but we flag it as an association whose clean
+test is a diversity-preserving intervention, and we explicitly do \emph{not} claim it as the mechanism.}
+
+\intuition{Scale does not monotonically help RSI --- it is an inverted-U. Small models cannot form correct
+kernels often enough to feed the training set (formation-starved). Mid-scale models sit on the widest
+\emph{learnable frontier} and compound best. Large models cover almost everything already, so their weights
+churn (high LoRA drift) without moving the held-out score --- ``motion without progress'' near the roofline.
+The binding constraint slides from \emph{formation} (small) to \emph{headroom} (large).}
+
+\subsection{Probe-as-intervention: correctness is represented better than it is generated}
+A linear probe reads ``is this kernel correct'' out of mid-to-late layers at high AUC (Qwen-3B best\_auc
+\textbf{0.985} at depth 0.86, while its actual correctness rate is 0.105) --- the model \emph{represents}
+correctness far better than it \emph{generates} it (\texttt{interp.json}).
+
+\finding{Analysed at the right unit, probe-guided selection \emph{does} beat uniform-random selection at
+matched \emph{generation} budget. Clustering the 19 usable runs on their 12 distinct base checkpoints (rows
+sharing a checkpoint are repeated draws, not distinct models), the mean lift is
+$\mathbf{+0.124\,[+0.029,+0.218]}$ --- the 95\% CI excludes zero --- recovering $36\%\,[11\%,60\%]$ of the
+oracle$-$random headroom. An earlier draft read the same rows as ``no advantage'' because it looked at the
+spread of individual runs ($-0.27$ to $+0.45$) rather than the clustered mean. See
+Appendix~\ref{app:probe}.}
+
+\noindent\textbf{Three reasons this is a modest secondary result, not a headline.} (i) \emph{Uniform random is
+the weakest possible comparator}: the informative ones --- length-normalised log-likelihood reranking, a
+compile/run validity filter, execution agreement --- were not run, so we cannot say the probe is the best use
+of the same compute. (ii) \emph{The denominators are tiny}: each run's lift is computed over 5--12 test tasks,
+so a ``$+0.45$'' is about five problems, and the clustered interval is correspondingly wide. (iii)
+\emph{Matched-generation selection is not matched-verification harvesting}: a gain in top-1 correct rate from
+reranking an existing pool does not imply the probe makes a verification-constrained search cheaper.
+
+\noindent\textbf{What we cannot verify from the released artifacts.} Two figures quoted in earlier drafts --- a
+within-task ranking AUC of ${\approx}0.67$ and a matched-verification harvesting yield of ${+}0.01$ --- come
+from a probe-baselines run whose per-candidate outputs are \emph{not} in this repository. Per-candidate probe
+scores were not retained anywhere, so the within-task AUC cannot be recomputed from what we release. We
+therefore do not rely on either number, and we state the within-task estimand as \textbf{unmeasured} rather
+than as measured-and-small. This is the single most important gap in the probe story: only a within-task
+ranking metric can explain a selection gain mechanistically, and the pooled AUC cannot substitute for it ---
+as the runs with pooled $\mathrm{AUC}{=}1.000$ and lifts anywhere from $+0.000$ to $+0.250$ demonstrate.
+
+\intuition{A linear probe can read ``is this kernel correct'' out of mid-to-late layers at high AUC, yet the
+model emits a correct kernel far less often than it can internally recognize one. The model \emph{knows} more
+than it \emph{generates}. This is the same discovery$\to$assimilation gap seen from the inside: the limiting
+step is turning latent competence into a reliably-produced output.}
+
+% =====================================================================================
+% =====================================================================================

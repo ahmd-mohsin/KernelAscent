@@ -1,0 +1,120 @@
+% =====================================================================================
+% KernelAscent --- single consolidated report.
+%
+% Structure follows the evidence rather than the chronology:
+%   1. what the benchmark found, and why the instrument results lead
+%   2. the benchmark itself, task by task
+%   3. results by rung
+%   4. cross-cutting mechanism
+%   5. instrument validity
+%   6. everything removed, narrowed or retracted, each with its reason
+%
+% Every table under "Results" is generated from artifacts by
+% scripts/make_kernel_results_tex.py at build time. Hand-typed numbers drift; the one figure
+% in this project that was typed into prose and propagated by hand turned out to be
+% unreproducible from any artifact.
+%
+% Build:  cd paper && pdflatex kernelascent.tex && pdflatex kernelascent.tex
+% =====================================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+
+\newcommand{\lmr}{\ensuremath{L\!-\!R}}
+\newcommand{\lf}{\ensuremath{L\!-\!F}}
+\newcommand{\bfz}{\ensuremath{\mathrm{BF}_{01}}}
+\definecolor{kaRed}{HTML}{B4232C}
+\newcommand{\finding}[1]{\medskip\noindent\textcolor{kaRed}{\textbf{Finding.}}\ #1\medskip}
+\newcommand{\intuition}[1]{\medskip\noindent\textbf{Intuition.}\ \emph{#1}\medskip}
+
+\title{\textbf{KernelAscent}\\[2mm]
+\large A benchmark for recursive self-improvement in GPU-kernel optimization,\\
+and what it taught us about measuring self-improvement at all}
+\author{KernelAscent}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+KernelAscent asks whether a model can make itself better at writing GPU kernels, and whether that
+improvement compounds. We built a five-rung ladder --- one-shot capability, weight-level
+self-training, frozen-weight procedure self-editing, a closed model rewriting an open trainee's
+harness, and self-play in which a model authors the frontier it must then beat --- and ran it
+across scales from 0.5B to 32B.
+
+Our primary finding is about the measurement rather than the models. In a controlled comparison
+where two cells differ in one environment variable and nothing else, the benchmark's original
+scoring rule reports a contrast of $-0.0002$ across ten rounds while the identical generations,
+rescored, report $+0.436$. Best-of-$k$ scoring cannot distinguish a model that solves a task once
+in $k$ from one that solves it $k$ times in $k$, which is precisely the quantity self-training
+moves; and because a matched control arm reaches the saturation point within three or four
+rounds, the blindness is scheduled by the design rather than risked by it.
+
+The ladder's upper rungs did not return nulls. They returned undefined quantities, for one shared
+reason that is computable in advance: the self-referential loop received almost no input. The
+weight rung's learner received 0.96 verified examples per round with 41\% of rounds empty; the
+procedure rung's archive grew by four entries across six rounds, or none; the self-play author
+had 4 of 173 proposals accepted. We therefore make no claim that recursive self-improvement fails
+here, and we argue instead that a self-improvement benchmark must demonstrate its loop has
+throughput before any contrast it reports carries information.
+
+We report what survives with its scope attached, and Section~\ref{sec:removed} lists every claim
+this project has retracted, narrowed, or excluded, each with the evidence that forced the change.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+\input{00_motivation}
+\clearpage
+
+\input{01_benchmark}
+\clearpage
+
+\input{02_infrastructure}
+\clearpage
+
+\section{Results by rung}
+\label{sec:results}
+
+Every table in this section is regenerated from stored artifacts at build time. A cell that has
+not reached its registered depth is reported as incomplete rather than averaged in, and a table
+whose inputs cannot support it is omitted with a stated reason rather than filled. Where the
+narrative below quotes a figure, the table is authoritative.
+
+\input{kernel_results_auto}
+
+\clearpage
+\input{04_rungs}
+
+\clearpage
+% The heading and label live here, not in the included file: the old root supplied them, and
+% without them this section printed untitled and two \ref{sec:instrument} in the synthesis
+% pointed at nothing.
+\section{Instrument validity: how a self-improvement benchmark manufactures a null}
+\label{sec:instrument}
+\input{instrument_validity}
+
+% discussion.tex is NOT input here: 05_synthesis.tex already inputs it, demoted to a
+% subsection under the Synthesis header. Inputting it in both places typeset the whole
+% mechanism analysis twice, four pages apart, under two identically-titled headings.
+\clearpage
+\input{05_synthesis}
+
+\clearpage
+\appendix
+\input{03_removed}
+
+\clearpage
+\input{probe_appendix}
+
+\end{document}

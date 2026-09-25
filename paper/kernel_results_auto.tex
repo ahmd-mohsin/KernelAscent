@@ -3,7 +3,7 @@
 \begin{table}[h]\centering\small
 \caption{T1-kernel. Solve-rate alone is a compliance metric: a submission that ignores the
 kernel instruction and rewrites the reference in torch verifies trivially. Reported instead as
-a cascade. $^{\dagger}$ marks an incomplete cell. Generation budgets differ: the 0.5B--14B cells ran at $k{=}12$ and 32B at $k{=}6$, so 32B contributes half the candidates. The reported quantity is a \emph{rate} and is budget-independent in expectation, but 32B's estimate is correspondingly noisier. The curve is a \textbf{U}: it falls from 0.5B to a minimum of $0$ at 14B and recovers to $3.0\%%$ at 32B (Fisher $p{=}0.015$ against 14B). Extraction policy: \texttt{strict}. Under \texttt{strict} the extractor discards 66\% of 0.5B generations and 5\% of 14B generations, so any trend across scale must be shown under both policies before it is attributed to the models.}
+a cascade. $^{\dagger}$ marks an incomplete cell. Generation budgets differ: the 0.5B--14B cells ran at $k{=}12$ and 32B at $k{=}6$, so 32B contributes half the candidates. The reported quantity is a \emph{rate} and is budget-independent in expectation, but 32B's estimate is correspondingly noisier. The curve is a \textbf{U}: it falls from 0.5B to a minimum of $0$ at 14B and recovers to $3.0\%$ at 32B (Fisher $p{=}0.015$ against 14B). Extraction policy: \texttt{strict}. Under \texttt{strict} the extractor discards 66\% of 0.5B generations and 5\% of 14B generations, so any trend across scale must be shown under both policies before it is attributed to the models.}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
@@ -51,6 +51,7 @@ Run & Route & $k$ & Attempted & Kernel-verified \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\label{tab:nonllm}
 \caption{A non-LLM baseline on the benchmark's own terms: \texttt{torch.compile(mode=\"max-autotune\")} scored exactly as a model submission is (speedup over the compiled baseline, same per-task roofline ceiling, same timing harness). It lands \emph{below} correct-at-parity because it is slower than default \texttt{torch.compile} on 27 of 29 tasks. A model scoring 0.50 therefore beats production autotuning here. Reported per tier because compile gain over eager differs by ${\sim}12\times$ between L1 and L2.}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -66,6 +67,7 @@ All & 29 & \textbf{0.408} & 0.865 \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\label{tab:passrate}
 \caption{T2 weight-RSI under pass rate ($n_{\mathrm{ok}}/k$), the \texttt{h100/passrate} set. Reported trajectory-level: one value per cell, the mean of its last two rounds, since rounds inside a cell share an adapter. Lineage beats a matched reset learner that sees identical per-round data, which isolates weight accumulation. Teacher injection changes it by +0.005. \textbf{No interval is quoted} at $n{=}2$ trajectories per arm. $C_{\mathrm{lineage}}$ reaches the metric's ceiling of 1.0 in three of four cells, so the final rounds measure the bound rather than the learner. Per PREREGISTRATION Amendment 1 this board is never pooled with, or compared against, any headroom result.}
 \begin{tabular}{@{}llrrr@{}}
 \toprule
@@ -83,6 +85,7 @@ Cell & Arm & Rounds & lineage $-$ reset & final $C_{\mathrm{lineage}}$ \\
 \end{table}
 
 \begin{table}[h]\centering\small
+\label{tab:contrast}
 \caption{The same experiment under two scorers. \texttt{t2kc} and \texttt{t2kp} differ in \texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all 10 such rounds the headroom contrast is within $0.004$ of zero (mean $-0.0002$), while the same rounds report a mean of $+0.436$ under pass rate. The contrast measures the \emph{gap} between the arms and nothing else: across all four headroom cells and both scales, the 14 rounds with arms within $0.02$ of each other average $-0.0004$ and never exceed $0.004$, while the 10 rounds with a gap average $+0.131$. It is not broken by saturation and recovers when a gap reopens (\texttt{q3\_s2} reads $+0.002$ at $0.50/0.50$ then $+0.201$ at $0.50/0.30$). The difficulty is that best-of-$k$ compresses both arms onto correct-at-parity and holds them there, and a matched reset learner arrives within three or four rounds, so the measurement's useful lifetime is fixed by the control arm rather than by the treatment. The two boards are never \emph{pooled} (Amendment 1); they are placed side by side here to compare the scorers, not the results.}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule

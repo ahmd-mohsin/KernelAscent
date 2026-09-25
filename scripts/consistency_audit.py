@@ -36,6 +36,16 @@ PROSE = {
     "kernelascent_full.tex": os.path.join(ROOT, "paper", "kernelascent_full.tex"),
     "discussion.tex": os.path.join(ROOT, "paper", "discussion.tex"),
     "instrument_validity.tex": os.path.join(ROOT, "paper", "instrument_validity.tex"),
+    # The consolidated report's own sections. Without these the gates policed the old root
+    # document and ignored the one actually being built, which is how a claim survives a
+    # rewrite: the checker keeps watching the file nobody compiles any more.
+    "00_motivation.tex": os.path.join(ROOT, "paper", "00_motivation.tex"),
+    "01_benchmark.tex": os.path.join(ROOT, "paper", "01_benchmark.tex"),
+    "02_infrastructure.tex": os.path.join(ROOT, "paper", "02_infrastructure.tex"),
+    "04_rungs.tex": os.path.join(ROOT, "paper", "04_rungs.tex"),
+    "05_synthesis.tex": os.path.join(ROOT, "paper", "05_synthesis.tex"),
+    "03_removed.tex": os.path.join(ROOT, "paper", "03_removed.tex"),
+    "kernel_results_auto.tex": os.path.join(ROOT, "paper", "kernel_results_auto.tex"),
     "probe_appendix.tex": os.path.join(ROOT, "paper", "probe_appendix.tex"),
     "README.md": os.path.join(ROOT, "README.md"),
     "INTUITIONS.md": os.path.join(ROOT, "INTUITIONS.md"),
