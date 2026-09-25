@@ -654,6 +654,78 @@ def starvation_table():
     return "\n".join(lines), []
 
 
+def fed_table():
+    """The fed loop: the same lab, the same contrast, with the learner actually receiving data.
+
+    This is NOT the registered primary. The primary runs at `--n-train 3`, which the throughput
+    arithmetic shows delivers 0.96 examples per round; these cells run at 35 with a verified
+    kernel bank. It is the intervention the starvation finding implies, and the only cells in
+    this project where the self arm's input is not the binding constraint.
+
+    Reported at n=2 trajectories against a registered minimum of three seeds, so no interval is
+    quoted and no equivalence or effect claim is entered. The per-trajectory values are the
+    honest presentation, and the n_ex column is the point: it is what the contrast was missing
+    everywhere else, and it is measured rather than argued.
+    """
+    import statistics as _st
+    rows = []
+    for cell, outdir in _cells("fed_*"):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        dl = [r["delta_self_minus_fresh"] for r in h if r.get("delta_self_minus_fresh") is not None]
+        if not dl:
+            continue
+        # same admissibility rule as the registered primary: a severed cell measures nothing
+        if "adapter_restored" not in d:
+            continue
+        if d.get("resumed_at") and d.get("adapter_restored") is not True:
+            continue
+        nx = [r.get("n_ex", 0) for r in h]
+        rows.append((cell, len(h), _st.mean(nx), _st.mean(dl), _st.mean(dl[-2:]), dl, nx))
+    if len(rows) < 2:
+        return "", ["fed: %d admissible trajectory(ies); not reporting" % len(rows)]
+
+    TARGET = 5
+    short = [r[0] for r in rows if r[1] < TARGET]
+    if short:
+        return "", ["fed: %d cell(s) below %d rounds (%s); not reporting a partial board"
+                    % (len(short), TARGET, ", ".join(sorted(short)))]
+
+    body = ""
+    for cell, n, mnx, mdl, last2, dl, nx in rows:
+        body += "\\texttt{%s} & %d & %.1f & %s & $%+.3f$ & $%+.3f$ \\\\\n" % (
+            cell.replace("fed_", "").replace("_", "\\_"), n, mnx,
+            " ".join("$%+.3f$" % x for x in dl), mdl, last2)
+    tmean = _st.mean([r[3] for r in rows])
+
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:fed}",
+             (r"\caption{The same lab and the same contrast, with the learner fed. These cells run "
+              r"\texttt{--n-train 35} against a verified kernel bank; the registered primary runs "
+              r"\texttt{--n-train 3}, which the throughput arithmetic puts at $0.96$ examples per round. "
+              r"Mean $n_{\mathrm{ex}}$ here is %.1f and %.1f, so both trajectories clear Amendment 6's "
+              r"floor of two by more than a factor of ten, and both carry \texttt{adapter\_restored}. "
+              r"Every round of both is reported. \textbf{No interval is quoted and no effect is claimed}: "
+              r"$n=2$ trajectories against a registered minimum of three seeds, and a 95\%% interval on a "
+              r"two-point mean would assert precision the design cannot support. The trajectory-level mean "
+              r"is $%+.3f$. The column that carries weight is $n_{\mathrm{ex}}$, which grows within both "
+              r"runs (%s and %s) and is the input the contrast lacked everywhere else in this report.}"
+              % (rows[0][2], rows[1][2], tmean,
+                 " to ".join(str(int(x)) for x in (rows[0][6][0], rows[0][6][-1])),
+                 " to ".join(str(int(x)) for x in (rows[1][6][0], rows[1][6][-1])))),
+             r"\begin{tabular}{@{}lrrlrr@{}}",
+             r"\toprule",
+             r"Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per round & mean & last 2 \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     # The starvation table goes to its own file: it belongs in the motivation section, four
@@ -666,7 +738,7 @@ def main():
             + _stex + "\n")
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
                nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
-               prereg_table):
+               prereg_table, fed_table):
         tex, n = fn()
         if tex:
             parts.append(tex)

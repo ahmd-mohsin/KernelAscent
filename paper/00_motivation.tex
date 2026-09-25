@@ -72,6 +72,30 @@ self-improvement benchmark must demonstrate that its loop has throughput before 
 reports carries information}, and that this is a precondition to check rather than a result to
 discover.
 
+\subsection{Feeding the loop: what the throughput precondition buys}
+\label{sec:motivation:fed}
+
+The starvation result is a claim about a precondition, so the obvious test is to meet it. The
+\texttt{fed} cells run the same lab, the same three arms and the same contrast as the registered
+primary, changing one thing: the learner is given tasks from a verified kernel bank at
+\texttt{--n-train 35} rather than the registered 3. Table~\ref{tab:fed} reports both trajectories
+in full.
+
+The result that carries weight is the one the precondition predicts and which needs no statistics.
+Mean verified examples per round go from $0.96$ to $50.8$ and $27.4$, and the per-round count
+\emph{grows within each run} --- 6 to 104 in one, 7 to 84 in the other. Each round's model verifies
+more of what it generates, so the next round trains on more. That is what a self-improvement loop
+is supposed to do, and it is the first time this benchmark has observed it in any cell.
+
+The contrast itself we report and do not interpret. Both trajectories are positive, the
+trajectory-level mean is $+0.088$, and both clear the registered magnitude threshold on their last
+two rounds. They are also $n=2$ against a registered minimum of three seeds, so no interval is
+quotable and the registered decision rule cannot be evaluated. We state the numbers, we state that
+they do not meet the bar we set in advance, and we do not round the difference in our favour. The
+honest summary is that feeding the loop made the contrast \emph{measurable}, which is a claim about
+the instrument and is settled, and that whether it makes the contrast \emph{positive} is a claim
+about models that these two trajectories cannot carry.
+
 \subsection{A non-LLM baseline that scores below parity}
 
 The most common objection to results in this domain is that a model reaching correct-at-parity is

@@ -4056,3 +4056,32 @@ A watcher restart now recovers whatever happened while nothing was watching.
 Worth stating the general form, because this project keeps rediscovering it: **a monitor whose
 coverage begins at its own start time cannot cover its own restarts.** Any watchdog that will be
 restarted needs a reconciliation path, not just a change-detection path.
+
+
+## 2026-09-25 08:52 — both fed cells reach depth 5; the precondition result lands, the effect does not
+
+    cell         n_ex per round        mean   self-fresh per round                      mean     last2
+    fed_q15_s1   6, 10, 46, 88, 104    50.8   +0.074 +0.132 +0.206 +0.130 +0.089       +0.126   +0.110
+    fed_q15_s2   7,  5, 11, 30,  84    27.4   -0.001 -0.088 +0.073 +0.135 +0.131       +0.050   +0.133
+
+Both at 5/5 with `adapter_restored=True`. The first two trajectories in this project admissible
+under Amendment 5 and non-starved under Amendment 6 at the same time.
+
+**Settled.** Mean verified examples per round: 0.96 in the registered primary, 50.8 and 27.4 here.
+The count grows *within* each run — 6 to 104, and 7 to 84. Each round's model verifies more of what
+it generates, so the next round trains on more. That is the loop's input compounding, it is what a
+self-improvement loop is supposed to do, and it is the first time this benchmark has seen it.
+
+**Not settled, and not claimed.** Both trajectory means are positive, pooled +0.088, and both clear
+the registered magnitude threshold on their last two rounds. They are also n=2 against a registered
+minimum of three seeds. No interval is quotable from two points, so the registered decision rule —
+CI excludes zero AND mean(last-2) > 0.05 — cannot be evaluated at all. Half of it is met and the
+other half is unanswerable, which is not a result.
+
+Recorded plainly because this is the most tempting number the project has produced. Every prior
+temptation in this log was a single cell that agreed with the hypothesis; this is two cells that
+agree with it, which is more seductive and still below the bar I set before seeing them. The bar
+does not move because the number came out the way I hoped.
+
+Added to the paper as Table `tab:fed` and a motivation subsection, both generated from the
+artifacts, both stating n=2 and the missing seed in the caption rather than a footnote.
