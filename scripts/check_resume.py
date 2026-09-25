@@ -30,6 +30,13 @@ LABS = [
     # it. Exempt rather than "fixed": the check should flag labs that CAN loop, and a lab whose
     # runs fit their walltime cannot. If mechk is ever given more rounds, remove this.
     ("kernelascent/v3/lab_rsi_mechanism.py", "mechk-* (fits one chunk; exempt)"),
+    # Not a lab, and that is exactly why this gate missed it for a month. The check was scoped
+    # to kernelascent/v3/lab_*.py, so a long-running harvester under scripts/ was never asked
+    # whether it resumes. make_teacher_kernels rewrote its artifact after every task, recorded
+    # tasks_attempted, and then restarted at task 0 on every walltime kill because nothing read
+    # that field back. Affordable at 0.5B, not at 32B where the weights take an hour to fetch.
+    # The rule is "every job that can hit a walltime", not "every file named lab_*".
+    ("scripts/make_teacher_kernels.py", "t1k-*, r2-probe-32b, r4-kernel-*"),
 ]
 
 # A lab that TRAINS weights has state a round counter cannot capture. Restoring only `history`
@@ -46,7 +53,12 @@ RESTORES = [r"set_peft_model_state_dict\(", r"torch\.load\("]
 READS = [r"json\.load\(open\(", r"\bresume\b"]
 # any loop or guard that begins past zero / skips completed items
 SKIPS = [r"for\s+\w+\s+in\s+range\(\s*len\(", r"for\s+\w+\s+in\s+range\(\s*start",
-         r"\bin\s+done\b", r"\bstart\s*=\s*\w+\[", r"continue\s*#.*already"]
+         r"\bin\s+done\b", r"\bstart\s*=\s*\w+\[", r"continue\s*#.*already",
+         # `for i, x in enumerate(...)` then `if i < _start: continue` -- the skip is a guard
+         # inside the loop rather than a shifted range. The gate reported a real resume as
+         # missing because it only knew the range idiom, which is a false negative and worse
+         # than a false positive here: it invites adding a resume that already exists.
+         r"if\s+\w+\s*<\s*_?start\s*:", r"<\s*_start\b"]
 
 
 def check(path):
