@@ -3191,3 +3191,39 @@ being the same observation.
 That strengthens rather than weakens the pass-rate result. The effect is real, it beats reset
 and matched-budget search, and it transfers across families. What must not be claimed is
 unbounded monotone growth, because the last two rounds of every cell measure the ceiling.
+
+### I tested my own proposed fix and it does not work
+
+I argued the ladder needs a score unbounded in the improving quantity, and named expected
+verified solutions per unit compute. Computing it retroactively from the stored rounds
+(`C_lineage` x k x n_held verified candidates, `round_sec` as the denominator) shows the
+proposal is wrong.
+
+| cell | pass-rate r4 → r5 | cumulative verified per 1k s | marginal verified per 1k s |
+|---|---|---|---|
+| control s1 | 0.94 → 0.96 | 16.5 → **20.0** | 37.2 → **36.2** |
+| control s2 | 0.80 → 0.92 | 14.6 → **18.4** | 33.1 → 37.4 |
+| inject s1 | 0.96 → 1.00 | 26.7 → **29.3** | 44.4 → **41.7** |
+| inject s2 | 0.96 → 1.00 | 26.3 → **29.0** | 33.0 → 42.9 |
+
+The cumulative column keeps climbing where pass-rate is flat, which is what I was hoping to
+see — and it is an artifact. A cumulative sum is monotone by construction, so it rises whether
+or not anything is compounding. It cannot falsify the hypothesis, which disqualifies it.
+
+The marginal column is the honest one, and it plateaus. The reason is not the functional form
+of the score. The held set is **5 tasks at k=10**, so a round can produce at most **50** verified
+candidates no matter what. Every per-round score on a fixed evaluation set is bounded by the
+set. Changing the numerator does not remove a ceiling that lives in the denominator.
+
+**So the ceiling is a task-supply problem, not a scoring problem, and that collapses two open
+problems into one.** Measuring unbounded compounding requires an unbounded supply of tasks that
+stay ahead of the learner. That is exactly what the self-play rung is for, and exactly what it
+failed to deliver at an author yield of 2 accepted from 68 proposed. I had been treating "the
+metric ceilings" and "self-play does not produce tasks" as two separate limitations. They are
+one limitation seen from two directions. A fixed bank makes any score saturate, and the
+mechanism intended to grow the bank is the rung that does not work.
+
+This also rules out the fix I was most confident in an hour ago, which is the useful part. The
+next thing to build is not a third score. It is a task generator whose difficulty tracks the
+learner, with the DSL mutation space and the validity and learnability gates applied to the
+frontier rather than to a fixed held set.
