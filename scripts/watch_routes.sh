@@ -47,7 +47,10 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
   # and resubmits only a timed-out one -- so doing this every time the watcher starts is safe
   # and costs one query.
   if [ -z "$prev" ]; then
-    bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD|ABORT)' \
+    # `continue ` with the trailing space, so the summary line "continued 0 cell(s)" does not
+    # match: a clean reconcile must be silent, or every watcher restart prints a line saying
+    # nothing happened and the operator stops reading the ones that mean something.
+    bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue |queued |HOLD |ABORT)' \
       | sed 's/^/startup reconcile: /' || true
   fi
   if [ -n "$prev" ]; then
