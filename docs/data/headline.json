@@ -1,0 +1,248 @@
+{
+ "contrast": {
+  "headroom_max_abs": 0.004,
+  "headroom_mean": -0.0002,
+  "n_parity_rounds": 10,
+  "passrate_mean": 0.436,
+  "passrate_min": 0.36,
+  "range_separation": 90.0,
+  "rows": [
+   {
+    "C_lineage": 0.201,
+    "C_reset": 0.1,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s1",
+    "headroom": 0.101,
+    "passrate": 0.02,
+    "round": 0
+   },
+   {
+    "C_lineage": 0.4,
+    "C_reset": 0.2,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s1",
+    "headroom": 0.2,
+    "passrate": 0.08,
+    "round": 1
+   },
+   {
+    "C_lineage": 0.505,
+    "C_reset": 0.201,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s1",
+    "headroom": 0.304,
+    "passrate": 0.22,
+    "round": 2
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.506,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s1",
+    "headroom": -0.004,
+    "passrate": 0.44,
+    "round": 3
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.501,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s1",
+    "headroom": 0.0,
+    "passrate": 0.52,
+    "round": 4
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.502,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s1",
+    "headroom": -0.0,
+    "passrate": 0.38,
+    "round": 5
+   },
+   {
+    "C_lineage": 0.501,
+    "C_reset": 0.5,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s1",
+    "headroom": 0.001,
+    "passrate": 0.38,
+    "round": 6
+   },
+   {
+    "C_lineage": 0.501,
+    "C_reset": 0.502,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s1",
+    "headroom": -0.001,
+    "passrate": 0.52,
+    "round": 7
+   },
+   {
+    "C_lineage": 0.0,
+    "C_reset": 0.201,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s2",
+    "headroom": -0.201,
+    "passrate": 0.02,
+    "round": 0
+   },
+   {
+    "C_lineage": 0.291,
+    "C_reset": 0.102,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s2",
+    "headroom": 0.189,
+    "passrate": -0.02,
+    "round": 1
+   },
+   {
+    "C_lineage": 0.3,
+    "C_reset": 0.304,
+    "both_at_parity": false,
+    "cell": "t2kc_q15_s2",
+    "headroom": -0.004,
+    "passrate": 0.08,
+    "round": 2
+   },
+   {
+    "C_lineage": 0.501,
+    "C_reset": 0.501,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s2",
+    "headroom": 0.001,
+    "passrate": 0.38,
+    "round": 3
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.502,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s2",
+    "headroom": -0.0,
+    "passrate": 0.36,
+    "round": 4
+   },
+   {
+    "C_lineage": 0.503,
+    "C_reset": 0.502,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s2",
+    "headroom": 0.001,
+    "passrate": 0.52,
+    "round": 5
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.503,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s2",
+    "headroom": -0.0,
+    "passrate": 0.4,
+    "round": 6
+   },
+   {
+    "C_lineage": 0.502,
+    "C_reset": 0.502,
+    "both_at_parity": true,
+    "cell": "t2kc_q15_s2",
+    "headroom": 0.0,
+    "passrate": 0.46,
+    "round": 7
+   }
+  ]
+ },
+ "generated_from": "data/marlowe_h100 + data/trajectories via make_kernel_results_tex",
+ "nonllm": {
+  "by_tier": {
+   "L1": {
+    "median_score": 0.3809,
+    "n": 10
+   },
+   "L2": {
+    "median_score": 0.4078,
+    "n": 15
+   },
+   "L3": {
+    "median_score": 0.50485,
+    "n": 4
+   }
+  },
+  "median_score": 0.4084,
+  "median_speedup_vs_compiled": 0.865,
+  "n_slower_than_compiled": 27,
+  "n_tasks": 29
+ },
+ "starvation": {
+  "cells": [
+   {
+    "cell": "prereg_q15_s1",
+    "n_ex": [
+     0,
+     1,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "cell": "prereg_q15_s2",
+    "n_ex": [
+     2,
+     1,
+     3,
+     0,
+     3
+    ]
+   },
+   {
+    "cell": "prereg_q15_s3",
+    "n_ex": [
+     1,
+     0,
+     2,
+     1,
+     2
+    ]
+   },
+   {
+    "cell": "prereg_q3_s1",
+    "n_ex": [
+     1,
+     1,
+     2,
+     0
+    ]
+   },
+   {
+    "cell": "prereg_q3_s2",
+    "n_ex": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "cell": "prereg_q3_s3",
+    "n_ex": [
+     1,
+     2,
+     2,
+     1
+    ]
+   }
+  ],
+  "frac_empty": 0.4074074074074074,
+  "mean_per_round": 0.9629629629629629,
+  "n_empty": 11,
+  "n_rounds": 27,
+  "predicted": {
+   "expected": 0.96,
+   "k": 10,
+   "n_train": 3,
+   "yield": 0.032
+  }
+ }
+}

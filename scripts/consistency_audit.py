@@ -802,6 +802,54 @@ def check_log_timestamps_not_future():
         ok("log/timestamp-future", "no dated entry is stamped in the future")
 
 
+def check_recursion_gain_sign():
+    """No page may present a per-cell recursion gain as if it were the contrast.
+
+    docs/data/baselines.json is one run per row and disagrees with itself on sign: +0.055 for
+    Qwen2.5-Coder-1.5B, -0.073 for starcoder2-3b. The site quoted the +0.055 as the result while
+    the same page, eight sections earlier, reported search beating training. The independent
+    replicate is the trajectory, and at that level the same model reads -0.114 [-0.157, -0.071]
+    over 20 trajectories with search winning 90% of them -- the interval excludes zero in the
+    direction opposite to the single-cell number.
+
+    The gate is not "never mention the per-cell figure". It is: wherever a positive recursion
+    gain appears, the trajectory-level result must appear within reach of it, so the reader
+    cannot leave with the sign the smaller sample happened to produce.
+    """
+    d = load("search_vs_train.json")
+    p = d.get("pooled") or {}
+    if not p:
+        fail("baselines/recursion-sign", "search_vs_train.json has no pooled block; cannot check the sign")
+        return
+    traj_negative = p.get("mean", 0) < 0 and p.get("ci_excludes_zero")
+    b = load("baselines.json")
+    pos = [m for m in (b.get("models") or []) if (m.get("recursion_gain") or 0) > 0]
+    if not (traj_negative and pos):
+        ok("baselines/recursion-sign", "no positive per-cell recursion gain to qualify")
+        return
+    vals = [("%+.3f" % m["recursion_gain"]) for m in pos]
+    bad = []
+    for name in PROSE:
+        txt = read_prose(name)
+        for v in vals:
+            for m in re.finditer(re.escape(v), txt):
+                window = txt[max(0, m.start() - 600):m.end() + 600]
+                # the qualifier must be nearby: either the trajectory-level estimate itself,
+                # or an explicit statement that search wins at matched compute.
+                if re.search(r"-0\.11|0\.114|search (?:beats|wins)|trajectory level|"
+                             r"trajectory-level|does not survive", window, re.I):
+                    continue
+                bad.append("%s: %r not qualified by the trajectory-level result" % (name, v))
+    if bad:
+        fail("baselines/recursion-sign",
+             "a per-cell recursion gain is stated without the replicate that reverses its sign:\n      "
+             + "\n      ".join(bad))
+    else:
+        ok("baselines/recursion-sign",
+           "per-cell gains %s each qualified by the trajectory-level %+.3f [%+.3f,%+.3f]"
+           % (",".join(vals), p["mean"], p["lo"], p["hi"]))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quiet", action="store_true", help="print failures only")
@@ -814,7 +862,8 @@ def main():
                check_intervals_contain_estimates,
                check_table_sums, check_band_table,
                check_extraction_policy_stated,
-               check_log_timestamps_not_future):
+               check_log_timestamps_not_future,
+               check_recursion_gain_sign):
         fn()
     if not a.quiet:
         print("=" * 100)

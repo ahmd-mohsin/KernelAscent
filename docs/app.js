@@ -283,3 +283,104 @@ fetch("data/open_rsi.json").then(r => r.json()).then(d => {
       : `<tr><td colspan="6" class="mid">No community submissions yet — <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">be the first</a>.</td></tr>`;
   }).catch(()=>{ const tb=document.querySelector("#comm-lb tbody"); if(tb) tb.innerHTML=`<tr><td colspan="6" class="mid">Serve over HTTP to load the community board.</td></tr>`; });
 })();
+
+/* ---------------------------------------------------------------------------
+   Headline results, rendered from data/headline.json.
+
+   These four numbers are the page's lead, and every one of them used to be
+   typed into index.html by hand. That is the practice this project has already
+   been burned by: a figure typed into prose and propagated by hand turned out
+   to be unreproducible from any artifact, and the page went on showing it after
+   the paper had stopped. scripts/build_site_headline.py re-derives them from
+   the stored artifacts through the same module the paper's tables use, so the
+   site cannot report a number the report does not.
+
+   Failure is loud on purpose. A headline section that silently renders nothing
+   looks like a design choice, and a reader cannot tell a missing result from an
+   absent one.
+--------------------------------------------------------------------------- */
+(function () {
+  const FMT = {
+    signed3: v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3),
+    signed4: v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(4),
+    f2: v => v.toFixed(2),
+    f3: v => v.toFixed(3),
+    pct0: v => Math.round(v * 100) + "%",
+    int: v => String(Math.round(v)),
+  };
+  const dig = (o, path) => path.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+
+  function fill(root, data) {
+    root.querySelectorAll("[data-h]").forEach(el => {
+      const v = dig(data, el.dataset.h);
+      el.textContent = (typeof v === "number") ? (FMT[el.dataset.fmt] || FMT.f3)(v) : "—";
+    });
+  }
+
+  function cards(d) {
+    const c = d.contrast, s = d.starvation, n = d.nonllm;
+    const out = [];
+    if (c) out.push([FMT.signed4(c.headroom_mean), "headroom contrast",
+      `mean over the ${c.n_parity_rounds} rounds where both arms sit at correct-at-parity; never further from zero than ${c.headroom_max_abs.toFixed(3)}`]);
+    if (c) out.push([FMT.signed3(c.passrate_mean), "the same rounds, rescored",
+      `pass rate on the identical generations, minimum ${FMT.signed3(c.passrate_min)}. At their closest the two ranges are a factor of ${Math.round(c.range_separation)} apart, and they do not approach one another.`]);
+    if (s) out.push([FMT.f2(s.mean_per_round), "examples per round",
+      `what the registered weight-RSI loop actually received, over ${s.n_rounds} rounds; ${s.n_empty} of them empty. Predicted in advance by n_train × k × yield = ${s.predicted.expected.toFixed(2)}.`]);
+    if (n) out.push([FMT.f3(n.median_score), "non-LLM baseline",
+      `torch.compile(mode="max-autotune"), scored as a model submission is — below correct-at-parity, because it is slower than default torch.compile on ${n.n_slower_than_compiled} of ${n.n_tasks} tasks.`]);
+    return out.map(([big, lab, note]) =>
+      `<div class="card"><div class="card-n">${big}</div><div class="card-l">${lab}</div><div class="card-note">${note}</div></div>`).join("");
+  }
+
+  function contrastRows(c) {
+    return c.rows.map(r => {
+      const dag = r.both_at_parity ? '<span class="dag">†</span>' : "";
+      const pv = (typeof r.passrate === "number") ? FMT.signed3(r.passrate) : "—";
+      const cls = r.both_at_parity ? ' class="parity"' : "";
+      return `<tr${cls}><td class="mono">${r.cell.replace("t2kc_", "")}</td><td class="num">${r.round}</td>`
+        + `<td class="num">${r.C_lineage.toFixed(2)} / ${r.C_reset.toFixed(2)}</td>`
+        + `<td class="num">${FMT.signed3(r.headroom)}${dag}</td>`
+        + `<td class="num"><b>${pv}</b></td></tr>`;
+    }).join("");
+  }
+
+  fetch("data/headline.json").then(r => r.json()).then(d => {
+    const sec = document.getElementById("headline");
+    if (sec) fill(sec, d);
+    fill(document.querySelector(".hero"), d);
+
+    const cw = document.getElementById("hl-cards");
+    if (cw) cw.innerHTML = cards(d);
+
+    const ct = document.querySelector("#hl-contrast tbody");
+    if (ct && d.contrast) {
+      ct.innerHTML = contrastRows(d.contrast);
+      const note = document.getElementById("hl-contrast-note");
+      const c = d.contrast;
+      if (note) note.innerHTML = `Across all ${c.n_parity_rounds} rounds marked † the headroom contrast stays `
+        + `within ${c.headroom_max_abs.toFixed(3)} of zero, mean <b>${FMT.signed4(c.headroom_mean)}</b>, while the same rounds `
+        + `report a mean of <b>${FMT.signed3(c.passrate_mean)}</b> under pass rate with a minimum of `
+        + `${FMT.signed3(c.passrate_min)}. The two boards are never <i>pooled</i> (pre-registration Amendment 1); `
+        + `they are placed side by side here to compare the scorers, which is a different act.`;
+    }
+
+    const nt = document.querySelector("#hl-nonllm tbody");
+    if (nt && d.nonllm) {
+      const t = d.nonllm.by_tier || {};
+      nt.innerHTML = Object.keys(t).map(k =>
+        `<tr><td>${k}</td><td class="num">${t[k].n}</td><td class="num">${t[k].median_score.toFixed(3)}</td></tr>`).join("")
+        + `<tr class="total"><td>All</td><td class="num">${d.nonllm.n_tasks}</td><td class="num"><b>${d.nonllm.median_score.toFixed(3)}</b></td></tr>`;
+      const nn = document.getElementById("hl-nonllm-note");
+      if (nn) nn.innerHTML = `Median speedup against the compiled baseline is `
+        + `<b>${d.nonllm.median_speedup_vs_compiled.toFixed(3)}×</b>, and max-autotune is slower than default `
+        + `<code>torch.compile</code> on <b>${d.nonllm.n_slower_than_compiled} of ${d.nonllm.n_tasks}</b> tasks. `
+        + `A model matching the compiled baseline is therefore outperforming production autotuning on this bank, `
+        + `not failing to beat a weak one. Reported per tier because compile gain over eager differs by about 12× between L1 and L2.`;
+    }
+  }).catch(() => {
+    const cw = document.getElementById("hl-cards");
+    if (cw) cw.innerHTML = `<div class="card"><div class="card-l">Headline data did not load.</div>`
+      + `<div class="card-note">Serve this page over HTTP, or read the numbers in `
+      + `<a href="data/headline.json">data/headline.json</a>. They are not typed into this page, so nothing is shown rather than something stale.</div></div>`;
+  });
+})();

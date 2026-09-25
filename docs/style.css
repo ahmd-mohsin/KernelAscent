@@ -319,8 +319,12 @@ body{font-feature-settings:"ss01","ss02"}
 .state.repro{color:#8a6d1f;background:#fbf6e9;border:1px solid #ece0c3}
 .state.selfrep{color:var(--sub);background:#f4f4f4;border:1px solid #e7e7e7}
 
-.finding-strip{margin:22px 0 0;font-size:16px;line-height:1.5;max-width:640px}
-.finding-strip .ev{display:block;margin:8px 0;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--sub)}
+/* The hero carries two strips: the result, and what it cost us. The border-left is what makes
+   the per-strip inline border-color mean anything -- without it the markup's accent colour was
+   setting the colour of a border that did not exist. */
+.finding-strip{margin:20px 0 0;font-size:15px;line-height:1.6;max-width:66ch;
+  border-left:2px solid var(--ink);background:var(--wash);padding:13px 17px;border-radius:0 6px 6px 0}
+.finding-strip .ev{display:block;margin:7px 0 3px;font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--mid)}
 .finding-strip a{color:var(--red,#b4232c);font-weight:600;text-decoration:none;border-bottom:1px solid #e2cfcf}
 .finding-strip a:hover{border-bottom-color:var(--red,#b4232c)}
 
@@ -385,4 +389,34 @@ table.prose th,table.prose td{white-space:normal;overflow-wrap:anywhere;vertical
 @media (max-width:640px){
   table.prose{font-size:12px}
   table.prose th,table.prose td{padding:7px 8px}
+}
+
+/* ------------------------------------------------------------------
+   Headline section: the four results that decide whether the rest of
+   the page is readable. Given its own visual weight because it is the
+   lead, and the lead changed.
+------------------------------------------------------------------ */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:22px 0 28px}
+.card{border:1px solid var(--hair);border-left:2px solid var(--cardinal);border-radius:0 8px 8px 0;
+  padding:16px 18px;background:var(--wash);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.06)}
+.card-n{font-family:var(--mono);font-size:25px;font-weight:500;letter-spacing:-.03em;color:var(--ink);line-height:1.1}
+.card-l{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--cardinal);margin:7px 0 9px;font-weight:600}
+.card-note{font-size:12.5px;line-height:1.5;color:var(--sub)}
+
+/* The dagger marks a round where BOTH arms sit at correct-at-parity. Those are the rounds the
+   argument rests on, so they are legible in the table rather than only in the caption. */
+.dag{color:var(--cardinal);font-weight:600;margin-left:3px}
+#hl-contrast tbody tr.parity{background:var(--cardinal-wash)}
+#hl-contrast tbody tr.parity td{border-bottom-color:#eadada}
+#hl-contrast tbody tr.parity:hover{background:#f2e2e2}
+#hl-nonllm tbody tr.total td{border-top:1.5px solid var(--ink)}
+
+#headline h3{margin-top:30px;padding-top:2px}
+#headline .tablewrap{max-width:100%}
+
+@media(max-width:640px){
+  .cards{grid-template-columns:1fr}
+  .card-n{font-size:22px}
 }

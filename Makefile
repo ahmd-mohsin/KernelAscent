@@ -1,5 +1,5 @@
 # KernelAscent paper figures + result tables
-.PHONY: figures audit stats
+.PHONY: figures audit stats paper site all
 
 # Recompute the clustered (trajectory-level) statistics from the raw trajectories.
 # These feed results_auto.tex, so they run before the paper is regenerated.
@@ -26,5 +26,24 @@ figures: stats
 	python3 scripts/make_intervene_figures.py
 	python3 scripts/make_results_tex.py
 	python3 scripts/make_kernel_results_tex.py
+	python3 scripts/build_site_headline.py
 	$(MAKE) audit
 	cd paper && (tectonic figures.tex || (pdflatex -interaction=nonstopmode figures.tex && pdflatex -interaction=nonstopmode figures.tex))
+
+# The consolidated report. `figures` builds the figure atlas, which is a different document;
+# until this target existed the one thing a reader is handed was the only artifact the build
+# never produced, and its tables could be regenerated without anyone noticing the paper no
+# longer compiled.
+paper:
+	python3 scripts/make_kernel_results_tex.py
+	cd paper && pdflatex -interaction=nonstopmode kernelascent.tex >/dev/null
+	cd paper && pdflatex -interaction=nonstopmode kernelascent.tex | \
+	  grep -E "Output written|^!|Reference .* undefined" || true
+
+# The website's headline numbers, re-derived from the same artifacts through the same module
+# the paper's tables use. docs/index.html reads the result at page load and types none of it.
+site:
+	python3 scripts/build_site_headline.py
+	python3 scripts/consistency_audit.py
+
+all: figures paper site

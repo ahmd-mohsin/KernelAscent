@@ -28,6 +28,13 @@ def _find(name):
             return p
     return os.path.join(D, name)
 OUT = os.path.join(ROOT, "paper", "kernel_results_auto.tex")
+
+# The scorer contrast, as pairs of cells differing in KA_SCORE and nothing else. Module-level
+# because scripts/build_site_headline.py reads it too: the website and the paper must name the
+# same cells, and a list copied into two files is a divergence waiting for whichever is edited
+# first.
+CONTRAST_PAIRS = [("t2kc_q15_s1", "t2kp_control_q15_s1"),
+                  ("t2kc_q15_s2", "t2kp_control_q15_s2")]
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 
@@ -464,9 +471,8 @@ def metric_contrast_table():
     caption says so.
     """
     import statistics as _st
-    pairs = [("t2kc_q15_s1", "t2kp_control_q15_s1"), ("t2kc_q15_s2", "t2kp_control_q15_s2")]
     rows, dead_h, dead_p = [], [], []
-    for hc, pc in pairs:
+    for hc, pc in CONTRAST_PAIRS:
         h = _load(_find(os.path.join(hc, "compounding.json"))) or _load(os.path.join(DIRS[1], hc, "compounding.json"))
         p = _load(_find(os.path.join(pc, "compounding.json"))) or _load(os.path.join(DIRS[1], pc, "compounding.json"))
         if not h or not p:

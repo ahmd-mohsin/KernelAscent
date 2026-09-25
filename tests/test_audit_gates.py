@@ -46,6 +46,7 @@ def main():
         A.check_intervals_contain_estimates(); A.check_table_sums(); A.check_band_table()
         A.check_extraction_policy_stated()
         A.check_log_timestamps_not_future()
+        A.check_recursion_gain_sign()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -130,6 +131,28 @@ def main():
     mutate("BENCHMARK_LOG.md",
            lambda t: t + "\n\n### A section stamped tomorrow (2099-01-01 09:00)\n\nbody\n",
            "log/timestamp-future")
+
+    # A per-cell recursion gain quoted without the replicate that reverses its sign. The site
+    # carried exactly this for a week: +0.055 for one run of one model, on a page that also
+    # reported search beating training over 57 trajectories. The gate fires on the bare number
+    # and clears when the trajectory-level result is within reach of it.
+    print("recursion sign: a single-cell gain may not stand in for the contrast")
+    mutate("docs/index.html",
+           lambda t: t + "<p>Training on your own kernels wins: recursion gain +0.055.</p>\n",
+           "baselines/recursion-sign")
+    mutate("README.md",
+           lambda t: t + "\nAt matched budget the recursion gain is +0.055.\n",
+           "baselines/recursion-sign")
+    # and the positive control: the same number, qualified, must NOT fire.
+    _p = os.path.join(dst, "docs", "index.html")
+    _orig = open(_p).read()
+    open(_p, "w").write(_orig + "<p>One cell reads +0.055, but at the trajectory level "
+                                "search beats training at -0.114 and the sign reverses.</p>\n")
+    try:
+        assert "baselines/recursion-sign" not in run("+ qualified mention (must stay clean)"), \
+            "the gate fires on a mention that already carries its correction"
+    finally:
+        open(_p, "w").write(_orig)
 
     assert run("all restored") == [], "repo must end clean"
 
