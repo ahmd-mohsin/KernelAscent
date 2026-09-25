@@ -4031,3 +4031,28 @@ gain is the `delta` column, and that column is not yet readable at this depth.
 `s2` does not show it at the same magnitude (7, 5, 11), so even the yield growth is seed-dependent
 and is recorded as an observation on one seed, not a result. Both cells are at 4 and 3 of a
 registered 5.
+
+## 2026-09-25 05:45 — the watcher's blind spot: a transition nobody was running to see
+
+`fed-q15-s2` hit its two-hour wall and was not resumed. The queue drained to zero with the cell
+at 3 of 5 rounds, and nothing reported it.
+
+The auto-continue fires on a state **diff** between consecutive polls. A freshly started watcher
+has no previous poll, so its first iteration records a baseline and emits nothing. The timeout
+landed in the gap between two 30-minute monitor instances, which means no watcher process
+existed at the moment of the transition and no later one could see it: on poll 1, *no diff* and
+*no baseline* are indistinguishable.
+
+This is the second time monitor expiry has stalled the program. The first time I restarted the
+cells by hand and treated it as an operational slip. It is not one — it is a design defect with a
+precise shape, and the same shape as three gate bugs recorded above: **a checker that cannot see
+the event it exists to catch reports nothing, and silence is read as health.**
+
+Fixed by making the first poll reconcile against the manifest rather than only record a baseline.
+`jobman continue` is idempotent — it skips anything queued or running, holds a stalled cell, and
+resubmits only a timed-out one — so running it at every watcher start is safe and costs one query.
+A watcher restart now recovers whatever happened while nothing was watching.
+
+Worth stating the general form, because this project keeps rediscovering it: **a monitor whose
+coverage begins at its own start time cannot cover its own restarts.** Any watchdog that will be
+restarted needs a reconciliation path, not just a change-detection path.

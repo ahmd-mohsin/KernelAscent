@@ -36,6 +36,20 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
   if [ $((polls % 10)) -eq 1 ]; then
     echo "heartbeat: $(grep -c "RUNNING" <<<"$cur") running, $(grep -c "PENDING" <<<"$cur") pending (poll $polls)"
   fi
+  # RECONCILE ON STARTUP. The auto-continue below fires on a state DIFF between polls, and a
+  # fresh watcher has no previous poll, so a transition that lands while no watcher is running
+  # is seen by nobody. fed-q15-s2 hit its 2-hour wall in the gap between two 30-minute monitor
+  # instances and simply stopped: the queue drained to zero with the cell at 3 of 5 rounds and
+  # nothing reported it, because "no diff" and "no baseline" are the same thing on poll 1.
+  #
+  # So the first poll reconciles against the manifest instead of only recording a baseline.
+  # jobman continue is idempotent -- it skips anything queued or running, holds a stalled cell,
+  # and resubmits only a timed-out one -- so doing this every time the watcher starts is safe
+  # and costs one query.
+  if [ -z "$prev" ]; then
+    bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD|ABORT)' \
+      | sed 's/^/startup reconcile: /' || true
+  fi
   if [ -n "$prev" ]; then
     # only lines that are new or changed since last poll
     comm -13 <(echo "$prev") <(echo "$cur") | while IFS='|' read -r id name st; do

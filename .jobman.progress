@@ -18,4 +18,4 @@ basek-q3-s2	methods=best_of_k,self_refine	0
 t2kc-q3-s1	rounds=7	0
 t2kc-q3-s2	rounds=7	0
 fed-q15-s1	rounds=3	0
-fed-q15-s2	rounds=2	0
+fed-q15-s2	rounds=3	0
