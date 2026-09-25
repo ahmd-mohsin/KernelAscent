@@ -1651,3 +1651,30 @@ to shell quoting. Write the script file.
     kernels under lenient extraction, from a cell at 108 and then 252 attempts. The completed
     cell has 2 in 338. "Near-zero" and "zero" support different sentences, and only one of them
     was true.
+17. **Compute your loop's throughput before you run it.** Expected training examples per round
+    is `n_train x k x yield`. At the registered configuration that was `3 x 10 x 0.028 = 0.8`,
+    and `n_ex` was zero in 8 of 19 rounds. 57 trajectories and 228 rounds of a loop that could
+    not compound, and the arithmetic needed one line. A self-improvement experiment must show
+    its loop has *throughput* before any contrast it reports means anything.
+18. **A slice does not raise when it runs past the end.** `--n-held` defaulted to 20 and
+    delivered 5, because `pool[n_train:n_train+n_held]` on a 25-item pool with 20 taken for
+    training returns whatever is left. The log printed `held=5` from the first run and I read it
+    as a chosen parameter for an entire session. Compare what you asked for against what came
+    back, and record both.
+19. **A constant tuned for small inputs silently cripples large ones.** `KA_MAXMEM_GIB=20` is
+    right for a 1.5B arm sharing a node. For 32B in bf16 it budgets 40GiB against a 62GiB model,
+    so `accelerate` puts the remainder in host RAM without a word: 101 minutes, 0 of 29 tasks,
+    one GPU idle. Size a limit to the hardware, not to the case you had when you wrote it.
+20. **Test your own proposed fix before you claim it.** I argued the benchmark needed a score
+    unbounded in the improving quantity, named verified-solutions-per-compute, and computed it
+    from stored rounds. The cumulative form rose where pass-rate was flat — an artifact, since a
+    cumulative sum climbs whether or not anything compounds and so cannot falsify anything. The
+    marginal form plateaued. Both aimed at the numerator; the bound was in the denominator.
+21. **A gate scoped to the wrong set reports clean about the wrong things.** `check_resume`
+    examined `lab_*.py` only, so a harvester under `scripts/` was never asked whether it
+    resumes — through a month of runs including the expensive ones. The rule is "every job that
+    can hit a walltime", not "every file with the name I happened to use".
+22. **A false negative in a gate is worse than a false positive.** Extending that gate, it
+    reported a resume I had just written as missing, because it knew the shifted-range idiom and
+    not the in-loop guard. A false positive costs a minute. A false negative invites you to add
+    what already exists, or to certify a clean sweep over a set you never checked.
