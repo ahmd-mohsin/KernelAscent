@@ -58,8 +58,22 @@ def build(model_id, gpus=(0,)):
         mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map=dm, trust_remote_code=True)
     else:
         n = torch.cuda.device_count()
-        cap = os.environ.get("KA_MAXMEM_GIB", "20")            # per-GPU cap FORCES even sharding across the arm's GPUs
-        mm = {i: ("%sGiB" % cap if i in gpus else "0GiB") for i in range(n)}
+        # The per-GPU cap forces even sharding across the arm's GPUs. It used to default to a
+        # flat 20GiB, which is right for a 1.5B arm sharing a node and catastrophic for a large
+        # model: 32B in bf16 needs ~62GiB, a 2-GPU budget of 40GiB puts the remainder on CPU,
+        # and accelerate does that silently. r2-probe-32b ran 101 minutes on an H100 pair and
+        # completed 0 of 29 tasks because most of the model was in host RAM.
+        # Default to a fraction of the REAL device memory so the cap tracks the hardware.
+        _frac = float(os.environ.get("KA_MAXMEM_FRAC", "0.85"))
+        _env_cap = os.environ.get("KA_MAXMEM_GIB")
+        def _cap_for(i):
+            if _env_cap:
+                return "%sGiB" % _env_cap
+            tot = torch.cuda.get_device_properties(i).total_memory / (1024 ** 3)
+            return "%dGiB" % max(1, int(tot * _frac))
+        mm = {i: (_cap_for(i) if i in gpus else "0GiB") for i in range(n)}
+        sys.stderr.write("device_map budget %r (model shards across %d GPU(s))\n"
+                         % ({k: v for k, v in mm.items() if v != "0GiB"}, len(gpus)))
         mdl = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=dt, device_map="auto", max_memory=mm, trust_remote_code=True)
     try:                                                   # standard attention-proj names (Qwen/Llama/Mistral/Gemma/DeepSeek/StarCoder2)
         lcfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
