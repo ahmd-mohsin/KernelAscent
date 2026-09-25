@@ -38,6 +38,72 @@ CONTRAST_PAIRS = [("t2kc_q15_s1", "t2kp_control_q15_s1"),
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 
+def _gap_partition():
+    """Partition every headroom round by whether the two arms are separated.
+
+    The contrast caption asserted "the 14 rounds with arms within 0.02 average -0.0004, while
+    the 10 rounds with a gap average +0.131". Those four figures were literals inside a
+    generated caption, over four cells that were still adding rounds -- t2kc_q3_s1 and s2 each
+    advanced past them while this was being written. A number typed into a generated artifact
+    is worse than one typed into prose, because the surrounding machinery advertises that it
+    was computed.
+
+    Returns None if no cell is readable, so the caption can drop the sentence rather than
+    print a partition over nothing.
+    """
+    import statistics as _st
+    tight, gap, recov = [], [], None
+    for cell, outdir in _cells("t2kc_*"):
+        d = _load(os.path.join(outdir, "compounding.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        prev = None
+        for r in h:
+            cl, cr = r.get("C_lineage"), r.get("C_reset")
+            v = r.get("lineage_minus_reset")
+            if cl is None or cr is None or v is None:
+                continue
+            if abs(cl - cr) <= 0.02:
+                tight.append(v)
+            else:
+                gap.append(v)
+                # the recovery case: a round at parity immediately followed by a reopened gap,
+                # which is what shows the contrast is not broken by saturation
+                if prev is not None and abs(prev[0] - prev[1]) <= 0.02:
+                    cand = (cell, prev[2], prev[0], prev[1], v, cl, cr)
+                    # largest reopening, not first seen: the point is that the contrast
+                    # recovers, and the clearest instance makes it without argument. Taking
+                    # the first is order-dependent and moves when a cell adds a round.
+                    if recov is None or abs(v) > abs(recov[4]):
+                        recov = cand
+            prev = (cl, cr, v)
+    if not tight or not gap:
+        return None
+    return {"n_tight": len(tight), "mean_tight": _st.mean(tight),
+            "max_tight": max(abs(x) for x in tight),
+            "n_gap": len(gap), "mean_gap": _st.mean(gap), "recovery": recov}
+
+
+def _gap_sentence():
+    """The arm-separation partition, as a caption sentence built from the artifacts."""
+    g = _gap_partition()
+    if not g:
+        return (r"arms and nothing else, though no cell currently supports a partition by arm "
+                r"separation, so none is reported.")
+    out = (r"arms and nothing else: across all four headroom cells and both scales, the %d rounds "
+           r"with arms within $0.02$ of each other average $%+.4f$ and never exceed $%.3f$, while "
+           r"the %d rounds with a gap average $%+.3f$."
+           % (g["n_tight"], g["mean_tight"], g["max_tight"], g["n_gap"], g["mean_gap"]))
+    r = g.get("recovery")
+    if r:
+        cell, v0, cl0, cr0, v1, cl1, cr1 = r
+        out += (r" It is not broken by saturation and recovers when a gap reopens "
+                r"(\texttt{%s} reads $%+.3f$ at $%.2f/%.2f$ then $%+.3f$ at $%.2f/%.2f$)."
+                % (cell.replace("t2kc_", "").replace("_", "\\_"), v0, cl0, cr0, v1, cl1, cr1))
+    return out
+
+
 def _cells(pattern):
     """Every cell matching `pattern` across both artifact roots, one entry per cell name.
 
@@ -490,6 +556,19 @@ def metric_contrast_table():
     if not dead_h:
         return "", ["metric contrast: no round yet has both arms at parity; not reporting"]
 
+    _caption_head = (
+        r"\caption{The same experiment under two scorers. \texttt{t2kc} and \texttt{t2kp} differ in "
+        r"\texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a "
+        r"round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all %d such "
+        r"rounds the headroom contrast is within $%.3f$ of zero (mean $%+.4f$), while the same rounds "
+        r"report a mean of $%+.3f$ under pass rate. The contrast measures the \emph{gap} between the ")
+    _caption_tail = (
+        r" The difficulty is that best-of-$k$ compresses both arms onto correct-at-parity and holds "
+        r"them there, and a matched reset learner arrives within three or four rounds, so the "
+        r"measurement's useful lifetime is fixed by the control arm rather than by the treatment. The "
+        r"two boards are never \emph{pooled} (Amendment 1); they are placed side by side here to "
+        r"compare the scorers, not the results.}")
+
     body = ""
     for cell, i, cl, cr, hv, pv, both in rows:
         mark = r"$\dagger$" if both else ""
@@ -498,20 +577,13 @@ def metric_contrast_table():
             ("%+.3f" % pv) if pv is not None else "--")
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:contrast}",
-             (r"\caption{The same experiment under two scorers. \texttt{t2kc} and \texttt{t2kp} differ in "
-              r"\texttt{KA\_SCORE} alone: same model, seed, $k$, lab, task bank and arms. $\dagger$ marks a "
-              r"round where \emph{both} arms have reached correct-at-parity ($\geq 0.49$). In all %d such "
-              r"rounds the headroom contrast is within $%.3f$ of zero (mean $%+.4f$), while the same rounds "
-              r"report a mean of $%+.3f$ under pass rate. The contrast measures the \emph{gap} between the "
-              r"arms and nothing else: across all four headroom cells and both scales, the 14 rounds with arms "
-              r"within $0.02$ of each other average $-0.0004$ and never exceed $0.004$, while the 10 rounds "
-              r"with a gap average $+0.131$. It is not broken by saturation and recovers when a gap reopens "
-              r"(\texttt{q3\_s2} reads $+0.002$ at $0.50/0.50$ then $+0.201$ at $0.50/0.30$). The difficulty is "
-              r"that best-of-$k$ compresses both arms onto correct-at-parity and holds them there, and a "
-              r"matched reset learner arrives within three or four rounds, so the measurement's useful "
-              r"lifetime is fixed by the control arm rather than by the treatment. The two boards are never \emph{pooled} (Amendment 1); they are placed side by "
-              r"side here to compare the scorers, not the results.}"
-              % (len(dead_h), max(abs(x) for x in dead_h), _st.mean(dead_h), _st.mean(dead_p))),
+             # Each %-formatted fragment is closed before anything is concatenated. Writing
+             # this as one long `a + b % args` is the precedence trap this file already carries
+             # a note about: `%` binds tighter than `+`, so only the final fragment sees the
+             # arguments and Python raises on the count -- or, worse, does not.
+             (_caption_head % (len(dead_h), max(abs(x) for x in dead_h),
+                               _st.mean(dead_h), _st.mean(dead_p))
+              + _gap_sentence() + _caption_tail),
              r"\begin{tabular}{@{}lrrrr@{}}",
              r"\toprule",
              r"Cell & Round & $C_{\mathrm{lin}}$ / $C_{\mathrm{reset}}$ & headroom & pass rate \\",

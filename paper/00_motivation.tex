@@ -30,14 +30,18 @@ statistics to read.
 
 Best-of-$k$ is identical for a model that solves a task one time in $k$ and one that solves it
 $k$ times in $k$. Self-training acts on exactly that quantity. The consequence is visible in the
-arm levels rather than in any summary statistic: across all four headroom cells and both model
-scales, the fourteen rounds in which the two arms sit within $0.02$ of each other average
-$-0.0004$ and never exceed $0.004$, while the ten rounds with a gap average $+0.131$.
+arm levels rather than in any summary statistic. Partitioning every round of all four headroom
+cells, across both model scales, by whether the two arms are separated at all: the rounds in
+which they sit within $0.02$ of each other average essentially zero and never depart from it by
+more than $0.004$, while the rounds with a gap average two orders of magnitude larger. The
+counts and the two means are computed from the artifacts and printed in the caption of
+Table~\ref{tab:contrast}; they move as cells add rounds, and the separation has held across
+every round collected so far.
 
 The contrast is therefore measuring the gap between the arms and nothing else, faithfully, at all
 times. Best-of-$k$ compresses both arms onto correct-at-parity and holds them there, so the gap
-it faithfully reports is zero. It recovers the moment a gap reopens: one cell reads $+0.002$ at
-arm levels $0.50/0.50$ and $+0.201$ one round later at $0.50/0.30$.
+it faithfully reports is zero. It recovers the moment a gap reopens, and the caption names the
+clearest instance the data contains.
 
 The design consequence is the part worth carrying: a matched reset learner reaches parity within
 three or four rounds, so the measurement's useful lifetime is fixed by the \emph{control} arm

@@ -16,6 +16,6 @@ prereg-q3-s2	rounds=4	0
 prereg-q3-s3	rounds=4	0
 fed-q15-s1	rounds=1	0
 fed-q15-s2	rounds=1	0
-t2kc-q3-s1	rounds=5	0
 t2kc-q3-s2	rounds=5	0
 basek-q3-s2	methods=best_of_k,self_refine	0
+t2kc-q3-s1	rounds=6	0
