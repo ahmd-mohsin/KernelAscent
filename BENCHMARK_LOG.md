@@ -3151,3 +3151,43 @@ tooling either, which makes it a property of the task set rather than a model de
 Falsifier for this result, stated now: if a future run on a matmul-heavy or dynamic-shape bank
 shows max-autotune clearing 0.50 comfortably, then this is a property of the current task mix
 and must be reported as such rather than as a general ceiling claim.
+
+### Correction: pass-rate compounding rises then PLATEAUS, and pass-rate ceilings too
+
+At 4 rounds I recorded `lineage − reset` as growing **monotonically** under pass-rate. At 6
+rounds that word is wrong, and 3 of 4 cells are non-monotone:
+
+| cell | r0 | r1 | r2 | r3 | r4 | r5 | monotone |
+|---|---|---|---|---|---|---|---|
+| control s1 | +0.02 | +0.08 | +0.22 | +0.44 | **+0.52** | +0.38 | no |
+| control s2 | +0.02 | −0.02 | +0.08 | +0.38 | +0.36 | **+0.52** | no |
+| inject s1 | +0.04 | +0.28 | **+0.52** | +0.46 | +0.52 | +0.52 | no |
+| inject s2 | −0.02 | +0.24 | +0.48 | **+0.56** | +0.56 | — | yes |
+
+The shape is a **rise to roughly +0.5 by round 3 or 4, then a plateau**. This is the third time
+today I have described a running cell in language only its current prefix supported.
+
+**Why it plateaus is the interesting part, and it is not the model stopping.** `C_lineage`
+reaches **0.96, 0.92, 1.00, 0.96** across the four cells. Pass-rate is the fraction of `k`
+candidates that verify, so it is bounded at 1.0 — and the lineage arm is now hitting that bound.
+The contrast flattens because the *numerator* has run out of room, exactly as the headroom
+contrast flattened when both arms pinned at 0.50.
+
+**So both metrics ceiling. They differ in where and when.**
+
+| metric | ceiling | reached by | rounds of usable range |
+|---|---|---|---|
+| headroom (best-of-k) | 0.50 (correct-at-parity) | round 2 | ~2 |
+| pass-rate (`n_ok/k`) | 1.00 (all k verify) | round 4–5 | ~4 |
+
+Pass-rate bought about two more rounds of measurement range and a far larger effect, and it is
+the right choice between the two. But it is not the metric this benchmark should end on. Any
+bounded score will flatten once a learner approaches its bound, and a compounding claim then
+becomes a statement about how fast the ceiling was reached rather than about the recurrence.
+The metric the ladder actually needs is unbounded in the quantity that improves — verified
+solutions per unit compute, say — so that "it stopped improving" and "the ruler ran out" stop
+being the same observation.
+
+That strengthens rather than weakens the pass-rate result. The effect is real, it beats reset
+and matched-budget search, and it transfers across families. What must not be claimed is
+unbounded monotone growth, because the last two rounds of every cell measure the ceiling.
