@@ -2969,3 +2969,36 @@ in best-of-k. That is the whole T2 null, and the T5 null, and the inject-vs-cont
   results existed. It must be presented as such, not as the registered primary.
 * `inject > control` is suggestive (+0.46/+0.56 vs +0.44/+0.38) but the arms overlap and this is
   not the matched comparison that showed no effect under headroom.
+
+### What the pass-rate result does and does not do to the A100 null
+
+The obvious worry after the pass-rate finding: does it invalidate the published compounding null
+(n=57 trajectories, 228 rounds, mean −0.0096, BF₀₁=5.6)? I checked rather than assumed, and the
+answer is **no — but it narrows it, and the narrowing is worth more than the null was.**
+
+**It is not the same saturation.** The A100 board's final scores spread across 0.0–0.8 with only
+9% at exactly 0.50, so the specific "everything pinned at correct-at-parity" pathology seen on
+H100 is not what produced that null. `C_lineage_final` is median 0.000 with 8 of 11 models at
+exactly zero, which is the correctness wall — a different failure (cannot solve at all), not
+metric saturation.
+
+**But best-of-k cannot see reliability, by construction.** A model improving from 1-in-k correct
+to k-in-k correct produces an *identical* best-of-k score. That is definitional, independent of
+any dataset or hardware. So:
+
+* the n=57 null is **valid for what it measured** — best-of-k capability under headroom;
+* it is **silent** about reliability compounding, which is the axis pass-rate measures;
+* the pass-rate board finds a large effect on that axis, with family-level transfer.
+
+These are compatible claims, not a contradiction, and the paper must present them that way. The
+temptation is to say the old null was wrong. It was not wrong; it was *narrow*, and its
+narrowness was not visible until a metric existed that could see past it.
+
+**This is a better result than either finding alone.** The same experimental design returns a
+tight null under one scorer and a large, transferring effect under another, and we can state
+exactly which property of the scorer produces the difference. That is the instrument thesis
+demonstrated rather than argued — and it is the strongest available answer to "your benchmark
+found nothing, so why should we care".
+
+`docs/RESULT_VALIDITY.md` updated: the A100 null stays **VALID**, with its scope corrected from
+"null about acquiring correctness" to "null about best-of-k correctness, blind to reliability".
