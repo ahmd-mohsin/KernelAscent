@@ -3075,3 +3075,39 @@ fail: it refuses with the reason instead of proceeding.
 Worth saying plainly: I found this only because I checked a number that looked wrong. `queued=0`
 next to a queue I had been watching all session was implausible on its face. Two hours earlier I
 would have read past it.
+
+### "compile-gain 1.34x median" is a majority artifact, and the tiers disagree by 12x
+
+Running the non-LLM probe surfaced compile gains of 11-17x on L1 tasks, which looked
+inconsistent with the recorded headline of **1.34x median**. It is not inconsistent — it is the
+same number hiding a strongly bimodal distribution. From `compile_gain.json` (29 tasks):
+
+| tier | n | median compile gain over eager | range |
+|---|---|---|---|
+| L1 (memory/reduction) | 10 | **15.51x** | 10.83 – 21.85 |
+| L2 (matmul + epilogue) | 15 | **1.26x** | 1.23 – 1.34 |
+| L3 (attention/norm) | 4 | 4.53x | 3.02 – 4.81 |
+
+The 1.34x median is simply L2's value, because L2 is 15 of 29 tasks. The mean (6.61x) and range
+were recorded alongside it, so nothing was hidden — but `PAPER_STRUCTURE.md` lists
+"compile-gain probe (1.34x median)" as a MAIN result, and read alone that number says "compile
+does not help here", which is false for two thirds of the bank.
+
+**Why it matters for the 0.50 story.** The argument that a plain-torch restatement scores
+exactly 0.50 "without compile being strong" is sound **on L2**, where the compiled baseline is
+1.26x eager. It does not hold on L1, where compiled is ~15x eager: there, matching the compiled
+baseline is a substantial result, not a trivial one.
+
+**And models do verify on L1.** I assumed verified submissions would concentrate on the
+low-gain tier and checked instead of asserting. Across all T1 cells:
+
+| tier | verified submissions | tier compile-gain |
+|---|---|---|
+| L1 | 53 | 15.51x |
+| L2 | 68 | 1.26x |
+| L3 | 22 | 4.53x |
+
+L2 is the plurality at 48%, not the whole story. **Any claim about what a 0.50 score means has
+to be made per tier**, because the baseline it is being measured against differs by an order of
+magnitude between them. The single-number headline should be replaced with the three-row table
+wherever it appears.

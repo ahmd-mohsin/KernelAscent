@@ -24,7 +24,7 @@ A result earns **main text** only if it clears all four:
 | **Instrument validity** (7 defects, gates) | n/a | n/a | n/a | **yes** | **MAIN — lead** |
 | **Loss cascade** (348→118→74→4) | yes | yes | policy stated | **yes** | **MAIN** |
 | **Reachability** precondition | yes | yes | yes | **yes** | **MAIN** |
-| **Compile-gain probe** (1.34× median) | yes | n/a | n/a | yes | **MAIN** (short) |
+| **Compile-gain probe**, reported PER TIER (L1 15.5x, L2 1.26x, L3 4.53x) | yes | n/a | n/a | yes | **MAIN** (short) — the 1.34x single-number median is L2's value and must not stand alone |
 | **T1-kernel** endpoint contrast | 1 seed, **replicated across routes** | yes | **yes — both policies** | yes | **MAIN** |
 | ~~T1-kernel *monotone ordering*~~ | — | — | **fails under lenient** | — | **CUT** (retracted; artifact of strict extraction) |
 | **T2-kernel** compounding (headroom) | valid prefixes only | control fires 73% | **metric saturates at 0.50** | yes | **MAIN as an instrument result**, not an RSI one |
