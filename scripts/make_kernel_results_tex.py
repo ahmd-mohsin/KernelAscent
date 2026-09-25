@@ -45,8 +45,11 @@ def esc(x):
 def t1_table():
     """Capability curve with attempt/verify separated -- solve-rate alone is a compliance metric."""
     rows, note, policies = [], [], set()
-    for lbl, tag in (("0.5B", "q05"), ("1.5B", "q15"), ("3B", "q3"), ("7B", "q7"), ("14B", "q14")):
-        d = _load(_find("t1k_%s.json" % tag))
+    # 32B is harvested by a separate cell and lands under its own filename. Omitting it left the
+    # cascade table describing a decline, when the completed sweep shows a U with 14B as the floor.
+    for lbl, tag in (("0.5B", "t1k_q05"), ("1.5B", "t1k_q15"), ("3B", "t1k_q3"),
+                     ("7B", "t1k_q7"), ("14B", "t1k_q14"), ("32B", "r2_kernel_q32")):
+        d = _load(_find("%s.json" % tag))
         if not d:
             continue
         att = d.get("attempts") or {}
@@ -73,7 +76,12 @@ def t1_table():
             lbl, flag, gens, cand, 100 * cand / max(gens, 1),
             tried, 100 * tried / max(cand, 1), ver, kok, 100 * kok / max(tried, 1))
     pol = "/".join(sorted(policies)) or "strict"
-    polnote = (r"Extraction policy: \texttt{%s}. Under \texttt{strict} the extractor discards "
+    kdiff = (r"Generation budgets differ: the 0.5B--14B cells ran at $k{=}12$ and 32B at $k{=}6$, so 32B "
+             r"contributes half the candidates. The reported quantity is a \emph{rate} and is "
+             r"budget-independent in expectation, but 32B's estimate is correspondingly noisier. "
+             r"The curve is a \textbf{U}: it falls from 0.5B to a minimum of $0$ at 14B and recovers to "
+             r"$3.0\%%$ at 32B (Fisher $p{=}0.015$ against 14B). ")
+    polnote = (kdiff + r"Extraction policy: \texttt{%s}. Under \texttt{strict} the extractor discards "
                r"66\%% of 0.5B generations and 5\%% of 14B generations, so any trend across scale "
                r"must be shown under both policies before it is attributed to the models." % pol)
     tex = r"""\begin{table}[h]\centering\small

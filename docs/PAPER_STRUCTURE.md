@@ -25,7 +25,7 @@ A result earns **main text** only if it clears all four:
 | **Loss cascade** (348→118→74→4) | yes | yes | policy stated | **yes** | **MAIN** |
 | **Reachability** precondition | yes | yes | yes | **yes** | **MAIN** |
 | **Compile-gain probe**, reported PER TIER (L1 15.5x, L2 1.26x, L3 4.53x) | yes | n/a | n/a | yes | **MAIN** (short) — the 1.34x single-number median is L2's value and must not stand alone |
-| **T1-kernel** endpoint contrast | 1 seed, **replicated across routes** | yes | **yes — both policies** | yes | **MAIN** |
+| **T1-kernel** shape across scale | 1 seed per scale, endpoint **replicated across routes** | yes | **yes — both policies** | yes | **MAIN**, stated as a **U**: falls 0.5B→14B, recovers at 32B. The 0.5B-vs-14B contrast is a contrast with the *floor*, not with the largest model. |
 | ~~T1-kernel *monotone ordering*~~ | — | — | **fails under lenient** | — | **CUT** (retracted; artifact of strict extraction) |
 | **T2-kernel** compounding (headroom) | valid prefixes only | control fires 73% | **two bounds, not one** | yes | **MAIN as an instrument result**, not an RSI one |
 | **The ceiling, correctly attributed** | n/a | n/a | n/a | **yes** | **MAIN** — best-of-k saturates at 0.50, *and* `--n-held=20` silently delivered 5, capping a round at held·k = 50 verified candidates. Every per-round score inherits the second bound whatever its form. Report both, and do not repeat my first two diagnoses. |
@@ -41,7 +41,7 @@ A result earns **main text** only if it clears all four:
 | T3 procedure-RSI | n=2 complete (H100) | **archive holds 4 kernels over 6 rounds, or 0** | — | **yes — third instance of the thesis** | **MAIN**, as a starved loop rather than a null. `F_g` mean −0.004 and −0.058; seed 2's base procedure scores 0.000 so reachability failed before the rung began |
 | T4 closed→open | **n=1** | no seeds, no CI | — | no | **CUT** to appendix line |
 | T5 self-play `L−F` | 11 qualifying rows | author-yield failure | **1200-token budget vs T1/T2's 2048** | no | **APPENDIX** with interval *and* the budget gap |
-| 32B scale probe | retried (queued) | — | — | no | **CUT unless it lands** — group quota is 31x over its block limit and 166x over inodes; not ours to fix |
+| **32B scale probe** | complete, 29/29, k=6 | ran once the per-GPU memory cap was sized to the hardware | rate, budget-independent | **yes — it changes the T1 shape** | **MAIN**. verify\|attempt recovers to 2.99% from 14B's 0.00% (Fisher p=0.015), so the curve is a U with 14B as the floor, not a decline with 14B as the endpoint. Attempt rate 96.5%, the highest on the ladder. |
 | **DSL kernel bank** (124 tasks) | 456 screened, 27% kept | held-out-family split | — | supporting | **MAIN (one line) + APPENDIX** — answers "only 29 tasks" |
 | **Cross-rung budget asymmetry** | n/a | n/a | n/a | **yes** | **MAIN — stated as a limitation**: T1/T2 at 2048 tokens, T3/T5 at 1200 |
 

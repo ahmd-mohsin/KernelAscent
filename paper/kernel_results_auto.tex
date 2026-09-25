@@ -3,7 +3,7 @@
 \begin{table}[h]\centering\small
 \caption{T1-kernel. Solve-rate alone is a compliance metric: a submission that ignores the
 kernel instruction and rewrites the reference in torch verifies trivially. Reported instead as
-a cascade. $^{\dagger}$ marks an incomplete cell. Extraction policy: \texttt{strict}. Under \texttt{strict} the extractor discards 66\% of 0.5B generations and 5\% of 14B generations, so any trend across scale must be shown under both policies before it is attributed to the models.}
+a cascade. $^{\dagger}$ marks an incomplete cell. Generation budgets differ: the 0.5B--14B cells ran at $k{=}12$ and 32B at $k{=}6$, so 32B contributes half the candidates. The reported quantity is a \emph{rate} and is budget-independent in expectation, but 32B's estimate is correspondingly noisier. The curve is a \textbf{U}: it falls from 0.5B to a minimum of $0$ at 14B and recovers to $3.0\%%$ at 32B (Fisher $p{=}0.015$ against 14B). Extraction policy: \texttt{strict}. Under \texttt{strict} the extractor discards 66\% of 0.5B generations and 5\% of 14B generations, so any trend across scale must be shown under both policies before it is attributed to the models.}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
@@ -13,6 +13,7 @@ Scale & Generations & Parsed & Attempted kernel & Verified & Kernel-verified \\
 3B & 348 & 253 (73\%) & 184 (73\%) & 9 & 6 (3.3\%) \\
 7B & 348 & 335 (96\%) & 262 (78\%) & 5 & 4 (1.5\%) \\
 14B & 348 & 331 (95\%) & 219 (66\%) & 0 & 0 (0.0\%) \\
+32B & 174 & 173 (99\%) & 167 (97\%) & 5 & 5 (3.0\%) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -88,7 +89,7 @@ Cell & Arm & Rounds & lineage $-$ reset & final $C_{\mathrm{lineage}}$ \\
 \toprule
 Contrast & Trajectories & Estimate (95\% CI) \\
 \midrule
-\texttt{self} $-$ \texttt{fresh\_frozen} & 3 & $-0.022\,[-0.192, +0.148]$ \\
+\texttt{self} $-$ \texttt{fresh\_frozen} & 3 & $-0.019\,[-0.156, +0.118]$ \\
 \bottomrule
 \end{tabular}
 \end{table}
