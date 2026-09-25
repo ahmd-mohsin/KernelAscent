@@ -3292,3 +3292,51 @@ a third lab. With `held=5` and best-of-k scoring, every arm pins at correct-at-p
 final round, so the three-arm decomposition has no room left to separate anything. T5 is
 therefore bounded twice over — by an author that yields 2.3% and by an evaluation set that caps
 the contrast — and the second bound is fixable with `KA_KERNEL_BANK` today.
+
+### The registered primary is starved, and the arithmetic says so in advance
+
+`prereg-q15-s1` completed 5 rounds with `adapter_restored=True`, so it is the first valid
+trajectory of the registered primary under the fixed checkpointing. Reading it changed what I
+think the primary is measuring.
+
+| r | n_ex | trainC | C_self | C_fresh | self−fresh | retention |
+|---|---|---|---|---|---|---|
+| 0 | **0** | 0.000 | 0.096 | 0.116 | −0.019 | 1.0 |
+| 1 | 1 | 0.167 | 0.135 | 0.191 | −0.057 | 0.0 |
+| 2 | **0** | 0.000 | 0.096 | 0.134 | −0.039 | 0.2 |
+| 3 | **0** | 0.000 | 0.152 | 0.173 | −0.021 | 0.0 |
+| 4 | **0** | 0.000 | 0.095 | 0.191 | −0.096 | 0.2 |
+
+`n_ex` is the number of verified self-generated kernels the self arm trains on. It is **zero in
+four of five rounds**, and `loss = 0.0` confirms no SFT ran. The self arm was not trained. So
+`self − fresh_frozen` on this cell compares an untrained model against one trained on
+frozen-base data, and every negative value is explained by the self arm having no fuel.
+
+**It is systematic.** Across all six cells and 19 completed rounds, `n_ex` is **zero in 8 rounds
+(42%)**, with a mean of **0.84** and a maximum of 3.
+
+**The arithmetic was knowable before the run.** `--n-train` defaults to **3** in
+`lab_weight_rsi` and nothing overrode it, so a round draws n_train × k = 3 × 10 = 30
+generations. The measured verified yield is **0.028 per generation**, giving an expected
+**0.8 training examples per round**.
+
+| n_train | k | expected examples per round |
+|---|---|---|
+| **3 (used)** | 10 | **0.8** |
+| 20 | 10 | 5.6 |
+| 35 (DSL train split) | 10 | 9.8 |
+| 35 | 20 | 19.6 |
+
+A self-training loop fed 0.8 examples per round cannot compound, and no amount of seeds fixes
+it. This is not a null result about recursive self-improvement. It is a configuration in which
+the recursion has no input.
+
+**Two rungs, one failure.** T5's `L−F` is undefined because the author yields 2.3% of proposals.
+The T2 primary is underdetermined because the solver yields 0.028 verified kernels per
+generation into a 3-task training split. Both self-referential loops starve, for the same
+reason, and I had been reporting them as separate limitations.
+
+**Three configuration defaults now account for every ceiling in this project.** `--n-held=20`
+silently delivering 5 caps what can be observed. `--n-train=3` caps what can be learned.
+`KA_PROMPT=kernel` sets the yield at 0.028. All three are one-line changes, and the 124-task DSL
+bank supplies the task count both of the first two need.
