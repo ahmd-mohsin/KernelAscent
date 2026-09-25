@@ -92,7 +92,20 @@ CAP="${KA_SUBMIT_CAP:-32}"
 # MaxSubmitJobsPerAccount counts EVERY job in the allocation, not just yours -- another member's
 # queue eats your room. Count the account, not the user, or topup keeps optimistically trying and
 # reporting a confusing submit failure.
-_queued() { $MRL run "module load slurm >/dev/null 2>&1; squeue -A ${MRL_ACCOUNT:-marlowe-m000215-pm06} -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9'; }
+# Returns the queue depth, or EMPTY if the query failed. The distinction matters: an empty
+# result used to be coerced to 0 by `${n:-0}`, which reads a transient SSH hiccup as "the
+# account has no jobs" and hands topup the full cap. Observed 2026-09-24: topup printed
+# `queued=0 cap=32 room=32` while 18 jobs were in fact queued. Nothing bad happened only
+# because sbatch enforces the cap server-side and refused -- i.e. the safety came from Slurm,
+# not from this script. A count this script cannot verify is not a count.
+_queued() {
+  local out
+  out="$($MRL run "module load slurm >/dev/null 2>&1; squeue -A ${MRL_ACCOUNT:-marlowe-m000215-pm06} -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9')"
+  [ -n "$out" ] && { printf '%s' "$out"; return 0; }
+  # fall back to the per-user view before giving up; they agree in practice
+  out="$($MRL run "module load slurm >/dev/null 2>&1; squeue -u \$USER -h 2>/dev/null | wc -l" 2>/dev/null | tr -dc '0-9')"
+  printf '%s' "$out"
+}
 
 case "${1:-status}" in
 
@@ -114,7 +127,13 @@ park)
 
 topup)
   # Submit from the backlog while the account has room. Run it after jobs finish.
-  n="$(_queued)"; n="${n:-0}"
+  n="$(_queued)"
+  if [ -z "$n" ]; then
+    echo "REFUSING to top up: cannot read the queue depth."
+    echo "  An unreadable queue is not an empty queue. Treating it as 0 would hand this script"
+    echo "  the whole cap and fire the entire backlog at once. Retry when the cluster answers."
+    exit 1
+  fi
   room=$(( CAP - n ))
   echo "queued=$n cap=$CAP room=$room backlog=$(wc -l < "$BACKLOG" | tr -d ' ')"
   [ "$room" -gt 0 ] || { echo "no room -- try again when jobs finish"; exit 0; }

@@ -3021,3 +3021,57 @@ compared against was being under-measured by roughly a fifth, purely from trunca
 That would make the budget defect worse than "arms were incomparable". It would mean the
 comparison was biased in a specific direction: **against** the baselines and therefore **in
 favour** of any RSI claim built on beating them.
+
+### A controlled metric experiment, by accident
+
+The four `t2kc` cells turn out to be more valuable than I treated them. They have
+`resumed_at=None` — they **never resumed**, so every round they hold is valid, unlike the
+`t2k_*` cells which were all severed. And `t2kc_q15_s1` differs from `t2kp_control_q15_s1` in
+exactly one substantive variable: `KA_SCORE=compiled` versus `KA_SCORE=passrate`. Same model,
+same seed, same `k`, same arm, same lab. (`KA_ROOF_ARCH` differs too but only feeds the headroom
+ceiling, which pass-rate never reads.)
+
+`lineage − reset`, same run, two scorers:
+
+| round | headroom | pass-rate |
+|---|---|---|
+| 0 | +0.100 | +0.020 |
+| 1 | +0.200 | +0.080 |
+| 2 | +0.102 | +0.220 |
+| 3 | — | +0.440 |
+
+They track early and **diverge as headroom saturates** — headroom turning down at r2 while
+pass-rate accelerates. That is the instrument thesis as a controlled experiment rather than an
+argument from two separate boards, and it is much harder to wave away.
+
+The headroom arm stopped at 3 rounds because those cells correctly refused a pre-fix resume. So
+I have archived their valid prefixes (`*.prefix3-*`, kept, not deleted) and relaunched all four
+at `--rounds 8` to match the pass-rate cells. When both reach depth the comparison is: one
+design, one seed, one variable changed, opposite conclusions — with the responsible property of
+the scorer already identified.
+
+Worth noting how close this came to being thrown away. I had written these cells off as "pre-fix,
+held, superseded by pass-rate" and nearly left them. They were the cleanest headroom data in the
+project.
+
+### `topup` read an unreadable queue as an empty one
+
+Requeuing the `t2kc` cells, `topup` printed `queued=0 cap=32 room=32` while **18 jobs were
+actually queued**. The account query had failed transiently, `2>/dev/null` swallowed the error,
+and `n="${n:-0}"` turned "no answer" into "no jobs".
+
+It then believed it had the entire 32-slot cap free. Nothing bad happened — but only because
+**sbatch enforces the cap server-side and refused the submissions**. The safety came from Slurm,
+not from this script. Had the cap been looser, or the backlog larger, it would have fired
+everything at once.
+
+This is the same defect shape as the monitor whose silence was ambiguous between "nothing
+changed" and "the query died", and as `resumed_at` marking a condition that was universal: a
+signal that cannot distinguish failure from a benign value is not a signal. `_queued` now
+returns empty on failure rather than a number, falls back to the per-user view first, and
+`topup` **refuses to submit** rather than assuming room. Negative-tested by forcing the query to
+fail: it refuses with the reason instead of proceeding.
+
+Worth saying plainly: I found this only because I checked a number that looked wrong. `queued=0`
+next to a queue I had been watching all session was implausible on its face. Two hours earlier I
+would have read past it.
