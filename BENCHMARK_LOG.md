@@ -3407,3 +3407,33 @@ baseline it beat.
 
 The 900-token value I deleted this afternoon was `basek_q3_s2` self_refine at 0.3448, on a
 different model, so the like-for-like budget contrast still waits on that cell.
+
+### The fed configuration is running, with both bounds lifted
+
+```
+WEIGHT-RSI Qwen/Qwen2.5-Coder-1.5B-Instruct seed=1 train=35 held=89 k=10 arms=self,fresh,round0
+```
+
+Verified from the log rather than assumed from the arguments, because a silently-collapsed split
+is what started this thread. `35 + 89 = 124`, so `KA_KERNEL_BANK` loaded the DSL bank and both
+splits took effect.
+
+| | registered config | fed config | factor |
+|---|---|---|---|
+| train tasks | 3 | **35** | 11.7x |
+| held tasks | 26 | **89** | 3.4x |
+| expected examples per round | 0.8 | **9.8** | 12x |
+| verified cap per round | 260 | **890** | 3.4x |
+
+Both bounds move at once, which is the point. `n_train` governs what the loop can learn and
+`n_held` governs what the score can show, and the registered configuration was constrained on
+both. It also scheduled immediately once I stopped asking for three GPUs. The arms only needed
+separate devices at 7B and 14B; at 1.5B the three models are about 9 GiB together and the round
+loop evaluates them one at a time, so one card was always enough. Another resource decision
+sized for the largest case and applied to the smallest.
+
+**What to watch, stated before the numbers arrive.** Amendment 6 fixes both readings. If `n_ex`
+now sits near 10 per round and `self − fresh_frozen` is still at or below zero, that is a real
+null about the quality of self-generated data and gets reported as one. If `n_ex` is still near
+zero at n_train=35, then the 0.028 yield binds and no training-split size rescues this design at
+this scale and prompt.
