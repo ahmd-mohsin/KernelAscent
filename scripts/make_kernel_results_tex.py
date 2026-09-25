@@ -12,7 +12,7 @@ half-finished run cannot be read as a result.
 
     python3 scripts/make_kernel_results_tex.py
 """
-import glob, json, os, statistics as st, sys
+import glob, json, os, re, statistics as st, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "data", "marlowe_h100")
@@ -33,6 +33,17 @@ OUT = os.path.join(ROOT, "paper", "kernel_results_auto.tex")
 # because scripts/build_site_headline.py reads it too: the website and the paper must name the
 # same cells, and a list copied into two files is a divergence waiting for whichever is edited
 # first.
+# Quarantined data is parked beside the live cell as `<cell>.<reason>-<HHMM>`, and it must never
+# be pooled. The filter used to test for ".severed" by substring, which covered the one tag that
+# existed when it was written and silently admitted the next one: `t2kc_*.prefix3-1750` carries
+# 10 rounds of prefix-defective data, and the arm-separation partition pooled all of them with
+# the 26 live rounds the moment that partition was computed from a glob.
+#
+# It cannot simply skip any name containing a dot -- `rmech_DeepSeek1.3_s0` is a real cell whose
+# dot is a model version. The tag is what is recognisable: a trailing dot, a reason, a hyphen and
+# a clock time.
+_QUARANTINE = re.compile(r"\.[A-Za-z0-9]+-\d{3,4}$")
+
 CONTRAST_PAIRS = [("t2kc_q15_s1", "t2kp_control_q15_s1"),
                   ("t2kc_q15_s2", "t2kp_control_q15_s2")]
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -122,7 +133,7 @@ def _cells(pattern):
     for d_dir in DIRS:
         for outdir in sorted(glob.glob(os.path.join(d_dir, pattern))):
             cell = os.path.basename(outdir)
-            if ".severed" in cell:
+            if _QUARANTINE.search(cell):
                 continue
             n = 0
             for fname in ("weight_rsi.json", "compounding.json"):
@@ -469,20 +480,21 @@ def t2_passrate_table():
     the design cannot support. The four per-cell values are the honest presentation.
     """
     import statistics as _st
+    # _cells rather than a bare glob: it drops quarantined copies and, where a cell exists in
+    # both artifact roots, takes the one with more rounds. This loop did neither -- it kept
+    # whichever root came first and had no quarantine filter at all. No t2kp cell is currently
+    # parked, so nothing here was wrong; it was wrong the way the prereg loop was wrong before
+    # a snapshot happened to exist beside a finished run.
     cells = []
-    for d_dir in DIRS:
-        for outdir in sorted(glob.glob(os.path.join(d_dir, "t2kp_*"))):
-            name = os.path.basename(outdir)
-            if any(c[0] == name for c in cells):
-                continue
-            d = _load(os.path.join(outdir, "compounding.json"))
-            if not d:
-                continue
-            h = d.get("history") or []
-            lr = [r.get("lineage_minus_reset") for r in h if r.get("lineage_minus_reset") is not None]
-            if not lr:
-                continue
-            cells.append((name, d.get("arm"), len(h), lr, (h[-1] or {}).get("C_lineage")))
+    for name, outdir in _cells("t2kp_*"):
+        d = _load(os.path.join(outdir, "compounding.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        lr = [r.get("lineage_minus_reset") for r in h if r.get("lineage_minus_reset") is not None]
+        if not lr:
+            continue
+        cells.append((name, d.get("arm"), len(h), lr, (h[-1] or {}).get("C_lineage")))
     if not cells:
         return "", ["t2 pass-rate: no cells found"]
     TARGET = 8

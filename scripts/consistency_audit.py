@@ -801,6 +801,58 @@ def check_log_timestamps_not_future():
         ok("log/timestamp-future", "no dated entry is stamped in the future")
 
 
+def check_quarantine_pooled():
+    """Every parked artifact directory must be invisible to the table generators.
+
+    Quarantined data is parked beside its live cell as `<cell>.<reason>-<HHMM>`. The generator's
+    filter tested for the substring ".severed", which covered the tag that existed when it was
+    written and silently admitted the next one: t2kc_*.prefix3-1750 holds 10 rounds of
+    prefix-defective data, and the arm-separation partition pooled all of them with the 26 live
+    rounds as soon as that partition was computed from a glob. The counts shipped wrong once.
+
+    This gate enumerates the parked directories on disk and asserts the resolver returns none of
+    them, so a third tag fails here rather than in a caption.
+    """
+    import glob as _g
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        import make_kernel_results_tex as G
+    except Exception as e:
+        fail("quarantine/pooled", "cannot import the table generator: %r" % e)
+        return
+    # Detect parked copies WITHOUT the regex under test. An earlier version of this gate built
+    # its candidate set with G._QUARANTINE, so a tag the filter did not recognise was invisible
+    # to the check as well -- the gate could only catch what the code already handled, which is
+    # no check at all. Its own negative test is what surfaced that.
+    #
+    # The tag-independent signal is structural: a parked copy is named `<live cell>.<something>`
+    # and sits in the same directory as the live cell it was parked from. `rmech_DeepSeek1.3_s0`
+    # is not flagged, because `rmech_DeepSeek1` is not a directory. A parked copy whose live
+    # cell has since been deleted is not detected, and is also shadowing nothing.
+    names, parked = {}, set()
+    for d in G.DIRS:
+        here = {os.path.basename(p) for p in _g.glob(os.path.join(d, "*")) if os.path.isdir(p)}
+        names[d] = here
+    for d, here in names.items():
+        for n in here:
+            if "." in n and n.split(".", 1)[0] in here:
+                parked.add(n)
+    parked = sorted(parked)
+    if not parked:
+        ok("quarantine/pooled", "no parked artifact directories on disk")
+        return
+    resolved = {c for c, _ in G._cells("*")}
+    leaked = sorted(resolved & set(parked))
+    if leaked:
+        fail("quarantine/pooled",
+             "the resolver returns parked data, which would pool it into a table: %s"
+             % ", ".join(leaked))
+    else:
+        ok("quarantine/pooled", "%d parked director%s excluded (%s)"
+           % (len(parked), "y" if len(parked) == 1 else "ies",
+              ", ".join(sorted({p.split(".", 1)[1] for p in parked}))))
+
+
 def check_starvation():
     """The loop-throughput figure is canonical, and stale copies of it must not survive.
 
@@ -911,7 +963,8 @@ def main():
                check_table_sums, check_band_table,
                check_extraction_policy_stated,
                check_log_timestamps_not_future,
-               check_recursion_gain_sign, check_starvation):
+               check_recursion_gain_sign, check_starvation,
+               check_quarantine_pooled):
         fn()
     if not a.quiet:
         print("=" * 100)

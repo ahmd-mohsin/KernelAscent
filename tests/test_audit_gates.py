@@ -9,7 +9,7 @@ that it is reading real, non-empty files before it believes any result.
 
     python3 tests/test_audit_gates.py
 """
-import os, re, shutil, sys, tempfile
+import json, os, re, shutil, sys, tempfile
 
 SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,6 +47,7 @@ def main():
         A.check_extraction_policy_stated()
         A.check_log_timestamps_not_future()
         A.check_recursion_gain_sign(); A.check_starvation()
+        A.check_quarantine_pooled()
         names = [c for c, _ in A.FAILS]
         print("  %-44s -> %s" % (label, names or "clean"))
         return names
@@ -174,6 +175,39 @@ def main():
             "the gate fires on a figure that states the window it was measured over"
     finally:
         open(_p, "w").write(_orig)
+
+    # A third quarantine tag must fail here rather than in a caption. The filter tested for
+    # ".severed" by substring and admitted ".prefix3-1750" silently, pooling 10 parked rounds
+    # into the arm-separation partition.
+    #
+    # The fixture is built here rather than copied: _ignore excludes the top-level data/ tree,
+    # so an earlier version of this test keyed on a directory that does not exist in the temp
+    # repo and skipped without saying so -- reporting clean while testing nothing, which is the
+    # failure mode this whole file exists to prevent. Hence the explicit ran/assert below.
+    print("quarantine gate: parked data must stay invisible to the table generators")
+    import make_kernel_results_tex as _G
+    _traj = os.path.join(dst, "data", "trajectories")
+    os.makedirs(_traj, exist_ok=True)
+    _round = {"round": 0, "C_lineage": 0.5, "C_reset": 0.5, "lineage_minus_reset": 0.0, "n_ex": 1}
+    _live = os.path.join(_traj, "t2kcFIX_s1")
+    _park = os.path.join(_traj, "t2kcFIX_s1.botched-0915")
+    for _d in (_live, _park):
+        os.makedirs(_d, exist_ok=True)
+        with open(os.path.join(_d, "compounding.json"), "w") as _f:
+            json.dump({"history": [_round]}, _f)
+    _saved = _G._QUARANTINE
+    try:
+        # narrow the pattern to the one tag it used to know: that is the bug's exact shape
+        _G._QUARANTINE = re.compile(r"\.severed-\d{3,4}$")
+        got = run("+ a quarantine tag the filter does not know")
+        assert "quarantine/pooled" in got, \
+            "the gate misses parked data the resolver still returns: %r" % got
+        _G._QUARANTINE = _saved
+        assert "quarantine/pooled" not in run("+ filter restored"), \
+            "the gate still fires once the tag is recognised"
+    finally:
+        _G._QUARANTINE = _saved
+        shutil.rmtree(_live, ignore_errors=True); shutil.rmtree(_park, ignore_errors=True)
 
     assert run("all restored") == [], "repo must end clean"
 
