@@ -3746,3 +3746,33 @@ budget grew, 70 min to 2 hours for the fed cells when the split grew, and now 90
 for the retrieval arm. Each is the same lesson — *the smallest resumable unit must fit inside one
 walltime* — and each was found after the fact except the fed one, which was caught by arithmetic
 before the first timeout.
+
+### The 3B cells generalise it, and sharpen the mechanism once more
+
+`t2kc_q3_*` reached 3 rounds and shows the same behaviour at a different scale.
+
+| cell | round | `C_lin` / `C_reset` | contrast |
+|---|---|---|---|
+| q3_s2 | 2 | **0.50 / 0.50** | **+0.002** |
+| q3_s1 | 1 | 0.50 / 0.39 | +0.112 |
+| q3_s1 | 2 | 0.50 / 0.40 | +0.100 |
+| q3_s1 | **0** | **0.40 / 0.40** | **+0.000** |
+
+The first three rows repeat the 1.5B finding at 3B, so the blinding is not a property of one
+model size. The last row is the sharper one, and it corrects my mechanism statement a second
+time.
+
+`q3_s1` round 0 has both arms at **0.40**, not at parity, and the contrast is still exactly
+zero. So the zero does not come from the 0.50 bound. It comes from **the arms being equal**, and
+0.50 is merely where best-of-k forces them to become equal and stay there. A shared level
+anywhere produces the same reading; the bound just guarantees it happens and makes it permanent.
+
+Stated as precisely as the data now supports: `lineage − reset` measures a gap between two arms,
+best-of-k compresses every arm toward correct-at-parity, and once two arms occupy the same level
+the difference is identically zero whatever either arm is doing internally. A matched reset
+learner reaches that level within three or four rounds by construction, so the measurement has a
+short and predictable lifetime.
+
+This is the third refinement of this mechanism today. First "the metric saturates", then "it
+dies when both arms reach parity", now "it dies when the arms are equal, and parity is where
+that becomes permanent". Each was prompted by a row that did not fit the previous version.
