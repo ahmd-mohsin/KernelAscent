@@ -4228,3 +4228,33 @@ keys on `KA_SCORE`, so they are a separate board by construction.
 
 The headroom depth cells keep running. They are not wasted -- they are the demonstration that the
 metric dies before the question is answered, which is worth more as evidence than as a curve.
+
+
+## 2026-09-25 11:11 — two unifications: starvation has two causes, and the throughput formula predicts one it never saw
+
+**7B is starved at n_train=35, and the formula says so.** `fed_q7_s1` reports a frozen baseline of
+0.034 and a correct rate of 0.09, against 0.5B at 0.489 and 1.5B at 0.492 on the same bank. A 7B
+model an order of magnitude below a 0.5B one is the shape of a harness bug, and this project has
+twice been burned by exactly that, so it was checked rather than accepted. It is real: `C0` is
+measured on the frozen base before any training, and the T1 sweep found the same inverted-U
+independently, with 14B at the minimum and 32B recovering.
+
+Run the report's own precondition on it. Yield is 1 verified example from 35 x 10 = 350
+generations, so
+
+    n_train x k x yield = 35 x 10 x (1/350) = 1.05 examples per round
+
+and the artifacts show 0 to 1. **The formula predicts starvation on a model and a configuration it
+was never fitted to.** It was derived from the 1.5B registered primary at n_train=3; this is 7B at
+n_train=35, a different failure for a different reason, and the arithmetic still lands.
+
+**Starvation has two causes and one pathology.** A loop starves when it is given few tasks
+(`dose3`, n_train=3) or when the model's yield is near zero (`fed_q7`, 9% correct at n_train=35).
+Both give `n_ex` around zero, both leave the fresh-frozen control training while the treatment
+does not, and both produce a confidently negative contrast that says nothing about self-training.
+So `fed_q7`'s negative contrast is not a scale result. It is a starvation result wearing a scale
+costume, and it should be reported as one.
+
+This matters for how the size ladder is read. A curve of contrast against model size would show
+7B as a dip and invite a story about capability. The dip is throughput, and the formula
+identifies it before the run rather than after.
