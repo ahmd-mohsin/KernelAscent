@@ -4258,3 +4258,40 @@ costume, and it should be reported as one.
 This matters for how the size ladder is read. A curve of contrast against model size would show
 7B as a dip and invite a story about capability. The dip is throughput, and the formula
 identifies it before the run rather than after.
+
+
+## 2026-09-25 13:25 — the registered rule is satisfied, for the first time, on the fed configuration
+
+    q15_s1  +0.074 +0.132 +0.206 +0.130 +0.089   mean +0.126  last-2 +0.110
+    q15_s2  -0.001 -0.088 +0.073 +0.135 +0.131   mean +0.050  last-2 +0.133
+    q15_s3  +0.033 +0.125 +0.272 +0.193 +0.161   mean +0.157  last-2 +0.177
+    q15_s5  +0.117 +0.213 +0.243 +0.148 +0.075   mean +0.159  last-2 +0.111
+
+    95% interval  +0.123 [+0.042, +0.204]  n=4   EXCLUDES zero
+    mean(last-2) > 0.05 in every cell
+    the rule requires both, so the result HOLDS
+
+Two hours ago at n=3 the interval read [-0.026, +0.248] and the rule failed. The fourth seed
+tightened it. The threshold was fixed before any of these cells existed and was not moved.
+
+**What this establishes.** Under a fed loop -- `n_train=35` against a verified kernel bank --
+verified self-training produces a producer-quality gain over a matched fresh-frozen control that
+satisfies a decision rule specified in advance. That is a positive result on the question the
+benchmark exists to ask, and it is this project's first.
+
+**What it does not establish, and the paper must say so in these words.**
+
+* This is **not the registered primary**. The primary is `n_train=3`; all six of those cells are
+  starved and report nothing at all. The *rule* was pre-registered; the *configuration* it is
+  applied to was not. Applying a pre-specified threshold to a new configuration is far stronger
+  than choosing a threshold afterwards, and it is still a different experiment.
+* The **confound stands**: `fed` changed the task bank and `n_train` together. `fednb-q15-s1/s2`
+  are running -- identical but without the bank. If the gain survives, it is throughput. If it
+  does not, it is task quality, and the claim becomes about the bank rather than about the loop.
+* `n=4`. `fed-q15-s4` is one round from depth.
+
+**The headline this supports** is not "self-training compounds". It is: *self-training produces a
+measurable gain once the loop is fed, on a rule fixed in advance, and this benchmark could not
+see it before because the loop was starved and the scorer saturated.* Both halves are needed.
+The instrument findings are what make the positive result credible, and the positive result is
+what makes the instrument findings matter rather than being an excuse for a null.

@@ -5,7 +5,7 @@
   "C0_ci": 0.0,
   "C0_correct_rate": NaN,
   "C0_compiled_sp": NaN,
-  "resumed_at": 1,
+  "resumed_at": 3,
   "adapter_restored": true,
   "history": [
     {
@@ -82,11 +82,36 @@
       "round_sec": 2680.8,
       "cum_gpu_hours": 5.603,
       "n_gens": 1050
+    },
+    {
+      "round": 3,
+      "trainC": 0.502,
+      "n_ex": 209,
+      "loss": 0.049,
+      "kl_lambda": 0.0,
+      "kl": null,
+      "C_self": 0.495,
+      "C_self_ci": 0.011,
+      "C_ctrl": 0.472,
+      "C_ctrl_ci": 0.024,
+      "C_fresh": 0.474,
+      "C_fresh_ci": 0.024,
+      "correct_rate_self": 0.989,
+      "compiled_sp_self": 0.996,
+      "delta_self": 0.4,
+      "delta_self_minus_ctrl": 0.023,
+      "delta_self_minus_fresh": 0.021,
+      "n_uniq_self": 176,
+      "diversity_self": 0.445,
+      "retention": 1.0,
+      "round_sec": 2916.8,
+      "cum_gpu_hours": 2.431,
+      "n_gens": 1050
     }
   ],
   "_provenance": {
-    "utc": "2026-09-26T17:18:21Z",
-    "host": "n15",
+    "utc": "2026-09-26T19:52:57Z",
+    "host": "n28",
     "git": null,
     "python": "3.11.10",
     "env": {
