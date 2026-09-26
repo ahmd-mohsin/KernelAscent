@@ -215,7 +215,35 @@ run)
   [ "${1:-}" = "--" ] && shift
   _assert_one_line "$*"
   cmd="$*"
-  out="$($MRL submit -J "$name" -N 1 -G "$gpus" -t "$wall" -- "$cmd" 2>&1)"
+  # PARTITION. Wired up while trying to escape a 33-hour queue, and MEASURED NOT TO HELP here.
+  # Recorded rather than reverted, with the measurement, so the next person does not spend the
+  # same hour rediscovering it:
+  #
+  #   batch   AllowQos=medium   -> only the -pm06 account. Fair-share 0.050 after 6.9M raw
+  #                                usage; 32 cells estimated to start in 33 hours.
+  #   preempt DenyQos=medium    -> -pm06 is refused outright. Of the two normal-QOS accounts
+  #                                this user holds, marlowe-users is blocked by site policy
+  #                                ("did you remember to set your account?") and
+  #                                marlowe-m000159 is accepted but estimates a start a further
+  #                                26 hours out -- LATER than batch, not sooner.
+  #
+  # The cluster is saturated (79 running, 113 pending), so there is no queue to game. The flags
+  # stay because they cost nothing and the calculus changes when the cluster empties; a
+  # preemption is a walltime kill by another name, which every lab here already survives via
+  # per-round atomic adapter checkpoints.
+  #
+  # NOTE if these are ever used in anger: the partition is NOT recorded in the manifest, so
+  # `continue` would resubmit a preempted cell back onto the default partition.
+  # The ACCOUNT must change with the partition. mrl refuses the -pm06 account on `preempt`
+  # because Marlowe then charges the allocation AND keeps the job preemptible -- you pay for
+  # discarded work. The base account on preempt is uncharged, which is the combination mrl
+  # itself suggests.
+  _part=""
+  if [ -n "${KA_PART:-}" ]; then
+    _part="-p ${KA_PART} --requeue"
+    [ -n "${KA_ACCT:-}" ] && _part="$_part -A ${KA_ACCT}"
+  fi
+  out="$($MRL submit -J "$name" -N 1 -G "$gpus" -t "$wall" $_part -- "$cmd" 2>&1)"
   jid="$(_jid "$out")"
   if [ -z "$jid" ]; then
     echo "SUBMIT FAILED for $name"; printf '%s\n' "$out"; exit 1
