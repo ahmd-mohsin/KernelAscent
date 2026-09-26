@@ -669,7 +669,7 @@ def fed_table():
     """
     import statistics as _st
     rows = []
-    for cell, outdir in _cells("fed_*"):
+    for cell, outdir in _cells("fed_q15_s*"):
         d = _load(os.path.join(outdir, "weight_rsi.json"))
         if not d:
             continue
@@ -686,6 +686,9 @@ def fed_table():
         rows.append((cell, len(h), _st.mean(nx), _st.mean(dl), _st.mean(dl[-2:]), dl, nx))
     if len(rows) < 2:
         return "", ["fed: %d admissible trajectory(ies); not reporting" % len(rows)]
+    _bad = _assert_homogeneous([{"cell": r[0], "outdir": _cells_dir(r[0])} for r in rows], "fed")
+    if _bad:
+        return "", [_bad]
 
     TARGET = 5
     short = [r[0] for r in rows if r[1] < TARGET]
@@ -726,6 +729,37 @@ def fed_table():
     return "\n".join(lines), []
 
 
+def _cells_dir(cell):
+    """Resolve a cell name back to the directory the resolver chose for it."""
+    for c, outdir in _cells(cell):
+        if c == cell:
+            return outdir
+    return ""
+
+
+def _assert_homogeneous(cells, label):
+    """Refuse to pool cells that differ in model or scorer.
+
+    fed_table globbed `fed_*`, which matched only fed_q15_s1 and s2 while those were the only
+    cells on disk. The moment the size ladder and the cross-family runs land it would also match
+    fed_q3, fed_q05, fed_q7, fedds, fedoc, fedyi -- four model families and five scales pooled as
+    if they were seeds of one configuration -- and fedp, which is scored by PASS RATE and whose
+    pooling with a headroom board Amendment 1 forbids outright.
+
+    A glob is a guess about what a name means. This checks the artifacts instead: same model,
+    same scorer, or the table does not print.
+    """
+    seen = {}
+    for c in cells:
+        m = _load(os.path.join(c["outdir"], "manifest.json")) or {}
+        key = (m.get("model"), (m.get("env") or {}).get("KA_SCORE", m.get("score", "?")))
+        seen.setdefault(key, []).append(c["cell"])
+    if len(seen) > 1:
+        groups = "; ".join("%s/%s: %s" % (k[0], k[1], ",".join(sorted(v))) for k, v in sorted(seen.items(), key=str))
+        return "%s: refusing to pool cells that differ in model or scorer (%s)" % (label, groups)
+    return None
+
+
 def _wrsi_cells(pattern):
     """Admissible lab_weight_rsi cells matching `pattern`, with their per-round series.
 
@@ -744,7 +778,7 @@ def _wrsi_cells(pattern):
             continue
         if d.get("resumed_at") and d.get("adapter_restored") is not True:
             continue
-        out.append({"cell": cell, "n": len(h), "delta": dl,
+        out.append({"cell": cell, "outdir": outdir, "n": len(h), "delta": dl,
                     "n_ex": [r.get("n_ex", 0) for r in h],
                     "kl": [r.get("kl") for r in h],
                     "kl_lambda": d.get("kl_lambda", (h[0].get("kl_lambda") if h else None)),
@@ -815,6 +849,9 @@ def kl_table():
         if len(cs) < 2:
             missing.append("lambda=%s (%d of 2)" % (label, len(cs)))
             continue
+        _bad = _assert_homogeneous(cs, "kl %s" % label)
+        if _bad:
+            missing.append(_bad); continue
         kls = [k for c in cs for k in c["kl"] if k is not None]
         rows.append((label, len(cs),
                      (_st.mean(kls) if kls else None),
