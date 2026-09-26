@@ -51,3 +51,4 @@ fedp-q15-s2	rounds=4	0	505060
 fed-q15-s4	rounds=4	0	505061
 kl005-q15-s2	rounds=4	0	505068
 kl10-q15-s2	rounds=4	0	505073
+fed-q3-s3	files=1	0	505115

@@ -546,6 +546,19 @@ def run(args):
     # it every round. Losing it silently re-freezes the control's target mid-trajectory.
     _prev = os.path.join(args.outdir, "weight_rsi.json")
     _aux_f = os.path.join(args.outdir, "resume_aux.json")
+    # PERSIST C0 THE MOMENT IT EXISTS, not after the first round completes. It is the single
+    # most expensive computation in a run -- the frozen base over the whole held set -- and at
+    # 3B it consumed most of a two-hour chunk on its own, leaving too little for round 0. The
+    # chunk then timed out having written only manifest.json, so the resume had nothing stored,
+    # recomputed C0, and was set to stall the same way indefinitely until the stall detector
+    # held the cell. fed_q3_s3 was in exactly that loop.
+    #
+    # Writing it here makes the expensive part durable after one chunk even when no round
+    # finishes, so the next chunk spends its whole walltime on rounds. Atomic, because a kill
+    # during this write would leave a truncated file that reads as a corrupt resume.
+    if not os.path.exists(_aux_f):
+        json.dump({"C0": C0}, open(_aux_f + ".tmp", "w"))
+        os.replace(_aux_f + ".tmp", _aux_f)
     from peft import get_peft_model_state_dict, set_peft_model_state_dict   # lazy, as build() does
     _arms = [("self", mdl), ("ctrl", ctrl), ("fresh", fr)]
     resumed_at = None; adapter_restored = None
