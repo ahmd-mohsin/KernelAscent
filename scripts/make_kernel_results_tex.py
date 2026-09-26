@@ -1050,6 +1050,78 @@ def lifetime_table():
     return "\n".join(lines), []
 
 
+def collapse_table():
+    """Where the self arm peaks, where it ends, and what the frozen-replay control does meanwhile.
+
+    The depth cells show the treatment improving for four or five rounds and then losing
+    capability absolutely -- not relative to a ceiling. Two columns settle the alternatives
+    within each run, which is why this table reports them side by side rather than as separate
+    rows:
+
+      trainC   the model's score on its OWN training split. Overfitting keeps this high while
+               held-out falls; here both fall together, which is degradation of the policy.
+      C_ctrl   the round0-replay arm: same LoRA, learning rate, schedule and round count,
+               trained on verified self-data FROZEN at round 0. It does not collapse, so the
+               cause is the recursion rather than repeated training, and it reaches a higher
+               score than the treatment ever does, so the scorer is not capping anything.
+    """
+    rows = []
+    for cell, outdir in _cells("deep*"):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        if len(h) < 6 or "adapter_restored" not in d:
+            continue                      # collapse is a claim about depth; 5 rounds cannot show it
+        if d.get("resumed_at") and d.get("adapter_restored") is not True:
+            continue
+        cs = [r.get("C_self") for r in h if r.get("C_self") is not None]
+        if not cs:
+            continue
+        pk = max(range(len(cs)), key=lambda i: cs[i])
+        ct = [r.get("C_ctrl") for r in h if r.get("C_ctrl") is not None]
+        tr = [r.get("trainC") for r in h if r.get("trainC") is not None]
+        rows.append((cell, len(h), pk, cs[pk], cs[-1], cs[-1] - cs[pk],
+                     (max(ct) if ct else None), (ct[-1] if ct else None),
+                     # trainC at its OWN maximum, not at the round C_self peaked. Those differ
+                     # -- deep_q15_s3 peaks in C_self at round 2 while trainC peaks at round 4 --
+                     # and reporting trainC at the wrong round understated its fall as 0.26 to
+                     # 0.24 when it is 0.49 to 0.24. The claim is that trainC falls from its
+                     # peak, so the column has to show that.
+                     (max(tr) if tr else None), (tr[-1] if tr else None),
+                     d.get("kl_lambda", (h[0].get("kl_lambda") if h else None))))
+    if len(rows) < 2:
+        return "", ["collapse: %d depth cell(s) past round 5" % len(rows)]
+
+    body = ""
+    for cell, n, pk, cpk, cfin, drop, ctmax, ctfin, trpk, trfin, lam in sorted(rows):
+        body += ("\\texttt{%s} & %d & %d & %.2f & %.2f & $%+.2f$ & %s & %s & %s \\\\\n"
+                 % (cell.replace("_", "\\_"), n, pk, cpk, cfin, drop,
+                    ("%.2f" % ctmax) if ctmax is not None else "--",
+                    ("%.2f" % ctfin) if ctfin is not None else "--",
+                    ("%.2f$\\to$%.2f" % (trpk, trfin)) if (trpk is not None and trfin is not None) else "--"))
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:collapse}",
+             (r"\caption{Verified self-training past round five. The treatment arm peaks and then loses "
+              r"capability \emph{absolutely}: the drop column is its final score minus its peak. Two "
+              r"columns rule out the alternatives within each run. \texttt{trainC} is the model's score on "
+              r"its own training split and falls alongside the held-out score, which overfitting would not "
+              r"do. $C_{\mathrm{ctrl}}$ is the round0-replay arm --- identical LoRA, learning rate, "
+              r"schedule and round count, trained on verified self-data \emph{frozen at round 0} --- and it "
+              r"does not collapse, so the cause is the recursion rather than repeated training. It also "
+              r"reaches a higher score than the treatment ever does, so nothing is capping the treatment. "
+              r"Every training example in both arms passed execution against an fp32 reference.}"),
+             r"\begin{tabular}{@{}lrrrrrrrr@{}}",
+             r"\toprule",
+             r"Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & \texttt{trainC} \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     # The starvation table goes to its own file: it belongs in the motivation section, four
@@ -1063,7 +1135,7 @@ def main():
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
                nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
                prereg_table, fed_table, dose_table, kl_table, depth_table,
-               lifetime_table):
+               lifetime_table, collapse_table):
         tex, n = fn()
         if tex:
             parts.append(tex)
