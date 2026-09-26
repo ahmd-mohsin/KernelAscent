@@ -804,7 +804,11 @@ def kl_table():
     KL is not a treatment, and a table of lambdas alone cannot show that.
     """
     import statistics as _st
-    groups = [("0", "fed_q15_s[12]"), ("0.05", "kl005_q15_*"), ("0.2", "kl02_q15_*"), ("1.0", "kl10_q15_*")]
+    # lambda=1.0 was the top of the original sweep and measured at under 1% of the training
+    # loss, so 5 and 20 were added once the realized KL was known. The sweep's range has to be
+    # chosen against the KL the runs actually produce, not guessed beforehand.
+    groups = [("0", "fed_q15_s[12]"), ("0.05", "kl005_q15_*"), ("0.2", "kl02_q15_*"),
+              ("1.0", "kl10_q15_*"), ("5", "kl5_q15_*"), ("20", "kl20_q15_*")]
     rows, missing = [], []
     for label, pat in groups:
         cs = [c for c in _wrsi_cells(pat) if c["n"] >= 5]
@@ -818,7 +822,8 @@ def kl_table():
                      _st.mean([_st.mean(c["delta"]) for c in cs]),
                      _st.mean([_st.mean(c["delta"][-2:]) for c in cs])))
     if len(rows) < 2:
-        return "", ["kl sweep: only %d of 4 settings complete (%s)" % (len(rows), "; ".join(missing))]
+        return "", ["kl sweep: only %d of %d settings complete (%s)"
+                    % (len(rows), len(groups), "; ".join(missing))]
 
     body = ""
     for label, n, mkl, mnx, mdl, last2 in rows:
