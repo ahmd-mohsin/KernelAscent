@@ -4159,3 +4159,39 @@ It also tightens a number the paper states. The report says a matched control re
 "within three or four rounds". Here it arrives at **round 1**.
 
 One cell. `fedoc_s2` and `fedoc_s3` are running and decide whether this goes in the paper.
+
+
+## 2026-09-25 09:48 — "search beats training" reverses sign under a fed loop
+
+`fedc_q15_s1` reached 8/8 (an OUT_OF_MEMORY landed after the final round was written; the
+artifact is whole and `adapter_restored=True`). `fedc_q15_s2` is at 7/8.
+
+    lineage - bestofN
+    fedc_q15_s1   -0.001 +0.276 +0.229 +0.181 +0.152 +0.007 +0.008 +0.005    mean +0.107
+    fedc_q15_s2   +0.048 +0.200 +0.230 +0.159 +0.256 +0.051 +0.056           mean +0.143
+
+The report's strongest positive result is that this quantity is **-0.111 [-0.138, -0.083]** over
+57 trajectories, CI excluding zero, search winning 84% of runs. It is the evidence for the
+discovery-to-assimilation bottleneck and for the claim that the limiting step is assimilating
+discoveries into weights rather than finding them.
+
+Under a fed loop the sign reverses.
+
+**What this is not yet.** Three things have to be said before this is treated as a result.
+
+* `n=2` against a registered minimum of three seeds. `fedc-q15-s3` is parked.
+* The comparison is **not controlled**. The -0.111 cells ran at default `n_train` with no kernel
+  bank; these run `n_train=35` *and* the bank, so two variables moved at once -- the same
+  confound the dose cells exist to fix. `fednb-q15-s1/s2` are parked: identical to the fedc
+  cells but without the bank, which separates them.
+* The advantage **decays within each run**, from +0.276 early to +0.005 by round 7, as both arms
+  converge on parity. The mean over rounds understates the early gap and overstates the late one,
+  and the late collapse is the same saturation seen in `fedoc`.
+
+If it survives the third seed and the bank-free control, then "search beats training" was a
+consequence of a starved loop rather than a property of self-training -- the second headline of
+this project to dissolve once the loop is fed, after the compounding null itself.
+
+That would also require rewriting the mechanism section rather than appending to it: the
+discovery-to-assimilation story is built on this contrast, and if assimilation is not the
+bottleneck when there is enough to assimilate, the story changes rather than narrows.
