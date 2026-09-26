@@ -4365,3 +4365,47 @@ case of one mechanism rather than a separate phenomenon -- those cells were alre
 The motivation section needs rewriting on this point rather than extending. As it stands a
 reader could reasonably conclude that pass rate should replace headroom generally, and these
 cells say it makes no difference until the ceiling is reached.
+
+
+## 2026-09-25 15:21 — verified self-training COLLAPSES past round five, and verification does not prevent it
+
+The fifteen-round depth cells are at rounds 8 to 10 and show the thing five rounds cannot.
+
+    deep_q15_s3
+      C_self  0.12 0.25 0.48 0.40 0.48 0.43 0.40 0.35 0.30 0.24   peaks, then falls
+      C_fresh 0.09 0.12 0.34 0.38 0.40 0.36 0.42 0.45 0.49 0.48   keeps rising
+      trainC  0.04 0.12 0.26 0.48 0.49 0.49 0.49 0.43 0.29 0.24   falls with it
+
+The treatment arm is **not capped, it is degrading**. `C_self` peaks near 0.48 around round four
+and declines to 0.24 by round nine. All three seeds do it: s1 0.47 to 0.41, s2 0.49 to 0.40,
+s3 0.48 to 0.24.
+
+**`trainC` is the decisive column.** It is the model's score on its own training split, and it
+falls from 0.49 to 0.24 alongside the held-out score. Overfitting keeps training performance
+high while held-out performance drops; both falling together is degradation of the policy
+itself. `n_ex` declines with them -- 132, 134, 108, 70, 67, 70 -- because a degraded model
+verifies fewer of its own generations, which feeds the next round less, which degrades it
+further.
+
+Meanwhile the fresh-frozen control, retrained from frozen-base data every round, climbs steadily
+to 0.48 and ends **above** the treatment.
+
+**Verification did not prevent collapse.** Every training example in this loop passed execution
+against an fp32 reference. That is precisely the safeguard assumed to make self-training safe
+from the failure mode, and it is not sufficient.
+
+**This answers the question the benchmark is named for, and the answer is neither option I was
+choosing between.** The gain does not compound, and it is not a one-time upgrade. It peaks
+around round four or five and then reverses. Five-round protocols -- the registered primary,
+every `fed` cell, the whole `dose` design -- stop at the peak and cannot see this by
+construction.
+
+Held at three seeds and rounds 8-10 of 15. The check that matters is whether `deepp`, the
+pass-rate depth board, shows the same reversal: if it does, the collapse is real; if it does not,
+something about the headroom ceiling is producing it. `trainC` falling is hard to explain any
+other way, but that is an argument, not a control.
+
+It also supplies the mechanism the report already suspected. The intuition list says selected-
+sample SFT may raise probability on current winners at the cost of the rare decompositions that
+enable later discoveries, and flags it as association rather than proof. This is that process,
+observed directly, over enough rounds for it to bite.
