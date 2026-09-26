@@ -757,10 +757,20 @@ def _assert_homogeneous(cells, label):
         # with lambda=20 would average a treatment with its own control. It is stamped in
         # _SEMANTIC_ENV for exactly this reason, and the check should read the same set.
         env = m.get("env") or {}
+
+        def _num(v, default=0.0):
+            """Compare numbers as numbers. The guard string-compared kl_lambda and split five
+            seeds of one configuration into two groups because older cells stamp `0` and newer
+            ones stamp `0.0`. A guard that refuses on a difference that is not a difference
+            trains its reader to override it, which is worse than not having it."""
+            try:
+                return float(default if v is None else v)
+            except (TypeError, ValueError):
+                return v
         key = (m.get("model"),
                env.get("KA_SCORE", m.get("score", "?")),
-               str(m.get("kl_lambda", env.get("KA_RSI_KL", "0"))),
-               m.get("n_train"))
+               _num(m.get("kl_lambda", env.get("KA_RSI_KL"))),
+               _num(m.get("n_train"), -1))
         seen.setdefault(key, []).append(c["cell"])
     if len(seen) > 1:
         groups = "; ".join("model=%s scorer=%s lambda=%s n_train=%s: %s"
@@ -933,6 +943,75 @@ def depth_table():
     return "\n".join(lines), []
 
 
+def lifetime_table():
+    """How many rounds the measurement is alive for, and why it stops.
+
+    The report says the useful lifetime is fixed by the control arm. These cells say something
+    more specific and more useful, because it is a property of the design rather than of the
+    model: the lifetime is the GAP between the round the treatment reaches correct-at-parity and
+    the round the control reaches it. fedoc has both arms arrive together at round 1 and gets
+    zero usable rounds despite 350 verified examples per round; fedds_s2 has the treatment
+    arrive at round 2 and the control at round 4, and its contrast peaks at +0.183 then decays
+    to +0.011 while n_ex is still climbing from 160 to 307.
+
+    Reported per cell, never pooled, because the arrival rounds are integers on different
+    models and averaging them would invent a cell that does not exist.
+    """
+    PAR = 0.49
+    rows = []
+    for cell, outdir in _cells("fed*"):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        if len(h) < 3 or "adapter_restored" not in d:
+            continue
+        if d.get("resumed_at") and d.get("adapter_restored") is not True:
+            continue
+        def _first(key):
+            for r in h:
+                if (r.get(key) or 0) >= PAR:
+                    return r["round"]
+            return None
+        a_self, a_ctrl = _first("C_self"), _first("C_fresh")
+        if a_self is None:
+            continue                       # treatment never reached the ceiling: nothing to time
+        dl = [r["delta_self_minus_fresh"] for r in h if r.get("delta_self_minus_fresh") is not None]
+        rows.append((cell, len(h), a_self, a_ctrl,
+                     (a_ctrl - a_self) if a_ctrl is not None else None,
+                     max(dl, key=abs) if dl else 0.0, dl[-1] if dl else 0.0,
+                     max((r.get("n_ex", 0) for r in h), default=0)))
+    if len(rows) < 2:
+        return "", ["lifetime: %d cell(s) where the treatment reached parity" % len(rows)]
+
+    body = ""
+    for cell, n, a_s, a_c, gap, peak, last, mx in sorted(rows):
+        body += "\\texttt{%s} & %d & %d & %s & %s & $%+.3f$ & $%+.3f$ & %d \\\\\n" % (
+            cell.replace("_", "\\_"), n, a_s,
+            (str(a_c) if a_c is not None else "--"),
+            (str(gap) if gap is not None else "$>%d$" % (n - 1 - a_s)),
+            peak, last, mx)
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:lifetime}",
+             (r"\caption{When each arm reaches correct-at-parity, and what happens to the contrast "
+              r"afterwards. The measurement's useful lifetime is the \emph{gap} between the two arrival "
+              r"rounds, which is a property of the design rather than of the model. Where the gap is zero "
+              r"the contrast is dead from the first round onward however much data the learner receives: "
+              r"the \texttt{fedoc} cells take 350 verified examples per round and report $-0.002$. Where "
+              r"the gap is two rounds the contrast peaks and then decays as the control catches up, while "
+              r"$n_{\mathrm{ex}}$ is still rising. Reported per cell and never pooled: the arrival rounds "
+              r"are integers on different models, and their mean would describe a cell that does not exist.}"),
+             r"\begin{tabular}{@{}lrrrrrrr@{}}",
+             r"\toprule",
+             r"Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex}}$ \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     # The starvation table goes to its own file: it belongs in the motivation section, four
@@ -945,7 +1024,8 @@ def main():
             + _stex + "\n")
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
                nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
-               prereg_table, fed_table, dose_table, kl_table, depth_table):
+               prereg_table, fed_table, dose_table, kl_table, depth_table,
+               lifetime_table):
         tex, n = fn()
         if tex:
             parts.append(tex)

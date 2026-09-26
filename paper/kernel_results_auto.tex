@@ -112,14 +112,18 @@ q15\_s2 & 7 & 0.50 / 0.50 & +0.000$\dagger$ & +0.460 \\
 \end{table}
 
 \begin{table}[h]\centering\small
-\label{tab:fed}
-\caption{The same lab and the same contrast, with the learner fed. These cells run \texttt{--n-train 35} against a verified kernel bank; the registered primary runs \texttt{--n-train 3}, which the throughput arithmetic puts at $0.96$ examples per round. Mean $n_{\mathrm{ex}}$ here is 50.8 and 27.4, so both trajectories clear Amendment 6's floor of two by more than a factor of ten, and both carry \texttt{adapter\_restored}. Every round of both is reported. \textbf{No interval is quoted and no effect is claimed}: $n=2$ trajectories against a registered minimum of three seeds, and a 95\% interval on a two-point mean would assert precision the design cannot support. The trajectory-level mean is $+0.088$. The column that carries weight is $n_{\mathrm{ex}}$, which grows within both runs (6 to 104 and 7 to 84) and is the input the contrast lacked everywhere else in this report.}
-\begin{tabular}{@{}lrrlrr@{}}
+\label{tab:lifetime}
+\caption{When each arm reaches correct-at-parity, and what happens to the contrast afterwards. The measurement's useful lifetime is the \emph{gap} between the two arrival rounds, which is a property of the design rather than of the model. Where the gap is zero the contrast is dead from the first round onward however much data the learner receives: the \texttt{fedoc} cells take 350 verified examples per round and report $-0.002$. Where the gap is two rounds the contrast peaks and then decays as the control catches up, while $n_{\mathrm{ex}}$ is still rising. Reported per cell and never pooled: the arrival rounds are integers on different models, and their mean would describe a cell that does not exist.}
+\begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per round & mean & last 2 \\
+Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex}}$ \\
 \midrule
-\texttt{q15\_s1} & 5 & 50.8 & $+0.074$ $+0.132$ $+0.206$ $+0.130$ $+0.089$ & $+0.126$ & $+0.110$ \\
-\texttt{q15\_s2} & 5 & 27.4 & $-0.001$ $-0.088$ $+0.073$ $+0.135$ $+0.131$ & $+0.050$ & $+0.133$ \\
+\texttt{fed\_q05\_s1} & 3 & 2 & -- & $>0$ & $-0.152$ & $+0.017$ & 106 \\
+\texttt{fed\_q15\_s1} & 5 & 4 & -- & $>0$ & $+0.206$ & $+0.089$ & 104 \\
+\texttt{fedds\_s1} & 3 & 2 & -- & $>0$ & $-0.272$ & $+0.028$ & 25 \\
+\texttt{fedds\_s2} & 5 & 2 & 4 & 2 & $+0.183$ & $+0.011$ & 307 \\
+\texttt{fedoc\_s1} & 5 & 1 & 1 & 0 & $+0.062$ & $-0.002$ & 350 \\
+\texttt{fedoc\_s2} & 5 & 1 & 1 & 0 & $-0.006$ & $-0.002$ & 348 \\
 \bottomrule
 \end{tabular}
 \end{table}
