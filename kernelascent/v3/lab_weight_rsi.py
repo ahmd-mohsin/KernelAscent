@@ -476,9 +476,32 @@ def run(args):
            ",".join(["self"] + (["fresh"] if fg else []) + (["round0"] if cg else []))), flush=True)
     os.makedirs(args.outdir, exist_ok=True)
     json.dump(_manifest(args, train, held), open(os.path.join(args.outdir, "manifest.json"), "w"), indent=2)
-    C0, _, _, c0ci, st0 = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base held-out
-    print("C0 frozen-base held-out = %.3f +-%.3f (correct=%.2f compiled_sp=%.2f)" %
-          (C0, c0ci, st0["correct_rate"], st0["compiled_sp"]), flush=True)
+    # C0 IS COMPUTED ONCE PER TRAJECTORY, NOT ONCE PER CHUNK. This evaluation is the frozen base
+    # over the whole held set -- at held=121 and k=10 that is 1210 generations plus grading,
+    # about twenty minutes -- and the resume path below used to overwrite its result with the
+    # value stored in resume_aux.json. Every resumed chunk therefore paid for a number it then
+    # threw away. Across the cells in flight that is tens of GPU-hours spent recomputing a
+    # constant.
+    #
+    # Reading the stored value here instead of after the fact is also the safer order: the
+    # frozen base is deterministic, so the recomputed figure matched, and a silent mismatch --
+    # a changed bank, a different k -- would have been invisible. Now a stored C0 is used, and
+    # the check below says so.
+    _aux_path = os.path.join(args.outdir, "resume_aux.json")
+    _stored_c0 = None
+    if os.path.exists(_aux_path):
+        try:
+            _stored_c0 = (json.load(open(_aux_path)) or {}).get("C0")
+        except Exception:
+            _stored_c0 = None
+    if _stored_c0 is not None:
+        C0, c0ci, st0 = float(_stored_c0), 0.0, {"correct_rate": float("nan"), "compiled_sp": float("nan")}
+        print("C0 frozen-base held-out = %.3f (restored from resume_aux; not recomputed)"
+              % C0, flush=True)
+    else:
+        C0, _, _, c0ci, st0 = eval_tasks(tok, mdl, held, args.k, adapter=False)   # frozen-base held-out
+        print("C0 frozen-base held-out = %.3f +-%.3f (correct=%.2f compiled_sp=%.2f)" %
+              (C0, c0ci, st0["correct_rate"], st0["compiled_sp"]), flush=True)
 
     def _try_sft(t, m, p):
         try:
@@ -558,7 +581,7 @@ def run(args):
                 _ex0 = _aux.get("ex0")
                 ex0 = [tuple(p) for p in _ex0] if _ex0 is not None else None
                 round0_solved = _aux.get("round0_solved")
-                C0 = _aux.get("C0", C0)
+                C0 = _aux.get("C0", C0)      # already restored before the eval; kept for older artifacts
                 adapter_restored = True
                 print("RESUME  %d round(s) recorded -- continuing from round %d "
                       "(all arms restored, ex0=%d pairs)"
