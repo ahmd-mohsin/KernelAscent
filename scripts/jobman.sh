@@ -353,7 +353,19 @@ continue)
         # kernels and almost never verifies), not a failure to re-run.
         cell="$(_cell_of "$cmd")"
         fp="$(awk -F'\t' -v c="$cell" '$1==c{print $2; exit}' <<<"$FP_NOW")"
-        if [ "$fp" = "complete" ]; then
+        # A round-based cell fingerprints as `rounds=N`, never the literal `complete`, so the
+        # verdict below could not fire for one. t1k-q14 needed the file-output form, basek
+        # needed the all-methods form, and fedc-q15-s1 reached 8/8 and was still held because an
+        # OUT_OF_MEMORY landed after its last round was written. Three cells, three shapes, one
+        # question: did it finish what it was asked to do?
+        #
+        # The command records the answer. `--rounds N` is the registered depth; if the artifact
+        # has that many, the cell is done whatever the exit state says.
+        _want="$(sed -n 's/.*--rounds[ =]\([0-9][0-9]*\).*/\1/p' <<<"$cmd" | head -1)"
+        _have="$(sed -n 's/^rounds=\([0-9][0-9]*\)$/\1/p' <<<"$fp")"
+        if [ -n "$_want" ] && [ -n "$_have" ] && [ "$_have" -ge "$_want" ]; then
+          echo "done      $name  ($_have/$_want rounds; exit state '$state' is not a failure)"
+        elif [ "$fp" = "complete" ]; then
           echo "done      $name  (artifact complete; exit state '$state' is not a failure)"
         elif cut -f1 "$BACKLOG" 2>/dev/null | grep -qx "$name"; then
           # Already parked for resubmission, which IS the look the HOLD is asking for. Without
