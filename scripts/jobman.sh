@@ -324,6 +324,13 @@ continue)
         fp="$(awk -F'\t' -v c="$cell" '$1==c{print $2; exit}' <<<"$FP_NOW")"
         if [ "$fp" = "complete" ]; then
           echo "done      $name  (artifact complete; exit state '$state' is not a failure)"
+        elif cut -f1 "$BACKLOG" 2>/dev/null | grep -qx "$name"; then
+          # Already parked for resubmission, which IS the look the HOLD is asking for. Without
+          # this the same cell is reported on every watcher restart, forever, and a line printed
+          # every thirty minutes about a decision already taken is how an operator learns to
+          # skip the ones that matter. The cancelled-but-parked case is treated the same way in
+          # watch_routes.sh for exactly this reason.
+          : ;
         else
           echo "HOLD      $name  (last state '$state' -- not auto-continued; needs a look)"
         fi ;;
