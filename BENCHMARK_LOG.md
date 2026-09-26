@@ -4121,3 +4121,41 @@ because each rung has a mechanism rather than an effect size.
 
 Two of five rounds. Recorded now because it is checkable and because the reading of the earlier
 null depends on it.
+
+
+## 2026-09-25 09:39 — a fully fed loop, and the contrast is still zero: starvation and saturation are two different failures
+
+`fedoc_s1` (OpenCoder-1.5B, `--n-train 35`, kernel bank) reached 5/5 with `adapter_restored=True`.
+
+    r0  n_ex=11    C_self 0.440  C_fresh 0.378   self-fresh  +0.062
+    r1  n_ex=86    C_self 0.501  C_fresh 0.502   self-fresh  -0.001
+    r2  n_ex=262   C_self 0.500  C_fresh 0.501   self-fresh  -0.001
+    r3  n_ex=338   C_self 0.500  C_fresh 0.502   self-fresh  -0.001
+    r4  n_ex=350   C_self 0.500  C_fresh 0.502   self-fresh  -0.002
+
+The learner received **350 verified examples in a round**, the highest throughput anywhere in this
+program, and the contrast is identically zero from round 1 onward. The reason is in the arm
+levels, not in any summary statistic: both arms sit at 0.500-0.502. They reached correct-at-parity
+at round 1 and stayed there, and the headroom score has no range left in which to report a
+difference.
+
+**This separates two failures the report has so far treated as one story.**
+
+* *Starvation* -- the dose cells. `n_ex=0`, no training, the contrast is undefined and its sign is
+  set by which arm happened to receive data.
+* *Saturation* -- this cell. Maximal training, and the contrast is zero because the scorer is
+  pinned.
+
+Feeding the loop removes the first and exposes the second. That is a sharper claim than the one
+currently in the motivation section, which reads as though throughput were the binding constraint
+throughout. It is not: throughput is binding until it isn't, and then the metric is.
+
+Two things make this better evidence than the existing contrast cells. It is visible in the arm
+levels rather than inferred from a difference of means, which is the standard the motivation
+section already applies. And it is OpenCoder rather than Qwen, so the blindness is not a property
+of one model family.
+
+It also tightens a number the paper states. The report says a matched control reaches parity
+"within three or four rounds". Here it arrives at **round 1**.
+
+One cell. `fedoc_s2` and `fedoc_s3` are running and decide whether this goes in the paper.
