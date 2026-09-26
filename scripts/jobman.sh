@@ -346,6 +346,12 @@ continue)
           echo "          NOT resubmitted (submission refused); stall ledger left unchanged" >&2
         fi ;;
       COMPLETED*) : ;;                                          # done, nothing to do
+      # A queued or running job is not a candidate for anything. The `live` squeue check above
+      # normally catches these, but sacct and squeue disagree for a few seconds after a submit,
+      # and in that window a perfectly healthy PENDING cell fell through to the catch-all and
+      # was reported as needing a look. An alarm that fires on the normal case is the one an
+      # operator learns to skip.
+      PENDING*|RUNNING*|REQUEUED*|SUSPENDED*|COMPLETING*) : ;;
       "")         blank=$((blank + 1)); echo "skip      $name  (no record yet)" ;;
       *)
         # A cell whose artifact says `complete` needs no look, whatever its exit state. t1k-q14
