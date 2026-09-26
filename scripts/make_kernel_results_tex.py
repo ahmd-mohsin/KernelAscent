@@ -726,6 +726,160 @@ def fed_table():
     return "\n".join(lines), []
 
 
+def _wrsi_cells(pattern):
+    """Admissible lab_weight_rsi cells matching `pattern`, with their per-round series.
+
+    Applies the same admissibility rule as the registered primary -- a severed or pre-fix cell
+    measures nothing, so it must not reach a table -- and returns nothing rather than a partial
+    series for a cell that has not finished.
+    """
+    out = []
+    for cell, outdir in _cells(pattern):
+        d = _load(os.path.join(outdir, "weight_rsi.json"))
+        if not d:
+            continue
+        h = d.get("history") or []
+        dl = [r["delta_self_minus_fresh"] for r in h if r.get("delta_self_minus_fresh") is not None]
+        if not dl or "adapter_restored" not in d:
+            continue
+        if d.get("resumed_at") and d.get("adapter_restored") is not True:
+            continue
+        out.append({"cell": cell, "n": len(h), "delta": dl,
+                    "n_ex": [r.get("n_ex", 0) for r in h],
+                    "kl": [r.get("kl") for r in h],
+                    "kl_lambda": d.get("kl_lambda", (h[0].get("kl_lambda") if h else None)),
+                    "trainC": [r.get("trainC") for r in h]})
+    return out
+
+
+def dose_table():
+    """Throughput as a dose, not as a difference between two configurations.
+
+    The fed cells changed the task bank AND --n-train at once, so their gain cannot be attributed
+    to either. These hold the bank fixed and vary only n_train, which makes throughput an
+    independent variable instead of a description of what happened to be different.
+    """
+    import statistics as _st
+    groups = [("3", "dose3_q15_*"), ("10", "dose10_q15_*"), ("35", "fed_q15_s[12]")]
+    rows, missing = [], []
+    for label, pat in groups:
+        cs = [c for c in _wrsi_cells(pat) if c["n"] >= 5]
+        if len(cs) < 2:
+            missing.append("n_train=%s (%d of 2 cells at depth)" % (label, len(cs)))
+            continue
+        rows.append((label, len(cs),
+                     _st.mean([_st.mean(c["n_ex"]) for c in cs]),
+                     _st.mean([_st.mean(c["delta"]) for c in cs]),
+                     [_st.mean(c["delta"]) for c in cs]))
+    if len(rows) < 2:
+        return "", ["dose-response: only %d of 3 rungs complete (%s)" % (len(rows), "; ".join(missing))]
+
+    body = ""
+    for label, n, mnx, mdl, per in rows:
+        body += "%s & %d & %.1f & %s & $%+.3f$ \\\\\n" % (
+            label, n, mnx, ", ".join("$%+.3f$" % x for x in per), mdl)
+    note = ([" %s not yet at depth and omitted." % ", ".join(missing)] if missing else [])
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:dose}",
+             (r"\caption{Throughput as a dose. Every cell here runs the same bank, model, $k$, arms and "
+              r"code path, and differs only in \texttt{--n-train}, so the verified examples the learner "
+              r"receives is an independent variable rather than a difference between two configurations. "
+              r"The \texttt{fed} cells reported elsewhere changed the bank \emph{and} \texttt{n\_train} "
+              r"together and cannot separate the two.%s}" % ("".join(note))),
+             r"\begin{tabular}{@{}lrrlr@{}}",
+             r"\toprule",
+             r"\texttt{n\_train} & Cells & mean $n_{\mathrm{ex}}$/round & per-trajectory mean & pooled \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), note
+
+
+def kl_table():
+    """The trust region as a dial: lambda set, KL realized, and what it cost or bought.
+
+    Reports the realized divergence beside the setting, because a lambda that does not move the
+    KL is not a treatment, and a table of lambdas alone cannot show that.
+    """
+    import statistics as _st
+    groups = [("0", "fed_q15_s[12]"), ("0.05", "kl005_q15_*"), ("0.2", "kl02_q15_*"), ("1.0", "kl10_q15_*")]
+    rows, missing = [], []
+    for label, pat in groups:
+        cs = [c for c in _wrsi_cells(pat) if c["n"] >= 5]
+        if len(cs) < 2:
+            missing.append("lambda=%s (%d of 2)" % (label, len(cs)))
+            continue
+        kls = [k for c in cs for k in c["kl"] if k is not None]
+        rows.append((label, len(cs),
+                     (_st.mean(kls) if kls else None),
+                     _st.mean([_st.mean(c["n_ex"]) for c in cs]),
+                     _st.mean([_st.mean(c["delta"]) for c in cs]),
+                     _st.mean([_st.mean(c["delta"][-2:]) for c in cs])))
+    if len(rows) < 2:
+        return "", ["kl sweep: only %d of 4 settings complete (%s)" % (len(rows), "; ".join(missing))]
+
+    body = ""
+    for label, n, mkl, mnx, mdl, last2 in rows:
+        body += "$%s$ & %d & %s & %.1f & $%+.3f$ & $%+.3f$ \\\\\n" % (
+            label, n, ("%.4f" % mkl) if mkl is not None else "--", mnx, mdl, last2)
+    note = ([" %s not yet at depth and omitted." % ", ".join(missing)] if missing else [])
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:kl}",
+             (r"\caption{Regularized RSI. Each row trains under "
+              r"$\theta(t{+}1) = \arg\max \mathbb{E}[R] - \lambda\,\mathrm{KL}(\pi(\theta)\,\|\,\pi(\theta_0))$, "
+              r"with the reference policy obtained by disabling the LoRA adapter rather than loading a second "
+              r"model. $\lambda = 0$ is the unregularized objective and is the same code path the "
+              r"\texttt{fed} cells ran. The realized KL is reported beside the setting because a $\lambda$ "
+              r"that does not move the divergence is not a treatment.%s}" % ("".join(note))),
+             r"\begin{tabular}{@{}lrrrrr@{}}",
+             r"\toprule",
+             r"$\lambda$ & Cells & realized KL & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} & last 2 \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), note
+
+
+def depth_table():
+    """Fifteen rounds, because five cannot tell compounding from a one-time producer upgrade.
+
+    fed_q15_s1 rose to +0.206 at round 3 and fell to +0.089 by round 5. Those five points are
+    equally consistent with a gain that compounds and saturates, a single step improvement, and
+    noise. The table prints thirds of the run so the shape is visible without a figure.
+    """
+    import statistics as _st
+    cs = [c for c in _wrsi_cells("deep_q15_*") if c["n"] >= 15]
+    if len(cs) < 2:
+        return "", ["depth: %d of 3 cells at 15 rounds" % len(cs)]
+    body = ""
+    for c in sorted(cs, key=lambda x: x["cell"]):
+        d = c["delta"]
+        t = len(d) // 3
+        body += "\\texttt{%s} & %d & $%+.3f$ & $%+.3f$ & $%+.3f$ & %.1f \\\\\n" % (
+            c["cell"].replace("deep_", "").replace("_", "\\_"), c["n"],
+            _st.mean(d[:t]), _st.mean(d[t:2 * t]), _st.mean(d[2 * t:]), _st.mean(c["n_ex"]))
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:depth}",
+             (r"\caption{Fifteen rounds of the fed loop, reported in thirds. Five rounds cannot separate a "
+              r"gain that compounds from a one-time producer upgrade: the first fed trajectory rose to "
+              r"$+0.206$ by round three and fell to $+0.089$ by round five, which is consistent with both. "
+              r"A contrast that keeps rising across thirds is compounding; one that peaks and decays is a "
+              r"step improvement followed by saturation.}"),
+             r"\begin{tabular}{@{}lrrrrr@{}}",
+             r"\toprule",
+             r"Cell & Rounds & first third & middle & last third & mean $n_{\mathrm{ex}}$ \\",
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), []
+
+
 def main():
     parts, notes = [], []
     # The starvation table goes to its own file: it belongs in the motivation section, four
@@ -738,7 +892,7 @@ def main():
             + _stex + "\n")
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
                nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
-               prereg_table, fed_table):
+               prereg_table, fed_table, dose_table, kl_table, depth_table):
         tex, n = fn()
         if tex:
             parts.append(tex)
