@@ -113,7 +113,7 @@ q15\_s2 & 7 & 0.50 / 0.50 & +0.000$\dagger$ & +0.460 \\
 
 \begin{table}[h]\centering\small
 \label{tab:fed}
-\caption{The same lab and the same contrast, with the learner fed. These cells run \texttt{--n-train 35} against a verified kernel bank; the registered primary runs \texttt{--n-train 3}, which the throughput arithmetic puts at $0.96$ examples per round. Mean $n_{\mathrm{ex}}$ here is 50.8 and 27.4, so both trajectories clear Amendment 6's floor of two by more than a factor of ten, and both carry \texttt{adapter\_restored}. Every round of both is reported. \textbf{No interval is quoted and no effect is claimed}: $n=2$ trajectories against a registered minimum of three seeds, and a 95\% interval on a two-point mean would assert precision the design cannot support. The trajectory-level mean is $+0.123$. The column that carries weight is $n_{\mathrm{ex}}$, which grows within both runs (6 to 104 and 7 to 84) and is the input the contrast lacked everywhere else in this report. 1 further seed(s) (fed\_q15\_s4) are still running and are excluded rather than averaged in: they are short because they started later, not because of anything about their results. Registered rule: the 95\% interval excludes zero ($+0.123\,[+0.042,+0.204]$, $n=4$) and mean(last-2) exceeds $0.05$ in every cell. The rule requires \emph{both}, so the result \textbf{holds}.}
+\caption{The same lab and the same contrast, with the learner fed. These cells run \texttt{--n-train 35} against a verified kernel bank; the registered primary runs \texttt{--n-train 3}, which the throughput arithmetic puts at $0.96$ examples per round. Mean $n_{\mathrm{ex}}$ here is 50.8 and 27.4, so both trajectories clear Amendment 6's floor of two by more than a factor of ten, and both carry \texttt{adapter\_restored}. Every round of both is reported. \textbf{No interval is quoted and no effect is claimed}: $n=2$ trajectories against a registered minimum of three seeds, and a 95\% interval on a two-point mean would assert precision the design cannot support. The trajectory-level mean is $+0.101$. The column that carries weight is $n_{\mathrm{ex}}$, which grows within both runs (6 to 104 and 7 to 84) and is the input the contrast lacked everywhere else in this report. Registered rule: the 95\% interval excludes zero ($+0.101\,[+0.018,+0.183]$, $n=5$) and mean(last-2) exceeds $0.05$ in every cell. The rule requires \emph{both}, so the result \textbf{holds}.}
 \begin{tabular}{@{}lrrlrr@{}}
 \toprule
 Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per round & mean & last 2 \\
@@ -121,6 +121,7 @@ Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per roun
 \texttt{q15\_s1} & 5 & 50.8 & $+0.074$ $+0.132$ $+0.206$ $+0.130$ $+0.089$ & $+0.126$ & $+0.110$ \\
 \texttt{q15\_s2} & 5 & 27.4 & $-0.001$ $-0.088$ $+0.073$ $+0.135$ $+0.131$ & $+0.050$ & $+0.133$ \\
 \texttt{q15\_s3} & 5 & 55.0 & $+0.033$ $+0.125$ $+0.272$ $+0.193$ $+0.161$ & $+0.157$ & $+0.177$ \\
+\texttt{q15\_s4} & 5 & 20.8 & $-0.021$ $-0.023$ $-0.063$ $+0.072$ $+0.094$ & $+0.012$ & $+0.083$ \\
 \texttt{q15\_s5} & 5 & 59.0 & $+0.117$ $+0.213$ $+0.243$ $+0.148$ $+0.075$ & $+0.159$ & $+0.111$ \\
 \bottomrule
 \end{tabular}
@@ -128,12 +129,13 @@ Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per roun
 
 \begin{table}[h]\centering\small
 \label{tab:kl}
-\caption{Regularized RSI. Each row trains under $\theta(t{+}1) = \arg\max \mathbb{E}[R] - \lambda\,\mathrm{KL}(\pi(\theta)\,\|\,\pi(\theta_0))$, with the reference policy obtained by disabling the LoRA adapter rather than loading a second model. $\lambda = 0$ is the unregularized objective and is the same code path the \texttt{fed} cells ran. The realized KL is reported beside the setting because a $\lambda$ that does not move the divergence is not a treatment. lambda=0.05 (1 of 2), lambda=1.0 (1 of 2), lambda=5 (0 of 2), lambda=20 (0 of 2) not yet at depth and omitted.}
+\caption{Regularized RSI. Each row trains under $\theta(t{+}1) = \arg\max \mathbb{E}[R] - \lambda\,\mathrm{KL}(\pi(\theta)\,\|\,\pi(\theta_0))$, with the reference policy obtained by disabling the LoRA adapter rather than loading a second model. $\lambda = 0$ is the unregularized objective and is the same code path the \texttt{fed} cells ran. The realized KL is reported beside the setting because a $\lambda$ that does not move the divergence is not a treatment. lambda=1.0 (1 of 2), lambda=5 (0 of 2), lambda=20 (0 of 2) not yet at depth and omitted.}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 $\lambda$ & Cells & realized KL & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} & last 2 \\
 \midrule
 $0$ & 2 & -- & 39.1 & $+0.088$ & $+0.121$ \\
+$0.05$ & 2 & 0.0047 & 42.1 & $+0.118$ & $+0.180$ \\
 $0.2$ & 2 & 0.0033 & 40.8 & $+0.111$ & $+0.116$ \\
 \bottomrule
 \end{tabular}
@@ -149,8 +151,8 @@ Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex
 \texttt{fed\_q05\_s1} & 5 & 2 & 4 & 2 & $-0.152$ & $+0.005$ & 275 \\
 \texttt{fed\_q05\_s2} & 5 & 3 & -- & $>1$ & $+0.140$ & $+0.004$ & 257 \\
 \texttt{fed\_q15\_s1} & 5 & 4 & -- & $>0$ & $+0.206$ & $+0.089$ & 104 \\
-\texttt{fed\_q3\_s1} & 3 & 2 & 2 & 0 & $+0.042$ & $+0.003$ & 130 \\
-\texttt{fed\_q3\_s2} & 3 & 2 & -- & $>0$ & $-0.015$ & $+0.014$ & 87 \\
+\texttt{fed\_q3\_s1} & 4 & 2 & 2 & 0 & $+0.042$ & $+0.012$ & 184 \\
+\texttt{fed\_q3\_s2} & 4 & 2 & -- & $>1$ & $+0.017$ & $+0.017$ & 160 \\
 \texttt{fedds\_s1} & 5 & 2 & 4 & 2 & $-0.272$ & $+0.002$ & 346 \\
 \texttt{fedds\_s2} & 5 & 2 & 4 & 2 & $+0.183$ & $+0.011$ & 307 \\
 \texttt{fedds\_s3} & 5 & 2 & 4 & 2 & $-0.136$ & $-0.002$ & 327 \\
