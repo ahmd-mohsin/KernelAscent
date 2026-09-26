@@ -32,3 +32,4 @@ fed-q15-s4	rounds=1	0	504828
 kl005-q15-s1	rounds=2	0	504830
 kl02-q15-s1	rounds=2	0	504831
 deep-q15-s1	rounds=2	0	504821
+deep-q15-s2	rounds=2	0	504822

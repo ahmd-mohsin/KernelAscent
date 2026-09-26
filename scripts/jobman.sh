@@ -191,9 +191,18 @@ topup)
     echo "  the whole cap and fire the entire backlog at once. Retry when the cluster answers."
     exit 1
   fi
-  room=$(( CAP - n ))
-  echo "queued=$n cap=$CAP room=$room backlog=$(wc -l < "$BACKLOG" | tr -d ' ')"
-  [ "$room" -gt 0 ] || { echo "no room -- try again when jobs finish"; exit 0; }
+  # RESERVE. A timed-out cell must be able to get back in, and it competes for the same cap as
+  # the backlog. With the cap full -- including PENDING jobs, which occupy a submission slot
+  # without running -- deep-q15-s2 was refused twice and sat out of the queue holding two
+  # rounds of a fifteen-round trajectory. Reordering continue before topup was not enough,
+  # because by then the cap was already consumed.
+  #
+  # So the backlog does not get the last few slots. They belong to work that is already part
+  # way through, which can resume into them the moment a chunk ends.
+  RESERVE="${KA_RESUME_RESERVE:-4}"
+  room=$(( CAP - n - RESERVE ))
+  echo "queued=$n cap=$CAP reserve=$RESERVE room=$room backlog=$(wc -l < "$BACKLOG" | tr -d ' ')"
+  [ "$room" -gt 0 ] || { echo "no room -- $RESERVE slot(s) held for resumes; try again when jobs finish"; exit 0; }
   sent=0
   while [ "$sent" -lt "$room" ]; do
     line="$(head -1 "$BACKLOG")"
