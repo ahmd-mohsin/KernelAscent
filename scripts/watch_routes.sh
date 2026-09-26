@@ -80,14 +80,25 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
         *)                echo "?? $st $name ($id)" ;;
       esac
     done
+    # RESUME BEFORE STARTING NEW WORK. These two ran the other way round and it cost real
+    # compute: topup filled every free slot from the backlog, then continue tried to resubmit
+    # three timed-out dose cells, sbatch rejected all three at the submit cap, and the cells
+    # simply left the queue. Fresh cells at round 0 had displaced in-flight cells holding a
+    # checkpoint and an hour of grading -- and because a rejected submission looks the same to
+    # the stall ledger as a cell that made no progress, one of them had its stall counter
+    # incremented toward a HOLD it had not earned.
+    #
+    # A cell mid-trajectory is strictly more valuable than a parked one: it has already spent
+    # the compute, and its arms cannot be re-derived from anything else. Resume first, let the
+    # backlog have what is left.
+    # auto-continue only walltime hits; a code failure re-run wastes allocation (standing rule 5)
+    if comm -13 <(echo "$prev") <(echo "$cur") | grep -q 'TIMEOUT'; then
+      bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD)' || true
+    fi
     # The account caps concurrent submissions, so finished jobs free slots that parked work
     # should claim immediately -- otherwise the queue drains and nothing replaces it overnight.
     if [ -s "$REPO/.jobman.backlog" ]; then
       bash "$REPO/scripts/jobman.sh" topup 2>&1 | grep -E '^  submitted|^  FAILED' || true
-    fi
-    # auto-continue only walltime hits; a code failure re-run wastes allocation (standing rule 5)
-    if comm -13 <(echo "$prev") <(echo "$cur") | grep -q 'TIMEOUT'; then
-      bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD)' || true
     fi
   fi
   prev="$cur"

@@ -299,9 +299,9 @@ continue)
         else
           stall=0
         fi
-        grep -v "^$name	" "$PROGRESS" > "$PROGRESS.tmp" 2>/dev/null || true
-        printf '%s\t%s\t%s\n' "$name" "${now_fp:-?}" "$stall" >> "$PROGRESS.tmp"
-        mv "$PROGRESS.tmp" "$PROGRESS"
+        # The ledger is written AFTER the resubmission succeeds, further down. Writing it here
+        # counted a submission the cap rejected as a round that produced nothing, and pushed a
+        # healthy cell toward a HOLD it had not earned.
         if [ "$stall" -ge 2 ]; then
           echo "HOLD      $name  (2 consecutive chunks recorded nothing new: $now_fp)"
           echo "          its smallest resumable unit does not fit $wall -- raise the walltime"
@@ -313,7 +313,17 @@ continue)
         # claimed a 90-minute job had hit a 3-hour wall. Diagnostic output that misstates what
         # happened is worse than none, and this file exists because of exactly that class of bug.
         echo "continue  $name  (timed out; resubmitting with $wall${now_fp:+, at $now_fp})"
-        "$0" run "$name" "$wall" "$gpus" -- "$cmd" ; n=$((n+1)) ;;
+        if "$0" run "$name" "$wall" "$gpus" -- "$cmd"; then
+          # Only a cell that is actually back in the queue has had its chance to progress, so
+          # only then does an unchanged fingerprint mean anything. A rejected submission leaves
+          # the ledger untouched and the cell is retried on the next poll.
+          grep -v "^$name	" "$PROGRESS" > "$PROGRESS.tmp" 2>/dev/null || true
+          printf '%s\t%s\t%s\n' "$name" "${now_fp:-?}" "$stall" >> "$PROGRESS.tmp"
+          mv "$PROGRESS.tmp" "$PROGRESS"
+          n=$((n+1))
+        else
+          echo "          NOT resubmitted (submission refused); stall ledger left unchanged" >&2
+        fi ;;
       COMPLETED*) : ;;                                          # done, nothing to do
       "")         blank=$((blank + 1)); echo "skip      $name  (no record yet)" ;;
       *)

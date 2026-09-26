@@ -19,3 +19,7 @@ t2kc-q3-s1	rounds=7	0
 t2kc-q3-s2	rounds=7	0
 fed-q15-s1	rounds=3	0
 fed-q15-s2	rounds=4	0
+dose3-q15-s1	rounds=1	1
+dose10-q15-s1	rounds=1	1
+dose3-q15-s2	rounds=1	1
+dose10-q15-s2	rounds=1	0
