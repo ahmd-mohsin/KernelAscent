@@ -58,3 +58,5 @@ kl5-q15-s2	rounds=1	0	505202
 deepp-q15-s1	rounds=2	0	505164
 kl20-q15-s2	rounds=1	0	505241
 deepp-q15-s2	rounds=2	0	505167
+deepp-q15-s3	rounds=3	0	505170
+fedyi-s1	rounds=1	0	505248

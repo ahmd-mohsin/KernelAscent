@@ -857,17 +857,20 @@ def dose_table():
         if len(cs) < 2:
             missing.append("n_train=%s (%d of 2 cells at depth)" % (label, len(cs)))
             continue
-        rows.append((label, len(cs),
-                     _st.mean([_st.mean(c["n_ex"]) for c in cs]),
+        _mnx = _st.mean([_st.mean(c["n_ex"]) for c in cs])
+        rows.append((label, len(cs), _mnx,
                      _st.mean([_st.mean(c["delta"]) for c in cs]),
-                     [_st.mean(c["delta"]) for c in cs]))
+                     [_st.mean(c["delta"]) for c in cs],
+                     _mnx < 2.0))            # Amendment 6's starvation floor
     if len(rows) < 2:
         return "", ["dose-response: only %d of 3 rungs complete (%s)" % (len(rows), "; ".join(missing))]
 
     body = ""
-    for label, n, mnx, mdl, per in rows:
-        body += "%s & %d & %.1f & %s & $%+.3f$ \\\\\n" % (
-            label, n, mnx, ", ".join("$%+.3f$" % x for x in per), mdl)
+    for label, n, mnx, mdl, per, starved in rows:
+        body += "%s & %d & %.2f%s & %s & $%+.3f$ \\\\\n" % (
+            label, n, mnx, (r"$^{\\dagger}$" if starved else ""),
+            ", ".join("$%+.3f$" % x for x in per), mdl)
+    _starved = [r[0] for r in rows if r[5]]
     note = ([" %s not yet at depth and omitted." % ", ".join(missing)] if missing else [])
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:dose}",
@@ -875,7 +878,13 @@ def dose_table():
               r"code path, and differs only in \texttt{--n-train}, so the verified examples the learner "
               r"receives is an independent variable rather than a difference between two configurations. "
               r"The \texttt{fed} cells reported elsewhere changed the bank \emph{and} \texttt{n\_train} "
-              r"together and cannot separate the two.%s}" % ("".join(note))),
+              r"together and cannot separate the two. $\\dagger$ marks a rung whose mean "
+              r"$n_{\\mathrm{ex}}$ falls below the floor of two set by PREREGISTRATION Amendment 6, at "
+              r"which a trajectory is reported as starved rather than as a measurement of the contrast. "
+              r"That the low rungs are starved is the \\emph{result} here and not grounds for excluding "
+              r"them: it is what varying the dose was meant to show. A starved rung's contrast is set by "
+              r"whichever arm happened to receive data, so its sign carries no information about "
+              r"self-training.%s}" % ("".join(note))),
              r"\begin{tabular}{@{}lrrlr@{}}",
              r"\toprule",
              r"\texttt{n\_train} & Cells & mean $n_{\mathrm{ex}}$/round & per-trajectory mean & pooled \\",
