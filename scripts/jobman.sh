@@ -282,8 +282,9 @@ continue)
     [ -n "$name" ] || continue
     seen=$((seen + 1))
     if grep -qx "$name" <<<"$live"; then continue; fi          # still queued/running
-    st="$($MRL run "module load slurm >/dev/null 2>&1; sacct -u \$USER -n -X -o JobName%40,State -P -S now-3days 2>/dev/null | grep '^$name|' | tail -1" 2>/dev/null)"
+    st="$($MRL run "module load slurm >/dev/null 2>&1; sacct -u \$USER -n -X -o JobID,JobName%40,State -P -S now-3days 2>/dev/null | grep '|$name|' | tail -1" 2>/dev/null)"
     state="${st##*|}"
+    jid_seen="${st%%|*}"
     case "$state" in
       TIMEOUT*)
         # Did the last chunk actually record anything? A cell whose fingerprint is unchanged
@@ -291,11 +292,22 @@ continue)
         # than spend another walltime finding out again.
         cell="$(_cell_of "$cmd")"
         now_fp="$(awk -F'\t' -v c="$cell" '$1==c{print $2; exit}' <<<"$FP_NOW")"
-        prev="$(awk -F'\t' -v n="$name" '$1==n{print $2"\t"$3; exit}' "$PROGRESS")"
-        prev_fp="${prev%%$TAB*}"; stall="${prev#*$TAB}"
-        [ "$stall" = "$prev" ] && stall=0
-        if [ -n "$now_fp" ] && [ "$now_fp" = "$prev_fp" ]; then
-          stall=$((stall + 1))
+        prev_fp="$(awk -F'\t' -v n="$name" '$1==n{print $2; exit}' "$PROGRESS")"
+        stall="$(awk -F'\t' -v n="$name" '$1==n{print ($3==""?0:$3); exit}' "$PROGRESS")"
+        prev_jid="$(awk -F'\t' -v n="$name" '$1==n{print $4; exit}' "$PROGRESS")"
+        [ -n "$stall" ] || stall=0
+        # THE DISCRIMINATOR IS THE JOB ID, NOT THE FINGERPRINT. `continue` acts on whatever
+        # sacct reports as the cell's last state, so after a submission the cap refuses, the
+        # SAME timeout is read again on the next poll -- and comparing fingerprints alone counts
+        # one chunk twice. Three dose cells reached stall=1 that way without a second chunk ever
+        # having run, one short of a HOLD that would have stopped the headline experiment.
+        #
+        # A chunk has run only if the terminal job id differs from the one already accounted
+        # for. Same id means nothing new happened and the ledger must not move.
+        if [ -n "$prev_jid" ] && [ "$jid_seen" = "$prev_jid" ]; then
+          :                                        # already counted this chunk
+        elif [ -n "$now_fp" ] && [ "$now_fp" = "$prev_fp" ]; then
+          stall=$((stall + 1))                     # a new chunk ran and recorded nothing new
         else
           stall=0
         fi
@@ -318,7 +330,7 @@ continue)
           # only then does an unchanged fingerprint mean anything. A rejected submission leaves
           # the ledger untouched and the cell is retried on the next poll.
           grep -v "^$name	" "$PROGRESS" > "$PROGRESS.tmp" 2>/dev/null || true
-          printf '%s\t%s\t%s\n' "$name" "${now_fp:-?}" "$stall" >> "$PROGRESS.tmp"
+          printf '%s\t%s\t%s\t%s\n' "$name" "${now_fp:-?}" "$stall" "$jid_seen" >> "$PROGRESS.tmp"
           mv "$PROGRESS.tmp" "$PROGRESS"
           n=$((n+1))
         else
