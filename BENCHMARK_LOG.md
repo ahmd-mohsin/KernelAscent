@@ -4195,3 +4195,36 @@ this project to dissolve once the loop is fed, after the compounding null itself
 That would also require rewriting the mechanism section rather than appending to it: the
 discovery-to-assimilation story is built on this contrast, and if assimilation is not the
 bottleneck when there is enough to assimilate, the story changes rather than narrows.
+
+
+## 2026-09-25 10:42 — the depth run cannot answer the question it was built for
+
+`deep_q15_s1/s2/s3` run the fed loop to fifteen rounds to separate a gain that compounds from a
+one-time producer upgrade. At five or six rounds all three show the contrast peaking around round
+two and decaying. That is the shape a one-time gain makes, and it would have been read that way.
+
+It is not what is happening.
+
+    deep_q15_s1   C_self  0.187 0.251 0.444 0.422 0.472
+                  C_fresh 0.113 0.120 0.159 0.193 0.290
+    deep_q15_s2   C_self  0.107 0.244 0.389 0.483 0.492
+                  C_fresh 0.108 0.192 0.181 0.394 0.422
+    deep_q15_s3   C_self  0.124 0.249 0.482 0.404 0.480 0.430
+                  C_fresh 0.090 0.119 0.335 0.384 0.398 0.360
+
+`C_self` is not falling. It is rising toward the correct-at-parity ceiling of 0.50 and is within
+0.02 of it by round four in two of three seeds. The control is climbing from below with room to
+climb. The contrast shrinks because the treatment has nowhere left to go, not because it stopped
+improving.
+
+So a fifteen-round headroom curve will decay to zero and look exactly like "compounding
+saturates", while measuring the ceiling. **This is the report's own central failure, reproduced
+in an experiment I designed this morning to avoid it.** The lifetime table predicts it: the
+treatment arrives at the ceiling first, the control follows, and the usable window is the gap.
+
+`deepp_q15_s1/s2/s3` are parked: identical, fifteen rounds, `KA_SCORE=passrate`, which has range
+where headroom does not. Amendment 1 forbids pooling the two boards and the homogeneity guard
+keys on `KA_SCORE`, so they are a separate board by construction.
+
+The headroom depth cells keep running. They are not wasted -- they are the demonstration that the
+metric dies before the question is answered, which is worth more as evidence than as a curve.
