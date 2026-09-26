@@ -471,6 +471,21 @@ def run(args):
     tok3, fr = (build(args.model, fg) if fg else (None, None))  # FRESH-FROZEN: producer = frozen base, fresh each round
     names = list(LK.TASKS); random.Random(1).shuffle(names)  # split seed fixed so train/held is stable across arms
     train, held = names[:args.n_train], names[args.n_train:]
+    # Same hole as lab_compounding, with no warning at all here: a slice past the end returns
+    # an empty list, so --n-train at or above the bank size leaves nothing to evaluate on. Every
+    # round then averages over zero tasks and reports 0.000, which is a complete artifact that
+    # reads as a null. Refuse rather than produce it.
+    if not held:
+        sys.stderr.write(
+            "FATAL: held set is empty (bank=%d, n_train=%d). Held-out capability cannot be "
+            "measured over zero tasks; every contrast would be exactly 0.000 while looking "
+            "like data. Lower --n-train or use a larger bank.\n" % (len(names), args.n_train))
+        raise SystemExit(3)
+    if len(held) < 5:
+        sys.stderr.write(
+            "WARNING: held set is %d task(s) (bank=%d, n_train=%d). At k=%d a round can yield "
+            "at most held*k = %d verified candidates, which bounds every per-round score.\n"
+            % (len(held), len(names), args.n_train, args.k, len(held) * args.k))
     print("WEIGHT-RSI %s seed=%d train=%d held=%d k=%d arms=%s" %
           (args.model, args.seed, len(train), len(held), args.k,
            ",".join(["self"] + (["fresh"] if fg else []) + (["round0"] if cg else []))), flush=True)

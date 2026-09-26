@@ -110,6 +110,21 @@ def run(args):
     # k=10 caps a round at 50 verified candidates, which is the ceiling I first mistook for a
     # property of the scoring metric. Record it in the artifact so the bound travels with the
     # data instead of living in a log line nobody re-reads.
+    # An EMPTY held set is not a degraded measurement, it is no measurement. Every per-round
+    # capability is then a mean over zero tasks, every contrast is exactly 0.000, and the run
+    # produces a full artifact that is indistinguishable from a real null. Two fednb cells ran
+    # five rounds that way before the banner was read: n_train=35 against the 29-task default
+    # bank gave train=25/35 and held=0/20, and both reported +0.000 at every round.
+    #
+    # The warning below was already correct and already fired. It was not enough, because a
+    # warning on stderr competes with a job log and loses. Refuse instead.
+    if not held:
+        sys.stderr.write(
+            "FATAL: held set is empty (bank=%d, transfer_family=%d, n_train=%d requested). "
+            "Held-out capability cannot be measured over zero tasks, and every contrast would "
+            "be exactly 0.000 while looking like data. Lower --n-train or use a larger bank.\n"
+            % (len(names), len(transfer), args.n_train))
+        raise SystemExit(3)
     if len(held) < args.n_held or len(train) < args.n_train:
         sys.stderr.write(
             "WARNING: bank too small for the requested split. train %d/%d, held %d/%d "

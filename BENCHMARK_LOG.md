@@ -4295,3 +4295,37 @@ measurable gain once the loop is fed, on a rule fixed in advance, and this bench
 see it before because the loop was starved and the scorer saturated.* Both halves are needed.
 The instrument findings are what make the positive result credible, and the positive result is
 what makes the instrument findings matter rather than being an excuse for a null.
+
+
+## 2026-09-25 13:43 — I reproduced the paper's own silent-truncation bug in a control built to fix a confound
+
+`fednb-q15-s1/s2` were parked to separate throughput from task-pool quality: identical to the
+`fed` cells but without `KA_KERNEL_BANK`. They ran five rounds and both reported `+0.000` at
+every round. The banner says why:
+
+    COMPOUNDING ... train=25/35  held=0/20
+
+The default bank holds 29 tasks. `--n-train 35` took 25 of them and left **zero** for the held
+set. Every per-round capability was a mean over an empty list, every contrast was exactly zero,
+and the artifacts are complete and well-formed.
+
+This is the confound the report already lists as known -- "a slice does not raise when it runs
+past the end" -- reproduced by me this morning inside a control designed to remove a different
+confound. The warning existed, was correct, and fired. It lost to a job log.
+
+**The control as specified is impossible.** A bank-free comparison at `n_train=35` cannot exist,
+because the bank-free pool is smaller than 35. Cancelled, artifacts deleted.
+
+**The control I need is already running.** `dose3` is the bank *with* `n_train=3`, and it is
+starved: `n_ex=0`. So the bank alone does not supply throughput -- `n_train` does. That isolates
+the variable at fixed task pool, which is what `fednb` was for.
+
+    prereg   no bank, n_train=3    starved, reports nothing
+    dose3    BANK,    n_train=3    starved, n_ex=0
+    fed      bank,    n_train=35   registered rule holds
+
+**Both labs now refuse an empty held set** with exit 3 rather than warning. `lab_weight_rsi` had
+the same hole and no warning at all. A warning on stderr competes with a job log and loses; a
+non-zero exit does not. `lab_weight_rsi` also warns when the held set drops below five tasks,
+which is the bound that produced the ceiling this project first mistook for a property of the
+scoring metric.
