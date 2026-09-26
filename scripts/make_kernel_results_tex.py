@@ -1029,13 +1029,16 @@ def lifetime_table():
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:lifetime}",
              (r"\caption{When each arm reaches correct-at-parity, and what happens to the contrast "
-              r"afterwards. The measurement's useful lifetime is the \emph{gap} between the two arrival "
-              r"rounds, which is a property of the design rather than of the model. Where the gap is zero "
-              r"the contrast is dead from the first round onward however much data the learner receives: "
-              r"the \texttt{fedoc} cells take 350 verified examples per round and report $-0.002$. Where "
-              r"the gap is two rounds the contrast peaks and then decays as the control catches up, while "
-              r"$n_{\mathrm{ex}}$ is still rising. Reported per cell and never pooled: the arrival rounds "
-              r"are integers on different models, and their mean would describe a cell that does not exist.}"),
+              r"afterwards. The \emph{gap} between the two arrival rounds bounds the largest contrast "
+              r"the design can ever observe, which is a property of the design rather than of the model. "
+              r"Where the arms arrive together the contrast never exceeds $0.062$ at any point in the run, "
+              r"however much data the learner receives: the \texttt{fedoc} cells take 350 verified "
+              r"examples per round and peak below that. Where they arrive two rounds apart it reaches "
+              r"$0.15$ to $0.27$. The \emph{final} column is near zero in every cell whose control has "
+              r"arrived, whatever the gap, because by the last round both arms sit at the ceiling -- so "
+              r"the gap caps how large an effect is visible, not merely when it stops being visible. "
+              r"Reported per cell and never pooled: the arrival rounds are integers on different models, "
+              r"and their mean would describe a cell that does not exist.}"),
              r"\begin{tabular}{@{}lrrrrrrr@{}}",
              r"\toprule",
              r"Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex}}$ \\",
