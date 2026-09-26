@@ -76,7 +76,11 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
         TIMEOUT*)         echo "TIMEOUT $name ($id) -- resumable, continuing" ;;
         FAILED*|CANCELLED*|NODE_FAIL*|PREEMPTED*|OUT_OF_ME*|BOOT_FAIL*|DEADLINE*)
                           echo "!! $st $name ($id)" ;;
-        PENDING)          : ;;
+        # COMPLETING is Slurm tearing a job down; it is always followed within seconds by the
+        # terminal state this case already handles, so reporting it means every finished job
+        # prints twice, the second time under the unknown-state catch-all. Silent here, and the
+        # real outcome still arrives.
+        PENDING|COMPLETING|CONFIGURING|RESIZING) : ;;
         *)                echo "?? $st $name ($id)" ;;
       esac
     done
