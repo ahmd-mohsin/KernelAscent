@@ -46,6 +46,29 @@ case "${1:-}" in
     fi ;;
 esac
 
+# The manifest and backlog are line-based TSV: one record is name<TAB>wall<TAB>gpus<TAB>command.
+# A command containing a newline cannot be represented, and nothing was checking. Parking a
+# python -c with an inline script wrote eight records, seven of them fragments of the script,
+# and `continue` would have tried to resubmit lines like "    try:" as if they were cells. The
+# job itself submitted fine, so the corruption was invisible until the store was read back.
+#
+# Refuse rather than mangle. A multi-line command belongs in a file the job invokes.
+_assert_one_line() {
+  # $'\n' rather than "$(printf '\n')": command substitution strips TRAILING newlines, so the
+  # latter evaluates to the empty string and the pattern *""* matches every command. The first
+  # version of this guard refused everything, including `echo hello`, and its positive test is
+  # what caught it -- a guard that rejects all input passes any negative test you write for it.
+  case "$1" in
+    *$'\n'*)
+      echo "refusing: the command contains a newline, and the manifest is line-based." >&2
+      echo "          Put the script in a file and invoke that file instead." >&2
+      exit 2 ;;
+    *$'\t'*)
+      echo "refusing: the command contains a tab, which is the field separator." >&2
+      exit 2 ;;
+  esac
+}
+
 _jid() { sed -n 's/.*job \([0-9][0-9]*\) queued.*/\1/p' <<<"$1" | head -1; }
 
 # The account caps concurrent submissions (MaxSubmitJobsPerAccount; observed limit 32). Work
@@ -146,6 +169,7 @@ park)
   # park <name> <walltime> <gpus> -- <command>   record without submitting
   name="${2:?name}"; wall="${3:?walltime}"; gpus="${4:?gpus}"; shift 4
   [ "${1:-}" = "--" ] && shift
+  _assert_one_line "$*"
   grep -v "^$name	" "$BACKLOG" > "$BACKLOG.tmp" 2>/dev/null || true
   printf '%s\t%s\t%s\t%s\n' "$name" "$wall" "$gpus" "$*" >> "$BACKLOG.tmp"
   mv "$BACKLOG.tmp" "$BACKLOG"
@@ -189,6 +213,7 @@ topup)
 run)
   name="${2:?name}"; wall="${3:?walltime}"; gpus="${4:?gpus}"; shift 4
   [ "${1:-}" = "--" ] && shift
+  _assert_one_line "$*"
   cmd="$*"
   out="$($MRL submit -J "$name" -N 1 -G "$gpus" -t "$wall" -- "$cmd" 2>&1)"
   jid="$(_jid "$out")"

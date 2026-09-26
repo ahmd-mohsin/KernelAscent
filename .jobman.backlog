@@ -1,0 +1,1 @@
+fedyi-s2	02:00:00	1	env KA_PROMPT=kernel KA_SCORE=compiled KA_ROOF_ARCH=h100 KA_KERNEL_BANK=/users/muahmed/ka_data/bank_dsl_kernel.json python -m kernelascent.v3.lab_weight_rsi --model 01-ai/Yi-Coder-1.5B-Chat --self-gpu 0 --ctrl-gpu 0 --fresh-gpu 0 --rounds 5 --k 10 --seed 2 --n-train 35 --outdir /users/muahmed/ka_data/fedyi_s2
