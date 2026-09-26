@@ -29,12 +29,22 @@ touch "$MAN"
 # Fail ONCE, clearly, if the ssh master is down. Without this every manifest row runs its own
 # remote query and prints the whole "authenticate once" banner, burying the actual status in
 # twenty copies of the same message.
-if ! ssh -O check marlowe >/dev/null 2>&1; then
-  echo "no live SSH master -- Marlowe needs SUNet password + Duo once:"
-  echo "    ssh -f -N marlowe"
-  echo "(a laptop sleeping drops the socket even inside ControlPersist)"
-  exit 1
-fi
+#
+# Scoped to the verbs that actually talk to the cluster. `park`, `list` and `drop` only write
+# local files, and gating them on a live tunnel meant an experiment matrix could not be prepared
+# while the tunnel was down -- which is precisely when you would want to prepare one, since the
+# work is queued the moment it comes back. Found by trying to park seven cells after the socket
+# dropped and having every one of them refused for a reason that did not apply to parking.
+case "${1:-}" in
+  park|list|drop|help|"") ;;
+  *)
+    if ! ssh -O check marlowe >/dev/null 2>&1; then
+      echo "no live SSH master -- Marlowe needs SUNet password + Duo once:"
+      echo "    ssh -f -N marlowe"
+      echo "(a laptop sleeping drops the socket even inside ControlPersist)"
+      exit 1
+    fi ;;
+esac
 
 _jid() { sed -n 's/.*job \([0-9][0-9]*\) queued.*/\1/p' <<<"$1" | head -1; }
 

@@ -28,7 +28,8 @@ import time
 # submissions "strict" because the key was simply absent and the default filled in.
 _SEMANTIC_ENV = ("KA_SCORE", "KA_PROMPT", "KA_EXTRACT", "KA_MAX_NEW", "KA_GEN_BS",
                  "KA_ROOT", "KA_DATA_DIR", "KA_GRADE_GPU",
-                 "KA_MAX_STRATEGIES", "KA_ROOF_ARCH", "CC", "CXX")
+                 "KA_MAX_STRATEGIES", "KA_ROOF_ARCH", "CC", "CXX", "KA_RSI_KL",
+)
 
 
 def _git_commit():

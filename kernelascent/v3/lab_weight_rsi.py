@@ -344,10 +344,42 @@ def eval_tasks(tok, mdl, names, k, adapter=True):
     return mean, examples, scores, ci, stats
 
 
+# REGULARIZED RSI. The unregularized objective is `maximize E[R]` on self-generated data with
+# nothing holding theta(t) near theta(0), so each round's step size is whatever the data happens
+# to produce. The mechanism probe reports that sustained LoRA drift and round-0 retention are what
+# discriminate the models that compound -- but both are OUTCOMES there, observed after the fact.
+# A trust-region term acts on exactly those two quantities, which turns them into a dial:
+#
+#     theta(t+1) = argmax  E[R] - lambda * KL( pi(theta) || pi(theta(0)) )
+#
+# With LoRA the reference policy is free: pi(theta(0)) is this same model with the adapter
+# disabled, so no second copy of the weights is loaded and no extra GPU memory is used.
+#
+# The estimator is Schulman's k3, KL ~ E[r - 1 - log r] with r = pi_ref/pi_theta on the tokens
+# actually present. It is unbiased, non-negative by construction, and needs only the per-token
+# logprob of the realized token -- so it never materializes a second [B, T, vocab] tensor, which
+# at this vocabulary would cost more memory than the model.
+#
+# lambda = 0 skips the reference forward entirely, so every run already in flight is unchanged.
+_KL_LAMBDA = float(os.environ.get("KA_RSI_KL", "0"))
+
+
+def _token_logp(logits, tgt):
+    """log pi(tgt | context), without building a [B, T, vocab] log-softmax.
+
+    gather picks the realized token's raw logit and logsumexp reduces the vocabulary axis to a
+    scalar per position, so peak memory is the logits tensor the forward already produced.
+    """
+    return logits.gather(2, tgt.unsqueeze(-1)).squeeze(-1) - torch.logsumexp(logits, dim=-1)
+
+
 def sft(tok, mdl, pairs, steps, lr=1e-5, bs=2):
     """LoRA rejection-sampling SFT on (task_src, ModelNew code) pairs; loss on completion tokens only.
     Stabilized: low lr + grad clipping + steps scaled to data size (avoid the overfit-to-NaN that made
-    generation emit inf/nan logits)."""
+    generation emit inf/nan logits).
+
+    With KA_RSI_KL > 0 the objective gains a trust region against the frozen base policy; see the
+    note above `_KL_LAMBDA`."""
     if not pairs:
         return 0.0
     mdl.train(); mdl.gradient_checkpointing_enable(); mdl.config.use_cache = False   # cut 7B activation memory
@@ -367,7 +399,7 @@ def sft(tok, mdl, pairs, steps, lr=1e-5, bs=2):
         ids = (pids + cids)[:1536]; labels = ([-100] * len(pids) + cids)[:1536]
         data.append((ids, labels))
     steps = min(steps, max(3, 3 * len(data)))              # scale to data -> no catastrophic overfit
-    losses = []
+    losses, kls = [], []
     for step in range(steps):
         random.shuffle(data)
         batch = data[:bs]
@@ -379,7 +411,26 @@ def sft(tok, mdl, pairs, steps, lr=1e-5, bs=2):
             out = mdl(input_ids=input_ids, attention_mask=att, labels=lab)
         if not torch.isfinite(out.loss):
             opt.zero_grad(); continue                      # skip a non-finite loss
-        out.loss.backward()
+        loss = out.loss
+        if _KL_LAMBDA > 0:
+            # Reference pass with the adapter switched off: same weights, same batch, no grad.
+            # Shift by one because position i predicts token i+1, and score only the completion
+            # tokens -- the prompt is identical under both policies, so including it would add a
+            # constant zero and dilute the mean.
+            tgt = input_ids[:, 1:]
+            mask = (lab[:, 1:] != -100)
+            if mask.any():
+                with torch.no_grad(), mdl.disable_adapter():
+                    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                        ref_logits = mdl(input_ids=input_ids, attention_mask=att).logits[:, :-1]
+                lp = _token_logp(out.logits[:, :-1].float(), tgt)
+                lpr = _token_logp(ref_logits.float(), tgt)
+                logr = (lpr - lp).clamp(-20, 20)           # r = pi_ref/pi_theta; clamp keeps exp finite
+                kl = ((logr.exp() - 1 - logr) * mask).sum() / mask.sum()
+                if torch.isfinite(kl):
+                    loss = loss + _KL_LAMBDA * kl
+                    kls.append(kl.item())
+        loss.backward()
         gnorm = torch.nn.utils.clip_grad_norm_([p for p in mdl.parameters() if p.requires_grad], 1.0)
         if not torch.isfinite(gnorm):                      # CRITICAL: NaN/inf GRADIENTS (loss can be finite while grads aren't)
             opt.zero_grad(); continue                      # were silently corrupting LoRA params to NaN -> garbage generation
@@ -388,6 +439,12 @@ def sft(tok, mdl, pairs, steps, lr=1e-5, bs=2):
         if p.requires_grad: p.data = p.data.to(torch.bfloat16)
     mdl.gradient_checkpointing_disable(); mdl.config.use_cache = True; mdl.eval()   # restore fast generation
     del opt; import gc; gc.collect(); torch.cuda.empty_cache()   # reclaim optimizer/activation memory (fp32 7B is tight on 40GB)
+    if kls:
+        # Stamped so a lambda sweep can be read off the artifacts: the dial's SETTING is in the
+        # manifest, and this is what the setting actually bought in divergence.
+        sft.last_kl = statistics.mean(kls)
+    else:
+        sft.last_kl = None
     return statistics.mean(losses) if losses else 0.0
 
 
@@ -396,6 +453,7 @@ def _manifest(args, train, held):
     bank = json.dumps({n: LK.TASKS[n] for n in LK.TASKS}, sort_keys=True)
     return {"model": args.model, "seed": args.seed, "rounds": args.rounds, "k": args.k,
             "n_train": args.n_train, "sft_steps": args.sft_steps, "dtype": os.environ.get("KA_DTYPE", "bf16"),
+            "kl_lambda": _KL_LAMBDA,
             "bank_path": os.environ.get("KA_KERNEL_BANK", "?"),
             "bank_sha1": hashlib.sha1(bank.encode()).hexdigest()[:12], "n_tasks": len(LK.TASKS),
             "train_tasks": train, "held_tasks": held, "lora_targets": "q/k/v/o or all-linear",
@@ -540,6 +598,8 @@ def run(args):
         cum_gpu_s += dt * max(n_gpus, 1)                              # cost (roadmap #6): GPU-seconds this run
         n_gens = args.k * len(train) * (1 + (1 if fr is not None else 0) + (1 if ctrl is not None else 0))
         row = {"round": r, "trainC": round(trainC, 3), "n_ex": len(pairs), "loss": round(loss, 3),
+               "kl_lambda": _KL_LAMBDA,
+               "kl": (round(sft.last_kl, 4) if getattr(sft, "last_kl", None) is not None else None),
                "C_self": round(Cs, 3), "C_self_ci": round(sci, 3),
                "C_ctrl": (round(Cc, 3) if Cc is not None else None), "C_ctrl_ci": (round(cci, 3) if cci is not None else None),
                "C_fresh": (round(Cf, 3) if Cf is not None else None), "C_fresh_ci": (round(fci, 3) if Cf is not None else None),
