@@ -752,11 +752,22 @@ def _assert_homogeneous(cells, label):
     seen = {}
     for c in cells:
         m = _load(os.path.join(c["outdir"], "manifest.json")) or {}
-        key = (m.get("model"), (m.get("env") or {}).get("KA_SCORE", m.get("score", "?")))
+        # Every variable that changes what a run MEANS belongs here, not just the two that
+        # happened to matter first. KA_RSI_KL is the trust-region strength: pooling lambda=0
+        # with lambda=20 would average a treatment with its own control. It is stamped in
+        # _SEMANTIC_ENV for exactly this reason, and the check should read the same set.
+        env = m.get("env") or {}
+        key = (m.get("model"),
+               env.get("KA_SCORE", m.get("score", "?")),
+               str(m.get("kl_lambda", env.get("KA_RSI_KL", "0"))),
+               m.get("n_train"))
         seen.setdefault(key, []).append(c["cell"])
     if len(seen) > 1:
-        groups = "; ".join("%s/%s: %s" % (k[0], k[1], ",".join(sorted(v))) for k, v in sorted(seen.items(), key=str))
-        return "%s: refusing to pool cells that differ in model or scorer (%s)" % (label, groups)
+        groups = "; ".join("model=%s scorer=%s lambda=%s n_train=%s: %s"
+                           % (k[0], k[1], k[2], k[3], ",".join(sorted(v)))
+                           for k, v in sorted(seen.items(), key=str))
+        return ("%s: refusing to pool cells that differ in model, scorer, KL strength or "
+                "n_train (%s)" % (label, groups))
     return None
 
 
