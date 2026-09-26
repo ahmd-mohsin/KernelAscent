@@ -96,8 +96,18 @@ sacct -u \$USER -n -X -o JobID,JobName%30,State -P -S now-1days 2>/dev/null |
     # the compute, and its arms cannot be re-derived from anything else. Resume first, let the
     # backlog have what is left.
     # auto-continue only walltime hits; a code failure re-run wastes allocation (standing rule 5)
+    #
+    # RECHECK ON THE FOLLOWING POLL TOO. sacct lags squeue by seconds: a job can be visible as
+    # COMPLETING when the diff fires, so `continue` reads "no record yet", does nothing, and the
+    # TIMEOUT line -- already in `prev` -- never triggers again. kl02-q15-s1 sat unresumed that
+    # way with a free slot available, and would have waited for some unrelated cell to time out
+    # and sweep it up. That is fine while thirty cells are cycling and useless for the last one.
     if comm -13 <(echo "$prev") <(echo "$cur") | grep -q 'TIMEOUT'; then
-      bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue|queued|HOLD)' || true
+      recheck=2
+    fi
+    if [ "${recheck:-0}" -gt 0 ]; then
+      recheck=$((recheck - 1))
+      bash "$REPO/scripts/jobman.sh" continue 2>&1 | grep -E '^(continue |queued |HOLD |ABORT)' || true
     fi
     # The account caps concurrent submissions, so finished jobs free slots that parked work
     # should claim immediately -- otherwise the queue drains and nothing replaces it overnight.
