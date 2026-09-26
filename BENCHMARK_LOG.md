@@ -4329,3 +4329,39 @@ the same hole and no warning at all. A warning on stderr competes with a job log
 non-zero exit does not. `lab_weight_rsi` also warns when the held set drops below five tasks,
 which is the bound that produced the ceiling this project first mistook for a property of the
 scoring metric.
+
+
+## 2026-09-25 14:54 — the two scorers AGREE on a fed loop, and diverge only at the ceiling
+
+`fedp_q15_s1/s2` are the `fed` cells rescored: same model, same seeds, same bank, same
+`n_train`, differing in `KA_SCORE` alone. That is the paper's own two-scorer design, run on a
+loop that is fed rather than starved.
+
+                 r0     r1     r2     r3     r4      mean
+    headroom s1  +.074  +.132  +.206  +.130  +.089   +0.126
+    passrate s1  +.020  +.058  +.187  +.182  +.209   +0.131
+    headroom s2                                      +0.050
+    passrate s2                                      +0.061
+
+**The means agree.** +0.126 against +0.131, and +0.050 against +0.061. That is the opposite of
+the report's headline, where the same comparison gave $-0.0002$ against $+0.436$.
+
+The round-by-round says why. The two track each other for three rounds, cross at round two or
+three, and diverge after: headroom falls from $+0.206$ to $+0.089$ while pass rate climbs from
+$+0.187$ to $+0.209$. The headroom treatment arm reaches $0.49$ at round four. The divergence
+begins exactly where the ceiling does.
+
+**So the claim in the paper is too strong as written.** It says best-of-$k$ cannot see what pass
+rate sees. The accurate statement is narrower and better:
+
+> Best-of-$k$ and pass rate agree until the arms approach correct-at-parity, and diverge only
+> once the ceiling binds.
+
+Better on three counts. It is mechanistic rather than a property asserted of a metric. It is
+falsifiable: the divergence must appear when arms approach 0.50 and be absent when they do not,
+and both halves are now observed. And it makes the original $-0.0002$ against $+0.436$ a special
+case of one mechanism rather than a separate phenomenon -- those cells were already saturated.
+
+The motivation section needs rewriting on this point rather than extending. As it stands a
+reader could reasonably conclude that pass rate should replace headroom generally, and these
+cells say it makes no difference until the ceiling is reached.
