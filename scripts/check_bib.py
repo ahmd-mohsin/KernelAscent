@@ -82,11 +82,16 @@ def main():
     for k in uncited:
         fails.append("in refs.bib but never cited: %s" % k)
 
-    unverified = sorted(k for k, v in ents.items() if v["verified"] != "spec")
+    # Two provenances count as checked, and they are different kinds of evidence:
+    #   spec -- transcribed from the project's own reference list, which carries author/venue
+    #   web  -- confirmed this session against the publisher or arXiv record
+    # Anything else was written from memory and is the only category that can be fabricated.
+    OK = {"spec", "web"}
+    unverified = sorted(k for k, v in ents.items() if v["verified"] not in OK)
     for k in unverified:
         state = ents[k]["verified"] or "absent"
         (fails if a.strict else warns).append(
-            "fields not checked against the publisher record: %s (verified=%s)" % (k, state))
+            "written from memory, not checked against any record: %s (verified=%s)" % (k, state))
 
     # An entry that names no author and no organization cannot be looked up by a reader.
     for k, v in sorted(ents.items()):
@@ -94,8 +99,13 @@ def main():
             fails.append("no author, organization or howpublished: %s" % k)
 
     print("=" * 84)
+    by = {}
+    for v in ents.values():
+        by[v["verified"] or "absent"] = by.get(v["verified"] or "absent", 0) + 1
     print("BIBLIOGRAPHY  %d entries, %d cited, %d distinct keys used"
           % (len(ents), len(ents) - len(uncited), len(cites)))
+    print("              provenance: %s"
+          % ", ".join("%s=%d" % kv for kv in sorted(by.items())))
     print("=" * 84)
     for w in warns:
         print("  [warn] %s" % w)

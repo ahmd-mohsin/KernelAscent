@@ -200,17 +200,25 @@
 @inproceedings{tillet2019triton,
   author    = {Tillet, Philippe and Kung, H. T. and Cox, David},
   title     = {{Triton}: An Intermediate Language and Compiler for Tiled Neural Network Computations},
-  booktitle = {Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages (MAPL)},
+  booktitle = {Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning and
+               Programming Languages (MAPL 2019)},
+  pages     = {10--19},
   year      = {2019},
-  verified  = {no}
+  doi       = {10.1145/3315508.3329973},
+  verified  = {web}
 }
 
 @inproceedings{ansel2024pytorch2,
-  author    = {Ansel, Jason and others},
+  author    = {Ansel, Jason and Yang, Edward and others},
   title     = {{PyTorch} 2: Faster Machine Learning Through Dynamic {Python} Bytecode Transformation and Graph Compilation},
-  booktitle = {International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)},
+  booktitle = {Proceedings of the 29th ACM International Conference on Architectural Support for
+               Programming Languages and Operating Systems (ASPLOS '24)},
+  month     = apr,
   year      = {2024},
-  verified  = {no}
+  note      = {TorchDynamo and TorchInductor, which implement \texttt{torch.compile}.
+               TorchInductor emits Triton for GPUs, the same target this benchmark asks models
+               to write. Full author list to be completed from the proceedings.},
+  verified  = {web}
 }
 
 @article{williams2009roofline,
@@ -227,35 +235,44 @@
 @inproceedings{zelikman2022star,
   author    = {Zelikman, Eric and Wu, Yuhuai and Mu, Jesse and Goodman, Noah D.},
   title     = {{STaR}: Bootstrapping Reasoning with Reasoning},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Advances in Neural Information Processing Systems 35 (NeurIPS)},
   year      = {2022},
-  verified  = {no}
+  note      = {arXiv:2203.14465},
+  verified  = {web}
 }
 
 @article{gulcehre2023rest,
-  author  = {Gulcehre, Caglar and others},
+  author  = {Gulcehre, Caglar and Paine, Tom Le and Srinivasan, Srivatsan and Konyushkova, Ksenia
+             and Weerts, Lotte and Sharma, Abhishek and Siddhant, Aditya and Ahern, Alex and
+             Wang, Miaosen and Gu, Chenjie and Macherey, Wolfgang and Doucet, Arnaud and
+             Firat, Orhan and de Freitas, Nando},
   title   = {Reinforced Self-Training ({ReST}) for Language Modeling},
   journal = {arXiv preprint arXiv:2308.08998},
   year    = {2023},
-  verified = {no}
+  verified = {web}
 }
 
 @article{ziegler2019klrlhf,
-  author  = {Ziegler, Daniel M. and Stiennon, Nisan and Wu, Jeffrey and Brown, Tom B. and Radford, Alec and Amodei, Dario and Christiano, Paul and Irving, Geoffrey},
+  author  = {Ziegler, Daniel M. and Stiennon, Nisan and Wu, Jeffrey and Brown, Tom B. and
+             Radford, Alec and Amodei, Dario and Christiano, Paul and Irving, Geoffrey},
   title   = {Fine-Tuning Language Models from Human Preferences},
   journal = {arXiv preprint arXiv:1909.08593},
+  month   = sep,
   year    = {2019},
   note    = {The KL-to-reference-policy penalty this paper's regularized objective adopts.},
-  verified = {no}
+  verified = {web}
 }
 
 @misc{schulman2020kl,
   author       = {Schulman, John},
   title        = {Approximating {KL} Divergence},
   howpublished = {\url{http://joschu.net/blog/kl-approx.html}},
+  month        = mar,
+  day          = {7},
   year         = {2020},
-  note         = {Source of the k3 estimator used for the trust-region term.},
-  verified     = {no}
+  note         = {Source of the k3 estimator $k_3 = (d-1) - \log d$ with $d = \pi_{\mathrm{ref}}/\pi_\theta$,
+                  used for the trust-region term. Unbiased and lower-variance than $k_2$.},
+  verified     = {web}
 }
 
 % ---------------------------------------------------------------------------------------

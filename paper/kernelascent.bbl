@@ -1,11 +1,16 @@
 \begin{thebibliography}{10}
 
 \bibitem{ansel2024pytorch2}
-Jason Ansel et~al.
+Jason Ansel, Edward Yang, et~al.
 \newblock {PyTorch} 2: Faster machine learning through dynamic {Python}
   bytecode transformation and graph compilation.
-\newblock In {\em International Conference on Architectural Support for
-  Programming Languages and Operating Systems (ASPLOS)}, 2024.
+\newblock In {\em Proceedings of the 29th ACM International Conference on
+  Architectural Support for Programming Languages and Operating Systems (ASPLOS
+  '24)}, April 2024.
+\newblock TorchDynamo and TorchInductor, which implement
+  \texttt{torch.compile}. TorchInductor emits Triton for GPUs, the same target
+  this benchmark asks models to write. Full author list to be completed from
+  the proceedings.
 
 \bibitem{dockersecurity}
 Docker engine security.
@@ -31,7 +36,9 @@ Docker engine security.
   May 2025.
 
 \bibitem{gulcehre2023rest}
-Caglar Gulcehre et~al.
+Caglar Gulcehre, Tom~Le Paine, Srivatsan Srinivasan, Ksenia Konyushkova, Lotte
+  Weerts, Abhishek Sharma, Aditya Siddhant, Alex Ahern, Miaosen Wang, Chenjie
+  Gu, Wolfgang Macherey, Arnaud Doucet, Orhan Firat, and Nando de~Freitas.
 \newblock Reinforced self-training ({ReST}) for language modeling.
 \newblock {\em arXiv preprint arXiv:2308.08998}, 2023.
 
@@ -107,8 +114,10 @@ Donald~J. Schuirmann.
 \bibitem{schulman2020kl}
 John Schulman.
 \newblock Approximating {KL} divergence.
-\newblock \url{http://joschu.net/blog/kl-approx.html}, 2020.
-\newblock Source of the k3 estimator used for the trust-region term.
+\newblock \url{http://joschu.net/blog/kl-approx.html}, March 2020.
+\newblock Source of the k3 estimator $k_3 = (d-1) - \log d$ with $d =
+  \pi_{\mathrm{ref}}/\pi_\theta$, used for the trust-region term. Unbiased and
+  lower-variance than $k_2$.
 
 \bibitem{stop}
 Self-taught optimizer ({STOP}): Recursively self-improving code generation.
@@ -121,7 +130,7 @@ Philippe Tillet, H.~T. Kung, and David Cox.
 \newblock {Triton}: An intermediate language and compiler for tiled neural
   network computations.
 \newblock In {\em Proceedings of the 3rd ACM SIGPLAN International Workshop on
-  Machine Learning and Programming Languages (MAPL)}, 2019.
+  Machine Learning and Programming Languages (MAPL 2019)}, pages 10--19, 2019.
 
 \bibitem{vllmbench}
 {vLLM} serving benchmark documentation.
@@ -148,8 +157,9 @@ Edwin~B. Wilson.
 \bibitem{zelikman2022star}
 Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah~D. Goodman.
 \newblock {STaR}: Bootstrapping reasoning with reasoning.
-\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
-  2022.
+\newblock In {\em Advances in Neural Information Processing Systems 35
+  (NeurIPS)}, 2022.
+\newblock arXiv:2203.14465.
 
 \bibitem{hyperagents}
 Zhang et~al.
@@ -163,7 +173,7 @@ Zhang et~al.
 Daniel~M. Ziegler, Nisan Stiennon, Jeffrey Wu, Tom~B. Brown, Alec Radford,
   Dario Amodei, Paul Christiano, and Geoffrey Irving.
 \newblock Fine-tuning language models from human preferences.
-\newblock {\em arXiv preprint arXiv:1909.08593}, 2019.
+\newblock {\em arXiv preprint arXiv:1909.08593}, September 2019.
 \newblock The KL-to-reference-policy penalty this paper's regularized objective
   adopts.
 
