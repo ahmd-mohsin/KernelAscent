@@ -4443,3 +4443,31 @@ built to separate producer quality from data freshness, and that is exactly why 
 the right control here: it holds the data fixed while the policy evolves.
 
 `deepp` is now a confirmation rather than a load-bearing test.
+
+
+## 2026-09-25 16:16 — first dose rung completes, and the throughput formula needs its yield term scoped
+
+`dose3_q15_s1` reached 5/5. It is the registered configuration's task count with the fed bank.
+
+    n_ex   [0, 0, 1, 0, 0]              mean 0.20   (Amendment 6 floor is 2)
+    loss   [0.0, 0.0, 0.142, 0.0, 0.0]  training happened ONCE in five rounds
+    delta  +0.025 +0.025 -0.014 +0.012 +0.012
+    arms   0.08/0.06 -> 0.07/0.05       neither arm moves
+
+One example, one gradient update, five rounds. Against `fed`'s 20 to 59 examples per round that
+is a factor of a hundred, and it is the dose-response's bottom rung.
+
+**A caveat on the formula that the paper must carry.** The precondition predicted
+$3 \times 10 \times 0.032 = 0.96$ per round; the observed figure is $0.20$. The verdict is right
+-- this loop is starved -- and the point estimate is off by about fivefold, because the yield
+term $0.032$ was measured on the 29-task hand-curated bank while these cells run the generated
+DSL bank, where the realised yield is $1/150 \approx 0.0067$.
+
+So the formula robustly predicts **whether** a loop starves and its numeric estimate carries a
+bank-specific parameter. That is a weaker claim than the one currently implied by quoting $0.96$
+as though it were a constant, and it is still a useful instrument: the 7B prediction earlier
+today landed at 1.05 against an observed 1.4 on the same bank the yield was measured for.
+
+The honest formulation is that yield must be measured on the bank in use, which costs one
+calibration pass and is already computed for reachability. Quoting a yield from one bank against
+another is the same category of error as quoting a contrast across scorers.
