@@ -1,0 +1,170 @@
+\begin{thebibliography}{10}
+
+\bibitem{ansel2024pytorch2}
+Jason Ansel et~al.
+\newblock {PyTorch} 2: Faster machine learning through dynamic {Python}
+  bytecode transformation and graph compilation.
+\newblock In {\em International Conference on Architectural Support for
+  Programming Languages and Operating Systems (ASPLOS)}, 2024.
+
+\bibitem{dockersecurity}
+Docker engine security.
+\newblock \url{https://docs.docker.com/engine/security/}, 2025.
+
+\bibitem{flashinferbench}
+{FlashInfer-Bench}.
+\newblock \url{https://flashinfer.ai/2025/10/21/flashinfer-bench.html}, October
+  2025.
+\newblock Real inference workloads and integration of generated kernels into
+  inference engines.
+
+\bibitem{flashinfertrace}
+{FlashInfer} trace schema.
+\newblock \url{https://bench.flashinfer.ai/docs/flashinfer-trace}, 2025.
+\newblock Workload, definition, solution and trace records.
+
+\bibitem{alphaevolve}
+{AlphaEvolve}: A {Gemini}-powered coding agent for designing advanced
+  algorithms.
+\newblock
+  \url{https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/},
+  May 2025.
+
+\bibitem{gulcehre2023rest}
+Caglar Gulcehre et~al.
+\newblock Reinforced self-training ({ReST}) for language modeling.
+\newblock {\em arXiv preprint arXiv:2308.08998}, 2023.
+
+\bibitem{hu2022lora}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2022.
+
+\bibitem{kass1995bayesfactors}
+Robert~E. Kass and Adrian~E. Raftery.
+\newblock Bayes factors.
+\newblock {\em Journal of the American Statistical Association},
+  90(430):773--795, 1995.
+\newblock The interpretation thresholds this paper applies to BF01.
+
+\bibitem{kernelbenchverified}
+{KernelBench-Verified}.
+\newblock \url{https://github.com/facebookresearch/kernel_bench_verified},
+  2025.
+\newblock Stronger input-distribution checks and precision settings over the
+  original kernel evaluation. Its finite hidden tests are not a proof of
+  general correctness.
+
+\bibitem{metan}
+Kim et~al.
+\newblock Recursive self-improvement through emergent depth.
+\newblock {\em arXiv preprint arXiv:2608.24735}, August 2026.
+\newblock Cited for positioning; its empirical claims are not independently
+  verified here.
+
+\bibitem{metrrewardhacking}
+Recent frontier models are reward hacking.
+\newblock \url{https://metr.org/blog/2025-06-05-recent-reward-hacking/}, June
+  2025.
+\newblock Evaluation manipulation motivating independent grading.
+
+\bibitem{mlperfinference}
+{MLPerf} inference: Datacenter.
+\newblock \url{https://mlcommons.org/benchmarks/inference-datacenter/}, 2025.
+
+\bibitem{computesanitizer}
+{NVIDIA} compute sanitizer.
+\newblock
+  \url{https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html},
+  2025.
+
+\bibitem{solexecbench}
+{SOL-ExecBench}.
+\newblock \url{https://github.com/NVIDIA/SOL-ExecBench}, 2025.
+\newblock Hardware-limit-aware kernel benchmarking.
+
+\bibitem{ouyang2025kernelbench}
+Anne Ouyang et~al.
+\newblock {KernelBench}: Can {LLMs} write efficient {GPU} kernels?
+\newblock In {\em International Conference on Machine Learning (ICML)}, 2025.
+\newblock Author list beyond the first author is not recorded in the project
+  spec and must be completed from the proceedings before submission.
+
+\bibitem{dgm}
+Darwin {G\"o}del machine: {AI} that improves itself by rewriting its own code.
+\newblock \url{https://sakana.ai/dgm/}, May 2025.
+\newblock Self-modification and archive-based search.
+
+\bibitem{schuirmann1987tost}
+Donald~J. Schuirmann.
+\newblock A comparison of the two one-sided tests procedure and the power
+  approach for assessing the equivalence of average bioavailability.
+\newblock {\em Journal of Pharmacokinetics and Biopharmaceutics},
+  15(6):657--680, 1987.
+
+\bibitem{schulman2020kl}
+John Schulman.
+\newblock Approximating {KL} divergence.
+\newblock \url{http://joschu.net/blog/kl-approx.html}, 2020.
+\newblock Source of the k3 estimator used for the trust-region term.
+
+\bibitem{stop}
+Self-taught optimizer ({STOP}): Recursively self-improving code generation.
+\newblock
+  \url{https://www.microsoft.com/en-us/research/publication/self-taught-optimizer-stop-recursively-self-improving-code-generation/},
+  2024.
+
+\bibitem{tillet2019triton}
+Philippe Tillet, H.~T. Kung, and David Cox.
+\newblock {Triton}: An intermediate language and compiler for tiled neural
+  network computations.
+\newblock In {\em Proceedings of the 3rd ACM SIGPLAN International Workshop on
+  Machine Learning and Programming Languages (MAPL)}, 2019.
+
+\bibitem{vllmbench}
+{vLLM} serving benchmark documentation.
+\newblock \url{https://docs.vllm.ai/en/stable/cli/bench/serve/}, 2025.
+\newblock A pinned release should be cited rather than the moving stable URL.
+
+\bibitem{voyager}
+Voyager: An open-ended embodied agent with large language models.
+\newblock \url{https://voyager.minedojo.org/}, 2023.
+\newblock Executable skill-library accumulation and transfer.
+
+\bibitem{williams2009roofline}
+Samuel Williams, Andrew Waterman, and David Patterson.
+\newblock Roofline: An insightful visual performance model for multicore
+  architectures.
+\newblock {\em Communications of the ACM}, 52(4):65--76, 2009.
+
+\bibitem{wilson1927interval}
+Edwin~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock {\em Journal of the American Statistical Association},
+  22(158):209--212, 1927.
+
+\bibitem{zelikman2022star}
+Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah~D. Goodman.
+\newblock {STaR}: Bootstrapping reasoning with reasoning.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  2022.
+
+\bibitem{hyperagents}
+Zhang et~al.
+\newblock {HyperAgents}.
+\newblock {\em arXiv preprint arXiv:2603.19461}, 2026.
+\newblock Defines improvement@k and a transfer experiment. Author list beyond
+  the first author is not recorded in the project spec and must be completed
+  before submission.
+
+\bibitem{ziegler2019klrlhf}
+Daniel~M. Ziegler, Nisan Stiennon, Jeffrey Wu, Tom~B. Brown, Alec Radford,
+  Dario Amodei, Paul Christiano, and Geoffrey Irving.
+\newblock Fine-tuning language models from human preferences.
+\newblock {\em arXiv preprint arXiv:1909.08593}, 2019.
+\newblock The KL-to-reference-policy penalty this paper's regularized objective
+  adopts.
+
+\end{thebibliography}

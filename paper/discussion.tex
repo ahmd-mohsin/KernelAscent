@@ -16,7 +16,7 @@ shared parameterisation, preserve other skills, and have the gain survive later 
 null (inheriting updates does not beat restarting) is direct evidence \emph{against a useful cumulative learning
 state}, not merely evidence that individual updates are small. This is the classic self-training signature:
 selected-sample training concentrates probability on \emph{already-reachable} successes faster than it expands
-what is reachable (cf.\ STaR, ReST, ReST$^{EM}$, expert iteration; and the RLVR capability-boundary debate,
+what is reachable (cf.\ STaR~\cite{zelikman2022star}, ReST, ReST$^{EM}$, expert iteration; and the RLVR capability-boundary debate,
 Yue et al.\ 2025).
 
 \paragraph{A formal fixed point --- with its limits stated precisely.}
@@ -77,7 +77,7 @@ entropy cannot fix formation; off-policy replay of redundant winners adds no fro
 invariant, that the weights sit at a genuine local optimum, or that RL/RLVR cannot expand capability. We claim,
 with \emph{moderate} evidence for the null and a significant positive respectively: under verified
 rejection-sampling SFT at the tested scales/budget, carrying the lineage forward does not beat a matched reset
-(trajectory-level TOST equivalence at $\delta{=}0.05$, $\mathrm{BF}_{01}{=}5.6$ over 57 independent
+(trajectory-level TOST~\cite{schuirmann1987tost} equivalence at $\delta{=}0.05$, $\mathrm{BF}_{01}{=}5.6$ over 57 independent
 trajectories); verified search is a better use of the same compute (CI excludes zero); and the binding internal signals are coverage/formation (small), a mid-scale learnable
 frontier, and drift-without-gain plus diversity contraction (large). The synthesis: \emph{expert iteration
 without sufficient expert amplification, plus incomplete retention of the apprentice's useful tail.}

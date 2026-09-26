@@ -1,0 +1,298 @@
+% KernelAscent references.
+%
+% Two rules for this file.
+%
+% 1. Nothing here is invented. Entries marked `verified = {spec}` are transcribed from the
+%    reference list in KernelAscent_RSI_v2_Redesign_Specification.md, which carries the author,
+%    venue and date as recorded there. Entries marked `verified = {no}` are standard works cited
+%    from knowledge and their fields have NOT been checked against the publisher record; they are
+%    listed by scripts/check_bib.py and must be confirmed before submission. A fabricated
+%    citation is the one error in this paper that no gate would catch and that no reviewer would
+%    forgive.
+%
+% 2. An entry that is never cited is removed rather than left to pad the list.
+
+% ---------------------------------------------------------------------------------------
+% The kernel-generation substrate and the benchmarks this one is positioned against
+% ---------------------------------------------------------------------------------------
+
+@inproceedings{ouyang2025kernelbench,
+  author    = {Ouyang, Anne and others},
+  title     = {{KernelBench}: Can {LLMs} Write Efficient {GPU} Kernels?},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2025},
+  url       = {https://proceedings.mlr.press/v267/ouyang25a.html},
+  note      = {Author list beyond the first author is not recorded in the project spec and must
+               be completed from the proceedings before submission.},
+  verified  = {spec}
+}
+
+@misc{kernelbenchverified,
+  key          = {KernelBench-Verified},
+  title        = {{KernelBench-Verified}},
+  howpublished = {\url{https://github.com/facebookresearch/kernel_bench_verified}},
+  year         = {2025},
+  note         = {Stronger input-distribution checks and precision settings over the original
+                  kernel evaluation. Its finite hidden tests are not a proof of general
+                  correctness.},
+  verified     = {spec}
+}
+
+@misc{solexecbench,
+  key          = {NVIDIA SOL-ExecBench},
+  title        = {{SOL-ExecBench}},
+  howpublished = {\url{https://github.com/NVIDIA/SOL-ExecBench}},
+  organization = {NVIDIA},
+  year         = {2025},
+  note         = {Hardware-limit-aware kernel benchmarking.},
+  verified     = {spec}
+}
+
+@misc{flashinferbench,
+  key          = {FlashInfer-Bench},
+  title        = {{FlashInfer-Bench}},
+  howpublished = {\url{https://flashinfer.ai/2025/10/21/flashinfer-bench.html}},
+  month        = oct,
+  year         = {2025},
+  note         = {Real inference workloads and integration of generated kernels into inference
+                  engines.},
+  verified     = {spec}
+}
+
+@misc{flashinfertrace,
+  key          = {FlashInfer Trace},
+  title        = {{FlashInfer} Trace schema},
+  howpublished = {\url{https://bench.flashinfer.ai/docs/flashinfer-trace}},
+  year         = {2025},
+  note         = {Workload, definition, solution and trace records.},
+  verified     = {spec}
+}
+
+@misc{mlperfinference,
+  key          = {MLCommons},
+  title        = {{MLPerf} Inference: Datacenter},
+  organization = {MLCommons},
+  howpublished = {\url{https://mlcommons.org/benchmarks/inference-datacenter/}},
+  year         = {2025},
+  verified     = {spec}
+}
+
+@misc{vllmbench,
+  key          = {vLLM},
+  title        = {{vLLM} serving benchmark documentation},
+  howpublished = {\url{https://docs.vllm.ai/en/stable/cli/bench/serve/}},
+  year         = {2025},
+  note         = {A pinned release should be cited rather than the moving stable URL.},
+  verified     = {spec}
+}
+
+% ---------------------------------------------------------------------------------------
+% Self-improvement, self-modification and open-ended search
+% ---------------------------------------------------------------------------------------
+
+@misc{voyager,
+  key          = {Voyager},
+  title        = {Voyager: An Open-Ended Embodied Agent with Large Language Models},
+  howpublished = {\url{https://voyager.minedojo.org/}},
+  year         = {2023},
+  note         = {Executable skill-library accumulation and transfer.},
+  verified     = {spec}
+}
+
+@misc{stop,
+  key          = {STOP},
+  title        = {Self-Taught Optimizer ({STOP}): Recursively Self-Improving Code Generation},
+  organization = {Microsoft Research},
+  howpublished = {\url{https://www.microsoft.com/en-us/research/publication/self-taught-optimizer-stop-recursively-self-improving-code-generation/}},
+  year         = {2024},
+  verified     = {spec}
+}
+
+@misc{dgm,
+  key          = {Sakana AI},
+  title        = {Darwin {G\"o}del Machine: {AI} that improves itself by rewriting its own code},
+  organization = {Sakana AI},
+  howpublished = {\url{https://sakana.ai/dgm/}},
+  month        = may,
+  day          = {30},
+  year         = {2025},
+  note         = {Self-modification and archive-based search.},
+  verified     = {spec}
+}
+
+@article{hyperagents,
+  author  = {Zhang and others},
+  title   = {{HyperAgents}},
+  journal = {arXiv preprint arXiv:2603.19461},
+  year    = {2026},
+  url     = {https://arxiv.org/html/2603.19461v1},
+  note    = {Defines improvement@k and a transfer experiment. Author list beyond the first
+             author is not recorded in the project spec and must be completed before submission.},
+  verified = {spec}
+}
+
+@article{metan,
+  author  = {Kim and others},
+  title   = {Recursive Self-Improvement through Emergent Depth},
+  journal = {arXiv preprint arXiv:2608.24735},
+  month   = aug,
+  year    = {2026},
+  url     = {https://arxiv.org/abs/2608.24735},
+  note    = {Cited for positioning; its empirical claims are not independently verified here.},
+  verified = {spec}
+}
+
+@misc{alphaevolve,
+  key          = {Google DeepMind},
+  title        = {{AlphaEvolve}: A {Gemini}-powered coding agent for designing advanced algorithms},
+  organization = {Google DeepMind},
+  howpublished = {\url{https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/}},
+  month        = may,
+  year         = {2025},
+  verified     = {spec}
+}
+
+% ---------------------------------------------------------------------------------------
+% Evaluation integrity
+% ---------------------------------------------------------------------------------------
+
+@misc{metrrewardhacking,
+  key          = {METR},
+  title        = {Recent Frontier Models Are Reward Hacking},
+  organization = {METR},
+  howpublished = {\url{https://metr.org/blog/2025-06-05-recent-reward-hacking/}},
+  month        = jun,
+  day          = {5},
+  year         = {2025},
+  note         = {Evaluation manipulation motivating independent grading.},
+  verified     = {spec}
+}
+
+@misc{computesanitizer,
+  key          = {NVIDIA Compute Sanitizer},
+  title        = {{NVIDIA} Compute Sanitizer},
+  organization = {NVIDIA},
+  howpublished = {\url{https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html}},
+  year         = {2025},
+  verified     = {spec}
+}
+
+@misc{dockersecurity,
+  key          = {Docker},
+  title        = {Docker Engine security},
+  howpublished = {\url{https://docs.docker.com/engine/security/}},
+  year         = {2025},
+  verified     = {spec}
+}
+
+% ---------------------------------------------------------------------------------------
+% Methods the paper uses directly. NOT yet checked against the publisher record.
+% ---------------------------------------------------------------------------------------
+
+@inproceedings{hu2022lora,
+  author    = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
+  title     = {{LoRA}: Low-Rank Adaptation of Large Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2022},
+  verified  = {no}
+}
+
+@inproceedings{tillet2019triton,
+  author    = {Tillet, Philippe and Kung, H. T. and Cox, David},
+  title     = {{Triton}: An Intermediate Language and Compiler for Tiled Neural Network Computations},
+  booktitle = {Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages (MAPL)},
+  year      = {2019},
+  verified  = {no}
+}
+
+@inproceedings{ansel2024pytorch2,
+  author    = {Ansel, Jason and others},
+  title     = {{PyTorch} 2: Faster Machine Learning Through Dynamic {Python} Bytecode Transformation and Graph Compilation},
+  booktitle = {International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)},
+  year      = {2024},
+  verified  = {no}
+}
+
+@article{williams2009roofline,
+  author  = {Williams, Samuel and Waterman, Andrew and Patterson, David},
+  title   = {Roofline: An Insightful Visual Performance Model for Multicore Architectures},
+  journal = {Communications of the ACM},
+  volume  = {52},
+  number  = {4},
+  pages   = {65--76},
+  year    = {2009},
+  verified = {no}
+}
+
+@inproceedings{zelikman2022star,
+  author    = {Zelikman, Eric and Wu, Yuhuai and Mu, Jesse and Goodman, Noah D.},
+  title     = {{STaR}: Bootstrapping Reasoning with Reasoning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  verified  = {no}
+}
+
+@article{gulcehre2023rest,
+  author  = {Gulcehre, Caglar and others},
+  title   = {Reinforced Self-Training ({ReST}) for Language Modeling},
+  journal = {arXiv preprint arXiv:2308.08998},
+  year    = {2023},
+  verified = {no}
+}
+
+@article{ziegler2019klrlhf,
+  author  = {Ziegler, Daniel M. and Stiennon, Nisan and Wu, Jeffrey and Brown, Tom B. and Radford, Alec and Amodei, Dario and Christiano, Paul and Irving, Geoffrey},
+  title   = {Fine-Tuning Language Models from Human Preferences},
+  journal = {arXiv preprint arXiv:1909.08593},
+  year    = {2019},
+  note    = {The KL-to-reference-policy penalty this paper's regularized objective adopts.},
+  verified = {no}
+}
+
+@misc{schulman2020kl,
+  author       = {Schulman, John},
+  title        = {Approximating {KL} Divergence},
+  howpublished = {\url{http://joschu.net/blog/kl-approx.html}},
+  year         = {2020},
+  note         = {Source of the k3 estimator used for the trust-region term.},
+  verified     = {no}
+}
+
+% ---------------------------------------------------------------------------------------
+% Statistics. These carry the central claims and are not background citations.
+% ---------------------------------------------------------------------------------------
+
+@article{schuirmann1987tost,
+  author  = {Schuirmann, Donald J.},
+  title   = {A Comparison of the Two One-Sided Tests Procedure and the Power Approach for
+             Assessing the Equivalence of Average Bioavailability},
+  journal = {Journal of Pharmacokinetics and Biopharmaceutics},
+  volume  = {15},
+  number  = {6},
+  pages   = {657--680},
+  year    = {1987},
+  verified = {no}
+}
+
+@article{wilson1927interval,
+  author  = {Wilson, Edwin B.},
+  title   = {Probable Inference, the Law of Succession, and Statistical Inference},
+  journal = {Journal of the American Statistical Association},
+  volume  = {22},
+  number  = {158},
+  pages   = {209--212},
+  year    = {1927},
+  verified = {no}
+}
+
+@article{kass1995bayesfactors,
+  author  = {Kass, Robert E. and Raftery, Adrian E.},
+  title   = {Bayes Factors},
+  journal = {Journal of the American Statistical Association},
+  volume  = {90},
+  number  = {430},
+  pages   = {773--795},
+  year    = {1995},
+  note    = {The interpretation thresholds this paper applies to BF01.},
+  verified = {no}
+}

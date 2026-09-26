@@ -1,5 +1,18 @@
 # Citations — what the paper needs, and what the repo already has
 
+**RESOLVED 2026-09-26.** `paper/refs.bib` holds 27 entries, all cited; `paper/06_related.tex`
+carries the related-work section the paper previously promised and omitted; the root runs
+`\bibliography{refs}` and `make paper` runs bibtex. `scripts/check_bib.py` runs in `make audit`
+and fails on a citation with no entry, an entry with no citation, or an entry naming no author,
+organization or howpublished.
+
+**One thing remains open and is tracked by that script.** 11 entries carry `verified = {no}`:
+they are standard works written from knowledge and their fields have *not* been checked against
+the publisher record. `check_bib.py --strict` turns that into a failure. Do this before
+submission --- a fabricated citation is the one error here no other gate would catch.
+
+The original note follows.
+
 State as of 2026-09-24. `paper/` contains **zero `\cite` commands**, **no `.bib` file**, and no
 `\bibliography` or `\addbibresource`. This is the last hard blocker on submission and the one
 item on the must-add list with no data behind it.

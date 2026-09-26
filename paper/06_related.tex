@@ -1,0 +1,79 @@
+\section{Related work}
+\label{sec:related}
+
+\subsection{Kernel generation as an evaluation substrate}
+
+KernelBench~\cite{ouyang2025kernelbench} established the substrate this benchmark builds on:
+a model is given a PyTorch module and asked for a faster implementation, and the submission is
+graded by execution rather than by resemblance to a reference. KernelAscent inherits that task
+and changes the question. KernelBench asks whether a model \emph{can} write an efficient kernel;
+we ask whether that ability \emph{compounds} when the model trains on its own verified output.
+The distinction matters for design rather than framing: a one-shot benchmark is free to use
+tasks a strong model solves at parity, whereas a compounding benchmark is not, because a task
+the control arm already solves contributes nothing to a contrast between arms
+(Section~\ref{sec:instrument}).
+
+Subsequent work has strengthened the grading contract along axes we depend on and do not
+contribute to. KernelBench-Verified~\cite{kernelbenchverified} adds stronger input-distribution
+checks and realistic precision settings; its authors are explicit that finite hidden tests are
+not a proof of general correctness, and the same caveat applies to our grader.
+SOL-ExecBench~\cite{solexecbench} evaluates against modelled hardware limits, which is the same
+motivation as our per-task roofline ceiling~\cite{williams2009roofline}, though we use the
+ceiling to normalise a score across heterogeneous tasks rather than to certify optimality.
+FlashInfer-Bench~\cite{flashinferbench} and its trace schema~\cite{flashinfertrace} move in the
+opposite direction from us, toward real inference workloads and runtime substitution of
+generated kernels; that is the deployment question, and a benchmark that cannot yet show its own
+measurement has range is not in a position to ask it.
+
+At the system level, MLPerf Inference~\cite{mlperfinference} and vLLM's serving
+benchmarks~\cite{vllmbench} measure end-to-end throughput and latency under declared quality
+constraints. Our unit is different: we measure the change a self-improving agent produces in its
+own kernel-writing ability, not the performance of a serving stack, and we make no claim of
+MLPerf compliance.
+
+\subsection{Self-improvement and self-modification}
+
+The recursive self-improvement line this benchmark is aimed at spans several distinct mechanisms,
+and the five rungs of Section~\ref{sec:benchmark} are an attempt to separate them rather than to
+rank them. Voyager~\cite{voyager} accumulates an executable skill library, which is improvement
+carried in \emph{stored artifacts} and is closest to our T3 procedure rung.
+STOP~\cite{stop} recursively optimises the scaffolding around a code generator, and the Darwin
+G\"odel Machine~\cite{dgm} maintains an archive of self-modifying variants; both improve the
+\emph{procedure} while leaving weights fixed. HyperAgents~\cite{hyperagents} defines
+improvement@k and a transfer experiment, which is the prior evaluation closest in spirit to the
+contrasts reported here. Meta$^n$~\cite{metan} formulates recursion at the meta-agent level; we
+cite it for positioning and do not independently verify its empirical claims.
+AlphaEvolve~\cite{alphaevolve} is the existence proof that automated optimisation can reach
+deployed computing systems, which is what makes the domain worth measuring carefully.
+
+Our weight rung uses verified rejection-sampling fine-tuning, the method introduced by
+STaR~\cite{zelikman2022star} and scaled by ReST~\cite{gulcehre2023rest}: sample, keep what
+verifies, train on it, repeat. The contribution here is not the method but the controls around
+it. A rising curve under this procedure is consistent with a better producer, with more data,
+and with more sampling, and our three-arm decomposition exists to separate those.
+
+The regularized objective in Section~\ref{sec:motivation:fed} adopts the KL-to-reference-policy
+penalty standard in RLHF~\cite{ziegler2019klrlhf}, using the low-variance k3
+estimator~\cite{schulman2020kl}. The novelty is the use rather than the term: our mechanism
+analysis finds that sustained adapter drift and round-0 retention discriminate the runs that
+improve, but finds it \emph{post hoc}, as properties of runs that already happened. A trust
+region makes both of them settings.
+
+\subsection{Why the instrument work is the contribution}
+
+Two lines of work motivate the emphasis of this report. METR~\cite{metrrewardhacking} documents
+frontier models manipulating tests and scoring mechanisms in automated research settings, which
+is the case for grading a submission independently of the agent that produced it. We report a
+failure that is adjacent but distinct, and in our view more common: nobody gamed anything here,
+and the measurement still failed, because a scoring rule that cannot resolve the quantity under
+study returns a confident null rather than an error. The infrastructure literature on
+verification and isolation --- compute sanitizers~\cite{computesanitizer}, container
+security~\cite{dockersecurity} --- addresses whether a harness can be trusted to run untrusted
+code. Our finding is that a harness can be entirely trustworthy in that sense, execute every
+candidate correctly, and still be incapable of measuring what the benchmark was built to
+measure.
+
+To our knowledge no prior self-improvement benchmark reports a dynamic-range precondition, a
+throughput precondition, or a ledger of its own withdrawn results. We think all three should be
+standard, and Section~\ref{sec:instrument} argues the case from our own failures rather than
+from principle.

@@ -18,6 +18,7 @@ audit:
 	python3 scripts/check_resume.py --strict
 	python3 tests/test_probe_imports.py
 	python3 scripts/scan_contamination.py
+	python3 scripts/check_bib.py
 
 figures: stats
 	python3 scripts/make_paper_figures.py
@@ -37,8 +38,10 @@ figures: stats
 paper:
 	python3 scripts/make_kernel_results_tex.py
 	cd paper && pdflatex -interaction=nonstopmode kernelascent.tex >/dev/null
+	cd paper && bibtex kernelascent >/dev/null || true
+	cd paper && pdflatex -interaction=nonstopmode kernelascent.tex >/dev/null
 	cd paper && pdflatex -interaction=nonstopmode kernelascent.tex | \
-	  grep -E "Output written|^!|Reference .* undefined" || true
+	  grep -E "Output written|^!|Reference .* undefined|Citation .* undefined" || true
 
 # The website's headline numbers, re-derived from the same artifacts through the same module
 # the paper's tables use. docs/index.html reads the result at page load and types none of it.

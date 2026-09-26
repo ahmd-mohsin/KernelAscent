@@ -27,7 +27,7 @@ Raw generations graded without extracting the submission & ``the 14B teacher sol
 Score saturated at the correctness floor & ``lineage $\approx$ reset'' & score-histogram check \\
 Compiled-baseline cache hitting a filesystem inode quota & ``4 of 6 rounds produced nothing'' & output-path/quota correlation \\
 Our own explanation of the first five & ``H100 closed the headroom'' & tracing prompt $\rightarrow$ number \\
-Host \texttt{CC} leaking into the container, so Triton could not build & ``models cannot write kernels when asked'' & known-good \emph{Triton} kernel \\
+Host \texttt{CC} leaking into the container, so Triton~\cite{tillet2019triton} could not build & ``models cannot write kernels when asked'' & known-good \emph{Triton} kernel \\
 \bottomrule
 \end{tabular}
 \caption{Seven defects, each of which independently manufactured a null. The middle column is

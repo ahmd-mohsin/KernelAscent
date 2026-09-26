@@ -17,8 +17,8 @@ corrupt a CUDA context without affecting the trainer that produced it.
 
 \subsection{Scoring}
 
-Speed is normalised per task against a roofline ceiling rather than a fixed anchor. With $s$ the
-candidate's speedup over the \texttt{torch.compile} baseline and $c$ the achievable ceiling,
+Speed is normalised per task against a roofline~\cite{williams2009roofline} ceiling rather than a fixed anchor. With $s$ the
+candidate's speedup over the \texttt{torch.compile}~\cite{ansel2024pytorch2} baseline and $c$ the achievable ceiling,
 \[
   c \;=\; \mathrm{clip}\!\left(\frac{t_{\mathrm{compiled}}}{t_{\mathrm{roofline}}},\,1.1,\,50\right),
   \qquad
@@ -58,7 +58,7 @@ which the contrast isolates one causal channel.
   whether the task is reachable at all, which is a precondition for every rung above it, and
   separates \emph{attempting} a kernel from \emph{verifying} one.
 
-\item[{T2 --- Weight-RSI.}] Three arms at matched compute. \textbf{Lineage} LoRA-trains on its own
+\item[{T2 --- Weight-RSI.}] Three arms at matched compute. \textbf{Lineage} LoRA~\cite{hu2022lora}-trains on its own
   verified kernels and carries weights forward. \textbf{Reset} re-initialises every round and
   trains only on that round's producer data. \textbf{Best-of-$N$} never trains and samples the
   frozen base at the cumulative budget $k(r{+}1)$. Both learners see byte-identical per-round
