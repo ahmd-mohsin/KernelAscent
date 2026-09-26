@@ -4085,3 +4085,39 @@ does not move because the number came out the way I hoped.
 
 Added to the paper as Table `tab:fed` and a motivation subsection, both generated from the
 artifacts, both stating n=2 and the missing seed in the caption rather than a footnote.
+
+
+## 2026-09-25 08:16 — starvation is asymmetric, and that is what the dose-response is really measuring
+
+The dose cells hold the task bank fixed and vary only `--n-train`, which makes throughput an
+independent variable instead of a difference between two configurations. At two of five rounds
+every dose cell reports `n_ex=0`, `loss=0.0`, `trainC=0.0` -- no training has happened at all.
+
+    cell          C_self           C_fresh
+    dose3_s1      0.083 -> 0.083   0.058 -> 0.058     neither arm moves
+    dose3_s2      0.078 -> 0.078   0.087 -> 0.087     neither arm moves
+    dose10_s1     0.079 -> 0.079   0.119 -> 0.168     only the CONTROL moves
+    dose10_s2     0.075 -> 0.075   0.075 -> 0.098     only the CONTROL moves
+
+`C_self` is identical across rounds in all four, which is what a frozen adapter and a
+deterministic evaluation should give, and confirms the repeated contrast values are real rather
+than a reporting bug.
+
+The `dose10` rows are the interesting ones. The fresh-frozen control draws its own data from the
+frozen base each round, independently of the self arm. At `n_train=10` the control is receiving
+examples while the self arm is not, so `self - fresh` is comparing a frozen treatment against a
+training control, and it goes negative by construction: -0.040 then -0.089, more negative as the
+control improves.
+
+**Starvation is not symmetric between the arms.** The registered primary reported a contrast near
+zero and it was read as "no compounding". What the dose cells show is that at low throughput the
+sign of the contrast is set by which arm happened to receive data, not by anything about
+self-training -- and a starved run can therefore produce a confidently negative result as easily
+as a null.
+
+If this holds to depth the curve reads: constant at n_train=3, negative at 10, positive and
+rising at 35. That is more legible than a statistical dose-response and harder to dismiss,
+because each rung has a mechanism rather than an effect size.
+
+Two of five rounds. Recorded now because it is checkable and because the reading of the earlier
+null depends on it.
