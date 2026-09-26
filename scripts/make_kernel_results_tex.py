@@ -690,11 +690,21 @@ def fed_table():
     if _bad:
         return "", [_bad]
 
+    # Report the cells that are AT depth and name the rest, rather than printing nothing while
+    # any seed is mid-flight. With rolling resumes something is nearly always running, so a
+    # refusal on any partial means the table never appears -- and three seeds at registered
+    # depth is the minimum the pre-registration asks for.
+    #
+    # The exclusion is by round count, which here tracks when a cell was submitted rather than
+    # anything about its outcome. The caption says so, because it would not always be true: a
+    # cell short because it kept failing would bias the board, and that case needs to look
+    # different from this one.
     TARGET = 5
-    short = [r[0] for r in rows if r[1] < TARGET]
-    if short:
-        return "", ["fed: %d cell(s) below %d rounds (%s); not reporting a partial board"
-                    % (len(short), TARGET, ", ".join(sorted(short)))]
+    short = sorted(r[0] for r in rows if r[1] < TARGET)
+    rows = [r for r in rows if r[1] >= TARGET]
+    if len(rows) < 2:
+        return "", ["fed: %d cell(s) at %d rounds; need 2 (short: %s)"
+                    % (len(rows), TARGET, ", ".join(short) or "none")]
 
     body = ""
     for cell, n, mnx, mdl, last2, dl, nx in rows:
@@ -702,6 +712,26 @@ def fed_table():
             cell.replace("fed_", "").replace("_", "\\_"), n, mnx,
             " ".join("$%+.3f$" % x for x in dl), mdl, last2)
     tmean = _st.mean([r[3] for r in rows])
+    # THE REGISTERED RULE, EVALUATED AND STATED. It asks for two things: a 95% interval that
+    # excludes zero AND mean(last-2-rounds) > 0.05. Three positive trajectory means are not the
+    # first of those, and printing them without the verdict invites the reader to supply the
+    # conclusion the design withheld. Computed at the trajectory level, which is the independent
+    # replicate; rounds inside a cell share an adapter.
+    _tv = [r[3] for r in rows]
+    _n = len(_tv)
+    _sd = _st.stdev(_tv) if _n > 1 else 0.0
+    # two-sided t at 95% for very small n; the design is underpowered and the width should say so
+    _tcrit = {2: 12.706, 3: 4.303, 4: 3.182, 5: 2.776, 6: 2.571, 7: 2.447, 8: 2.365}.get(_n, 1.96)
+    _half = _tcrit * _sd / (_n ** 0.5) if _n > 1 else float("inf")
+    _lo, _hi = tmean - _half, tmean + _half
+    _excl = (_lo > 0) or (_hi < 0)
+    _last2_ok = all(r[4] > 0.05 for r in rows)
+    _verdict = (r"Registered rule: the 95\%% interval %s zero ($%+.3f\,[%+.3f,%+.3f]$, $n=%d$) and "
+                r"mean(last-2) exceeds $0.05$ in %s. The rule requires \emph{both}, so the result "
+                r"%s."
+                % ("excludes" if _excl else "includes", tmean, _lo, _hi, _n,
+                   "every cell" if _last2_ok else "%d of %d cells" % (sum(1 for r in rows if r[4] > 0.05), _n),
+                   r"\textbf{holds}" if (_excl and _last2_ok) else r"\textbf{does not hold}"))
 
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:fed}",
@@ -714,10 +744,15 @@ def fed_table():
               r"$n=2$ trajectories against a registered minimum of three seeds, and a 95\%% interval on a "
               r"two-point mean would assert precision the design cannot support. The trajectory-level mean "
               r"is $%+.3f$. The column that carries weight is $n_{\mathrm{ex}}$, which grows within both "
-              r"runs (%s and %s) and is the input the contrast lacked everywhere else in this report.}"
+              r"runs (%s and %s) and is the input the contrast lacked everywhere else in this report.%s}"
               % (rows[0][2], rows[1][2], tmean,
                  " to ".join(str(int(x)) for x in (rows[0][6][0], rows[0][6][-1])),
-                 " to ".join(str(int(x)) for x in (rows[1][6][0], rows[1][6][-1])))),
+                 " to ".join(str(int(x)) for x in (rows[1][6][0], rows[1][6][-1])),
+                 ((r" %d further seed(s) (%s) are still running and are excluded rather than "
+                   r"averaged in: they are short because they started later, not because of "
+                   r"anything about their results."
+                   % (len(short), ", ".join(c.replace("_", "\\_") for c in short))) if short else "")
+                 + " " + _verdict)),
              r"\begin{tabular}{@{}lrrlrr@{}}",
              r"\toprule",
              r"Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per round & mean & last 2 \\",
