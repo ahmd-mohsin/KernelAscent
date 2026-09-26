@@ -4409,3 +4409,37 @@ It also supplies the mechanism the report already suspected. The intuition list 
 sample SFT may raise probability on current winners at the cost of the rare decompositions that
 enable later discoveries, and flags it as association rather than proof. This is that process,
 observed directly, over enough rounds for it to bite.
+
+
+## 2026-09-25 15:33 — the round-0 replay arm isolates the cause: it is the recursion, not the training
+
+The control that settles the previous entry was already in the data. `lab_weight_rsi` runs a
+third arm, `round0-replay`, which trains on verified self-generated data **frozen at round 0**
+and replayed every round. Same LoRA, same learning rate, same schedule, same number of rounds.
+The single difference from the self arm is whether the training data is regenerated from the
+current policy or held fixed.
+
+    deep_q15_s3
+      C_self  (evolving self-data)   0.12 0.25 0.48 0.40 0.48 0.43 0.40 0.35 0.30 0.24
+      C_ctrl  (FROZEN round-0 data)  0.05 0.17 0.28 0.37 0.47 0.46 0.48 0.51 0.48 0.47
+
+The frozen-replay arm does not collapse. It rises to 0.51 and holds at 0.47 while the self arm
+falls to 0.24. All three seeds agree in direction (s1 ctrl 0.14 to 0.41 against self 0.47 to
+0.41; s2 ctrl 0.08 to 0.43 against self 0.49 to 0.40).
+
+**This rules out both alternatives at once.**
+
+* Not "training too long degrades models": the control trains exactly as long on exactly the
+  same kind of data and does not degrade.
+* Not the headroom ceiling: the control reaches **0.51** under the same scorer, so nothing caps
+  the treatment at 0.48, and its fall to 0.24 is a real loss of capability.
+
+What remains is the recursion itself. **Consuming your own evolving output is what collapses the
+policy; repeated training on fixed verified data does not.**
+
+This is a controlled comparison within a single run rather than across cells, which is a much
+stronger form of the claim than the one logged twenty minutes ago. The `round0-replay` arm was
+built to separate producer quality from data freshness, and that is exactly why it happens to be
+the right control here: it holds the data fixed while the policy evolves.
+
+`deepp` is now a confirmation rather than a load-bearing test.
