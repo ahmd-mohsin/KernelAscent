@@ -4534,3 +4534,33 @@ gain, there is no separating value and the two drifts are one.
 
 Recorded at rounds two and three, which is early. The five-round lambda cells will settle whether
 the suppression is real or a slow start.
+
+
+## 2026-09-25 19:43 — fifteen rounds complete: the loss is persistent, not a collapse and not an oscillation
+
+`deep_q15_s3` finished all fifteen rounds.
+
+    contrast  +.033 +.130 +.147 +.020 +.082 +.070 -.030 -.100 -.191 -.235 -.202 -.157 -.156 -.081 -.097
+    C_self     0.12  0.25  0.48  0.40  0.48  0.43  0.40  0.35  0.30  0.24  0.26  0.28  0.25  0.29  0.24
+    C_ctrl     0.05  0.17  0.28  0.37  0.47  0.46  0.48  0.51  0.48  0.47  0.51  0.50  0.50  0.50  0.49
+
+The treatment rises to 0.48 by round two, decays to 0.24 by round nine, and then **holds between
+0.24 and 0.29 for the final six rounds**. It neither recovers nor keeps falling. The
+frozen-replay control reaches 0.51 and stays there for ten consecutive rounds, ending at 0.49,
+above the treatment for the whole second half.
+
+**This fixes the wording twice over.** "Collapses" was wrong -- the decline stops. "Oscillates"
+was also wrong, and I was moving toward it an hour ago on the strength of a partial recovery from
+-0.235 to -0.081 that has now flattened out. The accurate statement is:
+
+> Self-training on the evolving policy rises to a peak by round two or three, decays to about
+> half of it by round nine, and then settles at the degraded level. The frozen-replay control
+> reaches a higher plateau and holds it.
+
+A *persistent* loss of capability is a stronger result than a transient one and a more precise
+one than a collapse. The final six rounds are the evidence: flat at 0.24 to 0.29 with the control
+flat at roughly 0.50 beside it. Same LoRA, same schedule, same verified data, differing only in
+whether that data is regenerated from the evolving policy or frozen at round zero.
+
+Two seeds remain at eleven and thirteen rounds. If they also flatten rather than continuing down,
+the claim is settled at three seeds.
