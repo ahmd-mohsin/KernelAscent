@@ -1,3 +1,55 @@
+## 2026-09-27 16:13  the bank control: a confident zero, manufactured on demand
+
+nb20 and bk20 are both complete at 8 rounds, two seeds each. Their command lines differ in
+exactly one token -- `KA_KERNEL_BANK` -- and agree on model, GPUs, rounds, k, seed, n_train=20
+and n_held=9. nb20 draws from the default 29-task bank, bk20 from the 124-task kernel bank.
+
+nb20's trajectory is the most convincing null anywhere in this repository:
+
+    round   C_lineage  C_reset   contrast
+      3       0.502     0.500     +0.002
+      4       0.501     0.502     -0.000
+      5       0.501     0.502     -0.000
+      6       0.499     0.499     +0.000
+      7       0.502     0.501     +0.000
+
+Six consecutive rounds at zero to three decimal places, two arms tracking each other within
+0.003, across two seeds. Presented on its own that is an extremely tight equivalence result.
+
+It is an artifact, and the mechanism is legible in the numbers. _score() in lab_kernel gives a
+correct kernel at parity speed exactly 0.5. Both arms sit at 0.501. n_solved_self is 20 of 20.
+The model is solving every task, getting no speedup, and scoring the structural maximum for
+that outcome. There is no room above 0.50 for either arm, so the contrast between them is
+pinned at zero by the scoring rule rather than by the absence of an effect.
+
+Splitting every round in both banks on whether the frozen control has saturated
+(C_reset >= 0.49) rather than on which bank it came from:
+
+    regime                       n    mean |contrast|
+    control saturated            8        0.0005
+    control has room            24        0.1253
+
+A factor of 250, decided by the ceiling. Two further columns make it a controlled comparison
+rather than a correlation:
+
+  * The split holds WITHIN nb20, so it is not a difference between banks: nb20's saturated
+    rounds average 0.0005 and its own unsaturated rounds average 0.1129.
+  * nb20's unsaturated rounds (0.1129) and bk20's (0.1316) agree. The two banks measure the
+    same effect size whenever the instrument has room. The bank does not change the effect;
+    it changes how often the instrument can see it.
+  * nb20 is saturated in 8 of 16 rounds, bk20 in 0 of 16.
+
+This is the paper's central claim reproduced as an experiment instead of argued from the
+withdrawn results. 06_related puts it as: a scoring rule that cannot resolve the quantity under
+study returns a confident null rather than an error. Here it is, on demand, from a one-token
+change -- and the confident null is the better-looking result of the two. A reviewer handed
+nb20 alone would have no way to tell it from a real equivalence finding, and neither did we
+until the matched arm existed.
+
+What this does NOT show, and should not be written as showing: bk20 is 2 seeds with a 9-task
+held set, and its per-round contrast swings from -0.059 to +0.333. It establishes that the
+instrument has range on that bank, not the size of any effect measured with it.
+
 ## 2026-09-27 16:08  depth, three seeds: the gain does not plateau, it reverses -- and retention is why
 
 deep_q15_s1/s2/s3 are all complete at 15/15. The registered contrast, mean over rounds:
