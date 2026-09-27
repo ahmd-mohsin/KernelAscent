@@ -1090,6 +1090,7 @@ def collapse_table():
         pk = max(range(len(cs)), key=lambda i: cs[i])
         ct = [r.get("C_ctrl") for r in h if r.get("C_ctrl") is not None]
         tr = [r.get("trainC") for r in h if r.get("trainC") is not None]
+        dl = [r.get("delta_self_minus_fresh") for r in h if r.get("delta_self_minus_fresh") is not None]
         rows.append((cell, len(h), pk, cs[pk], cs[-1], cs[-1] - cs[pk],
                      (max(ct) if ct else None), (ct[-1] if ct else None),
                      # trainC at its OWN maximum, not at the round C_self peaked. Those differ
@@ -1098,17 +1099,20 @@ def collapse_table():
                      # 0.24 when it is 0.49 to 0.24. The claim is that trainC falls from its
                      # peak, so the column has to show that.
                      (max(tr) if tr else None), (tr[-1] if tr else None),
-                     d.get("kl_lambda", (h[0].get("kl_lambda") if h else None))))
+                     d.get("kl_lambda", (h[0].get("kl_lambda") if h else None)),
+                     (dl[4] if len(dl) > 4 else None), (dl[-1] if dl else None)))
     if len(rows) < 2:
         return "", ["collapse: %d depth cell(s) past round 5" % len(rows)]
 
     body = ""
-    for cell, n, pk, cpk, cfin, drop, ctmax, ctfin, trpk, trfin, lam in sorted(rows):
-        body += ("\\texttt{%s} & %d & %d & %.2f & %.2f & $%+.2f$ & %s & %s & %s \\\\\n"
+    for cell, n, pk, cpk, cfin, drop, ctmax, ctfin, trpk, trfin, lam, d5, dfin in sorted(rows):
+        body += ("\\texttt{%s} & %d & %d & %.2f & %.2f & $%+.2f$ & %s & %s & %s & %s & %s \\\\\n"
                  % (cell.replace("_", "\\_"), n, pk, cpk, cfin, drop,
                     ("%.2f" % ctmax) if ctmax is not None else "--",
                     ("%.2f" % ctfin) if ctfin is not None else "--",
-                    ("%.2f$\\to$%.2f" % (trpk, trfin)) if (trpk is not None and trfin is not None) else "--"))
+                    ("%.2f$\\to$%.2f" % (trpk, trfin)) if (trpk is not None and trfin is not None) else "--",
+                    ("$%+.3f$" % d5) if d5 is not None else "--",
+                    ("$%+.3f$" % dfin) if dfin is not None else "--"))
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:collapse}",
              (r"\caption{Verified self-training past round five. The treatment arm peaks and then loses "
@@ -1120,9 +1124,10 @@ def collapse_table():
               r"does not collapse, so the cause is the recursion rather than repeated training. It also "
               r"reaches a higher score than the treatment ever does, so nothing is capping the treatment. "
               r"Every training example in both arms passed execution against an fp32 reference.}"),
-             r"\begin{tabular}{@{}lrrrrrrrr@{}}",
+             r"\begin{tabular}{@{}lrrrrrrrrrr@{}}",
              r"\toprule",
-             r"Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & \texttt{trainC} \\",
+             r"Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & "
+             r"\texttt{trainC} & contrast @5 & contrast final \\",
              r"\midrule",
              body.rstrip(),
              r"\bottomrule",

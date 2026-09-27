@@ -181,13 +181,13 @@ Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex
 \begin{table}[h]\centering\small
 \label{tab:collapse}
 \caption{Verified self-training past round five. The treatment arm peaks and then loses capability \emph{absolutely}: the drop column is its final score minus its peak. Two columns rule out the alternatives within each run. \texttt{trainC} is the model's score on its own training split and falls alongside the held-out score, which overfitting would not do. $C_{\mathrm{ctrl}}$ is the round0-replay arm --- identical LoRA, learning rate, schedule and round count, trained on verified self-data \emph{frozen at round 0} --- and it does not collapse, so the cause is the recursion rather than repeated training. It also reaches a higher score than the treatment ever does, so nothing is capping the treatment. Every training example in both arms passed execution against an fp32 reference.}
-\begin{tabular}{@{}lrrrrrrrr@{}}
+\begin{tabular}{@{}lrrrrrrrrrr@{}}
 \toprule
-Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & \texttt{trainC} \\
+Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & \texttt{trainC} & contrast @5 & contrast final \\
 \midrule
-\texttt{deep\_q15\_s1} & 10 & 4 & 0.47 & 0.42 & $-0.05$ & 0.45 & 0.39 & 0.50$\to$0.40 \\
-\texttt{deep\_q15\_s2} & 9 & 4 & 0.49 & 0.32 & $-0.18$ & 0.43 & 0.42 & 0.49$\to$0.37 \\
-\texttt{deep\_q15\_s3} & 11 & 2 & 0.48 & 0.26 & $-0.22$ & 0.51 & 0.51 & 0.49$\to$0.26 \\
+\texttt{deep\_q15\_s1} & 10 & 4 & 0.47 & 0.42 & $-0.05$ & 0.45 & 0.39 & 0.50$\to$0.40 & $+0.182$ & $+0.024$ \\
+\texttt{deep\_q15\_s2} & 9 & 4 & 0.49 & 0.32 & $-0.18$ & 0.43 & 0.42 & 0.49$\to$0.37 & $+0.071$ & $-0.115$ \\
+\texttt{deep\_q15\_s3} & 11 & 2 & 0.48 & 0.26 & $-0.22$ & 0.51 & 0.51 & 0.49$\to$0.26 & $+0.082$ & $-0.202$ \\
 \bottomrule
 \end{tabular}
 \end{table}
