@@ -1,3 +1,60 @@
+## 2026-09-27 16:08  depth, three seeds: the gain does not plateau, it reverses -- and retention is why
+
+deep_q15_s1/s2/s3 are all complete at 15/15. The registered contrast, mean over rounds:
+
+    cell           r1-5     r14-15
+    deep_q15_s1   +0.180    -0.183
+    deep_q15_s2   +0.084    -0.270
+    deep_q15_s3   +0.082    -0.089
+
+Three seeds, three sign flips. s1's full trajectory shows the shape: it climbs to +0.285 by
+round 3, decays to +0.018 by round 6, sits near zero through round 10, then turns negative and
+accelerates down to -0.251.
+
+deep-q15 and fed-q15 differ in exactly one token of the command line, `--rounds 15` against
+`--rounds 5`. Same model, seed, k, n_train, bank, GPU map. So this is not a comparison across
+configurations; it is the same configuration read at two depths. (Rounds 1-2 reproduce
+bit-for-bit between the two runs and then diverge, which is what a shared seed should do when
+task selection is seeded and temperature-0.8 sampling on GPU is not bitwise reproducible.)
+
+The consequence for anyone building on this benchmark is direct. Stop at five rounds and the
+honest report is that self-training improves the policy over a frozen control. Run the identical
+configuration to fifteen and the honest report is that it degrades it, substantially. Depth is
+not a hyperparameter here; it is a researcher degree of freedom large enough to determine the
+sign of the headline result, and it is one this benchmark had not been reporting.
+
+MECHANISM. Two candidates, and the data separates them.
+
+Starvation is out. n_ex per round stays between 67 and 143 for all fifteen rounds in every
+seed -- far above Amendment 6's floor of 2 -- and across 45 round-observations
+r(n_ex, contrast) = -0.109. The loop has ample data throughout and degrades anyway.
+
+Round-0 retention is in. s1 falls 1.00 -> 0.88 (steady, rounds 3-8) -> 0.70 -> 0.58 -> 0.27,
+and the contrast follows it down. Across the same 45 observations:
+
+    r(retention, contrast)                 = +0.729
+    partial r(retention, contrast | round) = +0.444
+    within-round: the higher-retention seed carried the higher contrast in 13 of 15 rounds
+
+The partial correlation matters because retention and the contrast both decline with round
+number (-0.661 and -0.798), so the raw +0.729 is partly co-trending and cannot be quoted on its
+own. The within-round test removes the time trend entirely by construction -- it only ever
+compares seeds at the same round -- and 13 of 15 is binomial p = 0.004 against a coin.
+
+So the failure is forgetting, not exhaustion: the policy trains on its own narrowing output,
+loses what it could do at round 0, and ends up behind the frozen producer it started level with.
+Mean pairwise distinctness of the self-generated correct kernels falls 0.81 -> 0.48 over the
+same span, which is the same story from the data side, though noisily enough that it is support
+and not evidence on its own.
+
+This promotes the trust-region sweep from a parameter study to the designed intervention: a KL
+penalty to the round-0 reference is precisely a floor on retention. deepkl2/5/20 at depth 15 are
+running now. The prediction the sweep tests is that lambda holds retention up and the reversal
+does not occur -- and, from the shallow sweep, that too large a lambda buys retention by
+starving the loop instead (lambda=5 and 20 run at n_ex 5-17 against lambda=0's 67-143), so the
+useful result is an interior optimum rather than a monotone one. lambda=2 is the current
+candidate and is the reason it was parked.
+
 ## 2026-09-27 16:05  the size ladder's capability curve is inverted, and n_gens says it is not throughput
 
 The six-scale ladder finished enough rounds to read, and it reads backwards.
