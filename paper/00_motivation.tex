@@ -6,7 +6,7 @@ measurement could have moved. This section states the four results that make the
 report worth reading, each of which is about whether the instrument can see what it claims to
 measure.
 
-\subsection{The same runs, two scorers, opposite conclusions}
+\subsection{The same runs, two scorers, opposite conclusions once the ceiling binds}
 \label{sec:motivation:contrast}
 
 The central result is a controlled comparison of two scoring rules on one experiment. Two cells
@@ -47,6 +47,66 @@ The design consequence is the part worth carrying: a matched reset learner reach
 three or four rounds, so the measurement's useful lifetime is fixed by the \emph{control} arm
 rather than by the treatment. This cannot be repaired by choosing a better treatment or running
 longer. A well-behaved control ends the measurement by behaving well.
+
+\subsection{The null can be manufactured from a one-token change}
+\label{sec:motivation:bank}
+
+The preceding result compares two scoring rules and therefore invites the reply that one of them
+is simply the wrong rule. This one does not, because it holds the scoring rule fixed and changes
+the task bank.
+
+Two cells differ in exactly one token of their command line, the environment variable naming the
+task bank, and agree on base model, seed, round count, sampling budget $k$,
+$n_{\mathrm{train}}=20$ and $n_{\mathrm{held}}=9$. One draws from a 29-task bank, the other from
+a 124-task bank. The first produces six consecutive rounds whose contrast is zero to three
+decimal places, with the two arms within $0.003$ of each other, replicated across two seeds.
+Read on its own it is an unusually tight equivalence result, and it is an artifact: both arms
+sit at $0.501$, every training task is solved, and a correct kernel at parity speed scores
+exactly $0.50$ by construction. Neither arm has anywhere to go.
+
+Splitting every round of both banks on whether the frozen control has already saturated, rather
+than on which bank it came from, gives a mean absolute contrast of $0.0005$ in the saturated
+rounds against $0.1253$ where the instrument has room --- a factor of $251$. Two further
+comparisons make this a controlled result rather than a correlation between bank and outcome.
+The split holds \emph{within} the smaller bank, whose own saturated and unsaturated rounds
+average $0.0005$ and $0.1129$. And the smaller bank's unsaturated rounds agree with the larger
+bank's ($0.1129$ against $0.1316$), so the two banks measure the same effect whenever the
+instrument can resolve it at all. The bank does not change what is there; it changes how often
+the measurement can see it. The smaller bank is saturated in 8 of its 16 rounds and the larger
+in none of 16.
+
+Table~\ref{tab:saturation} is the evidence. We stress the direction of the error, because it is
+the uncomfortable one: the broken configuration produced the \emph{better-looking} result. A
+reviewer shown only the 29-task cell would have no way to distinguish it from a genuine
+equivalence finding, and neither did we until the matched arm existed.
+
+\subsection{Depth decides the sign of the headline}
+\label{sec:motivation:depth}
+
+The three results above concern whether the instrument can see. This one concerns a protocol
+choice that no prior self-improvement benchmark we are aware of reports: how many rounds to run.
+
+Two cells differ in one token, \texttt{--rounds 5} against \texttt{--rounds 15}, with model,
+seed, $k$, $n_{\mathrm{train}}$, task bank and device map identical. At five rounds the
+self-trained arm beats the frozen-producer control, and the mean contrast over the first five
+rounds is positive in all three seeds. At fifteen rounds it loses to that control, and the mean
+over the final two rounds is negative in all three seeds. The same configuration, measured at
+two depths, supports opposite conclusions about whether self-training helps.
+
+The mechanism is not the obvious one. The loop is never starved: the number of verified training
+examples per round stays between 67 and 143 throughout, far above the floor below which we
+refuse to report a contrast at all, and across the 45 round-observations the correlation between
+example count and contrast is $-0.109$. What does track the decline is how much of its round-0
+capability the policy still retains, which falls as low as $0.27$. That correlation is $+0.729$
+raw, $+0.444$ after partialling out round number --- necessary, because retention and contrast
+both decline with depth --- and in 13 of 15 rounds the seed with the higher retention carried
+the higher contrast, a comparison that is immune to the shared trend by construction. The loop
+forgets rather than exhausts.
+
+Table~\ref{tab:depth} reports the three seeds. We draw no conclusion here about whether
+self-training helps in general; the point is narrower and, for a benchmark, more serious. Depth
+is a free parameter that determines the sign of the headline result, and a benchmark that does
+not fix it has not specified its own protocol.
 
 \subsection{Three rungs did not produce nulls; they produced undefined measurements}
 \label{sec:motivation:starved}
@@ -107,7 +167,7 @@ outperforming production autotuning on this bank, not failing to beat a weak bas
 
 \subsection{What the reader should take from the rest of this report}
 
-The four results above are about the instrument. The remainder of the report is the ladder that
+The six results above are about the instrument and the protocol around it. The remainder of the report is the ladder that
 produced them: five rungs, their designs, their controls, and every number with its uncertainty
 and its scope. Section~\ref{sec:removed} lists every result that was removed or narrowed during
 the work, with the evidence that forced each change, because a report that only shows its

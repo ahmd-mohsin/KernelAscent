@@ -1,73 +1,75 @@
 \contentsline {section}{\numberline {1}Why this benchmark exists, and what it found}{3}{section.1}%
-\contentsline {subsection}{\numberline {1.1}The same runs, two scorers, opposite conclusions}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.1}The same runs, two scorers, opposite conclusions once the ceiling binds}{3}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}The blindness is scheduled, not accidental}{3}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}Three rungs did not produce nulls; they produced undefined measurements}{3}{subsection.1.3}%
-\contentsline {subsection}{\numberline {1.4}Feeding the loop: what the throughput precondition buys}{4}{subsection.1.4}%
-\contentsline {subsection}{\numberline {1.5}A non-LLM baseline that scores below parity}{4}{subsection.1.5}%
-\contentsline {subsection}{\numberline {1.6}What the reader should take from the rest of this report}{5}{subsection.1.6}%
-\contentsline {section}{\numberline {2}The benchmark}{6}{section.2}%
-\contentsline {subsection}{\numberline {2.1}The task}{6}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Scoring}{6}{subsection.2.2}%
-\contentsline {paragraph}{The second scorer.}{6}{section*.2}%
-\contentsline {subsection}{\numberline {2.3}The recurrence under test}{6}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}The five rungs}{7}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Preconditions, and why they are stated before the results}{7}{subsection.2.5}%
-\contentsline {paragraph}{Reachability.}{7}{section*.3}%
-\contentsline {paragraph}{Throughput.}{7}{section*.4}%
-\contentsline {section}{\numberline {3}Related work}{8}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Kernel generation as an evaluation substrate}{8}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Self-improvement and self-modification}{8}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Why the instrument work is the contribution}{9}{subsection.3.3}%
-\contentsline {section}{\numberline {4}Infrastructure: three weeks on 72 GPUs}{10}{section.4}%
-\contentsline {paragraph}{Compute discipline.}{10}{section*.5}%
-\contentsline {paragraph}{Resumability.}{10}{section*.6}%
-\contentsline {paragraph}{Operational lessons (recorded because they bit us).}{10}{section*.7}%
-\contentsline {section}{\numberline {5}Results by rung}{11}{section.5}%
-\contentsline {subsection}{\numberline {5.1}T1 --- Capability}{17}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}T2 --- Weight-RSI: a rigorously-powered compounding null}{17}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}T3 --- Procedure-RSI}{19}{subsection.5.3}%
-\contentsline {paragraph}{The one-shot reading is confounded by the harness, and we retract it.}{19}{section*.9}%
-\contentsline {subsection}{\numberline {5.4}T4 --- Closed$\to $Open}{20}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}T5 --- Self-play: an author-yield failure, not a measured null}{20}{subsection.5.5}%
-\contentsline {section}{\numberline {6}Cross-cutting analyses: the mechanism}{21}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Coverage vs.\ scale, and the ``correctness wall'' as a sampling artifact}{21}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Zero-score forensics: the wall is a formation failure}{22}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Search beats training at matched compute}{22}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}WHY-RSI: the weight-level mechanism and the inverted-U in scale}{22}{subsection.6.4}%
-\contentsline {subsection}{\numberline {6.5}Probe-as-intervention: correctness is represented better than it is generated}{23}{subsection.6.5}%
-\contentsline {section}{\numberline {7}Instrument validity: how a self-improvement benchmark manufactures a null}{24}{section.7}%
-\contentsline {paragraph}{A clean zero is a bug hypothesis before it is a finding.}{24}{section*.10}%
-\contentsline {paragraph}{Correctness of the instrument is not sufficient; it must also have range.}{24}{section*.11}%
-\contentsline {paragraph}{The sixth ``defect'' was our own explanation --- and so was its correction.}{25}{section*.12}%
-\contentsline {paragraph}{Settling it by measurement: the compiled baseline is a real baseline.}{25}{section*.13}%
-\contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{26}{section*.14}%
-\contentsline {paragraph}{What the corrected instrument then showed.}{26}{section*.15}%
-\contentsline {paragraph}{The loss cascade: where submissions actually die.}{27}{section*.16}%
-\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{28}{section*.17}%
-\contentsline {paragraph}{Applying the precondition to our own headline.}{28}{section*.18}%
-\contentsline {paragraph}{What we propose as standard practice.}{29}{section*.19}%
-\contentsline {section}{\numberline {8}Synthesis: why self-improvement does not compound here}{30}{section.8}%
-\contentsline {subsection}{\numberline {8.1}The discovery-to-assimilation bottleneck}{30}{subsection.8.1}%
-\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{30}{section*.20}%
-\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{30}{section*.21}%
-\contentsline {paragraph}{Why verified search escapes where training does not.}{30}{section*.22}%
-\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{30}{section*.23}%
-\contentsline {paragraph}{The inverted-U, mechanistically.}{31}{section*.24}%
-\contentsline {paragraph}{What would break the plateau, and what our data predict.}{31}{section*.25}%
-\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{31}{section*.26}%
-\contentsline {section}{\numberline {9}The accumulated intuition (what three weeks taught us)}{31}{section.9}%
-\contentsline {section}{\numberline {10}What would break the plateau: predictions}{32}{section.10}%
-\contentsline {section}{\numberline {11}Limitations and scope}{32}{section.11}%
-\contentsline {section}{\numberline {12}Conclusion}{33}{section.12}%
-\contentsline {section}{\numberline {A}What was removed, narrowed, or retracted --- and why}{36}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Retracted: claims the data does not support}{36}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Narrowed: claims that hold with a smaller scope}{37}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Excluded: data that cannot answer the question it was collected for}{37}{subsection.A.3}%
-\contentsline {subsection}{\numberline {A.4}Provisional: retained but not load-bearing}{37}{subsection.A.4}%
-\contentsline {subsection}{\numberline {A.5}Known confounds carried into the results}{38}{subsection.A.5}%
-\contentsline {section}{\numberline {B}Probe-as-intervention, analysed as a secondary result}{39}{appendix.B}%
-\contentsline {paragraph}{Three corrections to the earlier analysis.}{39}{section*.28}%
-\contentsline {paragraph}{Result.}{39}{section*.29}%
-\contentsline {paragraph}{What this does and does not establish.}{39}{section*.30}%
-\contentsline {paragraph}{The diagnostic.}{39}{section*.31}%
-\contentsline {paragraph}{Defensible claim.}{39}{section*.32}%
+\contentsline {subsection}{\numberline {1.3}The null can be manufactured from a one-token change}{3}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Depth decides the sign of the headline}{4}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Three rungs did not produce nulls; they produced undefined measurements}{4}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}Feeding the loop: what the throughput precondition buys}{5}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}A non-LLM baseline that scores below parity}{5}{subsection.1.7}%
+\contentsline {subsection}{\numberline {1.8}What the reader should take from the rest of this report}{6}{subsection.1.8}%
+\contentsline {section}{\numberline {2}The benchmark}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The task}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Scoring}{7}{subsection.2.2}%
+\contentsline {paragraph}{The second scorer.}{7}{section*.2}%
+\contentsline {subsection}{\numberline {2.3}The recurrence under test}{7}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}The five rungs}{8}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Preconditions, and why they are stated before the results}{8}{subsection.2.5}%
+\contentsline {paragraph}{Reachability.}{8}{section*.3}%
+\contentsline {paragraph}{Throughput.}{8}{section*.4}%
+\contentsline {section}{\numberline {3}Related work}{9}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Kernel generation as an evaluation substrate}{9}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Self-improvement and self-modification}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Why the instrument work is the contribution}{10}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Infrastructure: three weeks on 72 GPUs}{11}{section.4}%
+\contentsline {paragraph}{Compute discipline.}{11}{section*.5}%
+\contentsline {paragraph}{Resumability.}{11}{section*.6}%
+\contentsline {paragraph}{Operational lessons (recorded because they bit us).}{11}{section*.7}%
+\contentsline {section}{\numberline {5}Results by rung}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}T1 --- Capability}{18}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}T2 --- Weight-RSI: a rigorously-powered compounding null}{18}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}T3 --- Procedure-RSI}{20}{subsection.5.3}%
+\contentsline {paragraph}{The one-shot reading is confounded by the harness, and we retract it.}{20}{section*.9}%
+\contentsline {subsection}{\numberline {5.4}T4 --- Closed$\to $Open}{21}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}T5 --- Self-play: an author-yield failure, not a measured null}{21}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Cross-cutting analyses: the mechanism}{22}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Coverage vs.\ scale, and the ``correctness wall'' as a sampling artifact}{22}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Zero-score forensics: the wall is a formation failure}{23}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Search beats training at matched compute}{23}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}WHY-RSI: the weight-level mechanism and the inverted-U in scale}{23}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Probe-as-intervention: correctness is represented better than it is generated}{24}{subsection.6.5}%
+\contentsline {section}{\numberline {7}Instrument validity: how a self-improvement benchmark manufactures a null}{25}{section.7}%
+\contentsline {paragraph}{A clean zero is a bug hypothesis before it is a finding.}{25}{section*.10}%
+\contentsline {paragraph}{Correctness of the instrument is not sufficient; it must also have range.}{25}{section*.11}%
+\contentsline {paragraph}{The sixth ``defect'' was our own explanation --- and so was its correction.}{26}{section*.12}%
+\contentsline {paragraph}{Settling it by measurement: the compiled baseline is a real baseline.}{26}{section*.13}%
+\contentsline {paragraph}{The seventh defect: the benchmark had never measured its own subject.}{27}{section*.14}%
+\contentsline {paragraph}{What the corrected instrument then showed.}{27}{section*.15}%
+\contentsline {paragraph}{The loss cascade: where submissions actually die.}{28}{section*.16}%
+\contentsline {paragraph}{Reachability: the dynamic-range precondition, made quantitative.}{29}{section*.17}%
+\contentsline {paragraph}{Applying the precondition to our own headline.}{29}{section*.18}%
+\contentsline {paragraph}{What we propose as standard practice.}{30}{section*.19}%
+\contentsline {section}{\numberline {8}Synthesis: why self-improvement does not compound here}{31}{section.8}%
+\contentsline {subsection}{\numberline {8.1}The discovery-to-assimilation bottleneck}{31}{subsection.8.1}%
+\contentsline {paragraph}{The mechanism: a discovery$\to $assimilation bottleneck (sharpening, not exploration).}{31}{section*.20}%
+\contentsline {paragraph}{A formal fixed point --- with its limits stated precisely.}{31}{section*.21}%
+\contentsline {paragraph}{Why verified search escapes where training does not.}{31}{section*.22}%
+\contentsline {paragraph}{Diversity contraction as a reinforcing lock (associational).}{31}{section*.23}%
+\contentsline {paragraph}{The inverted-U, mechanistically.}{32}{section*.24}%
+\contentsline {paragraph}{What would break the plateau, and what our data predict.}{32}{section*.25}%
+\contentsline {paragraph}{Scope --- claims we do \emph {not} make.}{32}{section*.26}%
+\contentsline {section}{\numberline {9}The accumulated intuition (what three weeks taught us)}{32}{section.9}%
+\contentsline {section}{\numberline {10}What would break the plateau: predictions}{33}{section.10}%
+\contentsline {section}{\numberline {11}Limitations and scope}{33}{section.11}%
+\contentsline {section}{\numberline {12}Conclusion}{34}{section.12}%
+\contentsline {section}{\numberline {A}What was removed, narrowed, or retracted --- and why}{37}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Retracted: claims the data does not support}{37}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Narrowed: claims that hold with a smaller scope}{38}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Excluded: data that cannot answer the question it was collected for}{38}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Provisional: retained but not load-bearing}{38}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}Known confounds carried into the results}{39}{subsection.A.5}%
+\contentsline {section}{\numberline {B}Probe-as-intervention, analysed as a secondary result}{40}{appendix.B}%
+\contentsline {paragraph}{Three corrections to the earlier analysis.}{40}{section*.28}%
+\contentsline {paragraph}{Result.}{40}{section*.29}%
+\contentsline {paragraph}{What this does and does not establish.}{40}{section*.30}%
+\contentsline {paragraph}{The diagnostic.}{40}{section*.31}%
+\contentsline {paragraph}{Defensible claim.}{40}{section*.32}%

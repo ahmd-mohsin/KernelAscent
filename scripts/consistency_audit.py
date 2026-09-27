@@ -940,6 +940,17 @@ def check_recursion_gain_sign():
         for v in vals:
             for m in re.finditer(re.escape(v), txt):
                 window = txt[max(0, m.start() - 600):m.end() + 600]
+                # A three-decimal number is not a claim about recursion just because it matches
+                # one digit for digit. This fired on `fed_q3_s3`'s mean contrast of +0.006 in the
+                # generated fed table, which has nothing to do with the recursion baseline and
+                # cannot be "qualified" by a trajectory-level result it does not assert. Same
+                # shape as comparing "0" against "0.0" as strings: the collision is in the
+                # formatting, not in the meaning.
+                #
+                # So require the window to be ABOUT recursion before demanding the qualifier.
+                # A stated recursion gain always names it; an unrelated table cell never does.
+                if not re.search(r"recursion|recursive|self-improv|revise|revision", window, re.I):
+                    continue
                 # the qualifier must be nearby: either the trajectory-level estimate itself,
                 # or an explicit statement that search wins at matched compute.
                 if re.search(r"-0\.11|0\.114|search (?:beats|wins)|trajectory level|"
