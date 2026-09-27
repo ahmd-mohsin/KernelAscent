@@ -63,3 +63,4 @@ fedyi-s1	rounds=1	0	505248
 fedc-q15-s3	rounds=5	0	505196
 fedyi-s2	rounds=1	0	505256
 fedyi-s3	rounds=1	0	505257
+fed-q05-s3	rounds=2	0	505314

@@ -4471,3 +4471,34 @@ today landed at 1.05 against an observed 1.4 on the same bank the yield was meas
 The honest formulation is that yield must be measured on the bank in use, which costs one
 calibration pass and is already computed for reachability. Quoting a yield from one bank against
 another is the same category of error as quoting a contrast across scorers.
+
+
+## 2026-09-25 17:12 — the models best at the task produce the least measurable signal
+
+Both 3B seeds reached 5/5.
+
+    fed_q3_s1   n_ex 23 -> 241   contrast +0.029 +0.042 +0.003 +0.012 +0.014
+    fed_q3_s2   n_ex 23 -> 194   contrast -0.015 -0.011 +0.014 +0.017 +0.017
+
+241 verified examples per round and a contrast of +0.014. 3B starts from
+`C0 = 0.226`, both arms reach correct-at-parity by round two, and the measurement is over.
+`fed_q3_s1` appears in the lifetime table with a gap of zero.
+
+That is now three model families reaching the same terminus while thoroughly fed: OpenCoder at
+350 examples per round, DeepSeek at 346, Qwen-3B at 241. Scale and family vary; the ending does
+not.
+
+**The design consequence is counterintuitive and worth stating plainly.** A model that is good at
+the task starts close to the scoring anchor, so its control arm arrives at the ceiling almost
+immediately and the usable window is nearly empty. A model that is mediocre leaves room for the
+contrast to exist. On this bank Qwen-1.5B is the only scale where the measurement stays alive
+long enough to register the effect -- and it is the scale the registered primary happened to use.
+
+So the benchmark is most informative on the models least worth measuring, and goes blind exactly
+where capability is highest. That is the reachability precondition restated as a property of the
+*model* rather than of the bank, and it means a benchmark cannot be validated once and then
+reused across scales: the same bank that has range for 1.5B has none for 3B.
+
+The corollary for anyone building one of these: the bank must be chosen against the model, not
+the task. A fixed bank tested across a scale ladder will report a decline in self-improvement
+that is entirely an artifact of the stronger models starting nearer the anchor.
