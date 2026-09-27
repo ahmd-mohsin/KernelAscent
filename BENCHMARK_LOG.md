@@ -1,3 +1,57 @@
+## 2026-09-27 16:29  the measurable band: two different instrument failures, one at each end of scale
+
+The funnel finished at all five scales, and with it the size-ladder question closes.
+
+    model   extracted      verified (of ext)   tasks solved   run yield   run C_fresh
+    0.5B    34 (35.4%)      2 (5.9%)            2 of 12        12.0%       0.468
+    1.5B    50 (52.1%)      1 (2.0%)            1 of 12         4.8%       0.240
+    3B      87 (90.6%)      4 (4.6%)            3 of 12        12.2%       0.457
+    7B      96 (100%)       1 (1.0%)            1 of 12         0.1%       0.070
+    14B     96 (100%)       0 (0.0%)            0 of 12         0.0%       0.035
+
+First, a misreading of my own to correct before anything is built on it. I had been treating
+C_fresh as the frozen control's raw capability, and on that reading C_fresh 0.468 at 0.5B (about
+94% of the held set correct) flatly contradicted the probe's 2 of 12. It is not the frozen base.
+C_fresh evaluates the fresh LEARNER with its adapter enabled, after SFT on frozen-base data.
+There was never a contradiction; there was a wrong label. What the two numbers jointly say is
+that training moves this model from roughly 17% of tasks correct to roughly 94%, which is the
+loop working very well indeed -- on correctness.
+
+With that fixed, the ladder has one mechanism at each end, and they are different failures.
+
+LARGE END -- starvation. Extraction is perfect at 7B and 14B: 96 of 96, against 35% at 0.5B.
+The large models write well-formed ModelNew classes and then fail to verify. In the real runs
+that compounds: 5250 generations at 0.1% yield is 7 examples over five rounds, and at 0.0% it is
+zero. With no verified data the self and fresh arms never train, all three arms stay at
+frozen-base capability, and the contrast is structurally zero. The 14B nulls are not evidence
+about recursive self-improvement; they are evidence that the loop never started.
+
+SMALL END -- saturation. At 0.5B and 3B yield is ~12%, the loop trains on 628 and 640 examples,
+and the learner reaches C_fresh 0.468 and 0.457 against a structural ceiling of 0.50. Since the
+headroom score is about nine tenths a correctness count (measured yesterday: mean distance to
+the pure-correctness grid 0.0054 against a grid step of 0.0556), a learner at 94% correct has
+essentially exhausted the scorer. The contrast between two arms that have both exhausted it is
+zero for the same reason nb20's was.
+
+So the benchmark has a MEASURABLE BAND in model scale, bounded below by scorer saturation and
+above by data starvation, and 1.5B is the only scale of the five inside it: yield 4.8%, low
+enough that the loop is not flooded into saturation and high enough that it trains at all,
+C_fresh 0.240 with room above it, and by far the largest contrast of the ladder (+0.110 against
++0.008, +0.013, -0.022, -0.017). That is not a fact about 1.5B models. It is a fact about this
+bank and this scorer, and it is the concrete form of the precondition the report argues for.
+
+WHAT THE PROBE CANNOT SUPPORT. 12 tasks at k=8 is 96 generations, and the verified counts are
+2, 1, 4, 1 and 0. Differences of a few successes out of 96 do not separate these models, and I
+will not rank them on it -- the direction agrees with the 5250-generation run estimates, which
+are the ones to quote. The probe establishes WHERE the loss occurs (verification, not truncation
+and not extraction) and not how large it is at each scale.
+
+Still open, and cheap to answer: why a 14B with 100% extraction verifies at 0% while a 0.5B with
+35% extraction verifies at 5.9%. The obvious candidate is that larger models attempt real Triton
+kernels while smaller ones emit near-trivial PyTorch rewrites that pass by construction, which
+would make the large-model failure a sign of ambition rather than incompetence. That is an
+inspection of the generated code, not another aggregate.
+
 ## 2026-09-27 16:25  the headroom scorer is mostly a correctness count, and the bib is clean
 
 FUNNEL, first two scales. The probe walks generated -> extracted -> verified with the lab's own
