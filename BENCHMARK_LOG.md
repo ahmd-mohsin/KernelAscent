@@ -1,3 +1,52 @@
+## 2026-09-27 16:25  the headroom scorer is mostly a correctness count, and the bib is clean
+
+FUNNEL, first two scales. The probe walks generated -> extracted -> verified with the lab's own
+grader, on 12 tasks sampled one-per-family, frozen base and no adapter:
+
+    model    generated  extracted        verified      end-to-end   tasks solved
+    0.5B        96      34 (35.4%)      2 (5.9% of ext)   2.1%        2 of 12
+    1.5B        96      50 (52.1%)      1 (2.0% of ext)   1.0%        1 of 12
+
+Extraction rises with scale (35% -> 52% -> 75% at 3B -> 98% at 7B, from the truncation probe),
+which is the expected direction and not where the size ladder breaks. 3B, 7B and 14B are still
+grading.
+
+A CLAIM I MADE AND THEN HAD TO WITHDRAW WITHIN THE HOUR. Every correct candidate in both probes
+came back at speedup 1.002-1.005, i.e. parity. Since _score gives correct-at-parity exactly 0.50,
+I wrote that the headroom scorer degenerates to a correctness bit on this bank. Two things were
+wrong with that. First, it rests on three correct candidates in total -- two from one model and
+ONE from the other -- so the "median speedup" is a single sample and characterises nothing.
+Second, the test I ran to confirm it refused to confirm it: only 51.6% of the 64 arm-scores in
+the bank-control cells sit within 0.05 of an exact multiple of 0.5/9, the value one more correct
+task would add. The speed term is not dead.
+
+The measurable version, in score units:
+
+    distance from each arm-score to the pure-correctness grid
+      mean 0.0054   median 0.0021   max 0.0222
+    one grid step (one more task correct of nine) = 0.0556
+
+So the speed term moves the score by about 10% of one correctness step on average. The headroom
+score is dominated by correctness -- roughly nine tenths of its resolution is the count of tasks
+solved -- but it is not identical to it, and the paper must say the first and not the second.
+28% of arm-scores sit at the all-correct ceiling.
+
+This sharpens the saturation result rather than replacing it. The reason nb20 pins at 0.501 is
+not that the arms approach a ceiling asymptotically; it is that 0.50 is what nine-of-nine correct
+at parity scores, exactly, and there is nothing above it to reach for on a bank where correct
+kernels do not beat parity. It also explains why the pass-rate board sees a difference the
+headroom board cannot: the loop IS improving correctness -- the frozen base solves 1-2 of 12
+tasks here, and the trained arms reach 20 of 20 on their training set -- and once correctness is
+saturated the headroom scorer has nine tenths of nothing left to report.
+
+BIBLIOGRAPHY. check_bib.py --strict passes: 27 entries, 27 cited, provenance spec=16 web=11,
+none unverified. The five written from memory were confirmed against the publisher record this
+session and carry DOIs -- Schuirmann 1987 JPB 15(6) 657-680 (10.1007/BF01068419), Wilson 1927
+JASA 22(158) 209-212 (10.1080/01621459.1927.10502953), Kass and Raftery 1995 JASA 90(430)
+773-795 (10.1080/01621459.1995.10476572), Williams-Waterman-Patterson 2009 CACM 52(4) 65-76
+(10.1145/1498765.1498785), and Hu et al. LoRA ICLR 2022 (arXiv:2106.09685), whose eight-author
+list matched what was already recorded. That was the last listed submission blocker.
+
 ## 2026-09-27 16:19  the truncation hypothesis is wrong; the 7B writes better code and still yields nothing
 
 The probe came back and refuted the explanation written three commits ago.
