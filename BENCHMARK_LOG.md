@@ -4502,3 +4502,35 @@ reused across scales: the same bank that has range for 1.5B has none for 3B.
 The corollary for anyone building one of these: the bank must be chosen against the model, not
 the task. A fixed bank tested across a scale ladder will report a decline in self-improvement
 that is entirely an artifact of the stronger models starting nearer the anchor.
+
+
+## 2026-09-25 18:44 — the trust region suppresses the gain, not just the drift
+
+The regularized cells are at rounds two and three. Comparing the *same seed* with and without the
+penalty:
+
+    fed_q15_s1   (lambda=0)    n_ex  6, 10, 46, 88, 104
+    kl5_q15_s1   (lambda=5)    n_ex  6,  5,  8
+    kl20_q15_s2  (lambda=20)   n_ex  7,  8,  5
+
+At lambda=0 the loop reaches 46 verified examples by round two; at lambda=5 it is still at eight,
+and the contrasts are flat or slightly negative.
+
+**The drift that causes the collapse appears to be the same drift that produces the gain.** A
+penalty strong enough to hold the policy near its base also stops it improving enough to verify
+more of its own generations, so throughput never compounds and the gain never starts. That is
+the trust-region trade-off in its least convenient form: the intervention works on the mechanism
+and takes the benefit with it.
+
+If that holds it is a better result than "regularization fixes it". It says a *uniform* KL
+penalty cannot separate useful drift from harmful drift, which is a statement about the shape of
+the problem rather than about one hyperparameter -- and it points at what would be needed
+instead, something that distinguishes directions of drift rather than penalising its magnitude.
+
+`deepkl2-s1/s2` are parked at fifteen rounds to fill the gap. At lambda=1.0 the penalty is
+measurably inert: the KL still reaches 0.0062 and `n_ex` grows 6 to 104. At lambda=5 the gain
+never starts. Two is the only place a separating value could sit. If lambda=2 also blocks the
+gain, there is no separating value and the two drifts are one.
+
+Recorded at rounds two and three, which is early. The five-round lambda cells will settle whether
+the suppression is real or a slow start.

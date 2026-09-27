@@ -907,7 +907,7 @@ def kl_table():
     # loss, so 5 and 20 were added once the realized KL was known. The sweep's range has to be
     # chosen against the KL the runs actually produce, not guessed beforehand.
     groups = [("0", "fed_q15_s[12]"), ("0.05", "kl005_q15_*"), ("0.2", "kl02_q15_*"),
-              ("1.0", "kl10_q15_*"), ("5", "kl5_q15_*"), ("20", "kl20_q15_*")]
+              ("1.0", "kl10_q15_*"), ("2", "kl2_q15_*"), ("5", "kl5_q15_*"), ("20", "kl20_q15_*")]
     rows, missing = [], []
     for label, pat in groups:
         cs = [c for c in _wrsi_cells(pat) if c["n"] >= 5]
