@@ -1,3 +1,46 @@
+## 2026-09-27 16:19  the truncation hypothesis is wrong; the 7B writes better code and still yields nothing
+
+The probe came back and refuted the explanation written three commits ago.
+
+    model   median tok   max    at 2048 cap   extracted @2048   @6144
+    1.5B       489      1094       0.0%            45.8%         56.2%
+    7B         539       841       0.0%            97.9%         97.9%
+
+Nothing is truncated. Not 39% as when the budget was 900, not a few percent -- zero, at both
+scales, with the median completion at roughly a quarter of the cap and the longest single
+completion at 1094 tokens against 2048. Raising the budget to 6144 does not lengthen the
+output (median 489 -> 527) because nothing was pressing against the limit.
+
+And the direction is backwards from the hypothesis in both models. The 7B extracts a
+well-formed ModelNew from 97.9% of its generations; the 1.5B manages 45.8%. The larger model
+writes better-formed code, by a wide margin, and yields 0.1% end-to-end in the real runs
+against the 1.5B's 4.8%. So the loss is not at generation and not at extraction. It is
+downstream, at compilation or correctness, and "yield" was too coarse a statistic to see that.
+
+lab_weight_rsi's _MAX_NEW comment is still right about the mechanism it describes -- a fixed
+budget does bias across scale -- but 2048 is not where this bank binds, and I treated a
+plausible documented failure as the explanation without measuring it first. The probe cost
+about twenty GPU-minutes and the writeup would have been wrong.
+
+Two flaws in my own probe, both of which would have mattered if the result had been positive:
+
+  * It took the first N tasks alphabetically. On this bank that returned six variants of a
+    single family (dsl_cumsum_scale_*), so it measured one op six times and called it six
+    tasks. The replacement samples one task per family before a second from any family.
+  * The 1.5B's "+10.4 pp extraction going 2048 -> 6144" is five extra successes on n=48, with
+    nothing at the cap to explain it. It is sampling noise at temperature 0.8 and must not be
+    read as a budget effect. Counts now print beside every rate.
+
+NEXT. scripts/probe_yield_funnel.py walks generated -> extracted -> verified with the lab's own
+_grade_isolated_batch, so the stage where 7B and 1.5B diverge is located rather than inferred.
+It also reports the compiled speedup of the candidates that do verify, which bears on the
+saturation result: if correct kernels come in at ~1.0x the headroom scorer returns exactly 0.50
+however many of them there are.
+
+The quarantine on cells at 7B and above stands, and the reason for it is now narrower and
+better: not that the token budget invalidates them, but that their near-zero C_fresh is
+unexplained, and an unexplained instrument reading is not evidence about self-improvement.
+
 ## 2026-09-27 16:13  the bank control: a confident zero, manufactured on demand
 
 nb20 and bk20 are both complete at 8 rounds, two seeds each. Their command lines differ in

@@ -838,7 +838,10 @@ def _wrsi_cells(pattern):
                     "n_ex": [r.get("n_ex", 0) for r in h],
                     "kl": [r.get("kl") for r in h],
                     "kl_lambda": d.get("kl_lambda", (h[0].get("kl_lambda") if h else None)),
-                    "trainC": [r.get("trainC") for r in h]})
+                    "trainC": [r.get("trainC") for r in h],
+                    # Round-0 retention is the mechanism behind the depth reversal, so it has to
+                    # reach a table rather than stay in the log. See depth_table.
+                    "retention": [r.get("retention") for r in h]})
     return out
 
 
@@ -952,39 +955,146 @@ def kl_table():
 
 
 def depth_table():
-    """Fifteen rounds, because five cannot tell compounding from a one-time producer upgrade.
+    """Fifteen rounds, and the sign of the headline result depends on where you stop.
 
-    fed_q15_s1 rose to +0.206 at round 3 and fell to +0.089 by round 5. Those five points are
-    equally consistent with a gain that compounds and saturates, a single step improvement, and
-    noise. The table prints thirds of the run so the shape is visible without a figure.
+    This table was written when the question was whether the five-round gain compounds or
+    saturates. The three completed seeds answer neither: it reverses. Every seed is positive
+    over rounds 1-5 and negative over rounds 14-15.
+
+    deep_q15 and fed_q15 differ in exactly one token of the command line, `--rounds 15` against
+    `--rounds 5` -- same model, seed, k, n_train, bank and GPU map -- so this is one
+    configuration read at two depths rather than two configurations compared.
+
+    Round-0 retention is in the table because it is the mechanism, and because n_ex is here to
+    rule out the competing one: the loop is never starved (n_ex stays well above Amendment 6's
+    floor of 2) and degrades anyway.
     """
     import statistics as _st
     cs = [c for c in _wrsi_cells("deep_q15_*") if c["n"] >= 15]
     if len(cs) < 2:
         return "", ["depth: %d of 3 cells at 15 rounds" % len(cs)]
-    body = ""
+    body, notes = "", []
+    flips = 0
     for c in sorted(cs, key=lambda x: x["cell"]):
-        d = c["delta"]
-        t = len(d) // 3
-        body += "\\texttt{%s} & %d & $%+.3f$ & $%+.3f$ & $%+.3f$ & %.1f \\\\\n" % (
-            c["cell"].replace("deep_", "").replace("_", "\\_"), c["n"],
-            _st.mean(d[:t]), _st.mean(d[t:2 * t]), _st.mean(d[2 * t:]), _st.mean(c["n_ex"]))
+        d, ret = c["delta"], [r for r in c["retention"] if r is not None]
+        early, late = _st.mean(d[:5]), _st.mean(d[-2:])
+        flips += (early > 0 > late)
+        body += "\\texttt{%s} & %d & $%+.3f$ & $%+.3f$ & %s & %.0f \\\\\n" % (
+            c["cell"].replace("deep_", "").replace("_", "\\_"), c["n"], early, late,
+            ("%.2f" % ret[-1]) if ret else "--", _st.mean(c["n_ex"]))
+    if flips != len(cs):
+        notes.append("depth: %d of %d cells flip sign; the caption asserts all of them"
+                     % (flips, len(cs)))
     lines = [r"\begin{table}[h]\centering\small",
              r"\label{tab:depth}",
-             (r"\caption{Fifteen rounds of the fed loop, reported in thirds. Five rounds cannot separate a "
-              r"gain that compounds from a one-time producer upgrade: the first fed trajectory rose to "
-              r"$+0.206$ by round three and fell to $+0.089$ by round five, which is consistent with both. "
-              r"A contrast that keeps rising across thirds is compounding; one that peaks and decays is a "
-              r"step improvement followed by saturation.}"),
+             (r"\caption{The same configuration read at two depths. \texttt{deep\_q15} and "
+              r"\texttt{fed\_q15} differ in one token of the command line, \texttt{--rounds 15} "
+              r"against \texttt{--rounds 5}; model, seed, $k$, $n_{\mathrm{train}}$, task bank and "
+              r"GPU map are identical. Every seed is positive over rounds 1--5 and negative over "
+              r"rounds 14--15, so stopping at five rounds and stopping at fifteen support opposite "
+              r"conclusions about whether self-training beats a frozen control. The loop is not "
+              r"starved at any point --- $n_{\mathrm{ex}}$ stays far above the starvation floor of "
+              r"two --- and round-0 retention falls to as little as $0.27$, which is the mechanism "
+              r"we attribute the reversal to (Section~\ref{sec:instrument}).}"),
              r"\begin{tabular}{@{}lrrrrr@{}}",
              r"\toprule",
-             r"Cell & Rounds & first third & middle & last third & mean $n_{\mathrm{ex}}$ \\",
+             (r"Cell & Rounds & mean $\Delta$ r1--5 & mean $\Delta$ r14--15 & "
+              r"final retention & mean $n_{\mathrm{ex}}$ \\"),
              r"\midrule",
              body.rstrip(),
              r"\bottomrule",
              r"\end{tabular}",
              r"\end{table}"]
-    return "\n".join(lines), []
+    return "\n".join(lines), notes
+
+
+def saturation_table():
+    """The ceiling manufactures the null, demonstrated with a matched pair rather than argued.
+
+    nb20 and bk20 differ in exactly one token of the command line -- KA_KERNEL_BANK -- and agree
+    on model, GPUs, rounds, k, seed, n_train=20 and n_held=9. nb20 draws from the default
+    29-task bank, bk20 from the 124-task kernel bank.
+
+    nb20 produces the most convincing null in the repository: six consecutive rounds of contrast
+    at zero to three decimals, two arms within 0.003 of each other, across two seeds. It is an
+    artifact. _score gives a correct kernel at parity speed exactly 0.5; both nb20 arms sit at
+    0.501 with every training task solved. There is no room above the ceiling for either arm, so
+    the contrast is pinned by the scoring rule and not by the absence of an effect.
+
+    The table splits rounds on whether the frozen control has saturated rather than on which
+    bank they came from, because that is what makes it a controlled comparison: the split holds
+    WITHIN nb20, and nb20's unsaturated rounds agree with bk20's. The bank does not change the
+    effect; it changes how often the instrument can see it.
+    """
+    import statistics as _st
+    SAT = 0.49                      # correct-at-parity is exactly 0.50 under _score
+    banks = [("nb20", "nb20_*", "default, 29 tasks"), ("bk20", "bk20_*", "kernel, 124 tasks")]
+    rows, pooled, notes = [], {"sat": [], "room": []}, []
+    for tag, pat, desc in banks:
+        rs = []
+        for cell, outdir in _cells(pat):
+            d = _load(os.path.join(outdir, "compounding.json"))
+            if not d:
+                continue
+            rs += [r for r in (d.get("history") or [])
+                   if r.get("C_reset") is not None and r.get("lineage_minus_reset") is not None]
+        if not rs:
+            notes.append("saturation: no rounds found for %s" % tag)
+            continue
+        sat = [abs(r["lineage_minus_reset"]) for r in rs if r["C_reset"] >= SAT]
+        room = [abs(r["lineage_minus_reset"]) for r in rs if r["C_reset"] < SAT]
+        pooled["sat"] += sat; pooled["room"] += room
+        rows.append((tag, desc, len(rs), len(sat),
+                     (_st.mean(sat) if sat else None), (_st.mean(room) if room else None)))
+    if len(rows) < 2:
+        return "", (notes or ["saturation: need both banks; have %d" % len(rows)])
+
+    # The claim in the caption is a ratio, so refuse to print it if the denominator is empty or
+    # the direction is not what the caption says. A table that states the opposite of its own
+    # numbers is the failure this repo keeps finding in its own output.
+    ms = _st.mean(pooled["sat"]) if pooled["sat"] else None
+    mr = _st.mean(pooled["room"]) if pooled["room"] else None
+    if not pooled["sat"] or not pooled["room"]:
+        return "", ["saturation: one regime is empty (sat=%d, room=%d)"
+                    % (len(pooled["sat"]), len(pooled["room"]))]
+    if not (mr > ms):
+        notes.append("saturation: has-room mean (%.4f) does not exceed saturated (%.4f); "
+                     "caption asserts it does" % (mr, ms))
+    ratio = mr / ms if ms > 0 else float("inf")
+
+    body = ""
+    for tag, desc, n, nsat, msat, mroom in rows:
+        body += "\\texttt{%s} & %s & %d/%d & %s & %s \\\\\n" % (
+            esc(tag), desc, nsat, n,
+            ("$%.4f$" % msat) if msat is not None else "---",
+            ("$%.4f$" % mroom) if mroom is not None else "---")
+    body += "\\midrule\npooled & --- & %d/%d & $%.4f$ & $%.4f$ \\\\" % (
+        len(pooled["sat"]), len(pooled["sat"]) + len(pooled["room"]), ms, mr)
+
+    lines = [r"\begin{table}[h]\centering\small",
+             r"\label{tab:saturation}",
+             (r"\caption{A confident null, manufactured by a one-token change. "
+              r"\texttt{nb20} and \texttt{bk20} differ only in \texttt{KA\_KERNEL\_BANK}; model, "
+              r"seed, rounds, $k$, $n_{\mathrm{train}}=20$ and $n_{\mathrm{held}}=9$ are identical. "
+              r"Rounds are split on whether the frozen control has already saturated the scorer "
+              r"($C_{\mathrm{reset}} \ge " + ("%.2f" % SAT) + r"$; a correct kernel at parity scores "
+              r"exactly $0.50$), not on which bank they came from. Saturated rounds measure a mean "
+              r"absolute contrast of $" + ("%.4f" % ms) + r"$ against $" + ("%.4f" % mr) + r"$ where "
+              r"the instrument has room, a factor of $" + ("%.0f" % ratio) + r"$. The split holds "
+              r"\emph{within} \texttt{nb20}, and \texttt{nb20}'s unsaturated rounds agree with "
+              r"\texttt{bk20}'s, so the task bank does not change the effect --- it changes how "
+              r"often the instrument can resolve it. On its own, \texttt{nb20} reads as a tight "
+              r"equivalence result.}"),
+             r"\begin{tabular}{@{}llrrr@{}}",
+             r"\toprule",
+             (r"Cell & Bank & saturated & mean $|\Delta|$ saturated & "
+              r"mean $|\Delta|$ has room \\"),
+             r"\midrule",
+             body.rstrip(),
+             r"\bottomrule",
+             r"\end{tabular}",
+             r"\end{table}"]
+    return "\n".join(lines), notes
 
 
 def lifetime_table():
@@ -1148,8 +1258,8 @@ def main():
             + _stex + "\n")
     for fn in (t1_table, t1_robustness_table, t1_replication_note,
                nonllm_baseline_table, t2_passrate_table, metric_contrast_table,
-               prereg_table, fed_table, dose_table, kl_table, depth_table,
-               lifetime_table, collapse_table):
+               prereg_table, fed_table, dose_table, kl_table, saturation_table,
+               depth_table, lifetime_table, collapse_table):
         tex, n = fn()
         if tex:
             parts.append(tex)
