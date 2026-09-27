@@ -128,8 +128,22 @@ Cell & Rounds & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} per roun
 \end{table}
 
 \begin{table}[h]\centering\small
+\label{tab:dose}
+\caption{Throughput as a dose. Every cell here runs the same bank, model, $k$, arms and code path, and differs only in \texttt{--n-train}, so the verified examples the learner receives is an independent variable rather than a difference between two configurations. The \texttt{fed} cells reported elsewhere changed the bank \emph{and} \texttt{n\_train} together and cannot separate the two. $\dagger$ marks a rung whose mean $n_{\mathrm{ex}}$ falls below the floor of two set by PREREGISTRATION Amendment 6, at which a trajectory is reported as starved rather than as a measurement of the contrast. That the low rungs are starved is the \emph{result} here and not grounds for excluding them: it is what varying the dose was meant to show. A starved rung's contrast is set by whichever arm happened to receive data, so its sign carries no information about self-training.}
+\begin{tabular}{@{}lrrlr@{}}
+\toprule
+\texttt{n\_train} & Cells & mean $n_{\mathrm{ex}}$/round & per-trajectory mean & pooled \\
+\midrule
+3 & 2 & 0.20$^{\dagger}$ & $+0.012$, $-0.017$ & $-0.003$ \\
+10 & 2 & 0.60$^{\dagger}$ & $-0.124$, $+0.002$ & $-0.061$ \\
+35 & 2 & 39.10 & $+0.126$, $+0.050$ & $+0.088$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]\centering\small
 \label{tab:kl}
-\caption{Regularized RSI. Each row trains under $\theta(t{+}1) = \arg\max \mathbb{E}[R] - \lambda\,\mathrm{KL}(\pi(\theta)\,\|\,\pi(\theta_0))$, with the reference policy obtained by disabling the LoRA adapter rather than loading a second model. $\lambda = 0$ is the unregularized objective and is the same code path the \texttt{fed} cells ran. The realized KL is reported beside the setting because a $\lambda$ that does not move the divergence is not a treatment. lambda=1.0 (1 of 2), lambda=5 (0 of 2), lambda=20 (0 of 2) not yet at depth and omitted.}
+\caption{Regularized RSI. Each row trains under $\theta(t{+}1) = \arg\max \mathbb{E}[R] - \lambda\,\mathrm{KL}(\pi(\theta)\,\|\,\pi(\theta_0))$, with the reference policy obtained by disabling the LoRA adapter rather than loading a second model. $\lambda = 0$ is the unregularized objective and is the same code path the \texttt{fed} cells ran. The realized KL is reported beside the setting because a $\lambda$ that does not move the divergence is not a treatment. lambda=5 (0 of 2), lambda=20 (0 of 2) not yet at depth and omitted.}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 $\lambda$ & Cells & realized KL & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\texttt{fresh} & last 2 \\
@@ -137,6 +151,7 @@ $\lambda$ & Cells & realized KL & mean $n_{\mathrm{ex}}$ & \texttt{self}$-$\text
 $0$ & 2 & -- & 39.1 & $+0.088$ & $+0.121$ \\
 $0.05$ & 2 & 0.0047 & 42.1 & $+0.118$ & $+0.180$ \\
 $0.2$ & 2 & 0.0033 & 40.8 & $+0.111$ & $+0.116$ \\
+$1.0$ & 2 & 0.0023 & 23.6 & $+0.105$ & $+0.121$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -170,9 +185,9 @@ Cell & Rounds & treat.\ at & ctrl.\ at & gap & peak & final & max $n_{\mathrm{ex
 \toprule
 Cell & Rounds & peak at & peak $C$ & final $C$ & drop & $C_{\mathrm{ctrl}}$ max & final & \texttt{trainC} \\
 \midrule
-\texttt{deep\_q15\_s1} & 9 & 4 & 0.47 & 0.41 & $-0.06$ & 0.45 & 0.41 & 0.50$\to$0.47 \\
-\texttt{deep\_q15\_s2} & 8 & 4 & 0.49 & 0.40 & $-0.09$ & 0.43 & 0.43 & 0.49$\to$0.41 \\
-\texttt{deep\_q15\_s3} & 10 & 2 & 0.48 & 0.24 & $-0.24$ & 0.51 & 0.47 & 0.49$\to$0.24 \\
+\texttt{deep\_q15\_s1} & 10 & 4 & 0.47 & 0.42 & $-0.05$ & 0.45 & 0.39 & 0.50$\to$0.40 \\
+\texttt{deep\_q15\_s2} & 9 & 4 & 0.49 & 0.32 & $-0.18$ & 0.43 & 0.42 & 0.49$\to$0.37 \\
+\texttt{deep\_q15\_s3} & 11 & 2 & 0.48 & 0.26 & $-0.22$ & 0.51 & 0.51 & 0.49$\to$0.26 \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -868,7 +868,7 @@ def dose_table():
     body = ""
     for label, n, mnx, mdl, per, starved in rows:
         body += "%s & %d & %.2f%s & %s & $%+.3f$ \\\\\n" % (
-            label, n, mnx, (r"$^{\\dagger}$" if starved else ""),
+            label, n, mnx, (r"$^{\dagger}$" if starved else ""),
             ", ".join("$%+.3f$" % x for x in per), mdl)
     _starved = [r[0] for r in rows if r[5]]
     note = ([" %s not yet at depth and omitted." % ", ".join(missing)] if missing else [])
@@ -878,10 +878,10 @@ def dose_table():
               r"code path, and differs only in \texttt{--n-train}, so the verified examples the learner "
               r"receives is an independent variable rather than a difference between two configurations. "
               r"The \texttt{fed} cells reported elsewhere changed the bank \emph{and} \texttt{n\_train} "
-              r"together and cannot separate the two. $\\dagger$ marks a rung whose mean "
-              r"$n_{\\mathrm{ex}}$ falls below the floor of two set by PREREGISTRATION Amendment 6, at "
+              r"together and cannot separate the two. $\dagger$ marks a rung whose mean "
+              r"$n_{\mathrm{ex}}$ falls below the floor of two set by PREREGISTRATION Amendment 6, at "
               r"which a trajectory is reported as starved rather than as a measurement of the contrast. "
-              r"That the low rungs are starved is the \\emph{result} here and not grounds for excluding "
+              r"That the low rungs are starved is the \emph{result} here and not grounds for excluding "
               r"them: it is what varying the dose was meant to show. A starved rung's contrast is set by "
               r"whichever arm happened to receive data, so its sign carries no information about "
               r"self-training.%s}" % ("".join(note))),
@@ -1162,6 +1162,13 @@ def main():
     # doubled escape was written for. LaTeX then ate the closing brace and the build died with
     # "File ended while scanning use of \@xdblarg", which names neither the file nor the cause.
     import re as _re
+    # A doubled backslash before a LaTeX command renders the command as literal text: the dose
+    # table printed "0.20$^{\\dagger}$" and would have shown the word rather than the symbol.
+    # It survives every other check here because it is valid LaTeX, just not what was meant.
+    for _m in _re.finditer(r"\\\\[a-zA-Z]+", out):
+        raise SystemExit("refusing to write %s: doubled backslash before '%s' at offset %d -- "
+                         "the command will render as literal text"
+                         % (OUT, _m.group(0)[:12], _m.start()))
     for _m in _re.finditer(r"\\%%+", out):
         raise SystemExit("refusing to write %s: literal '\\%%%%' at offset %d starts a LaTeX "
                          "comment and will swallow the rest of the line" % (OUT, _m.start()))
