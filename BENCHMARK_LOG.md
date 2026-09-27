@@ -1,3 +1,56 @@
+## 2026-09-27 16:05  the size ladder's capability curve is inverted, and n_gens says it is not throughput
+
+The six-scale ladder finished enough rounds to read, and it reads backwards.
+
+    size    cell          n_gens   n_ex    yield   C_fresh   contrast(last 2)
+    0.5B    fed_q05_s1      5250    628    12.0%     0.468    +0.008
+    1.5B    fed_q15_s1      5250    254     4.8%     0.240    +0.110
+    3B      fed_q3_s1       5250    640    12.2%     0.457    +0.013
+    7B      fed_q7_s1       5250      7     0.1%     0.070    -0.022
+    14B     fed_q14_s1      1050      0     0.0%     0.035    -0.017
+    Yi-6B   fedyi_s1        3150      0     0.0%     0.017    -0.023
+
+`n_gens` is identical at every scale -- 1050 per round, by construction. So the collapse is not
+generation throughput. It is yield: the share of generations that survive extraction and
+verification, which falls from ~12% to ~0 between 3B and 7B.
+
+The obvious reading of a null at 7B and 14B is saturation: the control arm already solves the
+tasks, so there is no differential left to measure. That reading is wrong here, and `C_fresh`
+is what rules it out. Saturation makes the control score HIGH. This control scores 0.070 at 7B
+and 0.035 at 14B against 0.468 at 0.5B. The large arms are not solving tasks at parity with the
+small ones; they are not solving tasks at all. A 7B Qwen2.5-Coder does not write worse kernels
+than a 0.5B, so this is the instrument, not the models.
+
+Which makes the earlier framing wrong. Commit 18c1763 recorded this as "the models best at the
+task produce the least measurable signal", i.e. saturation. The yield and C_fresh columns say
+the opposite mechanism is operating, and any claim resting on that framing has to come out.
+
+lab_weight_rsi.py names the candidate in its own comment above `_MAX_NEW`, written when the
+budget was raised from 900 to 2048:
+
+    "larger models write longer, more elaborate kernels, so a fixed budget truncates them more
+     often. An apparent capability curve can invert for no reason but the token limit."
+
+That is this shape exactly. The open question is only whether 2048 is still short, and it is a
+measurable question rather than an arguable one, so scripts/probe_truncation.py measures it:
+the real prompt and logits processor, the same bank, the completion-length distribution, the
+share running to the cap, and the share from which agent_bench can still extract a ModelNew --
+at 2048 and again at 6144. Truncation predicts a high share at the cap and a sharp rise in
+extraction with the larger budget. Incapability predicts lengths well under the cap and low
+extraction at both.
+
+Not yet settled, and not to be written up before the probe returns:
+
+  * The small end is non-monotone -- 0.5B 0.468, 1.5B 0.240, 3B 0.457 -- which truncation does
+    not explain, since a 1.5B does not write longer kernels than a 3B. Single seeds so far.
+  * 1.5B carries by far the largest contrast (+0.110) and has the lowest C_fresh of the three
+    working scales. That is consistent with headroom driving measurability, which is this
+    benchmark's own thesis, and it is also exactly the coincidence one would want to check
+    against more seeds before believing.
+
+Until the probe returns, every cell at 7B and above is quarantined for reading purposes. Their
+nulls carry no evidence about recursive self-improvement, only about the token budget.
+
 # KernelAscent — master benchmark log
 
 Single living record of the design, runs, results, and changes. Newest decisions at the top of
