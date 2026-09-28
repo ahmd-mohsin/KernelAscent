@@ -102,7 +102,27 @@ def run(args):
     held_family = args.held_family if args.held_family in fam else max(fam, key=lambda k: len(fam[k]))
     transfer = fam.get(held_family, [])[:args.n_held]              # held-out FAMILY (never trained on)
     pool = [n for n in names if n not in set(transfer)]
-    train, held = pool[:args.n_train], pool[args.n_train:args.n_train + args.n_held]
+    if args.held_tail:
+        # HELD SET PINNED TO THE TAIL OF THE POOL, so it does not move when n_train changes.
+        #
+        # The default split takes held from immediately after train, which means a sweep over
+        # n_train evaluates every arm on a DIFFERENT held set. That is fine for a single cell
+        # and fatal for a dose-response: the thing being varied and the thing being measured
+        # on both change together, and a difference between cells cannot be attributed to
+        # training volume rather than to which tasks happened to land in the evaluation.
+        #
+        # Off by default, so every cell already collected keeps the split it was run with.
+        held = pool[-args.n_held:]
+        train = pool[:args.n_train]
+        if set(train) & set(held):
+            sys.stderr.write(
+                "FATAL: --held-tail asked for n_train=%d + n_held=%d from a pool of %d, so the "
+                "train and held sets OVERLAP by %d task(s). Training on the evaluation set does "
+                "not degrade the measurement, it invalidates it. Lower --n-train or --n-held.\n"
+                % (args.n_train, args.n_held, len(pool), len(set(train) & set(held))))
+            raise SystemExit(3)
+    else:
+        train, held = pool[:args.n_train], pool[args.n_train:args.n_train + args.n_held]
     # Python slicing does not raise when the stop index runs past the end, so a bank too small
     # for train+held silently hands back a SHORTER held set than was asked for. On the 29-task
     # bank with n_train=20 this turned a requested n_held=20 into an actual 5, and nothing said
@@ -259,6 +279,9 @@ def run(args):
         PROV.dump_atomic({"model": args.model, "seed": args.seed, "C0": C0, "held_family": held_family, "resumed_at": resumed_at,
                          "n_train_requested": args.n_train, "n_train_actual": len(train),
                          "n_held_requested": args.n_held, "n_held_actual": len(held),
+                         # which split rule produced these sets; a sweep is only
+                         # comparable across cells that agree on it.
+                         "held_tail": bool(args.held_tail), "held_tasks": list(held),
                          "verified_cap_per_round": len(held) * args.k,
                    "adapter_restored": adapter_restored,
                    "arm": ("inject" if teacher else "control"),
@@ -276,6 +299,10 @@ def main():
     ap.add_argument("--model", required=True); ap.add_argument("--gpus", default="0")
     ap.add_argument("--rounds", type=int, default=8); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--n-train", type=int, default=20); ap.add_argument("--n-held", type=int, default=20)
+    ap.add_argument("--held-tail", action="store_true",
+                    help="take the held set from the END of the pool so it is identical across a "
+                         "sweep over --n-train (required for a dose-response; off by default so "
+                         "existing cells keep their split)")
     ap.add_argument("--sft-steps", type=int, default=40); ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--held-family", default="l3")
     ap.add_argument("--inject-kernels", default=None,
