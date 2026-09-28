@@ -35,9 +35,9 @@
 \newcommand{\finding}[1]{\medskip\noindent\textcolor{kaRed}{\textbf{Finding.}}\ #1\medskip}
 \newcommand{\intuition}[1]{\medskip\noindent\textbf{Intuition.}\ \emph{#1}\medskip}
 
-\title{\textbf{KernelAscent}\\[2mm]
-\large A benchmark for recursive self-improvement in GPU-kernel optimization,\\
-and what it taught us about measuring self-improvement at all}
+\title{\textbf{The Measurable Band}\\[2mm]
+\large When a recursive-self-improvement benchmark can measure anything,\\
+and what KernelAscent found on either side of it}
 \author{KernelAscent}
 \date{\today}
 
@@ -45,30 +45,44 @@ and what it taught us about measuring self-improvement at all}
 \maketitle
 
 \begin{abstract}
-KernelAscent asks whether a model can make itself better at writing GPU kernels, and whether that
-improvement compounds. We built a five-rung ladder --- one-shot capability, weight-level
-self-training, frozen-weight procedure self-editing, a closed model rewriting an open trainee's
-harness, and self-play in which a model authors the frontier it must then beat --- and ran it
-across scales from 0.5B to 32B.
+A self-improvement benchmark reports a number, and the number is worth reading only if the
+measurement could have moved. We show that this condition fails over most of the space such
+benchmarks are run in, that where it fails they return \emph{confident nulls} rather than
+errors, and that the region where it holds is narrow enough to need locating deliberately.
 
-Our primary finding is about the measurement rather than the models. In a controlled comparison
-where two cells differ in one environment variable and nothing else, the benchmark's original
-scoring rule reports a contrast of $-0.0002$ across ten rounds while the identical generations,
-rescored, report $+0.436$. Best-of-$k$ scoring cannot distinguish a model that solves a task once
-in $k$ from one that solves it $k$ times in $k$, which is precisely the quantity self-training
-moves; and because a matched control arm reaches the saturation point within three or four
-rounds, the blindness is scheduled by the design rather than risked by it.
+We call that region the \textbf{measurable band}. It is bounded below by scorer saturation ---
+the self-training loop improves correctness so effectively that a control arm reaches the
+scoring rule's structural maximum, after which the contrast between arms is pinned at zero by
+the metric rather than by the absence of an effect --- and above by loop starvation, where the
+producer's verified yield is too low to supply the loop with data at all, so no arm ever trains
+and every arm stays at its starting capability. Both failures return tight, well-formed,
+replicated zeros.
 
-The ladder's upper rungs did not return nulls. They returned undefined quantities, for one shared
-reason that is computable in advance: the self-referential loop received almost no input. The
-weight rung's learner received under one verified example per round with over 40\% of rounds empty; the
-procedure rung's archive grew by four entries across six rounds, or none; the self-play author
-had 4 of 173 proposals accepted. We therefore make no claim that recursive self-improvement fails
-here, and we argue instead that a self-improvement benchmark must demonstrate its loop has
-throughput before any contrast it reports carries information.
+We establish this with matched-pair experiments in which two cells differ in exactly one token
+of their command line. Changing only the task bank moves the mean absolute contrast from
+$0.0005$ to $0.1253$, a factor of $251$; the split holds \emph{within} a single bank, and the
+two banks agree wherever either has room, so the bank changes what can be seen and not what is
+there. Changing only the round count from five to fifteen reverses the sign of the headline
+result in all three seeds. The loop is not starved when it reverses --- verified examples per
+round stay between 67 and 143 --- and what tracks the decline is retention of round-0
+capability, which falls to $0.27$ (partial $r=+0.444$ controlling for round; the
+higher-retention seed carries the higher contrast in 13 of 15 rounds). Depth is therefore a
+free parameter that determines the sign of the headline, and one that prior self-improvement
+benchmarks do not report.
 
-We report what survives with its scope attached, and Section~\ref{sec:removed} lists every claim
-this project has retracted, narrowed, or excluded, each with the evidence that forced the change.
+These are diagnoses of an instrument, and the instrument is ours. KernelAscent is a five-rung
+ladder over GPU-kernel optimization --- one-shot capability, weight-level self-training,
+frozen-weight procedure self-editing, a closed model rewriting an open trainee's harness, and
+self-play --- run from 0.5B to 32B. Its upper rungs returned undefined quantities rather than
+nulls, for one computable reason: the loop received almost no input, under one verified example
+per round with over 40\% of rounds empty. We make no claim that recursive self-improvement
+fails here. We claim that most of our configurations could not have detected it, that this was
+predictable in advance from two quantities any such benchmark can measure before running ---
+dynamic range and throughput --- and that reporting both should be standard.
+
+Section~\ref{sec:removed} lists every claim this project retracted, narrowed, or excluded, each
+with the evidence that forced the change, including several that survived review and were
+withdrawn only when a control arm was finally built.
 \end{abstract}
 
 \tableofcontents
