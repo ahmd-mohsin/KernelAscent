@@ -57,6 +57,23 @@ removed exactly the information a reader needs in order to calibrate the rest.
 \subsection{Narrowed: claims that hold with a smaller scope}
 
 \begin{description}[leftmargin=1.4em,style=nextline]
+\item[{Held-family transfer, on the DSL kernel bank only.}]
+  The transfer measure groups tasks by the prefix before the first underscore, which separates
+  the legacy bank into real op-families ($\texttt{l2\_7}\rightarrow\texttt{l2}$, three or more
+  families) and collapses entirely on the DSL kernel bank, where every task is named
+  $\texttt{dsl\_}\langle\text{op}\rangle\texttt{\_}\langle\text{dtype}\rangle\texttt{\_}\langle\text{shape}\rangle$.
+  There the whole 124-task bank is a single family, so the ``held-out family'' is 20 arbitrary
+  tasks drawn from the training distribution and $C_{\mathrm{transfer}}$ measures ordinary
+  held-out generalisation while carrying a label that claims more. A transfer gap of
+  $\approx 0$ is then the expected outcome and is not evidence about a transferable meta-skill.
+  The $n=133$ mechanism analysis that states that gap runs on the legacy bank, whose split is
+  not degenerate, so that claim stands as written; no kernel-bank cell contributes a transfer
+  figure to this report. The lab now records \texttt{degenerate\_family\_split} in every
+  artifact so the condition travels with the data. We did not change the grouping rule while
+  cells were in flight: these runs resume from checkpoints, and a cell that resumed under a new
+  split would have early and late rounds measured on different sets, which is a worse failure
+  than the one being fixed.
+
 \item[{The compounding null ($n=57$ trajectories, \bfz{}$\,{=}\,5.6$).}]
   Valid, and narrowed twice. It is a null about acquiring \emph{correctness} rather than
   optimisation, and specifically about \textbf{best-of-$k$} correctness, which by construction

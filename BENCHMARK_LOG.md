@@ -1,3 +1,46 @@
+## 2026-09-28 11:23  the held-out "family" on the kernel bank is not a family
+
+Found while verifying that --held-tail had configured the band sweep correctly. The startup
+banner reads:
+
+    COMPOUNDING Qwen2.5-Coder-1.5B seed=1 train=80/80 held=20/20 transfer_family=dsl(20) rounds=8
+
+The split itself is right -- train varies 5, 10, 20, 40, 80 while held stays at 20/20 at every
+level, and the overlap guard would have exited 3 otherwise. `transfer_family=dsl(20)` is not.
+
+_families groups tasks by the prefix before the first underscore. That discriminates on the
+legacy bank, where l2_7 -> "l2" gives three or more families, and collapses completely on the
+DSL kernel bank, where every task is dsl_<op>_<dtype>_<shape>. The whole 124-task bank is one
+family called "dsl". So the "held-out family" is 20 arbitrary tasks from the training
+distribution, and transfer_C measures ordinary held-out generalization under a label that
+claims a great deal more. A transfer gap of ~0 is the expected outcome of that arrangement and
+carries no information about a transferable meta-skill.
+
+This is the same failure the report is about, in the instrumentation again: a well-formed number
+under a label that is not true of it. It is also the second time this exact naming scheme has
+fooled a piece of my own code -- probe_truncation.py took the first six tasks alphabetically and
+got six variants of dsl_cumsum_scale, which I fixed there by keying on the first three tokens
+and did not think to check anywhere else.
+
+WHAT IS AND IS NOT AFFECTED. The n=133 mechanism analysis that states "the held-family transfer
+gap is ~0 (no transferable meta-skill)" runs on the legacy bank. I verified the detector both
+ways rather than assuming: the legacy names split into 3 families, the DSL names into 1. That
+claim stands as written. No kernel-bank cell contributes a transfer figure to the report, so
+nothing has to be withdrawn -- but nothing was stopping one from doing so either.
+
+WHAT I DID NOT DO, DELIBERATELY. I did not fix the grouping rule. Ten band cells and the
+lambda sweep are in flight, every lab here resumes from per-round checkpoints, and a cell that
+resumed under a changed split would have its early and late rounds measured on different task
+sets. That is a worse and much harder-to-detect failure than the one being repaired. So:
+
+  * lab_compounding now DETECTS the condition and writes degenerate_family_split and n_families
+    into the artifact, leaving the split untouched. The condition travels with the data.
+  * The stderr banner says plainly that transfer_C must not be reported as family transfer.
+  * 03_removed.tex carries it under "Narrowed: claims that hold with a smaller scope", with the
+    scope stated as the legacy bank and the reason the rule was not changed mid-flight.
+
+Fixing the rule belongs in a fresh experiment on an idle queue, not in a hot patch.
+
 ## 2026-09-27 16:29  the measurable band: two different instrument failures, one at each end of scale
 
 The funnel finished at all five scales, and with it the size-ladder question closes.

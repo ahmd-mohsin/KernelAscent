@@ -99,6 +99,26 @@ def run(args):
 
     names = list(LK.TASKS); random.Random(1).shuffle(names)
     fam = _families(names)
+    # DEGENERATE FAMILY SPLIT. _families keys on the prefix before the first underscore, which
+    # discriminates on the legacy bank (l2_7 -> "l2") and collapses completely on the DSL kernel
+    # bank, where every task is named dsl_<op>_<dtype>_<shape>. There the whole bank is one
+    # family, so `transfer` is not a held-out OP FAMILY at all -- it is 20 arbitrary tasks drawn
+    # from the training distribution, and transfer_C measures ordinary held-out generalization
+    # while being labelled family transfer. A gap of ~0 is then the expected result and says
+    # nothing about a transferable meta-skill.
+    #
+    # The split is NOT changed here on purpose: cells are resumable, and a cell that resumes
+    # after a change to the split rule has a trajectory whose early and late rounds were
+    # measured on different sets. Detect, record, and let the audit refuse to report the
+    # affected quantity; fix the rule as a deliberate fresh experiment.
+    _degenerate_families = (len(fam) <= 1)
+    if _degenerate_families:
+        sys.stderr.write(
+            "WARNING: the task bank has ONE family under the prefix rule (%d tasks, key %r). "
+            "transfer_C is therefore NOT held-family transfer -- it is held-out generalization "
+            "within a single family, and must not be reported as evidence about transferable "
+            "meta-skill. Recorded in the artifact as degenerate_family_split=true.\n"
+            % (len(names), (list(fam) or ["<none>"])[0]))
     held_family = args.held_family if args.held_family in fam else max(fam, key=lambda k: len(fam[k]))
     transfer = fam.get(held_family, [])[:args.n_held]              # held-out FAMILY (never trained on)
     pool = [n for n in names if n not in set(transfer)]
@@ -282,6 +302,8 @@ def run(args):
                          # which split rule produced these sets; a sweep is only
                          # comparable across cells that agree on it.
                          "held_tail": bool(args.held_tail), "held_tasks": list(held),
+                         "n_families": len(fam),
+                         "degenerate_family_split": bool(_degenerate_families),
                          "verified_cap_per_round": len(held) * args.k,
                    "adapter_restored": adapter_restored,
                    "arm": ("inject" if teacher else "control"),

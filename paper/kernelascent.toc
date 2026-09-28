@@ -65,7 +65,7 @@
 \contentsline {subsection}{\numberline {A.1}Retracted: claims the data does not support}{38}{subsection.A.1}%
 \contentsline {subsection}{\numberline {A.2}Narrowed: claims that hold with a smaller scope}{39}{subsection.A.2}%
 \contentsline {subsection}{\numberline {A.3}Excluded: data that cannot answer the question it was collected for}{39}{subsection.A.3}%
-\contentsline {subsection}{\numberline {A.4}Provisional: retained but not load-bearing}{39}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.4}Provisional: retained but not load-bearing}{40}{subsection.A.4}%
 \contentsline {subsection}{\numberline {A.5}Known confounds carried into the results}{40}{subsection.A.5}%
 \contentsline {section}{\numberline {B}Probe-as-intervention, analysed as a secondary result}{41}{appendix.B}%
 \contentsline {paragraph}{Three corrections to the earlier analysis.}{41}{section*.28}%
