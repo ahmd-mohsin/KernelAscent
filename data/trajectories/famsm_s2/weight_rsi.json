@@ -1,0 +1,69 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "seed": 2,
+  "C0_frozen": 0.157163904224897,
+  "C0_ci": 0.04819525841754243,
+  "C0_correct_rate": 0.315,
+  "C0_compiled_sp": 0.31,
+  "resumed_at": null,
+  "adapter_restored": null,
+  "history": [
+    {
+      "round": 0,
+      "trainC": 0.115,
+      "n_ex": 11,
+      "loss": 0.156,
+      "kl_lambda": 0.0,
+      "kl": null,
+      "C_self": 0.186,
+      "C_self_ci": 0.05,
+      "C_ctrl": 0.158,
+      "C_ctrl_ci": 0.049,
+      "C_fresh": 0.186,
+      "C_fresh_ci": 0.05,
+      "correct_rate_self": 0.371,
+      "compiled_sp_self": 0.379,
+      "delta_self": 0.029,
+      "delta_self_minus_ctrl": 0.028,
+      "delta_self_minus_fresh": 0.0,
+      "n_uniq_self": 11,
+      "diversity_self": 0.715,
+      "retention": 1.0,
+      "round_sec": 7917.5,
+      "cum_gpu_hours": 6.598,
+      "n_gens": 1050
+    }
+  ],
+  "_provenance": {
+    "utc": "2026-09-28T21:46:01Z",
+    "host": "n09",
+    "git": null,
+    "python": "3.11.10",
+    "env": {
+      "KA_SCORE": "compiled",
+      "KA_PROMPT": "kernel",
+      "KA_ROOT": "/scratch/m000215-pm06/muahmed/KernelAscent",
+      "KA_DATA_DIR": "/users/muahmed/ka_data",
+      "KA_ROOF_ARCH": "h100",
+      "CC": "/usr/bin/gcc",
+      "CXX": "/usr/bin/g++"
+    },
+    "triton": {
+      "import": true,
+      "version": "3.1.0",
+      "cc": "/usr/bin/gcc",
+      "cc_exists": true
+    },
+    "roof_arch": "h100",
+    "roof_peaks": {
+      "fp16": 989.0,
+      "bf16": 989.0,
+      "fp32": 67.0,
+      "tf32": 495.0,
+      "bw": 3350.0
+    },
+    "torch": "2.5.1+cu124",
+    "cuda": "12.4",
+    "gpu": "NVIDIA H100 80GB HBM3"
+  }
+}
