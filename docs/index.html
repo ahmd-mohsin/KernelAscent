@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KernelAscent</title>
-<meta name="description" content="KernelAscent is a benchmark for compounding kernel optimization. Models write GPU kernels graded for correctness and speed. Open and closed models compete on capability. Open weight models test recursive self improvement." />
+<meta name="description" content="KernelAscent: a GPU-kernel benchmark. Models write kernels, graded for correctness and speed, and are tested on whether they improve themselves over rounds." />
 <link rel="icon" href="logo.png" />
-<link rel="stylesheet" href="style.css?v=09252140">
+<link rel="stylesheet" href="style.css?v=10081200">
 </head>
 <body>
 <header class="nav">
@@ -15,7 +15,7 @@
     <nav>
       <a href="#tasks">Tasks</a>
       <a href="#capability">Capability</a>
-      <a href="#rsi">RSI</a>
+      <a href="#rsi">Self-improvement</a>
       <a href="#data">Datasets</a>
       <a href="#submit">Submit</a>
       <a href="https://github.com/ahmd-mohsin/KernelAscent">GitHub</a>
@@ -24,208 +24,29 @@
   </div>
 </header>
 
-<div class="anchorbar" id="anchorbar">
-  <a href="#headline">Headline</a>
-  <a href="#findings">Findings</a>
-  <a href="#instrument">Instrument</a>
-  <a href="#capability">Results</a>
-  <a href="#submit">Submit</a>
-</div>
-
 <div class="wrap">
 <section class="hero" id="top" style="border:none">
-  <div class="eyebrow">Compounding kernel optimization</div>
+  <div class="eyebrow">GPU kernel benchmark</div>
   <h1>KernelAscent</h1>
-  <p class="dek">KernelAscent asks whether models get better at writing GPU kernels. A model writes a kernel. We grade it for correctness against an fp32 reference and for speed against a baseline. <b>Task 1, Capability</b> measures raw skill in one shot. <b>Task 2, Weight RSI</b> measures recursive self improvement through weight training, for open weight models. <b>Task 3, Procedure RSI</b> lets open and closed models improve their own executable research procedure, weights fixed. Open and closed models both compete on Tasks 1 and 3. Task 2 needs weight access.</p>
-  <div class="kpis">
-    <div><div class="kpi-n" data-h="contrast.headroom_mean" data-fmt="signed4">&mdash;</div><div class="kpi-l">headroom contrast, 10 rounds</div></div>
-    <div><div class="kpi-n" data-h="contrast.passrate_mean" data-fmt="signed3">&mdash;</div><div class="kpi-l">the same rounds, rescored</div></div>
-    <div><div class="kpi-n" data-h="starvation.mean_per_round" data-fmt="f2">&mdash;</div><div class="kpi-l">training examples per round</div></div>
-    <div><div class="kpi-n">5</div><div class="kpi-l">rungs, 0.5&ndash;32B, 9 model families</div></div>
-  </div>
-  <p class="finding-strip"><b>The finding is about the instrument.</b> Two cells of one experiment differ in a single environment variable. Under the scoring rule this benchmark was built around they report a contrast of <b data-h="contrast.headroom_mean" data-fmt="signed4">&mdash;</b>. The identical generations, rescored, report <b data-h="contrast.passrate_mean" data-fmt="signed3">&mdash;</b>. <span class="ev">Same model · same seed · same <i>k</i> · same bank · same three arms</span> <a href="#headline">Read the evidence</a> · <a href="#submit">Submit a recipe</a></p>
-  <p class="finding-strip" style="border-color:#8C1515"><b>What this costs us.</b> We previously led with a compounding null over 57 trajectories. We no longer report it as a finding about models. Best-of-<i>k</i> scoring cannot see the quantity self-training moves, and the registered loop received <b data-h="starvation.mean_per_round" data-fmt="f2">&mdash;</b> verified examples per round. The claim that survives is narrower and, we think, more useful: <b>a self-improvement benchmark must demonstrate that its loop has throughput before any contrast it reports carries information.</b></p>
-  <p class="finding-strip" style="border-color:#c2410c"><b>Open caveat (2026-09-23):</b> we found that <b>Triton kernels could never verify on this harness</b>. The cluster's <code>CC</code> pointed at a host compiler absent inside our container, and only Triton compiles C at runtime &mdash; so <b>0 of 204</b> verified kernels across two harvests contained Triton or CUDA, and every non-plain-torch submission in this project's history failed for an environment reason. The benchmark has been measuring correctness-preserving <i>rewriting</i>, not kernel optimization. Fixed; a hand-written Triton kernel now verifies. <span class="ev">The speed-scored boards are provisional until the re-runs land.</span> <a href="#instrument">What this means</a></p>
-</section>
-
-<section id="headline">
-  <div class="snum">00 / The four results that make the rest worth reading</div>
-  <h2>What the instrument could and could not see</h2>
-  <p class="small sub">Every number in this section is re-derived from stored artifacts by <code>scripts/build_site_headline.py</code> and read from <a href="data/headline.json">data/headline.json</a> at page load. None of it is typed into this page. The paper regenerates the same numbers from the same artifacts through the same module.</p>
-
-  <div class="cards" id="hl-cards"></div>
-
-  <h3>1. The same runs, two scorers, opposite conclusions</h3>
-  <p class="small">Two cells differ in <code>KA_SCORE</code> and in nothing else &mdash; same base model, same seed, same sampling budget <i>k</i>, same task bank, same three arms, same code path. One scores each round with the headroom-normalised best-of-<i>k</i> rule the benchmark was designed around. The other scores the <i>identical generations</i> by pass rate, the fraction of <i>k</i> candidates that verify. <span class="dag">&dagger;</span> marks a round where both the lineage and reset arms have reached correct-at-parity.</p>
-  <div class="tablewrap"><table class="small" id="hl-contrast">
-    <thead><tr><th>Cell</th><th class="num">Round</th><th class="num">C<sub>lin</sub> / C<sub>reset</sub></th><th class="num">Headroom</th><th class="num">Pass rate</th></tr></thead>
-    <tbody></tbody>
-  </table></div>
-  <p class="small" id="hl-contrast-note"></p>
-  <div class="note"><b>The blindness is scheduled, not accidental.</b> Best-of-<i>k</i> is identical for a model that solves a task one time in <i>k</i> and one that solves it <i>k</i> times in <i>k</i> &mdash; and that is exactly the quantity self-training moves. The contrast is not broken: it measures the gap between the arms, faithfully, at all times. Best-of-<i>k</i> compresses both arms onto correct-at-parity and holds them there, so the gap it faithfully reports is zero. It recovers the moment a gap reopens: one cell reads +0.002 at arm levels 0.50/0.50 and +0.201 one round later at 0.50/0.30. The consequence worth carrying is a design one &mdash; a matched reset learner reaches parity within three or four rounds, so the measurement&rsquo;s useful lifetime is fixed by the <i>control</i> arm rather than by the treatment. <b>A well-behaved control ends the measurement by behaving well</b>, and no choice of treatment or number of rounds repairs that.</p>
-  <p class="small">This is not a claim that pass rate is the right metric. It has a ceiling of its own, reached in three of four cells. It is a demonstration that a benchmark can return a confident null on a difference its own runs contain.</p>
-
-  <h3>2. Three rungs did not produce nulls; they produced undefined measurements</h3>
-  <p class="small">Three of the five rungs failed for one shared reason, in three different labs, through three different channels. Each channel received almost no input &mdash; and the arithmetic that says so was available before any of it ran.</p>
-  <div class="tablewrap"><table class="small" id="hl-starved">
-    <thead><tr><th>Rung</th><th>What feeds the loop</th><th class="num">Measured</th></tr></thead>
-    <tbody>
-      <tr><td>T2 &mdash; weight-RSI</td><td>verified self-generated training examples</td><td class="num"><b data-h="starvation.mean_per_round" data-fmt="f2">&mdash;</b> per round, <b>zero in <span data-h="starvation.frac_empty" data-fmt="pct0">&mdash;</span></b> of rounds</td></tr>
-      <tr><td>T3 &mdash; procedure-RSI</td><td>kernels entering the archive after grading</td><td class="num"><b>4</b> across six rounds, or <b>0</b></td></tr>
-      <tr><td>T5 &mdash; self-play</td><td>accepted model-authored tasks</td><td class="num"><b>4 of 173</b> proposed (2.3%)</td></tr>
-    </tbody>
-  </table></div>
-  <p class="small">Expected training examples per round is <code>n_train &times; k &times; yield</code>. At the registered configuration that is <code>3 &times; 10 &times; 0.032 = 0.96</code>, and the artifacts agree to two decimals. We ran 57 trajectories and 228 rounds of a loop that could not compound, and the calculation that says so is one line. It now runs at startup.</p>
-  <p class="small"><b>What this does and does not say.</b> It is not evidence that recursive self-improvement fails. A contrast between an arm that trained on nothing and an arm that trained on frozen-base data is not a measurement of the registered quantity, whatever number it returns. The claim is that <b>loop throughput is a precondition to check, not a result to discover</b>, and we have registered it as one.</p>
-
-  <h3>3. A non-LLM baseline that scores below parity</h3>
-  <p class="small">The standard objection to results here is that a model reaching correct-at-parity is simply failing. We answered it by submitting a non-LLM tool to the benchmark on its own terms. <code>torch.compile(mode="max-autotune")</code>, scored exactly as a model candidate is, lands <b>below</b> correct-at-parity, because it is slower than default <code>torch.compile</code> on most of the bank.</p>
-  <div class="tablewrap"><table class="small" id="hl-nonllm">
-    <thead><tr><th>Tier</th><th class="num">Tasks</th><th class="num">Median score</th></tr></thead>
-    <tbody></tbody>
-  </table></div>
-  <p class="small" id="hl-nonllm-note"></p>
-
-  <h3>4. Every claim this project has withdrawn</h3>
-  <p class="small">The consolidated report carries a ledger of every result retracted, narrowed, excluded or held provisional, each with the evidence that forced the change &mdash; including the two this page used to lead with. A report that shows only its surviving claims has removed exactly the information a reader needs in order to calibrate the rest. <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/paper/kernelascent.pdf">Read the report</a> &middot; <a href="#instrument">the seven instrument defects</a></p>
-</section>
-
-<section id="findings">
-  <div class="snum">00a / Key findings</div>
-  <h2>What we found</h2>
-  <p class="small sub"><b>Self-training sharpens what a model already covers; it does not explore. In GPU-kernel optimization, compounding is coverage-limited — and coverage is not self-generated.</b></p>
-  <div class="note" style="margin:14px 0 18px"><b>How these numbers are counted.</b> The independent replicate is a <b>trajectory</b> — one seed, one base checkpoint, one held split, one accumulated adapter — <i>not</i> a round. Rounds inside a run are serially dependent, so pooling them as independent overstates the evidence (it is what an earlier version of this page did). Every interval below is computed at the trajectory level, with a cluster-robust check; the naive round-level figure is shown only where it makes the correction auditable.</div>
-  <ul class="small">
-    <li><b>No compounding &mdash; <u>withdrawn as a finding about models</u>, retained as a measurement.</b> Lineage vs. matched reset over multi-round rejection-sampling SFT: pooled lineage&minus;reset = <b>-0.010 [-0.035, +0.016]</b> over <b>57 independent trajectories</b> (228 round-comparisons), TOST-equivalent at &delta;=0.05, Bayes factor <b>BF&#8320;&#8321; = 5.6</b>. The arithmetic is unchanged and the artifacts are unchanged. What changed is what it can be read as. Two preconditions this contrast needed were not met: the scorer is <a href="#headline">blind to the quantity self-training moves</a> once both arms reach correct-at-parity, which a matched reset learner does within three or four rounds; and the loop was receiving <a href="#headline">about one verified example per round</a>. An equivalence result requires that a non-equivalent world would have looked different, and here it would not have. We report the number, we do not report it as evidence that self-training fails to compound. <i>(The naive round-level pooling would give BF&#8320;&#8321; = 14.7; that figure is an artifact of the clustering and was never claimed.)</i></li>
-    <li><b>Search beats training (significant).</b> At matched cumulative generation budget, best-of-N search beats lineage self-training: lineage−bestofN = <b>-0.111 [-0.138, -0.083]</b> over 57 trajectories — CI excludes zero — and search wins <b>84% of runs</b>. Unlike the null, this positive <i>strengthens</i> under the clustering correction, because the contrast is made within a round.</li>
-    <li><b>Coverage-vs-scale (0.5B→14B).</b> Coverage 14%→86%; below the wall pass@K ≫ pass@1 (12–17×) — the sub-2B "correctness wall" is a low per-sample success probability, not absent capability. The <i>sharpenable</i> band (0&lt;p&lt;0.2, the only mass rejection-sampling SFT can act on) is 14/28/59/79/0% at 0.5/1.5/3/7/14B: thin below the wall, absent above it.</li>
-    <li><b>0-score forensics (8 families).</b> The sub-3B wall is a kernel-<i>formation</i> failure (no_extract 57–96%), not correctness; failure marches downstream with scale: incoherence → truncation → API-hallucination → wrong-output → correct.</li>
-    <li><b>Weight-level mechanism (WHY-RSI, n=133).</b> Reported as <i>associations</i>, not causal gates. Wall-crossing is 54% below 2B vs 92% at ≥2B — less frequent, <b>not</b> "never". RSI is an inverted-U in scale: it peaks at 2–8B (50%) and falls to 23% at ≥8B despite the largest LoRA drift (0.60) — motion without progress near the roofline. Among wall-crossers the discriminators are drift and retention; compounders show <b>lower</b> generation diversity (0.41 vs 0.52), so "diversity collapse causes the null" is <i>not</i> supported on this bank.</li>
-    <li><b>Task-3 procedure self-modify — gains are real, the "one-shot" reading is <u>retracted</u>.</b> The harness asks for &ldquo;&le;12&rdquo; strategy strings and shows 12 back. Frontier models comply <i>exactly</i>: <b>5 of 5</b> interpretable runs sit at 11&ndash;12 strategies from round 0 and <b>4 of 5 never grow at all</b> (Astra, Sonnet 5 and Mistral Large 3 are literally <code>12,12,12,12,12,12</code>). A procedure pinned at its limit in round 0 cannot be observed to keep improving, so &ldquo;the model stopped&rdquo; and &ldquo;the harness stopped it&rdquo; are not separable. Re-running the same harness with an open model at caps {12, 48, unbounded}: procedures <i>do</i> grow when permitted (6/6 clean runs), confirming the cap binds something real &mdash; but there is <b>no dose-response in quality</b> (mean &Delta;Q &minus;0.046 / +0.021 / &minus;0.009, n=2 per cell, all six runs complete). Lifting the cap lets the procedure grow without making it better. <b>Correction:</b> an earlier version of this page reported a monotone rise to +0.482 unbounded; those runs sat on an inode-exhausted filesystem, had Q<sub>0</sub>=0.000 and 4&ndash;5 exactly-zero rounds, and their &ldquo;gain&rdquo; was recovery from a spurious zero baseline. Now excluded automatically. Two seeds per cell, and open-vs-closed is confounded with model family, so these corroborate rather than replicate &mdash; but the closed-model pinning is visible in the already-published records and needs no new run. The apparent DeepSeek-V3.2 &ldquo;self-degrade&rdquo; remains a single-round artifact.</li>
-    <li><b>Task-5 self-play — undefined, not null.</b> L−F needs the live author to produce accepted valid tasks; requiring ≥5, only 6/24 open and 5/11 closed runs qualify, and 10/11 closed rows are exactly 0.0. The dedicated diagnosis run authored <b>zero</b> tasks in all 8 rounds. The supported finding is narrower: <b>free-form task proposal collapses</b>.</li>
-    <li><b>Probe-as-intervention (secondary).</b> Clustered on base checkpoint, probe-guided reranking beats <i>uniform random</i> selection at matched generation budget (+0.124 [+0.029, +0.218], 12 checkpoints), recovering 36% of the oracle headroom. But random is the weakest comparator, denominators are 5–12 tasks per run, and the within-task ranking AUC — the only estimand that explains a selection gain — was never logged, so it is <b>unmeasured</b>.</li>
-  </ul>
-</section>
-
-<section id="instrument">
-  <div class="snum">00b / Instrument validity</div>
-  <h2>Can this benchmark detect a positive?</h2>
-  <p class="small sub"><b>A benchmark that reports a null owes a second result: evidence the measurement could have reported a positive.</b> When the headline is a difference between two arms of one pipeline, any defect that suppresses both arms equally leaves the contrast at zero while every surface check &mdash; jobs complete, kernels compile, scores populate &mdash; looks healthy. A broken instrument does not announce itself; it reports &Delta;&nbsp;&asymp;&nbsp;0.</p>
-
-  <div class="note" style="margin:14px 0 18px"><b>Seven defects, each of which independently produced a plausible null.</b> We publish these because the null is our headline, and a reader cannot audit a null without them.</div>
-
-  <table class="small prose">
-    <thead><tr><th style="width:34%">Defect</th><th style="width:33%">Presented as</th><th style="width:33%">Caught by</th></tr></thead>
-    <tbody>
-      <tr><td>Grader mis-imported under a wrong root</td><td>&ldquo;self-training does not compound&rdquo;</td><td>identity-kernel assertion</td></tr>
-      <tr><td>Grading device index absent on a 1&ndash;2 GPU allocation</td><td>&ldquo;the model writes bad kernels&rdquo;</td><td>same assertion, run on the <i>allocation shape the jobs use</i></td></tr>
-      <tr><td>Raw generations graded without extracting the submission</td><td>&ldquo;the 14B teacher solves 0/29&rdquo;</td><td>non-zero coverage precondition</td></tr>
-      <tr><td>Score saturated at the correctness floor</td><td>&ldquo;lineage &asymp; reset&rdquo;</td><td>score-histogram check</td></tr>
-      <tr><td>Compiled-baseline cache hitting a filesystem inode quota</td><td>&ldquo;4 of 6 rounds produced nothing&rdquo;</td><td>output-path / quota correlation</td></tr>
-      <tr><td><b>Our own explanation of the first five</b></td><td>&ldquo;H100 closed the headroom&rdquo;</td><td>tracing prompt &rarr; number</td></tr>
-      <tr><td><b>Host <code>CC</code> leaking into the container, so Triton could not build</b></td><td>&ldquo;models cannot write kernels when asked&rdquo;</td><td>known-good <i>Triton</i> kernel</td></tr>
-    </tbody>
-  </table>
-
-  <h3 style="margin-top:22px">The sixth is the instructive one</h3>
-  <p class="small">We diagnosed a spike of scores at exactly 0.50 as a hardware effect: <code>torch.compile</code> is stronger on H100, so the headroom closed. It was plausible, it fit every number we had, and it was <b>wrong</b> &mdash; the default scorer never uses the compiled baseline at all. The real cause was upstream of the metric, in our own prompt:</p>
-  <ul class="small">
-    <li>The generation prompt says <i>&ldquo;a plain-torch kernel that is correct beats a fancy one that errors&rdquo;</i> &mdash; written to suppress parse failures, which it did.</li>
-    <li>Models complied: <b>0 of 86</b> verified kernels from the 14B model contained Triton, CUDA or <code>load_inline</code> &mdash; all pure-PyTorch rewrites of the reference. An independent re-harvest under the same prompt replicated it exactly: <b>0 of 118</b>, for <b>0 of 204</b> across both.</li>
-    <li>A semantically equivalent rewrite runs at reference speed by construction: median <b>1.00&times;</b>, 93% below 1.05&times;.</li>
-    <li>And <code>score(correct, 1.00) = 0.50</code> &mdash; <b>75% of the frozen base's <i>non-zero</i> scores on the 29-task bank land within &plusmn;0.01 of parity</b> (18 of 24 solved tasks) under the calibration scorer. <i>(Corrected: an earlier version said "76% of all H100 scores" were exactly 0.50.)</i></li>
-    <li>Both arms pinned at 0.50 &rArr; <code>lineage &minus; reset &equiv; 0</code>, by construction.</li>
-  </ul>
-  <p class="small">So the metric was never broken. It reported, accurately, that the models were not attempting the task the benchmark exists to measure &mdash; and we misread a correct measurement as a dead instrument. This <i>inverts</i> the lesson of the first five: there, a clean zero was a bug; here a clean zero was a finding and the bug was in the interpretation. The rule we now hold is stricter: <b>trace the causal chain from prompt to number before naming a cause, and prefer the explanation an intervention can kill over the one that merely fits.</b></p>
-
-  <div class="note" style="margin:16px 0"><b>What is running now.</b> A prompt A/B &mdash; identical tasks, grader, model and seed, only the prompt text differs &mdash; at 14B, plus a 32B cell to test whether scale adds anything once the model is actually asked to optimize. The three outcomes and their thresholds were fixed in code before the runs launched. If the plateau proves substantially prompt-induced, <b>every speed-scored board here has to be re-run before it means anything</b>, and we will say so on this page.</div>
-
-  <h3 style="margin-top:22px">The seventh: the benchmark had never measured its own subject</h3>
-  <p class="small">Having traced the plateau to the prompt, we removed the steer and asked explicitly for a Triton kernel. The model solved <b>0 of 29</b> tasks against 25 of 29 under the published prompt &mdash; a clean, pre-registered, publishable result: <i>the models try when asked and cannot produce a working kernel</i>.</p>
-  <p class="small">It is also false. Before reporting it we applied the known-good-input gate to the <i>new</i> input: a hand-written Triton kernel, correct by construction, plus a plain-torch control that must pass and a wrong kernel that must fail.</p>
-  <table class="small prose">
-    <thead><tr><th style="width:46%">Case</th><th style="width:27%">Result</th><th style="width:27%">Reason</th></tr></thead>
-    <tbody>
-      <tr><td>plain-torch identical to the reference</td><td><b>ok=True</b></td><td><code>ok</code></td></tr>
-      <tr><td>deliberately wrong kernel</td><td>ok=False</td><td><code>wrong/imprecise</code></td></tr>
-      <tr><td><b>hand-written correct Triton kernel</b></td><td><b>ok=False</b></td><td><code>FileNotFoundError</code></td></tr>
-    </tbody>
-  </table>
-  <p class="small">Triton compiles a small C shim at first use and takes its compiler from <code>$CC</code>, which the cluster's module system sets to a <i>host</i> path absent inside our container. Plain PyTorch never compiles anything at runtime, so <b>only Triton broke</b> &mdash; and Triton is the subject of the benchmark. One environment variable fixed it; the same kernel now verifies at 0.99&times;.</p>
-  <p class="small">The consequence is a corrected <i>scope</i>, not a corrected number: for this project's entire history, every submission that was not plain PyTorch failed for an environment reason.</p>
-  <p class="small">It also revises our account of the sixth defect. We blamed the saturated score on the prompt's instruction to prefer plain torch &mdash; but that instruction reads as a <b>rational adaptation to a broken grader</b>. Tuned against a harness where Triton always failed, plain torch genuinely was the only thing that worked. The prompt and the grader were coupled, and the grader came first. <b>A configuration that looks inexplicably conservative may be compensating for a defect</b> &mdash; and because the defect never appears in any result, the workaround looks like a design choice indefinitely.</p>
-  <p class="small">Two things made this catchable before publication. Failure reasons now propagate &mdash; the grader had always computed a reason and discarded it one line later, so every failure in project history was a bare <code>False</code>, and &ldquo;model writes Triton, Triton grades False&rdquo; reads naturally as a claim about the model. And, more transferably: <b>when an experiment starts producing a new <i>kind</i> of artifact, re-instantiate the known-good gate for that kind.</b> &ldquo;The grader works&rdquo; was true and useless; &ldquo;the grader works on Triton&rdquo; was the question, and nothing was asking it.</p>
-
-  <h3 style="margin-top:22px">Reachability: the range check, made into a number</h3>
-  <p class="small">&ldquo;Check the metric has range&rdquo; is advice until it is a number. <b>Reachability</b> is the fraction of bank tasks where the <i>frozen base</i> already clears the scoring anchor. It falls out of the calibration pass, costs nothing extra, and is known before any experiment runs.</p>
-  <table class="small prose">
-    <thead><tr><th style="width:44%">Bank</th><th style="width:18%">Tasks</th><th style="width:18%">Admitted</th><th style="width:20%">Reachability</th></tr></thead>
-    <tbody>
-      <tr><td>Hand-curated (29-task)</td><td>29</td><td>23</td><td><b>1 / 29</b> &nbsp;(3.4%)</td></tr>
-      <tr><td>Generated DSL (456-task)</td><td>456</td><td>180</td><td><b>57 / 456</b> &nbsp;(12.5%)</td></tr>
-    </tbody>
-  </table>
-  <p class="small">Reachability of 3.4% means that on 28 of 29 tasks <i>every</i> success the base produced landed at parity &mdash; the score had one attainable non-zero value, and the contrast between two arms was pinned before a single round ran. We would now decline to run a speed-scored compounding study on such a bank, and we publish the statistic for any bank we ship.</p>
-  <p class="small"><b>What this does not say.</b> It is measured against eager PyTorch at a fixed 1.5&times; anchor, which is what the default scorer uses; the roofline ceiling does not enter it. So it licenses no claim about <code>torch.compile</code>, and a bank of <i>generated</i> references may be easy to beat for reasons that do not transfer. Reachability is necessary for a usable substrate, not sufficient.</p>
-
-  <h3 style="margin-top:22px">What we propose as standard practice</h3>
-  <p class="small sub">Shipped as executable gates in the repo, not as advice. We recommend them for any self-improvement benchmark reporting a null.</p>
-  <ol class="small">
-    <li><b>Known-good input, known-good output</b>, asserted before every batch and run <i>on the same allocation shape as the experiment</i> &mdash; one defect lived entirely in the difference between a 1-GPU and a 3-GPU allocation.</li>
-    <li><b>A dynamic-range precondition, reported as reachability:</b> the fraction of tasks where the frozen base already clears the scoring anchor. Publish it beside every bank, and never interpret a contrast computed on a bank where it is near zero.</li>
-    <li><b>A positive control on the causal path:</b> an intervention known to move the metric. A null is interpretable only once the harness has registered a positive.</li>
-    <li><b>Mechanism denominators beside every rate</b>, so undefined is distinguishable from zero.</li>
-    <li><b>Automated cross-artifact consistency checking</b> &mdash; every number re-derived from the data files at build time.</li>
-  </ol>
-  <p class="small">None of these defects was unusual carelessness. Each was a single line, each was locally reasonable, and each was caught only because an assertion was looking for it. The generalizable claim is structural: <b>in a benchmark whose headline is a difference between two arms of one pipeline, the cheapest result to produce accidentally is a null</b> &mdash; and the field has no convention requiring authors to rule that out.</p>
-</section>
-
+  <p class="dek">Models write GPU kernels. Each kernel is graded for correctness against a reference and for speed against a baseline. The benchmark asks two things: how well a model does in one shot, and whether it gets better when it trains on, or edits, its own work over several rounds.</p></section>
 
 <section id="tasks">
-  <div class="snum">01 / The five tasks</div>
-  <h2>What each task measures</h2>
-  <p class="sub">All five tasks use GPU kernels and the same grader. A kernel is correct when its output matches the fp32 reference; speed is scored against an eager baseline (a unified <code>torch.compile</code> baseline is reported separately), headroom-normalized against a per-task roofline. Task 1 is a single solve. Task 2 improves the weights across rounds. Task 3 improves the executable procedure with weights fixed. Task 4 has a closed model rewrite an open trainee's harness. Task 5 — the true-RSI metric — has the model author its own strictly-harder tasks and improve on them, with a 3-arm design that isolates author co-evolution.</p>
-
-  <figure class="vizfig fullbleed">
-    <div class="viz-frame vizwide"><div id="viz-flow"></div></div>
-    <div id="viz-flow-notes" class="flownotes"></div>
-    <figcaption><span class="fnum">The five tasks as agent loops.</span> Each panel shows what the agent actually does — a one-shot solve (T1), a weight-training loop (T2), an edit to its own frozen-weight procedure (T3), a closed model rewriting the harness that trains an open one (T4), and a self-play arena where the model authors the frontier it must then beat (T5). Left to right is increasing recursion depth; only T5 lets difficulty and capability co-evolve.</figcaption>
-  </figure>
-
-
-  <div class="tracks">
-    <div class="track">
-      <h3>Task 1, Capability</h3>
-      <p>Can the model write a correct and fast kernel in one shot. Correct means it matches the fp32 gold. Fast means it beats the eager baseline today, with a compiled baseline being added. Correctness ranks the low and mid band. Real speedups separate the frontier.</p>
-      <div class="metrics">reports correct rate, fast rate, mean C</div>
-    </div>
-    <div class="track">
-      <h3>Task 2, RSI <span class="lab">open weight</span></h3>
-      <p>Does self improvement compound. Each round the model writes kernels for a train split, trains on its own correct kernels, and is re-scored on a held out split. The weights change, so the improver itself gets better. A frozen or API model cannot cross this line.</p>
-      <div class="metrics">reports C per round, delta vs frozen base and control</div>
-    </div>
-    <div class="track">
-      <h3>Task 3, Procedure RSI <span class="lab">open and closed</span></h3>
-      <p>A closed model cannot change its weights, but it can improve its own executable research procedure. The editable state is a strategy library, a solver prompt, and an archive of verified kernels. Each round the model solves tasks, then rewrites its own procedure from the evidence. The improved procedure drives the next round. Weights stay fixed. This is how API models join the RSI axis.</p>
-      <div class="metrics">reports Q per round, F = newer procedure beats older, vs frozen and archive-only controls</div>
-    </div>
-    <div class="track">
-      <h3>Task 4, Closed → Open <span class="lab">closed drives open</span></h3>
-      <p>A closed frontier model rewrites the <b>training harness</b> of an open-weight trainee — data selection, LoRA hyperparameters, curriculum. Improvement is transferred through tooling rather than the closed model's own weights. Scored as improved-harness vs frozen-harness on the same open trainee.</p>
-      <div class="metrics">reports open-trainee C under improved vs frozen harness (headroom score)</div>
-    </div>
-    <div class="track">
-      <h3>Task 5, Self-play <span class="lab">true RSI · open + closed</span></h3>
-      <p>The model authors its own strictly-harder tasks <b>and</b> solves+improves on them, so difficulty and capability co-evolve. Three arms — STATIC, FROZEN-AUTHOR, LIVE-AUTHOR — isolate the one effect that matters: does an <i>evolving</i> author help beyond any harder curriculum? Anti-reward-hacking gates reject degenerate self-authored tasks.</p>
-      <div class="metrics">primary L−F = author co-evolution; also L−S, F−S, model-authored acceptance rate</div>
-    </div>
+  <h2>Tasks</h2>
+  <div class="tablewrap">
+    <table><thead><tr><th>Task</th><th>What it measures</th><th>Models</th></tr></thead>
+    <tbody>
+      <tr><td><b>1. Capability</b></td><td>Can the model write a correct, fast kernel in one shot?</td><td>open and closed</td></tr>
+      <tr><td><b>2. Weight self-improvement</b></td><td>The model trains on its own correct kernels each round. Does it get better than a matched control?</td><td>open weights</td></tr>
+      <tr><td><b>3. Procedure self-improvement</b></td><td>Weights stay fixed; the model rewrites its own strategy and solver prompt each round.</td><td>open and closed</td></tr>
+      <tr><td><b>4. Closed → open</b></td><td>A closed model rewrites the training setup of an open model.</td><td>closed + open</td></tr>
+      <tr><td><b>5. Self-play</b></td><td>The model writes harder tasks for itself, then solves them.</td><td>open and closed</td></tr>
+    </tbody></table>
   </div>
 </section>
 
 <section id="capability">
-  <div class="snum">02 / Capability leaderboard</div>
-  <h2>Task 1, one shot skill</h2>
-  <p class="small sub">Fixed tasks, k = 5. Correct matches fp32 gold. Speed is scored against an eager baseline today, with a compiled baseline being added. Open and closed models both compete. Click a header to sort. <span id="lb-updated" class="tiny"></span></p>
+  <h2>Task 1: capability</h2>
+  <p class="small sub">15 fixed tasks, 5 tries each. <b>correct</b>: output matches the reference. <b>fast</b>: correct and faster than PyTorch. Click a header to sort. <span id="lb-updated" class="tiny"></span></p>
   <div class="chart" id="cap-chart"></div>
   <div class="tablewrap">
     <table id="lb"><thead><tr>
@@ -236,9 +57,8 @@
 </section>
 
 <section id="rsi">
-  <div class="snum">03 / RSI leaderboard</div>
-  <h2>Task 2, does self improvement compound</h2>
-  <p class="small sub">Open models only, five rounds on the difficulty standardized hard bank. Three arms run in parallel. Self trains on its own kernels. Fresh-frozen trains on kernels freshly sampled from the unchanged base each round. Round0 retrains on the first round's data. The key column is <b>self vs fresh-frozen</b>. A positive value means an improving producer causes better descendants than a frozen producer given the same fresh data. That is the causal recursion signal, stronger than beating a static replay. Correctness and compiled speedup are shown separately so a gain in reliably writing a correct kernel is not confused with a gain in writing a faster one. <span id="rsi-updated" class="tiny"></span></p>
+  <h2>Task 2: weight self-improvement</h2>
+  <p class="small sub">Five rounds. <b>self vs fresh-frozen</b>: the model trained on its own kernels minus a model trained on kernels from the unchanged base. Positive means self-training helped. <span id="rsi-updated" class="tiny"></span></p>
   <div class="chart" id="rsi-chart"></div>
   <div class="tablewrap">
     <table id="rsi-lb"><thead><tr>
@@ -246,165 +66,86 @@
       <th class="num">correct</th><th class="num">compiled x</th><th class="num">delta vs frozen</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>What the board shows, read honestly.</b> Models with headroom that compound show a positive self vs fresh-frozen, so their improving producer beats a frozen one (DeepSeek-1.3B, Llama-3.1-8B). Models that only gain from fresh data show self vs fresh-frozen near zero, and the column separates the two. <b>Per-scale banks remove the headroom confound.</b> This first board used a single bank filtered against a frozen 7B, which saturated models of 7B and up (correct-rate near 1.0) and made them look flat. That is fixed. Each model now runs on a bank difficulty-filtered against a frozen anchor of ITS OWN scale (small 1.5B, mid 7B, large 14B), scored on speed vs torch.compile where every size has room. On that per-scale speed board, DeepSeek-1.3B reaches self vs fresh-frozen near +0.26. The score is a thermometer, not a cheerleader.
-  <p style="margin:10px 0 0"><b>But read this column with the fork control.</b> A positive self−fresh-frozen says the self-trained producer beats a frozen one; it does <i>not</i> establish compounding. The recursion-interruption control (clone the lineage, freeze the <i>producer</i> at a checkpoint, continue both at equal budget) dissolves it: for DeepSeek-1.3B, continued-self minus checkpoint-frozen is <b>−0.001</b> — a <b>one-time producer upgrade, not compounding</b>. The decisive longitudinal test is lineage vs. matched reset, and that is TOST-equivalent to zero (see <a href="#findings">Key findings</a>). Treat the rows below as a producer-quality snapshot, not evidence of recursion.</p> Full numbers and protocol are in the <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/paper/kernelascent.pdf">consolidated report</a>.</div>
 </section>
 
 <section id="perscale">
-  <div class="snum">03a / Per-scale speed board</div>
-  <h2>Size-fair RSI, scored on speed</h2>
-  <p class="small sub">Each model runs on a bank difficulty-filtered against a frozen anchor of its own scale (small 1.5B, mid 7B, large 14B), scored on <b>speed vs torch.compile</b> where every size has headroom. This removes the benchmark confound so results are pure capability. <span id="ts-updated" class="tiny"></span></p>
+  <h2>Task 2 by model size</h2>
+  <p class="small sub">Each size runs on tasks filtered for its own difficulty, scored on speed against <code>torch.compile</code>. <span id="ts-updated" class="tiny"></span></p>
   <div class="tablewrap">
     <table id="tier-lb"><thead><tr>
       <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C0 (speed)</th><th class="num">C final</th><th class="num">self vs fresh-frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>The fair test.</b> On the speed dimension with a size-matched bank, small models show a positive self vs fresh-frozen (DeepSeek-1.3B near +0.26). Mid and large tiers run on harder banks (up to deep ULTRA transformer-block fusions) so they too start correct-but-slow with room to improve. No size is saturated by construction. <b>Caveat:</b> this contrast is one-step — it compares an improved producer against a frozen one at a single point. It is not a compounding measurement, and the recursion-interruption fork shows the advantage does not persist once the producer is frozen at a checkpoint.</div>
-</section>
-
-<section id="closed">
-  <div class="snum">03b / Task 4 board, closed → open</div>
-  <h2>Closed models improving open models</h2>
-  <p class="small sub">A closed frontier <b>researcher</b> (fixed weights) rewrites the <b>training harness</b> — data selection, LoRA hyperparameters, curriculum — each round; the harness trains an open <b>trainee</b>. Primary column is <b>improved − frozen</b> harness on the trainee (positive = the closed model's edits causally produced a better open model); <b>peak</b> is the best round. One row per researcher × trainee pair, sorted by peak. <span id="c3-updated" class="tiny"></span></p>
-  <div class="tablewrap">
-    <table id="rsi3-lb"><thead><tr>
-      <th>Researcher</th><th>Open trainee</th><th class="num">rounds</th><th class="num">C0</th><th class="num">C improved</th><th class="num">C frozen</th><th class="num">improved − frozen</th><th class="num">peak</th><th>verdict</th>
-    </tr></thead><tbody></tbody></table>
-  </div>
-  <div class="note"><b>Why this matters.</b> A closed model cannot change its own weights, but it can improve the executable procedure that trains an open model. When improved vs frozen is positive, that is true recursive improvement with a downstream payoff, driven by a closed model. Fable-5.1 to Qwen-1.5B has run improved minus frozen positive and growing across rounds.</div>
 </section>
 
 <section id="baselines">
-  <div class="snum">03c / Baselines, is it really recursion</div>
-  <h2>Recursion vs just more sampling</h2>
-  <p class="small sub">Every gain is checked against non-recursive methods at the <b>same generation budget</b> (best-of-k sampling, in-context self-refine, archive retrieval), all frozen-weight and scored with the identical grader. <b>recursion gain</b> = weight-RSI final C minus the best non-recursive baseline. Positive means training on your own kernels beats simply sampling more. <span id="bl-updated" class="tiny"></span></p>
+  <h2>Training vs sampling more</h2>
+  <p class="small sub">Self-training compared with methods that don't train, at the same number of generations. <b>recursion gain</b>: self-training minus the best of these. <span id="bl-updated" class="tiny"></span></p>
   <div class="tablewrap">
     <table id="bl-lb"><thead><tr>
       <th>Model</th><th class="num">weight-RSI C</th><th class="num">best-of-k</th><th class="num">self-refine</th><th class="num">retrieval</th><th class="num">recursion gain</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>Why this matters, and one figure this page used to get backwards.</b> A benchmark that only shows &ldquo;the number went up&rdquo; cannot tell training from extra sampling. The table above is <i>per-cell</i>, one run per row, and it disagrees with itself on sign: +0.055 for Qwen-2.5-Coder-1.5B, &minus;0.073 for starcoder2-3b. An earlier version of this page quoted the +0.055 as the result. <b>It does not survive the independent replicate.</b> At the trajectory level, on the same model, lineage&minus;best-of-N is <b>&minus;0.114 [&minus;0.157, &minus;0.071]</b> over 20 trajectories and 93 rounds, and search wins <b>90%</b> of them &mdash; the interval excludes zero in the direction opposite to the single-cell number. Search beats training at matched compute; the per-cell rows are retained as levels, not as a contrast. <i>(A round is not an independent replicate: rounds inside a run share an adapter. A single cell is one draw from a distribution wide enough to change the sign of the answer, which is what happened here.)</i></div>
 </section>
 
 <section id="trackc">
-  <div class="snum">03d / Procedure RSI board</div>
-  <h2>Task 3, a model improving its own procedure</h2>
-  <p class="small sub">A model with fixed weights rewrites its own executable research procedure each round (strategy library, solver prompt, verified-kernel archive). Q is held-out quality of the current procedure; the key column is <b>Q gain vs the frozen procedure</b> (self-modify arm). Open and closed models both compete. <span id="tc-updated" class="tiny"></span></p>
+  <h2>Task 3: procedure self-improvement</h2>
+  <p class="small sub">Q is the held-out quality of the model's current procedure. <b>Q gain vs frozen</b>: improvement over the procedure it started with. <span id="tc-updated" class="tiny"></span></p>
   <div class="tablewrap">
     <table id="tc-lb"><thead><tr>
       <th>Model</th><th>Mode</th><th class="num">rounds</th><th class="num">Q0</th><th class="num">Q final</th><th class="num">Q gain vs frozen</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>The &ldquo;one-shot&rdquo; reading of this board is RETRACTED.</b> The harness asks for &ldquo;&le;12&rdquo; strategy strings and frontier models comply exactly (5/5 runs at 11&ndash;12 from round 0, 4/5 never grow), so a procedure pinned at its limit cannot be observed to keep improving. The Q-gain vs a frozen procedure is real; its one-shot character is a harness artifact. The Q-gain vs a frozen procedure is real and sometimes large, but restricted to runs with ≥3 completed rounds, <b>76% of the total gain arrives at round 0</b> and 60% of runs are non-recursive — the archive saturates by round 1–2 (strategy-space exhaustion) while the self-written strategies stay diverse (Jaccard 0.12), so the bottleneck is converting strategies into capability, not strategy homogeneity. The models with sustained per-round gain are the ones that started from <i>low</i> Q₀, i.e. they are consuming headroom rather than demonstrating recursive self-insight. Rows with 1–2 completed rounds are shown but marked <span class="pill flat">not interpreted</span> — a genuine ceiling cannot be separated from an interrupted run at that length, which is why the apparent DeepSeek-V3.2 "self-degrade" is a single-round artifact and not a finding.</div>
-  <div class="note"><b>How API models join the RSI axis.</b> A closed model cannot change its weights, but it can improve the procedure that drives its next attempts. Fable-5.1, Nova-Pro, and Llama-3.3-70B all run here; a positive Q gain is recursive self-improvement with weights fixed.</div>
+</section>
+
+<section id="closed">
+  <h2>Task 4: closed models improving open models</h2>
+  <p class="small sub"><b>improved − frozen</b>: the open model trained with the closed model's setup minus one trained with the original setup. <b>peak</b>: best round. <span id="c3-updated" class="tiny"></span></p>
+  <div class="tablewrap">
+    <table id="rsi3-lb"><thead><tr>
+      <th>Researcher</th><th>Open trainee</th><th class="num">rounds</th><th class="num">C0</th><th class="num">C improved</th><th class="num">C frozen</th><th class="num">improved − frozen</th><th class="num">peak</th><th>verdict</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
 </section>
 
 <section id="openrsi">
-  <div class="snum">03e / Task 5 — Self-play, the true-RSI metric</div>
-  <h2>The aggressively-recursive task: the model authors the frontier that fights it</h2>
-  <p class="small sub">Fixed-task self-training only delivers a one-time upgrade (our recursion-interruption control shows continued-self ≈ checkpoint-frozen once the bank is fit). Task 5 removes that ceiling: the <b>model itself</b> authors strictly-harder tasks and solves+improves on them, so difficulty and capability co-evolve. To separate a harder curriculum from a co-evolving author we run <b>three arms</b> at equal budget on one fixed held-out ladder — <b>S STATIC</b> (fixed frontier), <b>F FROZEN-AUTHOR</b> (frontier escalates, author is the frozen base), <b>L LIVE-AUTHOR</b> (author is the current, evolving model). Only the author role differs between F and L. <span id="open-updated" class="tiny"></span></p>
-  <div class="note" style="margin:14px 0;border-left-color:#8c1515"><b>Status: undefined, not null.</b> In the runs below the live authors did not yield enough accepted valid tasks for L−F to be a measurement. We report the rung as an <b>author-yield failure</b> and place no L−F value in the headline claims. The design below is what the instrument was built to test; the data do not yet test it.</div>
-  <div class="note" style="margin:14px 0"><b>The decomposition.</b> <b>L−S</b> = total adaptive-curriculum benefit · <b>F−S</b> = benefit without updating the author · <b>L−F = benefit of author co-evolution</b>, the self-referential signal and the primary metric. Sustained <b>L−F &gt; 0</b> with model-authored tasks accepted is genuine recursive compounding; <b>L ≈ F</b> means "adaptive curriculum only." Every authored task passes an anti-reward-hacking gate (no constant / identity / no-op / trivial-runtime tasks), is deduplicated, and its provenance is logged. Runs for open-weight (weight channel) and closed API (procedure channel) models.</div>
-  <div class="mechgrid">
-    <figure class="mechpanel"><figcaption><span class="fnum">Held-out capability: S / F / L</span></figcaption><div id="open-C_frontier" class="linechart"></div></figure>
-    <figure class="mechpanel"><figcaption><span class="fnum">L−F, author co-evolution</span> (primary; &gt;0 = compounding)</figcaption><div id="open-frontier" class="linechart"></div></figure>
-  </div>
-  <div id="open-legend" class="chart-legend"></div>
-  <div class="note"><b>Why this is the real RSI test.</b> Compounding requires an open-ended frontier, an improving process, and novelty pressure — all exercised only when the challenge escalates <i>and</i> the escalation is driven by the improving model. The FROZEN-AUTHOR arm is what makes the claim airtight: it isolates co-evolution from "any harder curriculum."</div>
-
-  <h3 style="margin-top:34px">Task 5a — open-weight self-play (weight channel)</h3>
-  <p class="small sub">One row per open model / seed. <b>C live / frozen / static</b> are the final-round held-out scores for the LIVE-AUTHOR, FROZEN-AUTHOR and STATIC arms. Primary <b>L−F</b> = author co-evolution (final round); <b>F−S</b> = adaptive-curriculum benefit without updating the author; <b>authored</b> = total model-proposed tasks accepted through the anti-hack gate. Sorted by L−F. <span id="sp-open-updated" class="tiny"></span></p>
+  <h2>Task 5: self-play</h2>
+  <p class="small sub">Three versions run side by side: fixed tasks (<b>static</b>), harder tasks written by the original model (<b>frozen-author</b>), and harder tasks written by the improving model (<b>live</b>). <b>L − F</b>: live minus frozen-author. <b>authored</b>: model-written tasks that passed the validity check.</p>
+  <h3 style="margin-top:20px">Open models <span id="sp-open-updated" class="tiny"></span></h3>
   <div class="tablewrap">
     <table id="sp-open-lb"><thead><tr>
       <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C live</th><th class="num">C frozen-auth</th><th class="num">C static</th><th class="num">L − F</th><th class="num">F − S</th><th class="num">authored</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-
-  <h3 style="margin-top:30px">Task 5b — closed / API self-play (procedure channel)</h3>
-  <p class="small sub">Closed frontier models co-evolve the <b>procedure</b> (weights fixed): GPT-6 Astra, GPT-5.6, Claude Opus-5 / Sonnet-5, Nova, Kimi, DeepSeek, Mistral. Same columns and primary metric (L−F). Sorted by L−F. <span id="sp-closed-updated" class="tiny"></span></p>
+  <h3 style="margin-top:24px">Closed models <span id="sp-closed-updated" class="tiny"></span></h3>
   <div class="tablewrap">
     <table id="sp-closed-lb"><thead><tr>
       <th>Model</th><th>Tier</th><th class="num">rounds</th><th class="num">C live</th><th class="num">C frozen-auth</th><th class="num">C static</th><th class="num">L − F</th><th class="num">F − S</th><th class="num">authored</th><th>verdict</th>
     </tr></thead><tbody></tbody></table>
   </div>
-  <div class="note"><b>Reading the self-play boards — start with the <i>authored</i> column.</b> L−F is only defined if the LIVE author actually produced accepted, valid, novel tasks. We require <b>≥5</b>; below that a row is greyed and marked <span class="pill flat">undefined · author yield</span>, because the co-evolution channel never engaged — that is not the same as engaging and returning zero. On the current data only <b>6/24</b> open and <b>5/11</b> closed runs clear the floor, and every closed row is exactly 0.0 (including authors that proposed 36–37 tasks across 24 rounds). The largest open L−F on this board (+0.232) rests on a <b>single</b> accepted authored task and is not a positive result.
-  <p style="margin:10px 0 0"><b>What Task 5 currently shows</b> is therefore a narrower but real finding: <b>free-form task proposal collapses</b>. Without constrained, executable task mutation — a DSL over verified seed tasks, with validity and learnability gates applied identically to the F and L arms — the author never manufactures a frontier, so co-evolution cannot be tested at all. That makes structured mutation a prerequisite experiment, not an extension.</p></div>
-</section>
-
-<section id="mech">
-  <div class="snum">03f / Mechanism</div>
-  <h2>Why RSI fails, or how it passes</h2>
-  <p class="small sub">A rising curve says <i>whether</i> a model compounds; this probe says <i>why</i>. Every round we log generation <b>diversity</b> (mode collapse), predictive entropy, LoRA <b>weight-drift by transformer depth</b> (→0 = ceiling reached), <b>retention</b> on already-solved tasks (forgetting), and the train−held <b>transfer gap</b> (memorization). A verdict attributes each outcome to a mechanism — <code>diversity_collapse</code>, <code>forgetting</code>, <code>drift_saturation</code>, <code>no_transfer</code>, <code>no_headroom</code> — or PASS plus the depth that carries the learning. Each line is a model, across families and sizes 0.5B→32B. <span id="mech-updated" class="tiny"></span></p>
-
-  <figure class="vizfig">
-    <div class="viz-frame vizwide"><div id="viz-dag"></div></div>
-    <figcaption><span class="fnum">Internal-failure causality DAG.</span> Every model traces one translucent ribbon left to right through the five internal gates it must clear — <b>scale</b>, the <b>correctness wall</b> (does it ever emit a correct kernel), <b>gradient</b> (is there a non-empty SFT signal), <b>drift</b> (do the weights actually move), <b>retention</b> (does it keep what it learned) and <b>diversity</b> — ending in the <b>outcome</b>. Marker area and ribbon width scale with LoRA drift; color is the outcome class. Sub-2B models bend down early and orange at the wall; mid-scale models thread all gates and finish green; the largest drift most but still fall short of the roofline. <span id="viz-updated" class="tiny"></span></figcaption>
-  </figure>
-
-  <figure class="vizfig">
-    <div class="viz-frame vizwide"><div id="viz-scatter"></div></div>
-    <figcaption><span class="fnum">Scale vs. RSI gain.</span> Held-out capability gain over rounds against model size, bubble area ∝ LoRA drift, with marginal histograms. The shaded band is the sub-2B correctness wall where gain is pinned at zero; positive gain is concentrated at mid-scale (2–8B), and the very largest models drift hardest yet gain little — headroom saturation near the task roofline.</figcaption>
-  </figure>
-  <div class="mechgrid">
-    <figure class="mechpanel"><figcaption><span class="fnum">Capability C (held-out)</span></figcaption><div id="mech-C_self" class="linechart"></div></figure>
-    <figure class="mechpanel"><figcaption><span class="fnum">Self-data diversity</span> (1 = all distinct)</figcaption><div id="mech-diversity" class="linechart"></div></figure>
-    <figure class="mechpanel"><figcaption><span class="fnum">Retention</span> (round-0 solved still solved)</figcaption><div id="mech-retention" class="linechart"></div></figure>
-    <figure class="mechpanel"><figcaption><span class="fnum">Self minus fresh-frozen</span> (causal RSI)</figcaption><div id="mech-self_minus_fresh" class="linechart"></div></figure>
-  </div>
-  <div id="mech-legend" class="chart-legend"></div>
-  <div class="note"><b>The mechanistic finding — and one correction.</b> Compounding is not about scale per se; among models that clear the correctness wall, the discriminators are <b>sustained LoRA drift and retention</b> (~5× higher in compounders). <b>Diversity is not one of them.</b> On this bank compounders show <i>lower</i> mean generation diversity than flat runs (0.41 vs 0.52), so "diversity collapse causes the null" is <b>not supported</b> — what compounding looks like here is productive convergence onto a good basin, not preserved exploration. Diversity contraction remains a plausible cross-round option-value lock, but that is an association whose clean test is a diversity-preserving intervention we have not run. All of these are associations, not established causal gates.</div>
 </section>
 
 <section id="data">
-  <div class="snum">04 / Datasets</div>
-  <h2>One dataset per task, each with a held out split</h2>
-  <p class="sub">Every task ships a public split for development and a disjoint held out split that is never released. The board is scored only on held out, so scores cannot be overfit.</p>
+  <h2>Datasets</h2>
+  <p class="sub">Each task bank has a public split and a held-out split.</p>
   <div class="tablewrap">
-    <table><thead><tr><th>Task</th><th>Dataset</th><th>Tiers</th><th>Public</th><th>Held out</th></tr></thead>
+    <table><thead><tr><th>Bank</th><th>Contents</th><th>Where</th></tr></thead>
     <tbody>
-      <tr><td><b>Capability</b></td><td>GPU kernel bank</td><td>L1 memory, L2 matmul epilogue, L3 attention and norm</td><td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">HF</a>, <code>dataset/kernel_bank/</code></td><td>disjoint kernel set, unreleased</td></tr>
-      <tr><td><b>RSI</b></td><td>Standardized hard bank, Fable curated and GPU validated</td><td>L1, L2, L3, filtered to hard but learnable</td><td><code>dataset/kernel_bank/rsi_bank_hard.json</code></td><td>held out kernels re-scored each round</td></tr>
-      <tr><td><b>Transfer</b></td><td>Mutation-DSL bank, 456 tasks over 16 op families</td><td>family × shape × dtype × variant; CPU semantic gate</td><td><code>dataset/kernel_bank/kernel_tasks_dsl_validated.json</code></td><td>family-disjoint: 228 out-of-family + 108 in-family cells</td></tr>
+      <tr><td><b>Kernel bank</b></td><td>29 tasks in three tiers: memory-bound, matmul epilogue, attention and norm</td><td><a href="https://huggingface.co/datasets/muahmed7338/kernelascent-tasks">Hugging Face</a>, <code>dataset/kernel_bank/</code></td></tr>
+      <tr><td><b>Hard bank</b></td><td>filtered to hard but learnable tasks, used for self-improvement</td><td><code>dataset/kernel_bank/rsi_bank_hard.json</code></td></tr>
+      <tr><td><b>Generated bank</b></td><td>456 tasks over 16 operation families</td><td><code>dataset/kernel_bank/kernel_tasks_dsl_validated.json</code></td></tr>
     </tbody></table>
   </div>
-  <div class="note"><b>Why a family-disjoint bank.</b> The 29-task bank behind the p-maps and the probe is too small for per-task statistics — probe AUC swings 0.71–1.00 across draws and a "+0.45 lift" is about five problems. The mutation-DSL bank crosses <b>16 op families</b> × shape × dtype × variant and splits <i>at the level of the computation</i>: <code>heldout_family</code> families (grouped reductions, cumulative scans, top-k gating, rotary pairing, log-sum-exp, softmax→matmul) never appear in training, while <code>heldin_cell</code> holds out unseen dtype/shape cells of seen families. A renamed template or a nearby shape is not a new family, so the <i>family</i> count — not the task count — bounds any transfer claim.
-  <p style="margin:10px 0 0">Every task passes a CPU gate (builds, finite, non-constant, not an identity/no-op) before it can cost GPU time, and the gate itself must first pass a self-test on nine known-degenerate tasks — a gate that never rejects anything is indistinguishable from a broken gate. <b>Status: generated and semantically valid, not yet difficulty-calibrated</b>; the roofline ceiling and learnability filter still need a GPU pass, so this bank does not yet produce headline scores.</p></div>
   <pre><code>from datasets import load_dataset
-ds = load_dataset("muahmed7338/kernelascent-tasks")   # public split, by tier
-
-# family-disjoint transfer bank (regenerate + revalidate locally)
-python3 scripts/gen_task_dsl.py --out dataset/kernel_bank/kernel_tasks_dsl.json
-python3 scripts/validate_bank_cpu.py --selftest        # prove the gate can fail
-python3 scripts/validate_bank_cpu.py --in dataset/kernel_bank/kernel_tasks_dsl.json \
-    --out dataset/kernel_bank/kernel_tasks_dsl_validated.json</code></pre>
+ds = load_dataset("muahmed7338/kernelascent-tasks")</code></pre>
 </section>
 
 <section id="submit">
-  <div class="snum">05 / Submit</div>
-  <h2>Add your model — automated through GitHub</h2>
-  <p class="sub">Open a pull request adding one JSON file under <code>submissions/&lt;track&gt;/</code>. A bot validates it, rebuilds the community board, and your row appears flagged <b>self-reported</b>; a maintainer then re-runs it on the private held-out split to mark it <b>verified</b>. Submitter code never runs on our GPUs from a PR — the held-out eval is a gated, maintainer-only job.</p>
-
-  <div class="note" style="margin:14px 0">
-    <b>Do I submit a model, or something else?</b> RSI is not a weight state you can upload — you cannot "fine-tune a model for RSI." RSI is a <i>protocol we run on a base model</i>. So the submission unit depends on the track:
-    <table style="margin-top:10px"><thead><tr><th>Track</th><th>You submit</th><th>What we run</th></tr></thead><tbody>
-      <tr><td><b>Capability</b></td><td>a model (open or API)</td><td>one-shot held-out kernel eval</td></tr>
-      <tr><td><b>Weight-RSI</b></td><td>a base open-weight model</td><td>our compounding loop → lineage−reset</td></tr>
-      <tr><td><b>Procedure-RSI</b></td><td>a model (open or API)</td><td>it edits its own frozen-weight procedure</td></tr>
-      <tr><td><b>Closed→Open</b></td><td>a researcher model</td><td>it rewrites an open trainee's harness</td></tr>
-      <tr><td><b>Self-play</b></td><td>a model</td><td>3-arm self-play → L−F</td></tr>
-      <tr><td><b>Harness</b> <span class="lab">open track</span></td><td>a self-improvement <i>recipe</i> (code, not a model)</td><td>we run your recipe on a fixed open trainee</td></tr>
-    </tbody></table>
-    <p style="margin:10px 0 0">The <b>Harness</b> track is the real open contribution: naive verified self-training has not been shown to compound here &mdash; and the two measurements that were supposed to settle it could not (a scorer blind to reliability, and a loop receiving about one example per round), so a recipe that demonstrably makes it compound, on an instrument shown to have range — coverage injection, diversity-preserving selection, search-amplified expert iteration — is exactly the result this benchmark exists to surface.</p>
-  </div>
-
-  <pre><code># 1. add submissions/&lt;track&gt;/your-model.json  (see submissions/schema.json)
-# 2. validate locally, then open a PR
-python3 scripts/validate_submission.py submissions/capability/your-model.json
-# 3. the bot rebuilds docs/data/leaderboard_community.json and your row shows below</code></pre>
-  <p class="small">Full guide: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">submissions/README.md</a>. Prefer not to write JSON? Open a <a href="https://github.com/ahmd-mohsin/KernelAscent/issues/new?template=model-submission.yml">model submission issue</a>.</p>
-
-  <h3 style="margin-top:30px">Community board <span id="comm-updated" class="tiny"></span></h3>
-  <p class="small sub">Rows move through three honest states: <span class="state selfrep">self-reported</span> (schema-valid submitter numbers) → <span class="state repro">↻ reproduced</span> (a maintainer re-ran it) → <span class="state verified">✓ held-out verified</span> (re-run on the private held-out split). Model and recipe rows are never merged into one ranking; external models, tools, and human input must be disclosed. For RSI/harness rows we meter training <i>and</i> search against a declared budget and run matched reset + search-only controls, so a gain can't be faked by spending more compute.</p>
+  <h2>Submit</h2>
+  <p class="sub">Open a pull request adding one JSON file under <code>submissions/&lt;track&gt;/</code>. It is checked automatically and appears below as self-reported until a maintainer re-runs it.</p>
+  <pre><code>python3 scripts/validate_submission.py submissions/capability/your-model.json</code></pre>
+  <p class="small">Guide: <a href="https://github.com/ahmd-mohsin/KernelAscent/blob/main/submissions/README.md">submissions/README.md</a></p>
+  <h3 style="margin-top:24px">Community board <span id="comm-updated" class="tiny"></span></h3>
   <div class="tablewrap">
     <table id="comm-lb"><thead><tr>
       <th>Track</th><th>Model / recipe</th><th>Kind</th><th class="num">headline</th><th>status</th><th>by</th>
@@ -413,11 +154,8 @@ python3 scripts/validate_submission.py submissions/capability/your-model.json
 </section>
 </div>
 
-<footer>
-  KernelAscent. A benchmark for compounding kernel optimization. Capability grades one correct and fast kernel. Weight RSI runs an open weight self training loop. Procedure RSI lets open and closed models improve their own executable research procedure with weights fixed. Everything is GPU graded.
-</footer>
+<footer>KernelAscent. A GPU kernel benchmark for capability and self-improvement.</footer>
 
-<script src="app.js?v=09252140"></script>
-<script src="viz.js?v=09252140"></script>
+<script src="app.js?v=10081200"></script>
 </body>
 </html>
